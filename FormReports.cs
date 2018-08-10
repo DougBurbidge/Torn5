@@ -1,0 +1,137 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using Torn.Report;
+
+namespace Torn.UI
+{
+	/// <summary>
+	/// List of report templates for user to add/edit/delete.
+	/// </summary>
+	public partial class FormReports : Form
+	{
+		FormReport formReport = null;
+		public Holder Holder { get; set; }
+
+		public FormReports()
+		{
+			//
+			// The InitializeComponent() call is required for Windows Forms designer support.
+			//
+			InitializeComponent();
+			
+			//
+			// TODO: Add constructor code after the InitializeComponent() call.
+			//
+			formReport = new FormReport();
+		}
+		
+		public FormReports(Holder holder): this()
+		{
+			Holder = holder;
+			if (Holder.League.AllGames.Count > 0)
+			{
+				formReport.From = Holder.League.AllGames.First().Time.Date;
+				formReport.To = Holder.League.AllGames.Last().Time.Date;
+			}
+			RefreshListView();
+		}
+		
+		/// <summary>Rebuild the list view from the ReportTemplates collection.</summary>
+		void RefreshListView()
+		{
+			// Memorise what was selected.
+			List<ReportTemplate> reportTemplates = new List<ReportTemplate>();
+			foreach (ListViewItem item in listViewReports.SelectedItems)
+				reportTemplates.Add((ReportTemplate)item.Tag);
+
+			listViewReports.Items.Clear();
+
+			// Rebuild from ReportTemplates.
+			foreach(ReportTemplate reportTemplate in Holder.ReportTemplates)
+			{
+				ListViewItem item = new ListViewItem(reportTemplate.ReportType.ToString());
+				item.SubItems.Add(reportTemplate.ToString());
+				item.Tag = reportTemplate;
+				listViewReports.Items.Add(item);
+			}
+
+			// Restore selection.
+			foreach (ListViewItem item in listViewReports.Items)
+				if (reportTemplates.Contains((ReportTemplate)item.Tag))
+					item.Selected = true;
+
+			listViewReports.Focus();
+		}
+		
+		void ButtonAddClick(object sender, EventArgs e)
+		{
+			formReport.ReportTemplate = null;
+
+			if (formReport.ShowDialog() == DialogResult.OK)
+			{
+				formReport.ReportTemplate.Validate();
+				Holder.ReportTemplates.Add(formReport.ReportTemplate);
+				RefreshListView();
+			}
+		}
+		
+		void FormReportsShown(object sender, EventArgs e)
+		{
+			Text = "Reports for " + Holder.League.Title;
+		}
+		
+		void ButtonEditClick(object sender, EventArgs e)
+		{
+			if (listViewReports.SelectedItems.Count > 0)
+			{
+				formReport.ReportTemplate = (ReportTemplate)listViewReports.SelectedItems[0].Tag;
+				if (formReport.ShowDialog() == DialogResult.OK)
+					RefreshListView();
+			}
+		}
+		
+		void ButtonDeleteClick(object sender, EventArgs e)
+		{
+			if (listViewReports.SelectedItems.Count > 0)
+			{
+				var item = listViewReports.SelectedItems[0];
+				Holder.ReportTemplates.Remove((ReportTemplate)item.Tag);
+				listViewReports.Items.Remove(item);
+				RefreshListView();
+			}
+		}
+		
+		void ButtonUpClick(object sender, EventArgs e)
+		{
+			if (listViewReports.SelectedItems.Count > 0)
+			{
+				int i = listViewReports.SelectedIndices[0];
+				if (i > 0)
+					Swap(i, i - 1);
+			}
+		}
+		
+		void ButtonDownClick(object sender, EventArgs e)
+		{
+			if (listViewReports.SelectedItems.Count > 0)
+			{
+				int i = listViewReports.SelectedIndices[0];
+				if (i < listViewReports.Items.Count - 1)
+					Swap(i, i + 1);
+			}
+		}
+		
+		void Swap(int a, int b)
+		{
+			ReportTemplate temp = Holder.ReportTemplates[a];
+			Holder.ReportTemplates[a] = Holder.ReportTemplates[b];
+			Holder.ReportTemplates[b] = temp;
+
+			RefreshListView();
+		}
+	}
+}
