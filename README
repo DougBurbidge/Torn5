@@ -1,6 +1,7 @@
-Torn 5 is a complete rewrite of Torn 4 (available from http://dougburbidge.com/Apps/index.html ) in C#.
+Torn 5 is a laser tag tournament scores manager. 
+
+It is a complete rewrite of Torn 4 (available from http://dougburbidge.com/Apps/index.html ) in C#.
 
 I'm using SharpDevelop 4.4 as the IDE, and targeting .NET 4.0.
 
 It aims to eventually include most or all of the functionality of Torn 4, and to offer better web reports.
-
