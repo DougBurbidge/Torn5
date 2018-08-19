@@ -53,6 +53,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormPlayer.cs" />
+    <Compile Include="FormPlayer.Designer.cs">
+      <DependentUpon>FormPlayer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Test1.cs" />
     <Compile Include="WebOutput.cs" />
     <Compile Include="FormLeague.cs" />
@@ -115,6 +119,9 @@
   <ItemGroup>
     <EmbeddedResource Include="FormLeague.resx">
       <DependentUpon>FormLeague.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPlayer.resx">
+      <DependentUpon>FormPlayer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormPreferences.resx">
       <DependentUpon>FormPreferences.cs</DependentUpon>

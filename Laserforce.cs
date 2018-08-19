@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 
 namespace Torn
@@ -12,7 +13,6 @@ namespace Torn
 	public class Laserforce: LaserGameServer
 	{
 		SqlConnection connection;
-		//public bool Connected { get; private set; }
 		public int GamesLimit;
 
 		public Laserforce()
@@ -117,6 +117,24 @@ namespace Torn
 			finally
 			{
 				reader.Close();
+			}
+		}
+
+		public override DbDataReader GetPlayers(string mask)
+		{
+			string sql = "SELECT M.codename AS [Alias], M.givenNames + ' ' + M.surname AS [Name], " +
+                    "cast(C.region as varchar) + ''-'' + cast(C.site as varchar) + ''-'' + cast(M.id as varchar) as [ID] " +
+                    "FROM Member M " +
+                    "LEFT JOIN Centre C ON C.ref = M.centre " +
+                    "WHERE M.surname LIKE @mask OR M.givenNames LIKE @mask OR M.codename LIKE '%' + @mask " +
+                    "ORDER BY M.codename, [ID]";
+			using (SqlCommand cmd = new SqlCommand(sql, connection))
+			{
+//			    var param = new SqlParameter("mask", SqlDbType.NVarChar);
+//			    param.Value = mask + "%";
+
+			    cmd.Parameters.AddWithValue("@mask", mask);
+			    return cmd.ExecuteReader();
 			}
 		}
 	}

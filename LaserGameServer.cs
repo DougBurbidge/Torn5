@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Torn
 {
@@ -8,6 +9,7 @@ namespace Torn
 	/// </summary>
 	public abstract class LaserGameServer: IDisposable
 	{
+		//protected DbConnection connection;
 		public bool Connected { get; protected set; }
 
 		public LaserGameServer() {}
@@ -16,8 +18,13 @@ namespace Torn
 
 		public virtual TimeSpan GameTimeElapsed() { return TimeSpan.MinValue; }
 
-		public virtual List<ServerGame> GetGames() { return null; }
+		public abstract List<ServerGame> GetGames();
 
-		public virtual void PopulateGame(ServerGame game) {}
+		public abstract void PopulateGame(ServerGame game);
+
+		public abstract DbDataReader GetPlayers(string mask);
+		
+		/// <summary>True if the GetPlayers query returns player names as well as aliases. (False for PAndC where heliosType >= 47.)</summary>
+		public virtual bool HasNames() { return true; }
 	}
 }

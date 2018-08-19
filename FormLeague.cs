@@ -11,6 +11,7 @@ namespace Torn.UI
 	public partial class FormLeague : Form
 	{
 		public League League { get; set; }
+		public FormPlayer FormPlayer { get; set; }
 
 		public FormLeague()
 		{
@@ -23,7 +24,7 @@ namespace Torn.UI
 			// TODO: Add constructor code after the InitializeComponent() call.
 			//
 		}
-		
+
 		void FormLeagueShown(object sender, EventArgs e)
 		{
 			Text = "Torn -- " + League.Title;
@@ -41,7 +42,7 @@ namespace Torn.UI
 				treeView1.Nodes.Add(teamNode);
 			}
 		}
-		
+
 		void TreeView1AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeagueTeam)
@@ -67,17 +68,17 @@ namespace Torn.UI
 				}
 			}
 		}
-		
+
 		void ButtonRenameLeagueClick(object sender, EventArgs e)
 		{
 			League.Title = InputDialog.GetInput("Rename League", "Choose a new name for the league", League.Title);
 		}
-		
+
 		void ButtonCopyFromLeagueClick(object sender, EventArgs e)
 		{
 			
 		}
-		
+
 		void ButtonAddTeamClick(object sender, EventArgs e)
 		{
 			string name = null;
@@ -92,7 +93,7 @@ namespace Torn.UI
 				treeView1.Nodes.Add(node);
 			}
 		}
-		
+
 		void ButtonDeleteTeamClick(object sender, EventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeagueTeam && 
@@ -103,7 +104,7 @@ namespace Torn.UI
 				treeView1.Nodes.Remove(treeView1.SelectedNode);
 			}
 		}
-		
+
 		void ButtonRenameTeamClick(object sender, EventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeagueTeam)
@@ -116,7 +117,7 @@ namespace Torn.UI
 			    }
 			}
 		}
-		
+
 		void ButtonAddPlayerClick(object sender, EventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeaguePlayer)
@@ -127,7 +128,7 @@ namespace Torn.UI
 
 			}
 		}
-		
+
 		void ButtonDeletePlayerClick(object sender, EventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeaguePlayer && 
@@ -137,10 +138,21 @@ namespace Torn.UI
 
 			}
 		}
-		
+
 		void ButtonReIdPlayerClick(object sender, EventArgs e)
 		{
-			
+			if (!(treeView1.SelectedNode.Tag is LeaguePlayer))
+			    return;
+
+			var player = (LeaguePlayer)treeView1.SelectedNode.Tag;
+			FormPlayer.PlayerId = player.Id;
+			if (FormPlayer.ShowDialog() == DialogResult.OK)
+			{
+				player.Id = FormPlayer.PlayerId;
+				player.Name = FormPlayer.PlayerAlias;
+				treeView1.SelectedNode.Text = FormPlayer.PlayerAlias;
+			}
+
 		}
 	}
 }

@@ -64,11 +64,13 @@ namespace Torn.UI
 		string serverAddress = "localhost";
 
 		WebOutput webOutput;
-		PAndC pAndC;
+		LaserGameServer laserGameServer;
 		static Holders leagues;
 		Holder activeHolder;  // This is the league selected in the listView.
 
 		PlayersBox playersBox;
+		
+		FormPlayer formPlayer;
 
 		public MainForm()
 		{
@@ -116,7 +118,7 @@ namespace Torn.UI
 
 			webOutput = new WebOutput((int)numericPort.Value);
 			webOutput.Leagues = leagues;
-	        pAndC = new PAndC(serverAddress);
+	        laserGameServer = new PAndC(serverAddress);
 
 	        playersBox = new PlayersBox();
 			playersBox.Images = imageListPacks;
@@ -124,6 +126,9 @@ namespace Torn.UI
 			tableLayoutPanel1.Controls.Add(playersBox, 2, 0);
 			tableLayoutPanel1.SetRowSpan(playersBox, tableLayoutPanel1.RowCount);
 			playersBox.Dock = DockStyle.Fill;
+			
+			formPlayer = new FormPlayer();
+			formPlayer.LaserGameServer = laserGameServer;
 
 	        RefreshGamesList();
 			AddTeamBoxes();
@@ -136,7 +141,7 @@ namespace Torn.UI
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			webOutput.Dispose();
-			pAndC.Dispose();
+			laserGameServer.Dispose();
 
 			Properties.TornWeb.Default.Port = (int)numericPort.Value;
 
@@ -216,6 +221,7 @@ namespace Torn.UI
 				teamBox.GetMoveTarget = FindEmptyTeamBox;
 				teamBox.RankTeams = RankTeamBoxes;
 				teamBox.SortTeamsByRank = ArrangeTeamsByRank;
+				teamBox.FormPlayer = formPlayer; 
 				tableLayoutPanel1.Controls.Add(teamBox);
 				teamBox.Dock = DockStyle.Fill;
 			}
@@ -546,7 +552,7 @@ namespace Torn.UI
 				groupPlayersBy = form.GroupPlayersBy;
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
-				pAndC = new PAndC(serverAddress);
+				laserGameServer = new PAndC(serverAddress);
 			}
 		}
 
@@ -606,20 +612,18 @@ namespace Torn.UI
 
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
 		{
-			buttonSetDescription2.Enabled = listViewGames.SelectedItems.Count > 0;
+			buttonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonForget.Enabled = listViewGames.SelectedItems.Count > 0;
-			buttonForget2.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonCommit.Enabled = listViewGames.SelectedItems.Count == 1;
 			buttonCommit2.Enabled = listViewGames.SelectedItems.Count == 1;
 			
 			buttonForget.Text = "Forget Game" + (listViewGames.SelectedItems.Count > 1 ? "s" : "");
-			buttonForget2.Text = "Forget Game" + (listViewGames.SelectedItems.Count > 1 ? "s" : "");
 
 			if (listViewGames.SelectedItems.Count == 1)
 			{
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
-				pAndC.PopulateGame(game);
+				laserGameServer.PopulateGame(game);
 				playersBox.LoadGame(game);
 
 				foreach (Control c in tableLayoutPanel1.Controls)
@@ -655,9 +659,7 @@ namespace Torn.UI
 			Boolean b = listViewLeagues.SelectedItems.Count > 0;
 			string s = listViewLeagues.SelectedItems.Count > 1 ? "s" : "";
 
-			buttonClose.Text = "Close League" + s;
 			menuCloseLeague.Text = "&Close League" + s;
-			buttonSave.Text = "Save League" + s;
 			menuSaveLeague.Text = "&Save League" + s;
 			
 			buttonClose.Enabled = b;
@@ -703,7 +705,7 @@ namespace Torn.UI
 		{
 			if (lastDBCheck <= TimeSpan.Zero)
 			{
-				timeElapsed = pAndC.GameTimeElapsed();
+				timeElapsed = laserGameServer.GameTimeElapsed();
 				lastDBCheck = new TimeSpan(0, 1, 0);  // Only query the database for time elapsed once per minute. Outside that, dead-reckon.
 			}
 			else
@@ -772,7 +774,7 @@ namespace Torn.UI
 		void RefreshGamesList()
 		{
 			var focused = listViewGames.FocusedItem;
-			List<ServerGame> games = pAndC.GetGames();
+			List<ServerGame> games = laserGameServer.GetGames();
 
 			if (games.Count > 0)
 				games.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
@@ -878,6 +880,7 @@ namespace Torn.UI
 		{
 			var form = new FormLeague();
 			form.League = activeHolder.League;
+			form.FormPlayer = formPlayer;
 			form.ShowDialog();
 		}
 	}

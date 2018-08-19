@@ -123,18 +123,21 @@ namespace Torn.UI
 			this.menuIdentifyPlayer.Name = "menuIdentifyPlayer";
 			this.menuIdentifyPlayer.Size = new System.Drawing.Size(209, 22);
 			this.menuIdentifyPlayer.Text = "I&dentify ";
+			this.menuIdentifyPlayer.Click += new System.EventHandler(this.MenuIdentifyPlayerClick);
 			// 
 			// menuHandicapPlayer
 			// 
 			this.menuHandicapPlayer.Name = "menuHandicapPlayer";
 			this.menuHandicapPlayer.Size = new System.Drawing.Size(209, 22);
 			this.menuHandicapPlayer.Text = "Handi&cap ";
+			this.menuHandicapPlayer.Click += new System.EventHandler(this.MenuHandicapPlayerClick);
 			// 
 			// menuMergePlayer
 			// 
 			this.menuMergePlayer.Name = "menuMergePlayer";
 			this.menuMergePlayer.Size = new System.Drawing.Size(209, 22);
 			this.menuMergePlayer.Text = "&Merge ";
+			this.menuMergePlayer.Click += new System.EventHandler(this.MenuMergePlayerClick);
 			// 
 			// toolStripSeparator3
 			// 

@@ -31,6 +31,8 @@ namespace Torn.UI
 		public LeagueTeam LeagueTeam { get; set; }
 		public GameTeam GameTeam { get; set; }
 		public League League { get; set; }
+		/// <summary>Dialog used when the user ID's a player.</summary>
+		public FormPlayer FormPlayer { get; set; }
 
 		public TeamBox()
 		{
@@ -77,7 +79,7 @@ namespace Torn.UI
 				listPlayer.CopyTo(gamePlayer);
 			}
 
-			score = GameTeam.CalculateScore(League.HandicapStyle);
+			score = GameTeam.CalculateScore(League == null ? HandicapStyle.Percent : League.HandicapStyle);
 			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture);
 
 			var ids = new List<string>();
@@ -88,7 +90,7 @@ namespace Torn.UI
 //				ListView.ListViewItemSorter = new SortByScore();
 //			ListView.Sort();
 
-			if (guessTeam)
+			if (guessTeam && League != null)
 				LeagueTeam = League.GuessTeam(ids);
 
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
@@ -111,6 +113,7 @@ namespace Torn.UI
 
 		void ContextMenuStrip1Opening(object sender, CancelEventArgs e)
 		{
+			menuHandicapTeam.Enabled   = League != null;
 			menuRememberTeam.Enabled   = League != null;
 			menuUpdateTeam.Enabled     = LeagueTeam != null;
 			menuNameTeam.Enabled       = LeagueTeam != null;
@@ -118,8 +121,12 @@ namespace Torn.UI
 			menuIdentifyPlayer.Enabled = ListView.SelectedItems.Count == 1;
 			menuHandicapPlayer.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
+			//menuAdjustTeamScore.Enabled = always true.
 
 			menuIdentifyTeam.DropDownItems.Clear();
+
+			if (League == null)
+				return;
 
 			if (League.Teams.Count < 49)
 				foreach (var team in League.Teams)
@@ -221,6 +228,27 @@ namespace Torn.UI
 				if (!LeagueTeam.Players.Contains(leaguePlayer))
 					LeagueTeam.Players.Add(leaguePlayer);
 			}
+		}
+
+		void MenuIdentifyPlayerClick(object sender, EventArgs e)
+		{
+			var player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+			FormPlayer.PlayerId = player.PlayerId;
+			if (FormPlayer.ShowDialog() == DialogResult.OK)
+			{
+				player.PlayerId = FormPlayer.PlayerId;
+				player.LeaguePlayer = null;
+			}
+		}
+
+		void MenuHandicapPlayerClick(object sender, EventArgs e)
+		{
+			
+		}
+		
+		void MenuMergePlayerClick(object sender, EventArgs e)
+		{
+			
 		}
 	}
 
