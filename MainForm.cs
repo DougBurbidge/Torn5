@@ -15,18 +15,18 @@ using Torn.UI;
 using Zoom;
 
 /*
-Implemented: load league, read from P&C server, web server, report to HTML, upload to FTP, transfer to team boxes via drag-drop,
-transfer to team boxes on game selection, set dimensions, persistence,
+Implemented: load league, save league, delete game from league
+read from P&C server, web server, report to HTML, upload to FTP,
+transfer to team boxes via drag-drop, transfer to team boxes on game selection, set dimensions, persistence
 show team name, scores and rank in team boxes
-delete game from league
-save league
+right-click remember team, identify team, identify player, handicap team
 
 TODO for BOTH:
-edit league -- team add/delete/rename, player add/delete/re-ID
+edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Cancel
 output to screen and printer
 send to scoreboard (web browser)
 on commit auto-update scoreboard, teams and handicaps
-right-click remember team, identify team, identify player, handicap team, handicap player
+right-click handicap player, merge player
 adjust team score/victory points
 
 TODO for LEAGUE:
@@ -85,11 +85,11 @@ namespace Torn.UI
 			//leagues = new Dictionary<string, League>();
 			leagues = new Holders();
 
-			if (Properties.TornWeb.Default.UpgradeRequired)
+			if (Properties.Torn5.Default.UpgradeRequired)
 			{
-				Properties.TornWeb.Default.Upgrade();
-				Properties.TornWeb.Default.UpgradeRequired = false;
-				Properties.TornWeb.Default.Save();
+				Properties.Torn5.Default.Upgrade();
+				Properties.Torn5.Default.UpgradeRequired = false;
+				Properties.Torn5.Default.Save();
 			}
 
 			toolStripTeams.Location = new Point(3, 24);
@@ -97,9 +97,9 @@ namespace Torn.UI
 			toolStripLeague.Location = new Point(1, 24);
 
 			//Properties.TornWeb.Default.Reload();
-			numericPort.Value = Properties.TornWeb.Default.Port;
+			numericPort.Value = Properties.Torn5.Default.Port;
 
-			var serializedDictionary = Properties.TornWeb.Default.Leagues.Split('|');
+			var serializedDictionary = Properties.Torn5.Default.Leagues.Split('|');
 			foreach (string entry in serializedDictionary)
 			{
 				Holder holder;
@@ -143,7 +143,7 @@ namespace Torn.UI
 			webOutput.Dispose();
 			laserGameServer.Dispose();
 
-			Properties.TornWeb.Default.Port = (int)numericPort.Value;
+			Properties.Torn5.Default.Port = (int)numericPort.Value;
 
 			StringBuilder sb = new StringBuilder();
 			foreach (Holder holder in leagues)
@@ -163,8 +163,8 @@ namespace Torn.UI
 				}
 				sb.Append('|');
 			}
-			Properties.TornWeb.Default.Leagues = sb.ToString();
-			Properties.TornWeb.Default.Save();
+			Properties.Torn5.Default.Leagues = sb.ToString();
+			Properties.Torn5.Default.Save();
 		}
 
 		Holder AddLeague(string fileName, string key = "")
@@ -304,7 +304,7 @@ namespace Torn.UI
 			EnableRemoveRowColumnButtons();
 		}
 
-		void ButtonEditClick(object sender, EventArgs e)
+		void ButtonEditReportsClick(object sender, EventArgs e)
 		{
 			if (listViewLeagues.SelectedItems.Count > 0)
 			{
@@ -879,9 +879,13 @@ namespace Torn.UI
 		void MenuEditLeagueClick(object sender, EventArgs e)
 		{
 			var form = new FormLeague();
-			form.League = activeHolder.League;
+			form.League = activeHolder.League.Clone();
 			form.FormPlayer = formPlayer;
-			form.ShowDialog();
+			if (form.ShowDialog() == DialogResult.OK)
+			{
+				activeHolder.League = form.League;
+				activeHolder.League.Save();
+			}
 		}
 	}
 }

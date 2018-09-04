@@ -73,6 +73,19 @@ namespace Torn
     		played = new Collection<GamePlayer>();
     	}
 
+		public LeaguePlayer Clone()
+		{
+			LeaguePlayer clone = new LeaguePlayer();
+			clone.Name = Name;
+			clone.Id = Id;
+			clone.Handicap = Handicap;
+			clone.Comment = Comment;
+			
+			clone.played = new Collection<GamePlayer>(played);
+			
+			return clone;
+		}
+
 		public override string ToString()
 		{
 			return Name;
@@ -127,6 +140,21 @@ namespace Torn
 		public double AveragePoints(bool includeSecret)
 		{
 			return GameTeams(includeSecret).Average(x => x.Points);
+		}
+
+		public LeagueTeam Clone()
+		{
+			LeagueTeam clone = new LeagueTeam();
+			clone.Name = Name;
+			clone.Id = Id;
+			clone.Handicap = Handicap;
+			clone.Comment = Comment;
+			
+			clone.Players = new List<LeaguePlayer>(Players);
+			clone.AllGameTeams = new List<GameTeam>(AllGameTeams);
+			clone.PublicGameTeams = new List<GameTeam>(PublicGameTeams);
+			
+			return clone;
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -321,6 +349,11 @@ namespace Torn
 			players = new List<LeaguePlayer>();
 			AllGames = new Games();
 			victoryPoints = new Collection<double>();
+			
+			GridHigh = 3;
+			GridWide = 1;
+			GridPlayers = 6;
+			HandicapStyle = HandicapStyle.Percent;
 		}
 
 		void Clear()
@@ -333,18 +366,27 @@ namespace Torn
 			VictoryPointsHighScore = 0;
 		}
 
-		public static League Clone(League league)
+		/// <summary>This is a deep clone of league teams, league players and victory points, but a shallow clone of game data: Game, GameTeam, GamePlayer.</summary>
+		public League Clone()
 		{
-			League league2 = new League();
-			league2.Title = league.Title;
-			league2.GridHigh = league.GridHigh;
-			league2.GridWide = league.GridWide;
-			league2.GridPlayers = league.GridPlayers;
-			league2.VictoryPointsHighScore = league.VictoryPointsHighScore;
-			league.VictoryPointsProportional = league.VictoryPointsProportional;
-			//Teams Players Games VictoryPoints
-			//league2.Games = new Games(league.Games.ToList());
-			return league2;
+			League clone = new League();
+
+			clone.Title = Title;
+			clone.file = file;
+
+			clone.GridHigh = GridHigh;
+			clone.GridWide = GridWide;
+			clone.GridPlayers = GridPlayers;
+			
+			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone()).ToList();
+			clone.players = Players.Select(item => (LeaguePlayer)item.Clone()).ToList();
+			clone.AllGames.AddRange(AllGames);
+			
+			clone.victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList());
+			clone.VictoryPointsHighScore = VictoryPointsHighScore;
+			clone.VictoryPointsProportional = VictoryPointsProportional;
+
+			return clone;
 		}
 
 		public Games Games(bool includeSecret)

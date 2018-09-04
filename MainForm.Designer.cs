@@ -51,8 +51,6 @@ namespace Torn.UI
 			this.colTeams = new System.Windows.Forms.ColumnHeader();
 			this.panelGames = new System.Windows.Forms.Panel();
 			this.buttonCommit2 = new System.Windows.Forms.Button();
-			this.buttonForget2 = new System.Windows.Forms.Button();
-			this.buttonSetDescription2 = new System.Windows.Forms.Button();
 			this.buttonLatestGame2 = new System.Windows.Forms.Button();
 			this.listViewGames = new System.Windows.Forms.ListView();
 			this.colGame = new System.Windows.Forms.ColumnHeader();
@@ -88,10 +86,6 @@ namespace Torn.UI
 			this.menuPreferences = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuSplitter3 = new System.Windows.Forms.ToolStripSeparator();
-			this.menuGame = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuCreateGame = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuEditGame = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuForgetGame = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuReport = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuAdHocReport = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuExportReports = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,19 +94,25 @@ namespace Torn.UI
 			this.menuPackReport = new System.Windows.Forms.ToolStripMenuItem();
 			this.updateScoreboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripLeague = new System.Windows.Forms.ToolStrip();
+			this.toolStripLabelLeagues = new System.Windows.Forms.ToolStripLabel();
 			this.buttonNew = new System.Windows.Forms.ToolStripButton();
 			this.buttonOpen = new System.Windows.Forms.ToolStripButton();
 			this.buttonSave = new System.Windows.Forms.ToolStripButton();
 			this.buttonClose = new System.Windows.Forms.ToolStripButton();
+			this.buttonEdit = new System.Windows.Forms.ToolStripButton();
 			this.toolStripTeams = new System.Windows.Forms.ToolStrip();
+			this.toolStripLabelTeams = new System.Windows.Forms.ToolStripLabel();
 			this.buttonAddRow = new System.Windows.Forms.ToolStripButton();
 			this.buttonRemoveRow = new System.Windows.Forms.ToolStripButton();
 			this.buttonAddColumn = new System.Windows.Forms.ToolStripButton();
 			this.buttonRemoveColumn = new System.Windows.Forms.ToolStripButton();
 			this.toolStripGame = new System.Windows.Forms.ToolStrip();
+			this.toolStripLabelGames = new System.Windows.Forms.ToolStripLabel();
 			this.buttonLatestGame = new System.Windows.Forms.ToolStripButton();
-			this.buttonSetDescription = new System.Windows.Forms.ToolStripButton();
 			this.buttonCommit = new System.Windows.Forms.ToolStripButton();
+			this.buttonCreateGame = new System.Windows.Forms.ToolStripButton();
+			this.buttonEditGame = new System.Windows.Forms.ToolStripButton();
+			this.buttonSetDescription = new System.Windows.Forms.ToolStripButton();
 			this.buttonForget = new System.Windows.Forms.ToolStripButton();
 			this.imageListPacks = new System.Windows.Forms.ImageList(this.components);
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
@@ -153,10 +153,10 @@ namespace Torn.UI
 			// toolStripContainer1.ContentPanel
 			// 
 			this.toolStripContainer1.ContentPanel.Controls.Add(this.tableLayoutPanel1);
-			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1192, 640);
+			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1272, 617);
 			this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
 			this.toolStripContainer1.Name = "toolStripContainer1";
-			this.toolStripContainer1.Size = new System.Drawing.Size(1192, 716);
+			this.toolStripContainer1.Size = new System.Drawing.Size(1272, 716);
 			this.toolStripContainer1.TabIndex = 21;
 			this.toolStripContainer1.Text = "toolStripContainer1";
 			// 
@@ -184,7 +184,7 @@ namespace Torn.UI
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(1192, 640);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(1272, 617);
 			this.tableLayoutPanel1.TabIndex = 20;
 			// 
 			// listViewLeagues
@@ -200,7 +200,7 @@ namespace Torn.UI
 			this.listViewLeagues.LabelEdit = true;
 			this.listViewLeagues.Location = new System.Drawing.Point(3, 3);
 			this.listViewLeagues.Name = "listViewLeagues";
-			this.listViewLeagues.Size = new System.Drawing.Size(292, 314);
+			this.listViewLeagues.Size = new System.Drawing.Size(312, 302);
 			this.listViewLeagues.SmallImageList = this.imageListLeagues;
 			this.listViewLeagues.TabIndex = 11;
 			this.listViewLeagues.UseCompatibleStateImageBehavior = false;
@@ -238,57 +238,33 @@ namespace Torn.UI
 			// panelGames
 			// 
 			this.panelGames.Controls.Add(this.buttonCommit2);
-			this.panelGames.Controls.Add(this.buttonForget2);
-			this.panelGames.Controls.Add(this.buttonSetDescription2);
 			this.panelGames.Controls.Add(this.buttonLatestGame2);
 			this.panelGames.Controls.Add(this.listViewGames);
 			this.panelGames.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelGames.Location = new System.Drawing.Point(298, 0);
+			this.panelGames.Location = new System.Drawing.Point(318, 0);
 			this.panelGames.Margin = new System.Windows.Forms.Padding(0);
 			this.panelGames.Name = "panelGames";
 			this.tableLayoutPanel1.SetRowSpan(this.panelGames, 2);
-			this.panelGames.Size = new System.Drawing.Size(298, 640);
+			this.panelGames.Size = new System.Drawing.Size(318, 617);
 			this.panelGames.TabIndex = 15;
 			// 
 			// buttonCommit2
 			// 
 			this.buttonCommit2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonCommit2.Location = new System.Drawing.Point(65, 600);
+			this.buttonCommit2.Location = new System.Drawing.Point(90, 577);
 			this.buttonCommit2.Name = "buttonCommit2";
-			this.buttonCommit2.Size = new System.Drawing.Size(56, 34);
+			this.buttonCommit2.Size = new System.Drawing.Size(81, 34);
 			this.buttonCommit2.TabIndex = 16;
 			this.buttonCommit2.Text = "Commit Game";
 			this.buttonCommit2.UseVisualStyleBackColor = true;
 			this.buttonCommit2.Click += new System.EventHandler(this.ButtonCommitClick);
 			// 
-			// buttonForget2
-			// 
-			this.buttonForget2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonForget2.Location = new System.Drawing.Point(127, 600);
-			this.buttonForget2.Name = "buttonForget2";
-			this.buttonForget2.Size = new System.Drawing.Size(56, 34);
-			this.buttonForget2.TabIndex = 15;
-			this.buttonForget2.Text = "Forget Game(s)";
-			this.buttonForget2.UseVisualStyleBackColor = true;
-			this.buttonForget2.Click += new System.EventHandler(this.ButtonForgetClick);
-			// 
-			// buttonSetDescription2
-			// 
-			this.buttonSetDescription2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonSetDescription2.Location = new System.Drawing.Point(189, 600);
-			this.buttonSetDescription2.Name = "buttonSetDescription2";
-			this.buttonSetDescription2.Size = new System.Drawing.Size(68, 34);
-			this.buttonSetDescription2.TabIndex = 14;
-			this.buttonSetDescription2.Text = "Set Description";
-			this.buttonSetDescription2.UseVisualStyleBackColor = true;
-			this.buttonSetDescription2.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
-			// 
 			// buttonLatestGame2
 			// 
 			this.buttonLatestGame2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonLatestGame2.Location = new System.Drawing.Point(3, 600);
+			this.buttonLatestGame2.Location = new System.Drawing.Point(3, 577);
 			this.buttonLatestGame2.Name = "buttonLatestGame2";
-			this.buttonLatestGame2.Size = new System.Drawing.Size(56, 34);
+			this.buttonLatestGame2.Size = new System.Drawing.Size(81, 34);
 			this.buttonLatestGame2.TabIndex = 13;
 			this.buttonLatestGame2.Text = "Latest Game";
 			this.buttonLatestGame2.UseVisualStyleBackColor = true;
@@ -308,7 +284,7 @@ namespace Torn.UI
 			this.listViewGames.HideSelection = false;
 			this.listViewGames.Location = new System.Drawing.Point(3, 3);
 			this.listViewGames.Name = "listViewGames";
-			this.listViewGames.Size = new System.Drawing.Size(295, 591);
+			this.listViewGames.Size = new System.Drawing.Size(315, 568);
 			this.listViewGames.TabIndex = 12;
 			this.listViewGames.UseCompatibleStateImageBehavior = false;
 			this.listViewGames.View = System.Windows.Forms.View.Details;
@@ -379,9 +355,9 @@ namespace Torn.UI
 			this.panelLeague.Controls.Add(this.buttonExportFixtures);
 			this.panelLeague.Controls.Add(this.labelStatus);
 			this.panelLeague.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelLeague.Location = new System.Drawing.Point(3, 323);
+			this.panelLeague.Location = new System.Drawing.Point(3, 311);
 			this.panelLeague.Name = "panelLeague";
-			this.panelLeague.Size = new System.Drawing.Size(292, 314);
+			this.panelLeague.Size = new System.Drawing.Size(312, 303);
 			this.panelLeague.TabIndex = 16;
 			// 
 			// labelNow
@@ -390,14 +366,14 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.labelNow.Location = new System.Drawing.Point(12, 180);
 			this.labelNow.Name = "labelNow";
-			this.labelNow.Size = new System.Drawing.Size(277, 64);
+			this.labelNow.Size = new System.Drawing.Size(297, 64);
 			this.labelNow.TabIndex = 1;
 			this.labelNow.Text = "Now Playing:";
 			// 
 			// buttonTsvExport
 			// 
 			this.buttonTsvExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonTsvExport.Location = new System.Drawing.Point(118, 118);
+			this.buttonTsvExport.Location = new System.Drawing.Point(118, 107);
 			this.buttonTsvExport.Name = "buttonTsvExport";
 			this.buttonTsvExport.Size = new System.Drawing.Size(100, 23);
 			this.buttonTsvExport.TabIndex = 23;
@@ -416,7 +392,7 @@ namespace Torn.UI
 			// numericPort
 			// 
 			this.numericPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.numericPort.Location = new System.Drawing.Point(118, 147);
+			this.numericPort.Location = new System.Drawing.Point(118, 136);
 			this.numericPort.Maximum = new decimal(new int[] {
 									65535,
 									0,
@@ -443,14 +419,14 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.labelLeagueDetails.Location = new System.Drawing.Point(0, 0);
 			this.labelLeagueDetails.Name = "labelLeagueDetails";
-			this.labelLeagueDetails.Size = new System.Drawing.Size(292, 95);
+			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 95);
 			this.labelLeagueDetails.TabIndex = 13;
 			this.labelLeagueDetails.Text = "Select a league and its details will appear here.";
 			// 
 			// progressBar1
 			// 
 			this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.progressBar1.Location = new System.Drawing.Point(3, 288);
+			this.progressBar1.Location = new System.Drawing.Point(3, 277);
 			this.progressBar1.Maximum = 1000;
 			this.progressBar1.Name = "progressBar1";
 			this.progressBar1.Size = new System.Drawing.Size(286, 23);
@@ -461,7 +437,7 @@ namespace Torn.UI
 			// buttonExportFixtures
 			// 
 			this.buttonExportFixtures.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonExportFixtures.Location = new System.Drawing.Point(12, 118);
+			this.buttonExportFixtures.Location = new System.Drawing.Point(12, 107);
 			this.buttonExportFixtures.Name = "buttonExportFixtures";
 			this.buttonExportFixtures.Size = new System.Drawing.Size(100, 23);
 			this.buttonExportFixtures.TabIndex = 16;
@@ -473,9 +449,9 @@ namespace Torn.UI
 			// 
 			this.labelStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
-			this.labelStatus.Location = new System.Drawing.Point(3, 264);
+			this.labelStatus.Location = new System.Drawing.Point(3, 253);
 			this.labelStatus.Name = "labelStatus";
-			this.labelStatus.Size = new System.Drawing.Size(286, 21);
+			this.labelStatus.Size = new System.Drawing.Size(306, 21);
 			this.labelStatus.TabIndex = 18;
 			// 
 			// menuStripMain
@@ -483,11 +459,10 @@ namespace Torn.UI
 			this.menuStripMain.Dock = System.Windows.Forms.DockStyle.None;
 			this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.menuLeague,
-									this.menuGame,
 									this.menuReport});
 			this.menuStripMain.Location = new System.Drawing.Point(0, 0);
 			this.menuStripMain.Name = "menuStripMain";
-			this.menuStripMain.Size = new System.Drawing.Size(1192, 24);
+			this.menuStripMain.Size = new System.Drawing.Size(1272, 24);
 			this.menuStripMain.TabIndex = 1;
 			this.menuStripMain.Text = "menuStrip1";
 			// 
@@ -599,35 +574,6 @@ namespace Torn.UI
 			this.menuSplitter3.Name = "menuSplitter3";
 			this.menuSplitter3.Size = new System.Drawing.Size(222, 6);
 			// 
-			// menuGame
-			// 
-			this.menuGame.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.menuCreateGame,
-									this.menuEditGame,
-									this.menuForgetGame});
-			this.menuGame.Name = "menuGame";
-			this.menuGame.Size = new System.Drawing.Size(53, 20);
-			this.menuGame.Text = "&Game";
-			// 
-			// menuCreateGame
-			// 
-			this.menuCreateGame.Name = "menuCreateGame";
-			this.menuCreateGame.Size = new System.Drawing.Size(176, 22);
-			this.menuCreateGame.Text = "&Create Game...";
-			// 
-			// menuEditGame
-			// 
-			this.menuEditGame.Name = "menuEditGame";
-			this.menuEditGame.Size = new System.Drawing.Size(176, 22);
-			this.menuEditGame.Text = "Edit &Game...";
-			// 
-			// menuForgetGame
-			// 
-			this.menuForgetGame.Name = "menuForgetGame";
-			this.menuForgetGame.Size = new System.Drawing.Size(176, 22);
-			this.menuForgetGame.Text = "Forget Game";
-			this.menuForgetGame.Click += new System.EventHandler(this.ButtonForgetClick);
-			// 
 			// menuReport
 			// 
 			this.menuReport.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -666,7 +612,7 @@ namespace Torn.UI
 			this.menuConfigureReports.Name = "menuConfigureReports";
 			this.menuConfigureReports.Size = new System.Drawing.Size(257, 22);
 			this.menuConfigureReports.Text = "Configure Reports for League";
-			this.menuConfigureReports.Click += new System.EventHandler(this.ButtonEditClick);
+			this.menuConfigureReports.Click += new System.EventHandler(this.ButtonEditReportsClick);
 			// 
 			// menuPackReport
 			// 
@@ -685,22 +631,30 @@ namespace Torn.UI
 			// 
 			this.toolStripLeague.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStripLeague.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.toolStripLabelLeagues,
 									this.buttonNew,
 									this.buttonOpen,
 									this.buttonSave,
-									this.buttonClose});
+									this.buttonClose,
+									this.buttonEdit});
 			this.toolStripLeague.Location = new System.Drawing.Point(3, 24);
 			this.toolStripLeague.Name = "toolStripLeague";
-			this.toolStripLeague.Size = new System.Drawing.Size(434, 25);
+			this.toolStripLeague.Size = new System.Drawing.Size(347, 25);
 			this.toolStripLeague.TabIndex = 0;
+			// 
+			// toolStripLabelLeagues
+			// 
+			this.toolStripLabelLeagues.Name = "toolStripLabelLeagues";
+			this.toolStripLabelLeagues.Size = new System.Drawing.Size(60, 22);
+			this.toolStripLabelLeagues.Text = "Leagues:";
 			// 
 			// buttonNew
 			// 
 			this.buttonNew.Image = ((System.Drawing.Image)(resources.GetObject("buttonNew.Image")));
 			this.buttonNew.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonNew.Name = "buttonNew";
-			this.buttonNew.Size = new System.Drawing.Size(98, 22);
-			this.buttonNew.Text = "New League";
+			this.buttonNew.Size = new System.Drawing.Size(53, 22);
+			this.buttonNew.Text = "New";
 			this.buttonNew.Click += new System.EventHandler(this.ButtonNewClick);
 			// 
 			// buttonOpen
@@ -708,8 +662,8 @@ namespace Torn.UI
 			this.buttonOpen.Image = ((System.Drawing.Image)(resources.GetObject("buttonOpen.Image")));
 			this.buttonOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonOpen.Name = "buttonOpen";
-			this.buttonOpen.Size = new System.Drawing.Size(119, 22);
-			this.buttonOpen.Text = "Open League(s)";
+			this.buttonOpen.Size = new System.Drawing.Size(58, 22);
+			this.buttonOpen.Text = "Open";
 			this.buttonOpen.Click += new System.EventHandler(this.ButtonLoadClick);
 			// 
 			// buttonSave
@@ -717,8 +671,8 @@ namespace Torn.UI
 			this.buttonSave.Image = ((System.Drawing.Image)(resources.GetObject("buttonSave.Image")));
 			this.buttonSave.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.Size = new System.Drawing.Size(101, 22);
-			this.buttonSave.Text = "Save League";
+			this.buttonSave.Size = new System.Drawing.Size(56, 22);
+			this.buttonSave.Text = "Save";
 			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
 			// 
 			// buttonClose
@@ -726,22 +680,38 @@ namespace Torn.UI
 			this.buttonClose.Image = ((System.Drawing.Image)(resources.GetObject("buttonClose.Image")));
 			this.buttonClose.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonClose.Name = "buttonClose";
-			this.buttonClose.Size = new System.Drawing.Size(104, 22);
-			this.buttonClose.Text = "Close League";
+			this.buttonClose.Size = new System.Drawing.Size(59, 22);
+			this.buttonClose.Text = "Close";
 			this.buttonClose.Click += new System.EventHandler(this.ButtonCloseClick);
+			// 
+			// buttonEdit
+			// 
+			this.buttonEdit.Image = ((System.Drawing.Image)(resources.GetObject("buttonEdit.Image")));
+			this.buttonEdit.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttonEdit.Name = "buttonEdit";
+			this.buttonEdit.Size = new System.Drawing.Size(49, 22);
+			this.buttonEdit.Text = "Edit";
+			this.buttonEdit.Click += new System.EventHandler(this.MenuEditLeagueClick);
 			// 
 			// toolStripTeams
 			// 
 			this.toolStripTeams.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStripTeams.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.toolStripLabelTeams,
 									this.buttonAddRow,
 									this.buttonRemoveRow,
 									this.buttonAddColumn,
 									this.buttonRemoveColumn});
 			this.toolStripTeams.Location = new System.Drawing.Point(3, 49);
 			this.toolStripTeams.Name = "toolStripTeams";
-			this.toolStripTeams.Size = new System.Drawing.Size(136, 27);
+			this.toolStripTeams.Size = new System.Drawing.Size(156, 25);
 			this.toolStripTeams.TabIndex = 3;
+			// 
+			// toolStripLabelTeams
+			// 
+			this.toolStripLabelTeams.Name = "toolStripLabelTeams";
+			this.toolStripLabelTeams.Size = new System.Drawing.Size(52, 22);
+			this.toolStripLabelTeams.Text = "Teams:";
 			// 
 			// buttonAddRow
 			// 
@@ -750,7 +720,7 @@ namespace Torn.UI
 			this.buttonAddRow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
 			this.buttonAddRow.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonAddRow.Name = "buttonAddRow";
-			this.buttonAddRow.Size = new System.Drawing.Size(24, 24);
+			this.buttonAddRow.Size = new System.Drawing.Size(23, 22);
 			this.buttonAddRow.Text = "Add Row";
 			this.buttonAddRow.Click += new System.EventHandler(this.ButtonAddRowClick);
 			// 
@@ -759,6 +729,7 @@ namespace Torn.UI
 			this.buttonRemoveRow.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.buttonRemoveRow.Enabled = false;
 			this.buttonRemoveRow.Image = ((System.Drawing.Image)(resources.GetObject("buttonRemoveRow.Image")));
+			this.buttonRemoveRow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
 			this.buttonRemoveRow.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonRemoveRow.Name = "buttonRemoveRow";
 			this.buttonRemoveRow.Size = new System.Drawing.Size(23, 22);
@@ -769,6 +740,7 @@ namespace Torn.UI
 			// 
 			this.buttonAddColumn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.buttonAddColumn.Image = ((System.Drawing.Image)(resources.GetObject("buttonAddColumn.Image")));
+			this.buttonAddColumn.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
 			this.buttonAddColumn.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonAddColumn.Name = "buttonAddColumn";
 			this.buttonAddColumn.Size = new System.Drawing.Size(23, 22);
@@ -780,6 +752,7 @@ namespace Torn.UI
 			this.buttonRemoveColumn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.buttonRemoveColumn.Enabled = false;
 			this.buttonRemoveColumn.Image = ((System.Drawing.Image)(resources.GetObject("buttonRemoveColumn.Image")));
+			this.buttonRemoveColumn.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
 			this.buttonRemoveColumn.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonRemoveColumn.Name = "buttonRemoveColumn";
 			this.buttonRemoveColumn.Size = new System.Drawing.Size(23, 22);
@@ -790,14 +763,23 @@ namespace Torn.UI
 			// 
 			this.toolStripGame.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStripGame.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.toolStripLabelGames,
 									this.buttonLatestGame,
-									this.buttonSetDescription,
 									this.buttonCommit,
+									this.buttonCreateGame,
+									this.buttonEditGame,
+									this.buttonSetDescription,
 									this.buttonForget});
-			this.toolStripGame.Location = new System.Drawing.Point(139, 49);
+			this.toolStripGame.Location = new System.Drawing.Point(3, 74);
 			this.toolStripGame.Name = "toolStripGame";
-			this.toolStripGame.Size = new System.Drawing.Size(351, 25);
+			this.toolStripGame.Size = new System.Drawing.Size(433, 25);
 			this.toolStripGame.TabIndex = 2;
+			// 
+			// toolStripLabelGames
+			// 
+			this.toolStripLabelGames.Name = "toolStripLabelGames";
+			this.toolStripLabelGames.Size = new System.Drawing.Size(52, 22);
+			this.toolStripLabelGames.Text = "Games:";
 			// 
 			// buttonLatestGame
 			// 
@@ -805,19 +787,9 @@ namespace Torn.UI
 			this.buttonLatestGame.Image = ((System.Drawing.Image)(resources.GetObject("buttonLatestGame.Image")));
 			this.buttonLatestGame.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonLatestGame.Name = "buttonLatestGame";
-			this.buttonLatestGame.Size = new System.Drawing.Size(83, 22);
-			this.buttonLatestGame.Text = "Latest Game";
+			this.buttonLatestGame.Size = new System.Drawing.Size(46, 22);
+			this.buttonLatestGame.Text = "Latest";
 			this.buttonLatestGame.Click += new System.EventHandler(this.ButtonLatestGameClick);
-			// 
-			// buttonSetDescription
-			// 
-			this.buttonSetDescription.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.buttonSetDescription.Image = ((System.Drawing.Image)(resources.GetObject("buttonSetDescription.Image")));
-			this.buttonSetDescription.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.buttonSetDescription.Name = "buttonSetDescription";
-			this.buttonSetDescription.Size = new System.Drawing.Size(98, 22);
-			this.buttonSetDescription.Text = "Set Description";
-			this.buttonSetDescription.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
 			// 
 			// buttonCommit
 			// 
@@ -829,14 +801,44 @@ namespace Torn.UI
 			this.buttonCommit.Text = "Commit";
 			this.buttonCommit.Click += new System.EventHandler(this.ButtonCommitClick);
 			// 
+			// buttonCreateGame
+			// 
+			this.buttonCreateGame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.buttonCreateGame.Enabled = false;
+			this.buttonCreateGame.Image = ((System.Drawing.Image)(resources.GetObject("buttonCreateGame.Image")));
+			this.buttonCreateGame.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttonCreateGame.Name = "buttonCreateGame";
+			this.buttonCreateGame.Size = new System.Drawing.Size(50, 22);
+			this.buttonCreateGame.Text = "Create";
+			// 
+			// buttonEditGame
+			// 
+			this.buttonEditGame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.buttonEditGame.Enabled = false;
+			this.buttonEditGame.Image = ((System.Drawing.Image)(resources.GetObject("buttonEditGame.Image")));
+			this.buttonEditGame.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttonEditGame.Name = "buttonEditGame";
+			this.buttonEditGame.Size = new System.Drawing.Size(70, 22);
+			this.buttonEditGame.Text = "Edit Game";
+			// 
+			// buttonSetDescription
+			// 
+			this.buttonSetDescription.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.buttonSetDescription.Image = ((System.Drawing.Image)(resources.GetObject("buttonSetDescription.Image")));
+			this.buttonSetDescription.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttonSetDescription.Name = "buttonSetDescription";
+			this.buttonSetDescription.Size = new System.Drawing.Size(98, 22);
+			this.buttonSetDescription.Text = "Set Description";
+			this.buttonSetDescription.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
+			// 
 			// buttonForget
 			// 
 			this.buttonForget.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.buttonForget.Image = ((System.Drawing.Image)(resources.GetObject("buttonForget.Image")));
 			this.buttonForget.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonForget.Name = "buttonForget";
-			this.buttonForget.Size = new System.Drawing.Size(102, 22);
-			this.buttonForget.Text = "Forget Game(s)";
+			this.buttonForget.Size = new System.Drawing.Size(49, 22);
+			this.buttonForget.Text = "Forget";
 			this.buttonForget.Click += new System.EventHandler(this.ButtonForgetClick);
 			// 
 			// imageListPacks
@@ -868,12 +870,12 @@ namespace Torn.UI
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Control;
-			this.ClientSize = new System.Drawing.Size(1192, 748);
+			this.ClientSize = new System.Drawing.Size(1272, 748);
 			this.Controls.Add(this.toolStripContainer1);
 			this.MainMenuStrip = this.menuStripMain;
 			this.MinimumSize = new System.Drawing.Size(620, 380);
 			this.Name = "MainForm";
-			this.Text = "TornWeb";
+			this.Text = "Torn5";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.Shown += new System.EventHandler(this.MainFormShown);
 			this.toolStripContainer1.ContentPanel.ResumeLayout(false);
@@ -896,6 +898,12 @@ namespace Torn.UI
 			this.toolStripGame.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ToolStripButton buttonEdit;
+		private System.Windows.Forms.ToolStripLabel toolStripLabelGames;
+		private System.Windows.Forms.ToolStripLabel toolStripLabelTeams;
+		private System.Windows.Forms.ToolStripLabel toolStripLabelLeagues;
+		private System.Windows.Forms.ToolStripButton buttonEditGame;
+		private System.Windows.Forms.ToolStripButton buttonCreateGame;
 		private System.Windows.Forms.ToolStripMenuItem menuExportReports;
 		private System.Windows.Forms.ToolStripMenuItem forgetGameToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem commitGameToolStripMenuItem;
@@ -903,7 +911,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem latestGameToolStripMenuItem;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStripGames;
 		private System.Windows.Forms.ToolStripMenuItem menuReport;
-		private System.Windows.Forms.ToolStripMenuItem menuGame;
 		private System.Windows.Forms.ToolStripMenuItem menuPackReport;
 		private System.Windows.Forms.ToolStripMenuItem menuConfigureReports;
 		private System.Windows.Forms.ToolStripMenuItem menuBulkUploadReports;
@@ -925,9 +932,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem menuPyramid;
 		private System.Windows.Forms.ToolStripMenuItem menuAdHocReport;
 		private System.Windows.Forms.ToolStripSeparator menuSplitter3;
-		private System.Windows.Forms.ToolStripMenuItem menuForgetGame;
-		private System.Windows.Forms.ToolStripMenuItem menuEditGame;
-		private System.Windows.Forms.ToolStripMenuItem menuCreateGame;
 		private System.Windows.Forms.ToolStripSeparator menuSplitter1;
 		private System.Windows.Forms.ToolStripMenuItem menuEditLeague;
 		private System.Windows.Forms.ToolStripMenuItem menuCloseLeague;
@@ -939,9 +943,7 @@ namespace Torn.UI
 		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
 		private System.Windows.Forms.ToolStripButton buttonNew;
 		private System.Windows.Forms.Button buttonCommit2;
-		private System.Windows.Forms.Button buttonForget2;
 		private System.Windows.Forms.Button buttonTsvExport;
-		private System.Windows.Forms.Button buttonSetDescription2;
 		private System.Windows.Forms.Panel panelLeague;
 		private System.Windows.Forms.Button buttonLatestGame2;
 		private System.Windows.Forms.Panel panelGames;

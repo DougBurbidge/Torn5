@@ -15,14 +15,8 @@ namespace Torn.UI
 
 		public FormLeague()
 		{
-			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
 			InitializeComponent();
-			
-			//
-			// TODO: Add constructor code after the InitializeComponent() call.
-			//
 		}
 
 		void FormLeagueShown(object sender, EventArgs e)
@@ -67,11 +61,15 @@ namespace Torn.UI
 					listViewScores.Items.Add(item);
 				}
 			}
+			
+			buttonDeletePlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;
+			buttonReIdPlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;
 		}
 
 		void ButtonRenameLeagueClick(object sender, EventArgs e)
 		{
 			League.Title = InputDialog.GetInput("Rename League", "Choose a new name for the league", League.Title);
+			Text = "Torn -- " + League.Title;
 		}
 
 		void ButtonCopyFromLeagueClick(object sender, EventArgs e)
@@ -91,14 +89,15 @@ namespace Torn.UI
 				var node = new TreeNode(name);
 				node.Tag = team;
 				treeView1.Nodes.Add(node);
+				treeView1.SelectedNode = node;
 			}
 		}
 
 		void ButtonDeleteTeamClick(object sender, EventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeagueTeam && 
-			    MessageBox.Show("Delete Team?", "Are yous sure you want to delete team " + ((LeagueTeam)treeView1.SelectedNode.Tag).Name + "?",
-			                    MessageBoxButtons.YesNo) == DialogResult.Yes)
+			    MessageBox.Show("Are you sure you want to delete team " + ((LeagueTeam)treeView1.SelectedNode.Tag).Name + "?",
+			                    "Delete Team?", MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
 				League.Teams.Remove(((LeagueTeam)treeView1.SelectedNode.Tag));
 				treeView1.Nodes.Remove(treeView1.SelectedNode);
@@ -120,22 +119,32 @@ namespace Torn.UI
 
 		void ButtonAddPlayerClick(object sender, EventArgs e)
 		{
-			if (treeView1.SelectedNode.Tag is LeaguePlayer)
-				treeView1.SelectedNode = treeView1.SelectedNode.Parent;
+			var teamNode = treeView1.SelectedNode;
+			if (teamNode.Tag is LeaguePlayer)
+				teamNode = teamNode.Parent;
 
-			if (treeView1.SelectedNode.Tag is LeagueTeam)
+			if (teamNode.Tag is LeagueTeam && FormPlayer.ShowDialog() == DialogResult.OK)
 			{
+				var player = new LeaguePlayer();
+				player.Id = FormPlayer.PlayerId;
+				player.Name = FormPlayer.PlayerAlias;
+				((LeagueTeam)teamNode.Tag).Players.Add(player);
 
+				var playerNode = teamNode.Nodes.Add(player.Name);
+				playerNode.Tag = player;
+				
+				treeView1.SelectedNode = playerNode;
 			}
 		}
 
 		void ButtonDeletePlayerClick(object sender, EventArgs e)
 		{
 			if (treeView1.SelectedNode.Tag is LeaguePlayer && 
-			    MessageBox.Show("Delete Player?", "Are yous sure you want to delete player " + ((LeaguePlayer)treeView1.SelectedNode.Tag).Name + " from this team?",
-			                    MessageBoxButtons.YesNo) == DialogResult.Yes)
+			    MessageBox.Show("Are you sure you want to delete player " + ((LeaguePlayer)treeView1.SelectedNode.Tag).Name + " from this team?",
+			                    "Delete Player?", MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
-
+				((LeagueTeam)treeView1.SelectedNode.Parent.Tag).Players.Remove((LeaguePlayer)treeView1.SelectedNode.Tag);
+				treeView1.SelectedNode.Remove();
 			}
 		}
 

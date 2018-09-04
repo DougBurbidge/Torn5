@@ -41,14 +41,16 @@ namespace Torn.UI
 			this.buttonReIdPlayer = new System.Windows.Forms.Button();
 			this.buttonDeletePlayer = new System.Windows.Forms.Button();
 			this.buttonAddPlayer = new System.Windows.Forms.Button();
-			this.panel1 = new System.Windows.Forms.Panel();
+			this.panelRight = new System.Windows.Forms.Panel();
 			this.listViewScores = new System.Windows.Forms.ListView();
 			this.colGame = new System.Windows.Forms.ColumnHeader();
 			this.colScore = new System.Windows.Forms.ColumnHeader();
+			this.buttonOK = new System.Windows.Forms.Button();
+			this.buttonCancel = new System.Windows.Forms.Button();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
-			this.panel1.SuspendLayout();
+			this.panelRight.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeView1
@@ -56,9 +58,10 @@ namespace Torn.UI
 			this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 									| System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
+			this.treeView1.HideSelection = false;
 			this.treeView1.Location = new System.Drawing.Point(12, 12);
 			this.treeView1.Name = "treeView1";
-			this.treeView1.Size = new System.Drawing.Size(312, 725);
+			this.treeView1.Size = new System.Drawing.Size(312, 693);
 			this.treeView1.TabIndex = 0;
 			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView1AfterSelect);
 			// 
@@ -180,15 +183,15 @@ namespace Torn.UI
 			this.buttonAddPlayer.UseVisualStyleBackColor = true;
 			this.buttonAddPlayer.Click += new System.EventHandler(this.ButtonAddPlayerClick);
 			// 
-			// panel1
+			// panelRight
 			// 
-			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.panelRight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 									| System.Windows.Forms.AnchorStyles.Right)));
-			this.panel1.Controls.Add(this.listViewScores);
-			this.panel1.Location = new System.Drawing.Point(330, 124);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(273, 613);
-			this.panel1.TabIndex = 4;
+			this.panelRight.Controls.Add(this.listViewScores);
+			this.panelRight.Location = new System.Drawing.Point(330, 124);
+			this.panelRight.Name = "panelRight";
+			this.panelRight.Size = new System.Drawing.Size(273, 584);
+			this.panelRight.TabIndex = 4;
 			// 
 			// listViewScores
 			// 
@@ -201,7 +204,7 @@ namespace Torn.UI
 			this.listViewScores.HideSelection = false;
 			this.listViewScores.Location = new System.Drawing.Point(3, 67);
 			this.listViewScores.Name = "listViewScores";
-			this.listViewScores.Size = new System.Drawing.Size(267, 500);
+			this.listViewScores.Size = new System.Drawing.Size(267, 514);
 			this.listViewScores.TabIndex = 0;
 			this.listViewScores.UseCompatibleStateImageBehavior = false;
 			this.listViewScores.View = System.Windows.Forms.View.Details;
@@ -216,29 +219,58 @@ namespace Torn.UI
 			this.colScore.Text = "Score";
 			this.colScore.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
+			// buttonOK
+			// 
+			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+			this.buttonOK.Location = new System.Drawing.Point(444, 714);
+			this.buttonOK.Name = "buttonOK";
+			this.buttonOK.Size = new System.Drawing.Size(75, 23);
+			this.buttonOK.TabIndex = 5;
+			this.buttonOK.Text = "OK";
+			this.buttonOK.UseVisualStyleBackColor = true;
+			// 
+			// buttonCancel
+			// 
+			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.buttonCancel.Location = new System.Drawing.Point(525, 714);
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+			this.buttonCancel.TabIndex = 6;
+			this.buttonCancel.Text = "Cancel";
+			this.buttonCancel.UseVisualStyleBackColor = true;
+			// 
 			// FormLeague
 			// 
+			this.AcceptButton = this.buttonOK;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(615, 749);
-			this.Controls.Add(this.panel1);
+			this.Controls.Add(this.buttonCancel);
+			this.Controls.Add(this.buttonOK);
+			this.Controls.Add(this.panelRight);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.treeView1);
+			this.MinimumSize = new System.Drawing.Size(400, 400);
 			this.Name = "FormLeague";
 			this.Text = "League";
 			this.Shown += new System.EventHandler(this.FormLeagueShown);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox3.ResumeLayout(false);
-			this.panel1.ResumeLayout(false);
+			this.panelRight.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.Button buttonCancel;
+		private System.Windows.Forms.Button buttonOK;
 		private System.Windows.Forms.ColumnHeader colScore;
 		private System.Windows.Forms.ColumnHeader colGame;
 		private System.Windows.Forms.ListView listViewScores;
-		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Panel panelRight;
 		private System.Windows.Forms.Button buttonAddPlayer;
 		private System.Windows.Forms.Button buttonDeletePlayer;
 		private System.Windows.Forms.Button buttonReIdPlayer;

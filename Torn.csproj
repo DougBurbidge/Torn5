@@ -90,8 +90,8 @@
       <DependentUpon>FormReport.cs</DependentUpon>
     </Compile>
     <Compile Include="League.cs" />
-    <Compile Include="Properties\TornWeb.Designer.cs">
-      <DependentUpon>TornWeb.settings</DependentUpon>
+    <Compile Include="Properties\Torn5.Designer.cs">
+      <DependentUpon>Torn5.settings</DependentUpon>
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Reports.cs" />
@@ -150,7 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Properties\TornWeb.settings">
+    <None Include="Properties\Torn5.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>TornWeb.Designer.cs</LastGenOutput>
     </None>
