@@ -45,6 +45,7 @@ namespace Torn.UI
 			this.listViewScores = new System.Windows.Forms.ListView();
 			this.colGame = new System.Windows.Forms.ColumnHeader();
 			this.colScore = new System.Windows.Forms.ColumnHeader();
+			this.colRankorPoints = new System.Windows.Forms.ColumnHeader();
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonCancel = new System.Windows.Forms.Button();
 			this.groupBox1.SuspendLayout();
@@ -199,7 +200,8 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Left)));
 			this.listViewScores.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 									this.colGame,
-									this.colScore});
+									this.colScore,
+									this.colRankorPoints});
 			this.listViewScores.FullRowSelect = true;
 			this.listViewScores.HideSelection = false;
 			this.listViewScores.Location = new System.Drawing.Point(3, 67);
@@ -218,6 +220,12 @@ namespace Torn.UI
 			// 
 			this.colScore.Text = "Score";
 			this.colScore.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
+			// colRankorPoints
+			// 
+			this.colRankorPoints.Text = "Points";
+			this.colRankorPoints.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.colRankorPoints.Width = 44;
 			// 
 			// buttonOK
 			// 
@@ -265,6 +273,7 @@ namespace Torn.UI
 			this.panelRight.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ColumnHeader colRankorPoints;
 		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.Button buttonOK;
 		private System.Windows.Forms.ColumnHeader colScore;

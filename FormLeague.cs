@@ -46,9 +46,11 @@ namespace Torn.UI
 				{
 					var item = new ListViewItem(gameTeam.Game.Time.ToString());
 					item.SubItems.Add(gameTeam.Score.ToString());
+					item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : gameTeam.Game.Teams.IndexOf(gameTeam).ToString());
 					item.BackColor = gameTeam.Colour.ToColor();
 					listViewScores.Items.Add(item);
 				}
+				listViewScores.Columns[2].Text = League.IsPoints() ? "Points" : "Rank";
 			}
 			else if (treeView1.SelectedNode.Tag is LeaguePlayer)
 			{
@@ -57,9 +59,11 @@ namespace Torn.UI
 				{
 					var item = new ListViewItem(gamePlayer.GameTeam.Game.Time.ToString());
 					item.SubItems.Add(gamePlayer.Score.ToString());
+					item.SubItems.Add(gamePlayer.Rank.ToString());
 					item.BackColor = gamePlayer.Colour.ToColor();
 					listViewScores.Items.Add(item);
 				}
+				listViewScores.Columns[2].Text = "Rank";
 			}
 			
 			buttonDeletePlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;

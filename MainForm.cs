@@ -20,9 +20,9 @@ read from P&C server, web server, report to HTML, upload to FTP,
 transfer to team boxes via drag-drop, transfer to team boxes on game selection, set dimensions, persistence
 show team name, scores and rank in team boxes
 right-click remember team, identify team, identify player, handicap team
+edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Cancel
 
 TODO for BOTH:
-edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Cancel
 output to screen and printer
 send to scoreboard (web browser)
 on commit auto-update scoreboard, teams and handicaps

@@ -385,13 +385,20 @@ namespace Torn
 			clone.victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList());
 			clone.VictoryPointsHighScore = VictoryPointsHighScore;
 			clone.VictoryPointsProportional = VictoryPointsProportional;
+			
+			clone.LinkThings();
 
 			return clone;
 		}
 
 		public Games Games(bool includeSecret)
 		{
-			return includeSecret ? AllGames : (Games)AllGames.Where(g => !g.Secret).ToList();
+			if (includeSecret) 
+				return AllGames;
+
+			var publicGames = new Games();
+			publicGames.AddRange(AllGames.Where(g => !g.Secret).ToList());
+			return publicGames;
 		}
 		
 		public List<LeagueTeam> GuessTeams(ServerGame game)
@@ -610,8 +617,9 @@ namespace Torn
 						gameTeam.LeagueTeam.AllGameTeams.Add(gameTeam);
 						if (!game.Secret)
 							gameTeam.LeagueTeam.PublicGameTeams.Add(gameTeam);
-					
+
 						// Connect each game player to their game team.
+						gameTeam.Players.Clear();
 						foreach (GamePlayer gamePlayer in game.Players)
 							if (gamePlayer.GameTeamId == gameTeam.TeamId)
 						{
