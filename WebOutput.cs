@@ -92,7 +92,11 @@ namespace Torn.Report
 					case ReportType.GameGrid:   reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.GameGrid, gameHyper)); break;
 					case ReportType.Ascension:  reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Ascension, gameHyper)); break;
 					case ReportType.Pyramid:    reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Pyramid, gameHyper)); break;
-					case ReportType.Packs:      reports.Add(Reports.PackReport(holder.League, r.From, r.To, description)); break;
+					case ReportType.Packs:
+						var x = new List<League>();
+						x.Add(holder.League);
+						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), r.From, r.To, description));
+						break;
 					case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, r.From, r.To, description)); break;
 				}
 			}

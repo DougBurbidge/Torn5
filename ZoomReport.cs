@@ -29,35 +29,46 @@ namespace Zoom
 		}
 	}
 
-	/// This is just the header row(s) and metadata for a column -- does not include the actual cells.
-	public class ZColumn
+	/// This is the abstract parent of ZColumn and ZCell, holding only a few fields common to "rectangular areas that can contain text".
+	public abstract class ZBlock
 	{
-		/// <summary>store the heading text for each column</summary>
-		public string Heading { get; set; }
-		/// <summary>Optional. Appears *above* Heading.</summary>
+		/// <summary>Text to appear in the cell or column header.</summary>
+		public virtual string Text { get; set; }
+		/// <summary>If this cell or column heading contains text which links to another report, put the URL of that report here.</summary>
+		public virtual string Hyper { get; set; }
+		/// <summary>"Integer" means that the underlying data is made of integers (e.g. average score, average rank) not that the number displayed in the cell is an integer.</summary>
+		public ZColumnType ColumnType { get; set; }
+
+		public override string ToString()
+		{
+			return Text;
+		}
+	}
+
+	/// This is just the header row(s) and metadata for a column -- does not include the actual cells.
+	public class ZColumn: ZBlock
+	{
+		/// <summary>Optional. Appears *above* heading text.</summary>
 	    public string GroupHeading { get; set; }
-		/// <summary>If this column heading contains text which links to another report, put the URL of that report here.</summary>
-		public string Hyper { get; set; }
 		/// <summary>left, right or center</summary>
 	    public ZAlignment Alignment { get; set; }
-	    public ZColumnType ColumnType { get; set; }
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
 		public bool Rotate;
 	    
-	    public ZColumn(string heading)
+	    public ZColumn(string text)
 	    {
-	    	Heading = heading;
+	    	Text = text;
 	    }
 
-	    public ZColumn(string heading, ZAlignment alignment)
+	    public ZColumn(string text, ZAlignment alignment)
 	    {
-	    	Heading = heading;
+	    	Text = text;
 	    	Alignment = alignment;
 	    }
 
-	    public ZColumn(string heading, ZAlignment alignment, ZColumnType columnType)
+	    public ZColumn(string text, ZAlignment alignment, ZColumnType columnType)
 	    {
-	    	Heading = heading;
+	    	Text = text;
 	    	Alignment = alignment;
 	    	ColumnType = columnType;
 	    }
@@ -67,14 +78,14 @@ namespace Zoom
 //  function  Find(heading: string): Integer;
 
 	[Flags]
-	public enum ChartType { None = 0, Bar = 1, Rug = 2, BoxPlot = 4, KernelDensityEstimate = 8 };
+	public enum ChartType { None = 0, Bar = 1, Rug = 2, BoxPlot = 4, Histogram = 8, KernelDensityEstimate = 16 };
 
 	/// <summary>Represents a single cell in a table. The cell can optionally have a horizontal chart bar.</summary>
-	public class ZCell
+	public class ZCell: ZBlock
 	{
 		string text;
 		
-		public string Text  // Text data to appear in this cell. 
+		public override string Text  // Text data to appear in this cell. 
 		{
 			get 
 			{
@@ -102,8 +113,6 @@ namespace Zoom
 		/// <summary>If this cell contains a number, put it here.</summary>
 		public double? Number { get; set; }
 		public string NumberFormat { get; set; }
-		/// <summary>If this cell contains text which links to another report, put the URL of that report here.</summary>
-		public string Hyper { get; set; }
 		/// <summary>Optional background colour.</summary>
 		public Color Color { get; set; }
 		/// <summary>If true, show a chart bar for this cell. If BarCell is not set, use this cell's number; otherwise use the cell specified in BarCell.
@@ -147,16 +156,11 @@ namespace Zoom
 			
 			return ZReportColors.Darken(Color.White);
 		}
-
-		public override string ToString()
-		{
-			return Text;
-		}
 	}
 
 	public class ZRow: List<ZCell>
 	{
-		///<summary>If there is exactly one chart in this row (because exactly one cell has its ChartType set, or because all the  ChartCell 
+		///<summary>If there is exactly one chart in this row (because exactly one cell has its ChartType set, or because all the ChartCell 
 		/// values specified in this row point to just one cell, return the index of the cell whose value is used for the bar.</summary>
 		public int? OneBarCell()
 		{
@@ -239,7 +243,7 @@ namespace Zoom
 		{
 			return color2 == null || color2 == Color.Empty ?
 				color1 :
-				Color.FromArgb(color1.R + ((Color)color2).R - 255, color1.G + ((Color)color2).G - 255, color1.B + ((Color)color2).B - 255);
+				Color.FromArgb(Math.Max(color1.R + ((Color)color2).R - 255, 0), Math.Max(color1.G + ((Color)color2).G - 255, 0), Math.Max(color1.B + ((Color)color2).B - 255, 0));
 		}
 	}
 
@@ -326,6 +330,7 @@ namespace Zoom
 					row.RemoveAt(i);
 		}
 
+		/// <summary>For each column, calculate a pixel width, and find the min and max values.</summary>
 		void Widths(List<float> widths, List<double> mins, List<double> maxs)
 		{
 			var graphics = Graphics.FromImage(new Bitmap(1000, 20));
@@ -406,7 +411,7 @@ namespace Zoom
 
 			foreach (ZColumn col in Columns)
 			{
-				s.Append(col.Heading);
+				s.Append(col.Text);
 				s.Append(separator);
 			}
 			s.Append('\n');
@@ -469,9 +474,9 @@ namespace Zoom
 
 			foreach (ZColumn col in Columns)
 				if (string.IsNullOrEmpty(col.Hyper))
-					AppendStrings(s, "      <th", col.Alignment.ToHtml(), ">", WebUtility.HtmlEncode(col.Heading), "</th>\n");
+					AppendStrings(s, "      <th", col.Alignment.ToHtml(), ">", WebUtility.HtmlEncode(col.Text), "</th>\n");
 				else
-					AppendStrings(s, "      <th", col.Alignment.ToHtml(), "><a href=\"", col.Hyper, "\">", WebUtility.HtmlEncode(col.Heading), "</a></th>\n");
+					AppendStrings(s, "      <th", col.Alignment.ToHtml(), "><a href=\"", col.Hyper, "\">", WebUtility.HtmlEncode(col.Text), "</a></th>\n");
 
 			s.Append("    </tr>\n");
 			s.Append("  </thead>\n");
@@ -553,12 +558,12 @@ namespace Zoom
 		}
 
 		// Write a <rect> tag, and a <text> tag on top of it.
-		void SvgRectText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string id = null, string hyper = null, double? bar = null)
+		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string id = null, string hyper = null, double? bar = null)
 		{
 			SvgRect(s, indent, x, y, width, height, backColor);
 			if (bar != null)
 				SvgRect(s, indent, x, y, width * (double)bar, height, barColor);
-			SvgText(s, indent, x, y, width, height, fontColor, alignment, text, id, hyper);
+			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text, id, hyper);
 		}
 
 		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
@@ -569,11 +574,16 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string id = null, string hyper = null)
+		void SvgRect2(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
 		{
-			if (string.IsNullOrEmpty(text))
-			    return;
+			s.Append('\t', indent);
+			s.AppendFormat("<rect x=\"{0:F2}\" y=\"{1:F2}\" width=\"{2:F2}\" height=\"{3:F2}\" style=\"fill:", x, y, width, height);
+			s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
+			s.Append("\" />\n");
+		}
 
+		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string id = null, string hyper = null)
+		{
 			s.Append('\t', indent);
 			if (!string.IsNullOrEmpty(hyper))
 				AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
@@ -609,7 +619,10 @@ namespace Zoom
 			}
 
 			s.Append('>');
-			s.Append(WebUtility.HtmlEncode(text));
+		}
+
+		void SvgEndText(StringBuilder s, string hyper = null)
+		{
 			s.Append("</text>");
 
 			if (!string.IsNullOrEmpty(hyper))
@@ -618,12 +631,64 @@ namespace Zoom
 			s.Append('\n');
 		}
 
+		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell)
+		{
+			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, null, cell.Hyper);
+
+//			int decimals = 0;
+//			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && cell.NumberFormat[0] == 'F')
+//				decimals = int.Parse(cell.NumberFormat.Substring(1));
+//
+//			if (cell.Number == 0)
+//			{
+//				s.Append('0');
+//				if (decimals > 0)
+//					s.Append('\u2008');  // punctutation space (width of a .)
+//				s.Append('\u2002', decimals);  // en space (nut)
+//			}
+			if (cell.Number == 0 || cell.Number == null || cell.Number < -0.0001 || cell.Number > 0.0001)
+				s.Append(WebUtility.HtmlEncode(cell.Text));
+			else
+			{
+				int magnitude = (int)Math.Floor(Math.Log10(Math.Abs((double)cell.Number)));
+				string digits = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";  // superscript 0123456789
+				s.AppendFormat("{0:F2}", (double)cell.Number * Math.Pow(10, -magnitude));
+				s.Append('\u00D7'); // multiply symbol
+				s.Append("10");
+				if (magnitude < 0)
+					s.Append('\u207B');  // superscript -
+
+				if (magnitude == 0)
+					s.Append('\u2070');  // superscript 0
+				else
+					for (int i = (int)Math.Log10(Math.Abs(magnitude)); i >= 0; i--)
+						s.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
+			}
+			SvgEndText(s, cell.Hyper);
+		}
+
+		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string id = null, string hyper = null)
+		{
+			if (string.IsNullOrEmpty(text))
+			    return;
+
+			SvgBeginText(s, indent, x, y, width, height, fontColor, alignment, id, hyper);
+			s.Append(WebUtility.HtmlEncode(text));
+			SvgEndText(s, hyper);
+		}
+
 		void SvgPolygon(StringBuilder s, int indent, List<Tuple<double, double>> points, double rowTop, double rowHeight, double yMax, Color fillColor)
 		{
 			s.Append('\t', indent);
 			s.Append("<polygon points=\"");
-			foreach (var point in points)
-				s.AppendFormat("{0:F1},{1:F1} ", point.Item1, rowTop + rowHeight - Scale(point.Item2, rowHeight, 0, yMax));
+			for (int i = 0; i < points.Count; i++)
+			{
+				double y0 = i == 0 ? double.MinValue : rowTop + rowHeight - Scale(points[i - 1].Item2, rowHeight, 0, yMax);
+				double y1 = rowTop + rowHeight - Scale(points[i].Item2, rowHeight, 0, yMax);
+				double y2 = i == points.Count - 1 ? double.MaxValue : rowTop + rowHeight - Scale(points[i + 1].Item2, rowHeight, 0, yMax);
+				if (Math.Round(y0, 1) != Math.Round(y1, 1) || Math.Round(y1, 1) != Math.Round(y2, 1))  // Only write the point if the y before or the y after is different -- otherwise we have a very expensive way of writing a horizontal line.
+					s.AppendFormat("{0:F1},{1:F1} ", points[i].Item1, y1);
+			}
 			s.Append("\" style=\"fill:");
 			s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
 			s.Append("\" />\n");
@@ -657,7 +722,7 @@ namespace Zoom
 					while (end < Columns.Count - 1 && Columns[start].GroupHeading == Columns[end + 1].GroupHeading)
 						end++;
 
-					SvgRectText(s, 1, (int)widths.Take(start).Sum() + start + 1, rowTop, (int)widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
+					SvgRectText(s, 1, widths.Take(start).Sum() + start + 1, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
 						        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
 
 					start = end + 1;
@@ -673,7 +738,7 @@ namespace Zoom
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 				var font = new Font("Arial", 11);
 
-				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Heading, font, 1000).Width);
+				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
 				double headerHeight = widest / Math.Sqrt(2) + 10;
 				for (int col = 0; col < Columns.Count; col++)
 				{
@@ -704,7 +769,7 @@ namespace Zoom
 					s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
 					s.Append("\">");
 	
-					s.Append(WebUtility.HtmlEncode(Columns[col].Heading));
+					s.Append(WebUtility.HtmlEncode(Columns[col].Text));
 					s.Append("</text>");
 	
 					//if (!string.IsNullOrEmpty(hyper))
@@ -719,8 +784,8 @@ namespace Zoom
 				for (int col = 0; col < Columns.Count; col++)
 				{
 					ZColumn column = Columns[col];
-					SvgRectText(s, 1, (int)x, rowTop, (int)widths[col], rowHeight,
-					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, column.Alignment, column.Heading, null, column.Hyper);  // Paint column heading.
+					SvgRectText(s, 1, x, rowTop, widths[col], rowHeight,
+					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, column.Alignment, column.Text, null, column.Hyper);  // Paint column heading.
 					x += widths[col] + 1;
 				}
 				s.Append('\n');
@@ -736,18 +801,163 @@ namespace Zoom
 			return (value - scaleMin) / (scaleMax - scaleMin) * outputWidth;
 		}
 
+		// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
+		double ScaleWidth(double value, double outputWidth, double scaleMin, double scaleMax)
+		{
+			return value / (scaleMax - scaleMin) * outputWidth;
+		}
+
+		// scaleMin and scaleMax are all in the before-scaling ordinate system. pixelValue and outputWidth are in the after-scaling ordinate system.
+		double AntiScale(double pixelValue, double outputWidth, double scaleMin, double scaleMax)
+		{
+			return (pixelValue / outputWidth * (scaleMax - scaleMin)) + scaleMin;
+		}
+
 		// Return normal distribution value for this x. https://en.wikipedia.org/wiki/Normal_distribution
 		double Gauss(double x, double mean, double variance)
 		{
 			return 1 / Math.Sqrt(2 * Math.PI * variance) * Math.Exp(-Math.Pow(x - mean, 2) / 2 / variance);
 		}
 
-		// Write a single table row.
-		void SvgRow(StringBuilder s, bool hasgroupheadings, int rowHeight, int rowTop, List<float> widths, List<double> mins, List<double> maxs, int width, ZRow row, bool odd)
+		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, Color backColor, Color chartColor, ZCell cell, int column)
 		{
-			SvgRect(s, 1, 1, rowTop, width, rowHeight, Colors.GetBackColor(odd));  // Paint the background for the whole row.
+			if (cell.Color != Color.Empty)
+				SvgRect(s, 1, left, top, width, height, backColor);  // Paint chart cell(s) background.
 
-			// Paint cell backgrounds for this row
+			if ((cell.ChartType == ChartType.None || cell.ChartType.HasFlag(ChartType.Bar)) && cell.Number != null)  // Bar
+				SvgRect(s, 1, left + Scale(0, width, chartMin, chartMax), top, ScaleWidth(cell.Number ?? 0, width, 0, chartMax - chartMin), height, chartColor);  // Paint bar.
+
+			int count = 0;
+			if (cell.ChartType.HasFlag(ChartType.Rug) || cell.ChartType.HasFlag(ChartType.BoxPlot) || 
+			    cell.ChartType.HasFlag(ChartType.Histogram) || cell.ChartType.HasFlag(ChartType.KernelDensityEstimate))
+			{
+				cell.Data.Sort();
+				count = cell.Data.Count;
+			}
+
+			if (cell.ChartType.HasFlag(ChartType.BoxPlot) && count > 1)  // BoxPlot
+			{
+				if (cell.Number != null)
+					SvgRect(s, 1, left + Scale((double)cell.Number, width, chartMin, chartMax) - 0.5, top, 1, height * 0.9, ZReportColors.AddDark(chartColor, Color.FromArgb(255, 223, 255)));  // Paint mean stripe.
+
+				double median = count % 2 == 0 ? (cell.Data[count / 2 - 1] + cell.Data[count / 2]) / 2 : cell.Data[count / 2];
+				double firstQuartile = count % 4 == 0 ? cell.Data[count / 4] : cell.Data[count / 4];
+				double thirdQuartile = count % 4 == 0 ? cell.Data[(count * 3 / 4) - 1] : cell.Data[count * 3 / 4];
+				int percentile2 = (int)(count * 0.02);
+				int percentile98 = (int)(count * 0.98) - 1;
+
+				SvgRect(s, 1, left + Scale(cell.Data[percentile2], width, chartMin, chartMax), top + height * 0.4,
+				        ScaleWidth(cell.Data[percentile98] - cell.Data[percentile2], width, chartMin, chartMax), height * 0.1, chartColor);  // Whisker from 2nd percentile to 98th percentile -- contains all data within 2 std deviations.
+
+				SvgRect(s, 1, left + Scale(firstQuartile, width, chartMin, chartMax), top + height * 0.1,
+				        ScaleWidth(thirdQuartile - firstQuartile, width, chartMin, chartMax), height * 0.7, chartColor);  // Second quartile / third quartile box.
+
+				SvgRect(s, 1, left + Scale(median, width, chartMin, chartMax) - 0.5, top + height * 0.1, 1, height * 0.7, backColor);  // Median white stripe.
+				
+				for (int i = 0; i < percentile2; i++)
+					SvgRect2(s, 1, left + Scale(cell.Data[i], width, chartMin, chartMax) - 0.5, top + height * 0.42, 1, height * 0.06, chartColor);  // Paint outlying data point.
+				for (int i = percentile98; i < count; i++)
+					SvgRect2(s, 1, left + Scale(cell.Data[i], width, chartMin, chartMax) - 0.5, top + height * 0.42, 1, height * 0.06, chartColor);  // Paint outlying data point.
+			}
+
+			if (cell.ChartType.HasFlag(ChartType.Histogram) && count > 1)  // Histogram
+			{
+				int bins = (int)Math.Ceiling(2 * Math.Pow(count, 1.0/3));  // number of bars our histogram will have, from Rice's Rule.
+				double binWidth = Math.Round(width / bins + 0.05, 1);  // in "pixels"
+				bins = (int)Math.Round(width / binWidth);
+				if (Columns[column].ColumnType == ZColumnType.Integer)
+				{
+					bins = Math.Min(bins, (int)(chartMax - chartMin + 1));
+					bins = (int)((chartMax - chartMin + 1) / Math.Round((chartMax - chartMin + 1) / bins));
+				}
+				int i = 0; // Index into sourceCell.Data for where we're up to right now.
+				var heights = new List<int>();
+				for (double xx = 0; xx < width; xx += binWidth)
+				{
+					int binHeight = 0;
+					double binEnd = AntiScale(xx + binWidth, width, chartMin, chartMax);
+					while (i < count && cell.Data[i] < binEnd)
+					{
+						binHeight++;
+						i++;
+					}
+					heights.Add(binHeight);
+				}
+				
+				for (i = 0; i < heights.Count; i++)
+//						for (double xx = chartMin; xx < chartMax; xx += (chartMax - chartMin) / bins)
+				{
+					if (heights[i] > 0)
+						SvgRect(s, 1, left + width * i / bins, top + height - height * heights[i] / heights.Max(), 
+						        width / bins - 0.1, height * heights[i] / heights.Max(), chartColor);
+				}
+			}
+
+			if (cell.ChartType.HasFlag(ChartType.KernelDensityEstimate) && count > 1)  // Kernel Density Estimate
+			{
+				double sum = cell.Data.Sum();
+				double squaredSum = cell.Data.Sum(x => x * x);
+				double mean = sum / count;
+				double stddev = count <= 1 ? 0 : Math.Sqrt((squaredSum - (sum * sum / count)) / (count - 1));
+				double bandwidth =  1.06 * stddev * Math.Pow(count, -0.2);
+				
+				int n = width < 100 ? (int)width * 10 : (int)width * 10 / (int)(width / 50);
+				
+				var points = new List<Tuple<double, double>>();
+				points.Add(new Tuple<double, double>(left, 0));
+				double yMax = 0;
+				for (double xx = chartMin; xx < chartMax; xx += (chartMax - chartMin) / n)
+				{
+					double y = 0;
+					foreach (double d in cell.Data)
+						y += Gauss(xx, d, bandwidth);
+					yMax = Math.Max(yMax, y);
+					points.Add(new Tuple<double, double>(left + Scale(xx, width, chartMin, chartMax), y));
+				}
+				points.Add(new Tuple<double, double>(left + width, 0));
+				SvgPolygon(s, 1, points, top, height, yMax, chartColor);
+				SvgRect(s, 1, left + Scale(mean, width, chartMin, chartMax) - 0.05, top, 0.1, height, backColor);  // Paint mean stripe.
+				SvgRect(s, 1, left + Scale(mean - stddev, width, chartMin, chartMax) - 0.05, top + height * 0.393, 0.1, height * 0.607, backColor);  // -1 stddev.
+				SvgRect(s, 1, left + Scale(mean + stddev, width, chartMin, chartMax) - 0.05, top + height * 0.393, 0.1, height * 0.607, backColor);  // +1 stddev.
+				SvgRect(s, 1, left + Scale(mean - 2 * stddev, width, chartMin, chartMax) - 0.05, top + height * 0.865, 0.1, height * 0.135, backColor);  // -2.
+				SvgRect(s, 1, left + Scale(mean + 2 * stddev, width, chartMin, chartMax) - 0.05, top + height * 0.865, 0.1, height * 0.135, backColor);  // +2.
+				double height3 = Math.Max(height * 0.011, 0.1);
+				SvgRect2(s, 1, left + Scale(mean - 3 * stddev, width, chartMin, chartMax) - 0.05, top + height - height3, 0.1, height3, backColor);  // -3.
+				SvgRect2(s, 1, left + Scale(mean + 3 * stddev, width, chartMin, chartMax) - 0.05, top + height - height3, 0.1, height3, backColor);  // +3.
+			}
+
+			if (cell.ChartType.HasFlag(ChartType.Rug))  // Rug
+		    {
+				int markNumber = 0;  // This is going to be 0 for most marks, but where marks coincide or overlap we will increment this to prevent them overpainting.
+				double lastCentre = double.MinValue;
+				double markWidth = Math.Max(Math.Min(width / Math.Max(count * 2, 100.0), height * 0.1), 1); // Width of a mark is 1/100th of the row width, or smaller if there's lots of data points, or the mark height; whichever smallest. If less than 1, round up to 1.
+				int marksPerRow = Math.Min(Math.Max((int)Math.Sqrt(count), 9), 75);
+				double markHeight = height * 0.9 / marksPerRow;
+				
+				foreach (double d in cell.Data)
+				{
+					double markCentre = Scale(d, width, chartMin, chartMax);
+					if (markCentre - lastCentre < markWidth * 1.1)  // Clear of other marks? Drop down to bottom of the row. Not clear? Go in above the last mark, unless we've reached top of the row, in which case modulo back down to 0.
+						markNumber = (markNumber + 1) % marksPerRow;
+					else
+					{
+						markNumber = 0;
+						lastCentre = markCentre;
+					}
+
+					Color markColor = cell.ChartType.HasFlag(ChartType.KernelDensityEstimate) || 
+						(cell.ChartType.HasFlag(ChartType.Bar) && 0 < d && d < cell.Number) ? backColor : chartColor;
+					SvgRect2(s, 1, left + markCentre - markWidth / 2, top + height - (markNumber + 1) * markHeight, markWidth, markHeight, markColor);  // Paint mark.
+				}
+			}
+		}
+
+		// Write a single table row.
+		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int width, ZRow row, bool odd)
+		{
+			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(odd));  // Paint the background for the whole row.
+
+			// Paint any chart cells for this row.
 			int start = 0;
 			while (start < Math.Min(Columns.Count, row.Count))
 			{
@@ -761,111 +971,10 @@ namespace Zoom
 				var sourceCell = row[barSource];
 
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
-				{
-					double chartx = widths.Take(start).Sum() + start + 1;
-					double chartWidth = widths.Skip(start).Take(end - start + 1).Sum() + end - start;
-					double chartMin = MaxChartByColumn ? mins[barSource] : mins.Min();
-					double chartMax = MaxChartByColumn ? maxs[barSource] : maxs.Max();
-					Color backColor = Colors.GetBackColor(odd, sourceCell.Color);
-					Color chartColor = sourceCell.GetBarColor(Colors.GetBackColor(odd), Colors.BarNone);
+					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
+					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), 
+					         Colors.GetBackColor(odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(odd), Colors.BarNone), sourceCell, barSource);
 
-					if (sourceCell.Color != Color.Empty)
-						SvgRect(s, 1, chartx, rowTop, chartWidth, rowHeight, backColor);  // Paint chart cell(s) background.
-
-					if ((sourceCell.ChartType == ChartType.None || sourceCell.ChartType.HasFlag(ChartType.Bar)) && sourceCell.Number != null)  // Bar
-						SvgRect(s, 1, chartx + Scale(0, chartWidth, chartMin, chartMax), rowTop, Scale(sourceCell.Number ?? 0, chartWidth, 0, chartMax - chartMin), rowHeight, chartColor);  // Paint bar.
-
-					int count = 0;
-					if (sourceCell.ChartType.HasFlag(ChartType.Rug) || sourceCell.ChartType.HasFlag(ChartType.BoxPlot) || sourceCell.ChartType.HasFlag(ChartType.KernelDensityEstimate))  // BoxPlot
-					{
-						sourceCell.Data.Sort();
-						count = sourceCell.Data.Count;
-					}
-
-					if (sourceCell.ChartType.HasFlag(ChartType.BoxPlot))
-					{
-						if (sourceCell.Number != null)
-							SvgRect(s, 1, chartx + chartWidth * (double)sourceCell.Number / chartMax - 0.5, rowTop, 1, rowHeight * 0.9, chartColor);  // Paint mean stripe.
-
-						if (count > 1)
-						{
-							double median = count % 2 == 0 ? (sourceCell.Data[count / 2 - 1] + sourceCell.Data[count / 2]) / 2 : sourceCell.Data[count / 2];
-							double firstQuartile = count % 4 == 0 ? sourceCell.Data[count / 4] : sourceCell.Data[count / 4];
-							double thirdQuartile = count % 4 == 0 ? sourceCell.Data[(count * 3 / 4) - 1] : sourceCell.Data[count * 3 / 4];
-
-							SvgRect(s, 1, chartx + Scale(sourceCell.Data[0], chartWidth, 0, chartMax), rowTop + rowHeight * 0.4,
-							        Scale(sourceCell.Data[count - 1] - sourceCell.Data[0], chartWidth, 0, chartMax), rowHeight * 0.1, chartColor);  // Bottom quartile / top quartile whisker.
-
-							SvgRect(s, 1, chartx + Scale(firstQuartile, chartWidth, 0, chartMax), rowTop + rowHeight * 0.1,
-							        Scale(thirdQuartile - firstQuartile, chartWidth, 0, chartMax), rowHeight * 0.7, chartColor);  // Second quartile / third quartile box.
-
-							SvgRect(s, 1, chartx + Scale(median, chartWidth, 0, chartMax) - 0.5, rowTop + rowHeight * 0.1, 1, rowHeight * 0.7, backColor);  // Median white stripe.
-						}
-					}
-
-					if (sourceCell.ChartType.HasFlag(ChartType.KernelDensityEstimate))  // Kernel Density Estimate
-					{
-						if (sourceCell.Number != null)
-							SvgRect(s, 1, chartx + chartWidth * (double)sourceCell.Number / chartMax - 0.5, rowTop, 1, rowHeight * 0.9, chartColor);  // Paint mean stripe.
-
-						if(count > 1)
-						{
-							double sum = 0;
-							double squaredSum = 0;
-							foreach (double d in sourceCell.Data)
-							{
-								sum += d;
-								squaredSum += d * d;
-							}
-							double mean = sum / count;
-							double variance = count <= 1 ? 0 : (squaredSum - (sum * sum / count)) / (count - 1);
-							double bandwidth =  1.06 * Math.Sqrt(variance) * Math.Pow(count, -0.2);
-							
-							int n = (int)chartWidth;
-							if (n > 100)
-								n /= (int)(n / 50);
-							
-							var points = new List<Tuple<double, double>>();
-							points.Add(new Tuple<double, double>(chartx, 0));
-							double yMax = 0;
-							for (double xx = chartMin; xx < chartMax; xx += (chartMax - chartMin) / n)
-							{
-								double y = 0;
-								foreach (double d in sourceCell.Data)
-								{
-									y += Gauss(xx, mean, variance);
-									yMax = Math.Max(yMax, y);
-								}
-								points.Add(new Tuple<double, double>(chartx + Scale(xx, chartWidth, chartMin, chartMax), y));
-							}
-							points.Add(new Tuple<double, double>(chartx + chartWidth, 0));
-							SvgPolygon(s, 1, points, rowTop, rowHeight, yMax, chartColor);
-						}
-					}
-
-					if (sourceCell.ChartType.HasFlag(ChartType.Rug))  // Rug
-				    {
-						int markNumber = 0;  // This is going to be 0 for most marks, but where marks coincide or overlap we will increment this to prevent them overpainting.
-						double lastCentre = double.MinValue;
-						double markWidth = Math.Max(Math.Min(chartWidth / Math.Max(count * 2, 100.0), rowHeight * 0.1), 1); // Width of a mark is 1/100th of the row width, or smaller if there's lots of data points, or the mark height; whichever smallest. If less than 1, round up to 1.
-
-						foreach (double d in sourceCell.Data)
-						{
-							double markCentre = Scale(d, chartWidth, chartMin, chartMax);
-							if (markCentre - lastCentre < markWidth)
-								markNumber++;
-							else
-								markNumber = 0;
-							markNumber %= 9;
-
-							Color markColor = sourceCell.ChartType.HasFlag(ChartType.KernelDensityEstimate) || (sourceCell.ChartType.HasFlag(ChartType.Bar) && 0 < d && d < sourceCell.Number) ? backColor : chartColor;
-							SvgRect(s, 1, chartx + markCentre - markWidth / 2, rowTop + rowHeight * (9 - markNumber) * 0.1, 
-							        markWidth, rowHeight * 0.1, markColor);  // Paint mark.
-
-							lastCentre = markCentre;
-						}
-					}
-				}
 				start = end + 1;
 			}
 			s.Append('\n');
@@ -873,8 +982,7 @@ namespace Zoom
 			float x = 1;
 			for (int col = 0; col < Columns.Count && col < row.Count; col++)
 			{
-				SvgText(s, 1, (int)x, rowTop, (int)widths[col], rowHeight,
-				        Colors.TextColor, Columns[col].Alignment, row[col].Text, null, row[col].Hyper);  // Write a data cell.
+				SvgText(s, 1, (int)x, top, (int)widths[col], height, Columns[col], row[col]);  // Write a data cell.
 
 				x += widths[col] + 1;
 			}
@@ -906,7 +1014,7 @@ namespace Zoom
 
 			foreach (ZRow row in Rows)
 			{
-				SvgRow(s, hasgroupheadings, rowHeight, rowTop, widths, mins, maxs, width, row, odd);
+				SvgRow(s, rowTop, rowHeight, widths, mins, maxs, width, row, odd);
 
 				rowTop += rowHeight + 1;
 				odd = !odd;
