@@ -552,7 +552,11 @@ namespace Torn.UI
 				groupPlayersBy = form.GroupPlayersBy;
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
-				laserGameServer = new PAndC(serverAddress);
+				switch (form.SystemType) {
+					case SystemType.Laserforce: laserGameServer = new Laserforce(serverAddress);  break;
+					case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
+					case SystemType.Demo: laserGameServer = new PAndC(serverAddress);  break;
+				}
 			}
 		}
 

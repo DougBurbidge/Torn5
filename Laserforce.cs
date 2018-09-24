@@ -13,17 +13,18 @@ namespace Torn
 	public class Laserforce: LaserGameServer
 	{
 		SqlConnection connection;
-		public int GamesLimit;
+		public int GamesLimit { get; set; }
 
-		public Laserforce()
+		public Laserforce(string server = "")
 		{
 			GamesLimit = 1000;
 			
-			string server = "lf-main\\lf6";
+			if (string.IsNullOrEmpty(server))
+				server = "lf-main\\lf6";
 			try
 			{
 				connection = new SqlConnection("Data Source=" + server + 
-					";Initial Catalog=Laserforce;User ID=UserName;Password=Password;Database=Laserforce;Trusted_Connection=True");
+					";Database=Laserforce;Trusted_Connection=True");
 				connection.Open();
 				Connected = true;
 			}
