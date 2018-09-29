@@ -108,7 +108,7 @@ namespace Torn
 						if (fields.Length <= 4)  // If there are four or less teams per game,
 							fg.Teams.Add(ft, (Colour)i);  // assign colours to teams.
 						else
-							fg.Teams.Add(ft, Colour.NoColour);
+							fg.Teams.Add(ft, Colour.None);
 					}
 
 				Add(fg);

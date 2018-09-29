@@ -116,15 +116,15 @@ namespace Torn.Report
 			ZoomReports reports = new ZoomReports();
 			reports.Add(Reports.OneGame(game));
 			reports.Add(new ZoomHtmlInclusion("<a href=\"index.html\">Index</a>"));
-			return reports.ToHtml();
+			return reports.ToSvg();
 		}
 
-		static string TeamPage(League league, bool includeSecret, LeagueTeam leagueTeam)
+		static string TeamPage(League league, bool includeSecret, LeagueTeam leagueTeam, GameHyper gameHyper)
 		{
 			ZoomReports reports = new ZoomReports();
-			reports.Add(Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true));
+			reports.Add(Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true, gameHyper));
 			reports.Add(new ZoomHtmlInclusion("<a href=\"index.html\">Index</a>"));
-			return reports.ToHtml();
+			return reports.ToSvg();
 		}
 
 		static string FixturePage(Fixture fixture, League league, string teamId = null)
@@ -149,6 +149,11 @@ namespace Torn.Report
 			reports.Add(Reports.FixtureList(fixture, league, teamId));
 			reports.Add(new ZoomHtmlInclusion("<a href=\"index.html\">Index</a> <a href=\"fixture.html\">Fixture</a>"));
 			return reports.ToHtml();
+		}
+
+		static string GameHyper(Game game)
+		{
+			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture);
 		}
 
 		string NowPage()
@@ -199,12 +204,12 @@ namespace Torn.Report
 				if (request.RawUrl == "/")
 				{
 					if (Leagues.Count == 1)
-						return OverviewPage(holder, false, game => "game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html");
+						return OverviewPage(holder, false, GameHyper);
 					else
 						return RootPage(Leagues);
 				}
 				else if (lastPart == "index.html")
-					return OverviewPage(holder, false, game => "game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html");
+					return OverviewPage(holder, false, GameHyper);
 				else if (lastPart.StartsWith("game", StringComparison.OrdinalIgnoreCase))
 				{
 					DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 14), "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
@@ -223,7 +228,7 @@ namespace Torn.Report
 						if (leagueTeam == null)
 							return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid team number: <br>{0}</body></html>", request.RawUrl);
 						else
-							return TeamPage(holder.League, false, leagueTeam);
+							return TeamPage(holder.League, false, leagueTeam, GameHyper);
 					}
 					else
 							return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid team: <br>{0}</body></html>", request.RawUrl);
@@ -259,27 +264,27 @@ namespace Torn.Report
 					Directory.CreateDirectory(Path.Combine(path, holder.Key));
 
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index.html")))
-						sw.Write(OverviewPage(holder, includeSecret, game => "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture)));
+						sw.Write(OverviewPage(holder, includeSecret, GameHyper));
 
 					if (league.AllGames.Count > 0)
 						for (DateTime day = league.AllGames[0].Time.Date; day <= league.AllGames[league.AllGames.Count - 1].Time.Date; day = day.AddDays(1))
-							using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "games" + day.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
-							{
-								ZoomReports reports = new ZoomReports();
-								foreach (Game game in league.AllGames)
-									if (game.Time.Date == day)
-									{
-										reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\"><div/>"));
-										reports.Add(Reports.OneGame(game));
-									}
-								reports.Add(new ZoomHtmlInclusion("<a href=\"index.html\">Index</a>"));
-								if (reports.Count > 1)  // There were games this day.
-									sw.Write(reports.ToHtml());
-							}
+						{
+							ZoomReports reports = new ZoomReports();
+							foreach (Game game in league.AllGames)
+								if (game.Time.Date == day)
+								{
+									reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\"><div/>"));
+									reports.Add(Reports.OneGame(game));
+								}
+							reports.Add(new ZoomHtmlInclusion("<a href=\"index.html\">Index</a>"));
+							if (reports.Count > 1)  // There were games this day.
+								using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "games" + day.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
+									sw.Write(reports.ToSvg());
+						}
 
 					foreach (LeagueTeam leagueTeam in league.Teams)
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
-							sw.Write(TeamPage(league, includeSecret, leagueTeam));
+							sw.Write(TeamPage(league, includeSecret, leagueTeam, GameHyper));
 				}
 			}
 		}

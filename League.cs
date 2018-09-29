@@ -12,7 +12,7 @@ using System.Xml;
 
 namespace Torn
 {
-	public enum Colour { NoColour = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange };
+	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange };
 	public static class ColourExtensions
     {
         public static Color ToColor(this Colour colour)
@@ -52,6 +52,71 @@ namespace Torn
         }
     }
 
+	public class Handicap
+	{
+		public int Value { get; set; }
+		public HandicapStyle Style { get; set; }
+
+		public Handicap () {}
+
+		public Handicap(int value, HandicapStyle style)
+		{
+			Value = value;
+			Style = style;
+		}
+
+		public double Apply(double score)
+		{
+			return Style == HandicapStyle.Percent ? score * Value / 100 :
+				   Style == HandicapStyle.Plus ?    score + Value :
+				                                    score - Value;
+		}
+
+		/// <summary>Parse strings like "110%", "+1000", "-1000", "110" into handicap value and style.</summary>
+		public static Handicap Parse(string s)
+		{
+			var h = new Handicap();
+
+			if (!string.IsNullOrEmpty(s))
+			{
+				if (s[s.Length - 1] == '%')
+				{
+					h.Value = int.Parse(s.Substring(0, s.Length - 2), CultureInfo.InvariantCulture);
+					h.Style = HandicapStyle.Percent;
+				}
+				else if (s[0] == '+')
+				{
+					h.Value = int.Parse(s.Substring(1), CultureInfo.InvariantCulture);
+					h.Style = HandicapStyle.Plus;
+				}
+				else if (s[0] == '-')
+				{
+					h.Value = int.Parse(s.Substring(1), CultureInfo.InvariantCulture);
+					h.Style = HandicapStyle.Minus;
+				}
+				else  // No style specified -- assume '%'.
+				{
+					h.Value = int.Parse(s, CultureInfo.InvariantCulture);
+					h.Style = HandicapStyle.Percent;
+				}
+			}
+
+			return h;
+		}
+
+		public override string ToString()
+		{
+			return (Style == HandicapStyle.Percent) ?
+				Value.ToString(CultureInfo.InvariantCulture) + '%' :
+				Style.ToString() + Value.ToString(CultureInfo.InvariantCulture);
+		}
+
+		/// <summary>True if the handicap is 100%, +0 or -0.</summary>
+		public bool IsZero()
+		{
+			return (Style == HandicapStyle.Percent && Value == 100) || (Style != HandicapStyle.Percent && Value == 0);
+		}
+	}
 
 	public class LeaguePlayer
     {
@@ -60,7 +125,7 @@ namespace Torn
     	/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc.</summary>
 		public string Id { get; set; }  // 
     	/// <summary>FUTURE: make this represent player handicap.</summary>
-		public int Handicap { get; set; }
+		public Handicap Handicap { get; set; }
     	/// <summary>User-defined. Often used for player grade.</summary>
 		public string Comment { get; set; }  // 
     	
@@ -114,7 +179,7 @@ namespace Torn
 		}
 		
 		public int Id  { get; set; }
-		public int Handicap { get; set; }  // TODO: make this smarter to cope with both % and +/-.
+		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
 		public List<LeaguePlayer> Players { get; private set; }
 		public List<GameTeam> AllGameTeams { get; private set; }
@@ -173,7 +238,23 @@ namespace Torn
 		public int TeamId { get; set; }
 		public LeagueTeam LeagueTeam { get; set; }
 		public Game Game { get; set; }
-		public Colour Colour { get; set; }
+		Colour colour;
+		public Colour Colour
+		{
+			get
+			{
+				if (colour == Colour.None)
+				{
+					var counts = new int[9];
+					foreach (var player in players)
+						counts[(int)player.Colour]++;
+
+					colour = (Colour)counts.ToList().IndexOf(counts.Max());
+				}
+				return colour;
+			}
+			set { colour = value; }
+		}
 		public int Score { get; set; }
 		public int Adjustment { get; set; }
 		public int Points { get; set; }
@@ -196,14 +277,7 @@ namespace Torn
 
 			score += Adjustment;
 
-			if (LeagueTeam != null)
-				switch (handicapStyle) {
-					case HandicapStyle.Percent: score = score * LeagueTeam.Handicap / 100; break;
-					case HandicapStyle.Plus: score = score + LeagueTeam.Handicap; break;
-					case HandicapStyle.Minus: score = score - LeagueTeam.Handicap; break;
-				}
-
-			return score;
+			return LeagueTeam != null ? new Handicap(LeagueTeam.Handicap.Value, handicapStyle).Apply(score) : score;
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -317,7 +391,7 @@ namespace Torn
 		}
     }
     
-	/// <summary>Load and manage a .Torn league file, containg league teams and games.</summary>
+	/// <summary>Load and manage a .Torn league file, containing league teams and games.</summary>
 	public class League
 	{
 		public string Title {get; set; }
@@ -502,7 +576,7 @@ namespace Torn
 				
 				leagueTeam.Name = XmlValue(xteam, "teamname");
 				leagueTeam.Id = XmlInt(xteam, "teamid");
-				leagueTeam.Handicap = XmlInt(xteam, "handicap");
+				leagueTeam.Handicap = Handicap.Parse(XmlValue(xteam, "handicap"));
 				leagueTeam.Comment = XmlValue(xteam, "comment");
 				
 				var teamPlayers = xteam.SelectSingleNode("players");
@@ -524,7 +598,7 @@ namespace Torn
 						}
 
 						leaguePlayer.Name = XmlValue(xplayer, "name");
-						leaguePlayer.Handicap = XmlInt(xplayer, "handicap");
+						leaguePlayer.Handicap = Handicap.Parse(XmlValue(xteam, "handicap"));
 						leaguePlayer.Comment = XmlValue(xplayer, "comment");
 
 						if (!leagueTeam.Players.Exists(x => x.Id == id))
@@ -711,7 +785,8 @@ namespace Torn
 
 				AppendNode(doc, teamNode, "teamname", team.Name);
 				AppendNode(doc, teamNode, "teamid", team.Id);
-				AppendNode(doc, teamNode, "handicap", team.Handicap);
+				if (!team.Handicap.IsZero())
+					AppendNode(doc, teamNode, "handicap", team.Handicap.ToString());
 				AppendNode(doc, teamNode, "comment", team.Comment);
 
 				XmlNode playersNode = doc.CreateElement("players");
@@ -724,7 +799,8 @@ namespace Torn
 
 					AppendNode(doc, playerNode, "name", player.Name);
 					AppendNode(doc, playerNode, "buttonid", player.Id);
-					AppendNode(doc, playerNode, "handicap", player.Handicap);
+					if (!player.Handicap.IsZero())
+						AppendNode(doc, playerNode, "handicap", player.Handicap.ToString());
 					AppendNode(doc, playerNode, "comment", player.Comment);
 				}
 			}

@@ -166,7 +166,7 @@ namespace Torn.UI
 
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			LeagueTeam.Handicap = InputDialog.GetInteger("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , LeagueTeam.Handicap);
+			LeagueTeam.Handicap.Value = InputDialog.GetInteger("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , LeagueTeam.Handicap.Value);
 			Recalculate(false);
 		}
 

@@ -320,6 +320,15 @@ namespace Zoom
 			return true;
 		}
 
+		public bool ColumnZero(int i)
+		{
+			foreach(ZRow row in Rows)
+				if (i < row.Count && row[i].Number != 0)
+					return false;
+
+			return true;
+		}
+
 		public void RemoveColumn(int i)
 		{
 			if (i < Columns.Count)
@@ -636,7 +645,7 @@ namespace Zoom
 			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, null, cell.Hyper);
 
 //			int decimals = 0;
-//			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && cell.NumberFormat[0] == 'F')
+//			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
 //				decimals = int.Parse(cell.NumberFormat.Substring(1));
 //
 //			if (cell.Number == 0)
@@ -646,7 +655,8 @@ namespace Zoom
 //					s.Append('\u2008');  // punctutation space (width of a .)
 //				s.Append('\u2002', decimals);  // en space (nut)
 //			}
-			if (cell.Number == 0 || cell.Number == null || cell.Number < -0.0001 || cell.Number > 0.0001)
+			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
+			    cell.Number < -0.0001 || cell.Number > 0.0001)
 				s.Append(WebUtility.HtmlEncode(cell.Text));
 			else
 			{
