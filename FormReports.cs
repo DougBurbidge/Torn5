@@ -43,7 +43,7 @@ namespace Torn.UI
 		/// <summary>Rebuild the list view from the ReportTemplates collection.</summary>
 		void RefreshListView()
 		{
-			// Memorise what was selected.
+			// Remember what was selected.
 			List<ReportTemplate> reportTemplates = new List<ReportTemplate>();
 			foreach (ListViewItem item in listViewReports.SelectedItems)
 				reportTemplates.Add((ReportTemplate)item.Tag);

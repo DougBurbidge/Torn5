@@ -16,9 +16,9 @@ namespace Zoom
 
 	public static class ZAlignmentExtensions
 	{
-		public static string ToHtml(this ZAlignment me)
+		public static string ToHtml(this ZAlignment alignment)
 		{
-			switch (me)
+			switch (alignment)
 			{
 				case ZAlignment.None:   return "";
 				case ZAlignment.Left:   return " align=\"left\"";
@@ -55,30 +55,50 @@ namespace Zoom
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
 		public bool Rotate;
 	    
-	    public ZColumn(string text)
-	    {
-	    	Text = text;
-	    }
+		public ZColumn(string text)
+		{
+			Text = text;
+		}
 
-	    public ZColumn(string text, ZAlignment alignment)
-	    {
-	    	Text = text;
-	    	Alignment = alignment;
-	    }
+		public ZColumn(string text, ZAlignment alignment)
+		{
+			Text = text;
+			Alignment = alignment;
+		}
 
-	    public ZColumn(string text, ZAlignment alignment, ZColumnType columnType)
-	    {
-	    	Text = text;
-	    	Alignment = alignment;
-	    	ColumnType = columnType;
-	    }
+		public ZColumn(string text, ZAlignment alignment, ZColumnType columnType)
+		{
+			Text = text;
+			Alignment = alignment;
+			ColumnType = columnType;
+		}
+
+		public ZColumn(string text, ZAlignment alignment, ZColumnType columnType, string groupHeading)
+		{
+			Text = text;
+			Alignment = alignment;
+			ColumnType = columnType;
+			GroupHeading = groupHeading;
+		}
 	}
-
-//	public class ZColumns: List<ZColumn>
-//  function  Find(heading: string): Integer;
 
 	[Flags]
 	public enum ChartType { None = 0, Bar = 1, Rug = 2, BoxPlot = 4, Histogram = 8, KernelDensityEstimate = 16 };
+	public static class ChartTypeExtensions
+	{
+		public static ChartType ToChartType(string value)
+		{
+			ChartType chartType = ChartType.None;
+			if (string.IsNullOrEmpty(value)) return chartType;
+
+			if (value.Contains("rug")) chartType |= ChartType.Rug;
+			if (value.Contains("bar")) chartType |= ChartType.Bar;
+			if (value.Contains("box")) chartType |= ChartType.BoxPlot;
+			if (value.Contains("histogram")) chartType |= ChartType.Histogram;
+			if (value.Contains("kernel")) chartType |= ChartType.KernelDensityEstimate;
+			return chartType;
+		}
+	}
 
 	/// <summary>Represents a single cell in a table. The cell can optionally have a horizontal chart bar.</summary>
 	public class ZCell: ZBlock
@@ -115,11 +135,10 @@ namespace Zoom
 		public string NumberFormat { get; set; }
 		/// <summary>Optional background colour.</summary>
 		public Color Color { get; set; }
-		/// <summary>If true, show a chart bar for this cell. If BarCell is not set, use this cell's number; otherwise use the cell specified in BarCell.
-		/// If BarCell is set, setting/clearing Bar has no effect.</summary>
+		/// <summary>If set, show a chart for this cell. If ChartCell is not set, use this cell's number; otherwise use the cell specified in ChartCell.</summary>
 		public ChartType ChartType { get; set; }
-		/// <summary>Optional pointer to cell whose value we are to show as a horizontal chart bar.</summary>
-		public int? ChartCell { get; set; }  
+		/// <summary>Optional pointer to cell whose value we are to show as a chart. If no ChartType is set, we assume ChartType.Bar.</summary>
+		public ZCell ChartCell { get; set; }  
 		/// <summary>Color of optional horizontal chart bar.</summary>
 		public Color BarColor { get; set; }
 		/// <summary>List of values to be shown as a scatter plot / quartile plot / stem-and-leaf plot / rug map / kernel density estimation.</summary>
@@ -127,7 +146,7 @@ namespace Zoom
 		/// <summary>Can hold whatever data the caller wants.</summary>
     	public object Custom { get; set; }
 
-		public ZCell(string text = "", Color color = default(Color), int? barCell = null)
+		public ZCell(string text = "", Color color = default(Color), ZCell barCell = null)
 		{
 			Text = text;
 			Color = color;
@@ -162,16 +181,16 @@ namespace Zoom
 	{
 		///<summary>If there is exactly one chart in this row (because exactly one cell has its ChartType set, or because all the ChartCell 
 		/// values specified in this row point to just one cell, return the index of the cell whose value is used for the bar.</summary>
-		public int? OneBarCell()
+		public ZCell OneBarCell()
 		{
-			int result = 0;
+			ZCell result = null;
 			bool foundOneBar = false;
 			for (int col = 0; col < this.Count; col++)
 			{
 				var cell = this[col];
 				if (foundOneBar)
 				{
-					if ((cell.ChartCell != null && cell.ChartCell != result) || (cell.ChartType != ChartType.None && result != col))
+					if ((cell.ChartCell != null && cell.ChartCell != result) || (cell.ChartType != ChartType.None && result != cell))
 						return null;
 				}
 				else  // No Bar found yet.
@@ -179,16 +198,16 @@ namespace Zoom
 					if (cell.ChartCell != null)
 					{
 						foundOneBar = true;
-						result = (int)cell.ChartCell;
+						result = cell.ChartCell;
 					}
 					else if (cell.ChartType != ChartType.None)
 					{
 						foundOneBar = true;
-						result = col;
+						result = cell;
 					}
 				}
 			}
-			return foundOneBar ? (int?)result : null;
+			return foundOneBar ? result : null;
 		}
 	}
 
@@ -311,6 +330,11 @@ namespace Zoom
 				builder.Append(s);
 		}
 
+		public ZCell Cell(ZRow row, string columnText)
+		{
+			return row[Columns.FindIndex(x => x.Text == columnText)];
+		}
+
 		public bool ColumnEmpty(int i)
 		{
 			foreach(ZRow row in Rows)
@@ -323,7 +347,7 @@ namespace Zoom
 		public bool ColumnZero(int i)
 		{
 			foreach(ZRow row in Rows)
-				if (i < row.Count && row[i].Number != 0)
+				if (i < row.Count && !row[i].Empty() && row[i].Number != 0)
 					return false;
 
 			return true;
@@ -511,7 +535,7 @@ namespace Zoom
 				s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(odd)));
 				s.Append("\">\n");
 
-				int? oneBarCell = row.OneBarCell();
+				ZCell oneBarCell = row.OneBarCell();
 
 				for (int col = 0; col < Columns.Count && col < row.Count; col++)
 				{
@@ -522,7 +546,7 @@ namespace Zoom
 					else
 						cellColor = " style=\"background-color: " + System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(odd, row[col].Color)) + '"';
 
-					if (Bars && /*!oneBar &&*/ row[col].Number != null && (row[col].ChartType != ChartType.None || row[col].ChartCell == col))
+					if (Bars && /*!oneBar &&*/ row[col].Number != null && (row[col].ChartType != ChartType.None || row[col].ChartCell == row[col]))
 					{
 						// find the max value to scale the bar against
 //						if (MaxBarByColumn)
@@ -940,7 +964,7 @@ namespace Zoom
 		    {
 				int markNumber = 0;  // This is going to be 0 for most marks, but where marks coincide or overlap we will increment this to prevent them overpainting.
 				double lastCentre = double.MinValue;
-				double markWidth = Math.Max(Math.Min(width / Math.Max(count * 2, 100.0), height * 0.1), 1); // Width of a mark is 1/100th of the row width, or smaller if there's lots of data points, or the mark height; whichever smallest. If less than 1, round up to 1.
+				double markWidth = Math.Max(Math.Min(width / Math.Max(count * 2, 100.0), height * 0.1), 0.2); // Width of a mark is 1/100th of the row width, or smaller if there's lots of data points, or the mark height; whichever smallest. If less than 0.2, round up to 0.2.
 				int marksPerRow = Math.Min(Math.Max((int)Math.Sqrt(count), 9), 75);
 				double markHeight = height * 0.9 / marksPerRow;
 				
@@ -976,9 +1000,9 @@ namespace Zoom
 					end++;
 
 				if (start == end && row[start].ChartType != ChartType.None && row[start].ChartCell == null)  // This is a one-column wide bar.
-					row[start].ChartCell = start;
-				var barSource = row[start].ChartCell ?? start;
-				var sourceCell = row[barSource];
+					row[start].ChartCell = row[start];
+				var sourceCell = row[start].ChartCell ?? row[start];
+				int barSource = row.FindIndex(cell => cell == sourceCell);
 
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
 					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,

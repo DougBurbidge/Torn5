@@ -75,10 +75,10 @@ namespace Torn.Report
 	{
 		private Reports() {}
 
-		public static ZoomReport TeamLadder(League league, bool includeSecret, DateTime? from, DateTime? to, Drops drops,
+		public static ZoomReport TeamLadder(League league, bool includeSecret, DateTime? from, DateTime? to, Drops drops, ChartType chartType,
 		                                    bool scaleGames, bool ratio, bool showColours, bool description)
 		{
-			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
+			ZoomReport report = new ZoomReport(league.Title + " Team Ladder", "Rank,Team", "center,left");
 			report.MaxChartByColumn = true;
 			report.Columns[0].ColumnType = ZColumnType.Integer;
 
@@ -86,12 +86,9 @@ namespace Torn.Report
 			if (showColours)
 		 		for (Colour c = Colour.Red; c <= Colour.Orange; c++)
 				{
-					report.Columns.Add(new ZColumn("1st", ZAlignment.Right, ZColumnType.Integer));
-					report.Columns.Add(new ZColumn("2nd", ZAlignment.Right, ZColumnType.Integer));
-					report.Columns.Add(new ZColumn("3rd", ZAlignment.Right, ZColumnType.Integer));
-					report.Columns[report.Columns.Count - 3].GroupHeading = c.ToString();
-					report.Columns[report.Columns.Count - 2].GroupHeading = c.ToString();
-					report.Columns[report.Columns.Count - 1].GroupHeading = c.ToString();
+					report.Columns.Add(new ZColumn("1st", ZAlignment.Right, ZColumnType.Integer, c.ToString()));
+					report.Columns.Add(new ZColumn("2nd", ZAlignment.Right, ZColumnType.Integer, c.ToString()));
+					report.Columns.Add(new ZColumn("3rd", ZAlignment.Right, ZColumnType.Integer, c.ToString()));
 
 					colourTotals.Add(c, new List<int>());
 				}
@@ -107,9 +104,8 @@ namespace Torn.Report
 				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Right, ZColumnType.Integer));
 
 			List<Game> games = league.Games(includeSecret);
-			report.Title = league.Title + " Team Ladder" + FromTo(games, from, to);
 
-			int barcol = 0;
+			ZCell barCell = null;
 			double scoreTotal = 0;
 			double pointsTotal = 0.0;
 
@@ -173,7 +169,10 @@ namespace Torn.Report
 			 					row.Add(new ZCell("", c.ToColor()));
 
 				if (league.IsPoints())
-					row.Add(new ZCell(points));  // league points scored
+				{
+					barCell = new ZCell(points);  // league points scored
+					row.Add(barCell);  // league points scored
+				}
 				pointsTotal += points;
 
 				int count = scoreList.Count;  // Number of games _before_ any are dropped.
@@ -182,7 +181,8 @@ namespace Torn.Report
 					scoreCell = new ZCell("-");     // average game scores
 				else
 				{
-					scoreCell = new ZCell(0, ChartType.Bar | ChartType.Rug);
+					//scoreCell = DataCell(scoreList, drops, chartType, "N0");
+					scoreCell = new ZCell(0, chartType);
 					DropScores(scoreList, drops);
 
 					if (ratio)
@@ -201,26 +201,26 @@ namespace Torn.Report
 					scoreTotal += scoreList.Average();
 				}
 				row.Add(scoreCell);     // average game scores
-				barcol = row.Count - (league.IsPoints() ? 2 : 1);
-				scoreCell.ChartCell = barcol; 
+				if (!league.IsPoints())
+					barCell = scoreCell;
 
 				row.Add(new ZCell(count, ChartType.None, "N0"));  // games played
 
-		        if (scoreList.Count < count)
-		            row.Add(new ZCell(count - scoreList.Count, ChartType.None, "N0"));  // games dropped
+				if (scoreList.Count < count)
+					row.Add(new ZCell(count - scoreList.Count, ChartType.None, "N0"));  // games dropped
 
-		        countList.Add(scoreList.Count);
+				countList.Add(count);
 
-		        if (showColours)
-		        {
-		            for (int i = 2; i < barcol; i++)
-		            	row[i].ChartCell = i;
-		            for (int i = barcol; i < row.Count; i++)
-		            	row[i].ChartCell = barcol;
-		        }
-		        else
+				if (showColours)
+				{
+					for (int i = 2; i < 25; i++)
+						row[i].ChartCell = row[i];
+					for (int i = 26; i < row.Count; i++)
+						row[i].ChartCell = barCell;
+				}
+				else
 					foreach (ZCell cell in  row)
-						cell.ChartCell = barcol;
+						cell.ChartCell = barCell;
 
 				if (count > 0)
 					report.Rows.Add(row);
@@ -242,26 +242,24 @@ namespace Torn.Report
 
 				int gamesColumn = report.Columns.FindIndex(x => x.Text == "Games");
 
-	        	foreach (ZRow row in report.Rows)
+				foreach (ZRow row in report.Rows)
 				{
-	        		int count = gamesColumn == -1 ? 1 : int.Parse(row[gamesColumn].Text.Trim(), CultureInfo.InvariantCulture);
-//					if (drops != null && drops.HasDrops())
-//						    count = StrToIntDef(Trim(report.Rows[i][coloffset + 4].Text), 0) - StrToIntDef(Trim(report.Rows[i][coloffset + 5].Text), 0);
+					int count = gamesColumn == -1 ? 1 : (int)row[gamesColumn].Number;
 
-		            if (league.IsPoints())
-		            {
-		                if (mode != count && count > 0) 
-		                {
-		                	row.Add(new ZCell((row[barcol].Number * mode / count), ChartType.None, "F0"));  // scaled points
-		                    if (mode < count)
-							    more = true;
+					if (league.IsPoints())
+					{
+						if (mode != count && count > 0) 
+						{
+							row.Add(new ZCell((report.Cell(row, "Points").Number * mode / count), ChartType.None, "F0"));  // scaled points
+							if (mode < count)
+								more = true;
 							else
-							    less = true;
-		                }
-		                else
-		                	row.Add(new ZCell(""));  // scaled points
-		            }
-	        	}
+								less = true;
+						}
+						else
+							row.Add(new ZCell(""));  // scaled points
+					}
+				}
 
 //		        report.OnCalcBar = TeamLadderScaledCalcBar;
 			}  // if scalegames
@@ -302,7 +300,7 @@ namespace Torn.Report
 				ZRow row = new ZRow();
 				report.Rows.Add(row);
 				row.Add(new ZCell("", Color.Gray));  // Blank rank.
-				row.Add(new ZCell("Totals", Color.Gray));  // Team name.
+				row.Add(new ZCell("Totals", Color.Gray));  // "Team" name.
 
 		 		for (Colour c = Colour.Red; c <= Colour.Orange; c++)
 		 			for (int rank = 0; rank < 3; rank++)
@@ -315,78 +313,46 @@ namespace Torn.Report
 		 			}
 
 				if (league.IsPoints())
-					row.Add(new ZCell(pointsTotal / report.Rows.Count(), ChartType.None, "N0"));  // average league points scored
+					row.Add(new ZCell(pointsTotal / report.Rows.Count(), ChartType.None, "F1", Color.Gray));  // average league points scored
 
 				if (ratio)
-					row.Add(new ZCell(scoreTotal * 100.0 / report.Rows.Count(), ChartType.Bar, "P1"));     // average game score ratio
+					row.Add(new ZCell(scoreTotal * 100.0 / report.Rows.Count(), ChartType.None, "P1", Color.Gray));     // average game score ratio
 				else
-					row.Add(new ZCell(scoreTotal / report.Rows.Count(), ChartType.Bar, "N0"));     // average game score
+					row.Add(new ZCell(scoreTotal / report.Rows.Count(), ChartType.None, "N0", Color.Gray));     // average game score
 
-				row.Add(new ZCell(countList.Average(), ChartType.None, "N0"));  // average games played
+				row.Add(new ZCell(countList.Average(), ChartType.None, "F1", Color.Gray));  // average games played
 
 				if (drops != null && drops.HasDrops())
-		            row.Add(new ZCell(""));  // games dropped
+					row.Add(new ZCell(""));  // games dropped
 
-//		    if IsPoints(Prefs) then
-//		        row[report.Columns.Count - 3].Text = '';  // points
-//		    row[report.Columns.Count - 2].Text = FloatToStr(row[report.Columns.Count - 2].AsInteger / report.Rows.Count);  // average score
-//		//            row[report.Columns.Count - 1].Text = FloatToStr(row[report.Columns.Count - 1].AsInteger / report.Rows.Count);  // games
-//		
-//		    // Clear groups of three columns that contain only '0's.
-//		    colours = 8;
-//		    for j = 0 to 7 do begin
-//		        zeroes = True;
-//		        for k = 0 to 2 do
-//		            for i = 0 to report.Rows.Count - 1 do
-//		                zeroes = zeroes and (report.Rows[i][j * 3 + k + 2].Text = '0');
-//		
-//		        if zeroes then begin
-//		            for k = 0 to 2 do
-//		                for i = 0 to report.Rows.Count - 1 do
-//		                    report.Rows[i][j * 3 + k + 2].Text = '';
-//		            Dec(colours);
-//		        end;
-//		    end;
-//		
-//		    row[1].Text = Format('Totals (average = %d)', [GameList.Count]);
-//		
+				// Clear groups of three columns that contain only '0's.
+				for (int i = 23; i > 0; i -= 3)
+					if (report.ColumnZero(i) && report.ColumnZero(i + 1) && report.ColumnZero(i + 2))
+					{
+						report.RemoveColumn(i + 2);
+						report.RemoveColumn(i + 1);
+						report.RemoveColumn(i);
+					}
+
 //		    report.OnCalcBar = TeamLadderColourCalcBar;
-//		end; // if ShowColours
 			}
 			//report.Rows.PurgeBlankRows;
 
 			if (description)
 			{
-			    report.Description = "This report ranks teams. ";
+				report.Description = "This report ranks teams.";
 
-//		    if (DropWorst > 0) and (DropBest > 0) then
-//		        if PercentGames then
-//		            report.Description += "The top " + DropBest.ToString() + "% and bottom " + DropWorst.ToString() + "% of scores for each team have been dropped. "
-//		        else
-//		            report.Description += "The top " + DropBest.ToString() + " and bottom " + DropWorst.ToString() + " scores for each team have been dropped. "
-//		    else if DropWorst > 0 then
-//		        if PercentGames then
-//		            report.Description += "The bottom " + DropWorst.ToString() + "% of scores for each team have been dropped. "
-//		        else
-//		            report.Description += "The bottom " + DropWorst.ToString() + " scores for each team have been dropped. "
-//		    else if DropWorst > 0 then
-//		        if PercentGames then
-//		            report.Description += "The top " + (ropBest.ToString() + "% of scores for each team have been dropped. "
-//		        else
-//		            report.Description += "The top " + DropBest.ToString() + " scores for each team have been dropped. ";
+				FinishReport(league, report, games, from, to, description);
 		
-			    if (more && less)
-					report.Description += "Teams with more or less than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled down or up. This is shown in the Scaled column. ";
-	    		else if (more)
-					report.Description += "Teams with more than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled down. This is shown in the Scaled column. ";
+				if (more && less)
+					report.Description += " Teams with more or less than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled down or up. This is shown in the Scaled column.";
+				else if (more)
+					report.Description += " Teams with more than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled down. This is shown in the Scaled column.";
 				else if (less)
-					report.Description += "Teams with less than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled up. This is shown in the Scaled column. ";
+					report.Description += " Teams with less than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled up. This is shown in the Scaled column.";
 	
-//				if (datelimited)
-//					report.Description += "The report has been limited to games " + FromTo(games, from, to) + ". ";
-
-//				if (ShowColours)
-//					report.Description += "For each team, the report shows the number of times they place first, second and third on each colour. The Totals row shows the total number of firsts, seconds and thirds that were scored by each colour.";
+				if (showColours)
+					report.Description += " For each team, the report shows the number of times they place first, second and third on each colour. The Totals row shows the total number of firsts, seconds and thirds that were scored by each colour.";
 
 				if (report.Description == "This report ranks teams. ")  // No interesting boxes are checked,
 			  			report.Description = "";  // so this description is too boring to show.
@@ -478,39 +444,39 @@ namespace Torn.Report
 	 		while (thisgame < games.Count && (to == null || games[thisgame].Time < to))  // loop through each game, and create a row for it
 			{
 				Game game = games[thisgame];
-			    thisgametime = game.Time;
-			    if (lastgametime.Date < thisgametime.Date)  // We've crossed a date boundary, so
-			    {
-			    	ZRow dateRow = new ZRow();  // create a row
-			    	report.Rows.Add(dateRow);
-			    	dateRow.Add(new ZCell(thisgametime.ToShortDateString()));  // to show the new date.
-			    }
+				thisgametime = game.Time;
+				if (lastgametime.Date < thisgametime.Date)  // We've crossed a date boundary, so
+				{
+					ZRow dateRow = new ZRow();  // create a row
+					report.Rows.Add(dateRow);
+					dateRow.Add(new ZCell(thisgametime.ToShortDateString()));  // to show the new date.
+				}
 
 				lastgametime = thisgametime;
 				ZRow row = new ZRow();;
-			    report.Rows.Add(row);
+				report.Rows.Add(row);
 
-			    ZCell dateCell = new ZCell((game.Title + " " + thisgametime.ToShortTimeString()).Trim());
-			    dateCell.Hyper = gameHyper(game);
-			    row.Add(dateCell);
+				ZCell dateCell = new ZCell((game.Title + " " + thisgametime.ToShortTimeString()).Trim());
+				dateCell.Hyper = gameHyper(game);
+				row.Add(dateCell);
 
 				foreach (GameTeam gameTeam in game.Teams)
 				{
-			        ZCell teamCell = new ZCell(gameTeam.LeagueTeam == null ? "Team ?" : gameTeam.LeagueTeam.Name, 
+					ZCell teamCell = new ZCell(gameTeam.LeagueTeam == null ? "Team ?" : gameTeam.LeagueTeam.Name, 
 					                           gameTeam.Colour.ToColor());  // team name
-			        teamCell.Hyper = "team" + gameTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
-			        row.Add(teamCell);
+					teamCell.Hyper = "team" + gameTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+					row.Add(teamCell);
 					ZCell scoreCell = new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
 					row.Add(scoreCell);
-					teamCell.ChartCell = row.Count - 1;
-					scoreCell.ChartCell = row.Count - 1;
-				    if (league.IsPoints())  // there are victory points for this league
-				    {
-				    	row.Add(new ZCell(gameTeam.Points, ChartType.None, "", gameTeam.Colour.ToColor()));
-				    	row[row.Count - 1].ChartCell = row.Count - 2;
-				    }
-				    else
-				    	row.Add(new ZCell(""));
+					teamCell.ChartCell = scoreCell;
+					scoreCell.ChartCell = scoreCell;
+					if (league.IsPoints())  // there are victory points for this league
+					{
+						row.Add(new ZCell(gameTeam.Points, ChartType.None, "", gameTeam.Colour.ToColor()));
+						row[row.Count - 1].ChartCell = scoreCell;
+					}
+					else
+						row.Add(new ZCell(""));
 				}  // foreach gameTeam
 
 				if (league.VictoryPointsHighScore != 0 && game.Players.Count > 0 && game.Players[0].LeaguePlayer != null)  // there is a highscore entry at the end of each row
@@ -530,8 +496,8 @@ namespace Torn.Report
 						
 					row.Add(new ZCell(game.Players[0].LeaguePlayer.Name, highScoreColor));
 					row.Add(new ZCell(game.Players[0].Score, ChartType.Bar, "N0", highScoreColor));
-					row[row.Count - 2].ChartCell = row.Count - 1;
-					row[row.Count - 1].ChartCell = row.Count - 1;
+					row[row.Count - 2].ChartCell = row[row.Count - 1];
+					row[row.Count - 1].ChartCell = row[row.Count - 1];
 				}
 
 			    thisgame++;
@@ -665,7 +631,9 @@ namespace Torn.Report
 			}  // foreach leagueTeam
 
 			SortGridReport(league, report, gridType, games, averageCol, pointsCol, false);
-			FinishGridReport(league, report, games, from, to, description);
+			if (description)
+				report.Description = "This is a grid of games. Each row in the table is one team. Each column is one game.";
+			FinishReport(league, report, games, from, to, description);
 
 			return report;
 		}  // GamesGrid
@@ -775,12 +743,14 @@ namespace Torn.Report
 			}  // foreach leagueTeam
 
 			SortGridReport(league, report, gridType, games, averageCol, pointsCol, !league.IsPoints());
-			FinishGridReport(league, report, games, from, to, description);
+			if (description)
+				report.Description = "This is a grid of games. Each row in the table is one team.";
+			FinishReport(league, report, games, from, to, description);
 
 			return report;
 		}  // GamesGridCondensed
 
-		public static ZoomReport SoloLadder(League league, bool includeSecret, bool showComment, DateTime? from, DateTime? to, Drops drops, bool description)
+		public static ZoomReport SoloLadder(League league, bool includeSecret, bool showComment, DateTime? from, DateTime? to, Drops drops, ChartType chartType, bool description)
 		{
 			ZoomReport report = new ZoomReport(league.Title + " Solo Ladder",
 			                                   "Rank,Player,Team,Average Score,Average Rank,Score Ratio,Games",
@@ -815,14 +785,14 @@ namespace Torn.Report
 					else
 						row.Add(new ZCell(string.Join(", ", teams.Select(x => x.Name))));  // Team(s) played for
 
-					row.Add(DataCell(player.Played.Select(x => (double)x.Score).ToList(), drops, ChartType.Bar | ChartType.Rug, "N0"));  // Av score
-					row.Add(DataCell(player.Played.Select(x => (double)x.Rank).ToList(), drops, ChartType.Bar | ChartType.Rug, "N2"));  // Av rank
+					row.Add(DataCell(player.Played.Select(x => (double)x.Score).ToList(), drops, chartType, "N0"));  // Av score
+					row.Add(DataCell(player.Played.Select(x => (double)x.Rank).ToList(), drops, chartType, "N2"));  // Av rank
 					
 					List<double> ratiosList = new List<double>();
 					foreach (var played in player.Played)
 //						if (played.GameTeam != null && played.GameTeam.Game != null)
 							ratiosList.Add(((double)played.Score) / played.GameTeam.Game.TotalScore() * played.GameTeam.Game.Players.Count);
-					row.Add(DataCell(ratiosList, drops, ChartType.Bar | ChartType.Rug, "P1"));  // Score ratio
+					row.Add(DataCell(ratiosList, drops, chartType, "P1"));  // Score ratio
 
 					row.Add(new ZCell(games.Count(), ChartType.None, "N0"));  // Games
 
@@ -837,10 +807,10 @@ namespace Torn.Report
 							row.Add(new ZCell(""));  // games dropped
 					}
 
- 					row[0].ChartCell = 3;
- 					row[1].ChartCell = 3;
- 					row[2].ChartCell = 3;
- 					row[3].ChartCell = 3;
+ 					row[0].ChartCell = row[3];
+ 					row[1].ChartCell = row[3];
+ 					row[2].ChartCell = row[3];
+ 					row[3].ChartCell = row[3];
 				}
 			}
 
@@ -1152,9 +1122,8 @@ namespace Torn.Report
 		// overlapping 95% confidence intervals. If top pack's confidence interval overlaps bottom pack's interval, there are no outliers.
 		// ellipse containing 95% of values on a scatter plot. Draw 45 ellipses; see if they overlap.
 		/// <summary>Show overall stats for each pack, including a t test comparing it to all other packs combined.</summary>
-		public static ZoomReport PackReport(List<League> leagues, List<Game> soloGames, DateTime? from, DateTime? to, bool description)
+		public static ZoomReport PackReport(List<League> leagues, List<Game> soloGames, DateTime? from, DateTime? to, ChartType chartType, bool description)
 		{
-			ChartType chartType = ChartType.KernelDensityEstimate;
 			// First build a solo ladder, showing tag ratios for each player ID, so we can calibrate the pack report.
 			var solos = new List<string>();
 
@@ -1194,8 +1163,8 @@ namespace Torn.Report
 
 			// Now build the pack report.
 			var	report = new ZoomReport((leagues.Count == 1 ? leagues[0].Title + " " : "") + "Pack Report" + FromTo(games, from, to),
-				                        "Rank,Pack,Rank diff,Score Ratio,t,p,Count,Tag Ratio,t,p,Tag diff,t,p,Count,",
-				                        "center,left,right,right,right,right,right,right,right,right,right,right,right,right");
+				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Tag diff,t,p,Count,",
+				                        "center,left,right,right,right,right,right,right,right,right,right,right,right");
 			report.MaxChartByColumn = true;
 			report.Columns[2].ColumnType = ZColumnType.Integer;
 
@@ -1212,7 +1181,6 @@ namespace Torn.Report
 				// Sample 1 is "this pack".
 				var scoreRatios = new List<double>();
 				var tagRatios = new List<double>();
-				var rankDifferences = new List<double>();
 				var tagDifferences = new List<double>();
 
 				// Sample 2 is "all the other packs".
@@ -1251,7 +1219,6 @@ namespace Torn.Report
 								tagRatios.Add((double)tagRatio);
 							if (player.HitsBy != 0 || player.HitsOn != 0)
 								tagDifferences.Add(player.HitsBy / scale - player.HitsOn);
-							rankDifferences.Add((game.Players.Count - 1) / 2 - game.Players.IndexOf(player));
 						}
 						else
 						{
@@ -1275,8 +1242,6 @@ namespace Torn.Report
 					}
 				}
 
-				row.Add(new ZCell(rankDifferences.Average(), chartType, "F1"));  // Average rank difference.
-				row.Last().Data.AddRange(rankDifferences);
 				row.Add(new ZCell(scoreRatios.Average(), chartType, "P0"));  // Average score ratio.
 				row.Last().Data.AddRange(scoreRatios);
 
@@ -1357,13 +1322,22 @@ namespace Torn.Report
 			averages.Add(new ZCell("Averages", Color.Gray));
 			if (report.Rows.Count > 0)
 				for (int i = 2; i < report.Rows[0].Count; i++)
-					if (i == 2 || i == 3 || i == 6 || i == 7 || i == 10 || i == 13)
+					if (i == 2 || i == 5 || i == 6 || i == 9 || i == 12)
 						averages.Add(new ZCell(report.Rows.Average(row => row[i].Number), 
 						                       ChartType.None, report.Rows[0][i].NumberFormat, Color.Gray));
 					else
 						averages.Add(new ZCell("", Color.Gray));
 
 			report.Rows.Add(averages);
+
+			if (report.Rows.Sum(row => row[12].Number) == 0)  // No tag ratios for any pack.
+			{
+				for (int i = 12; i >= 6; i--)
+					report.RemoveColumn(i);
+				foreach (var row in report.Rows)
+					foreach (var cell in row)
+						cell.ChartCell = report.Cell(row, "Score Ratio");
+			}
 			
 			if (description)
 			{
@@ -1502,20 +1476,20 @@ namespace Torn.Report
 				scores.Sort();
 
 				int count = scores.Count();
+				int dropBest = drops.DropBest(count);
+				int dropWorst = drops.DropWorst(count);
 
-				if (drops.CountAfterDrops(count) > 1 && count > 0)
+				if (drops.CountAfterDrops(count) < 1 && count > 0)
 				{
-					T median = scores[count % 2];
+					T closest = scores[(int)Math.Round(1.0 * dropWorst / (dropBest + dropWorst) * (count - 1))];
 					scores.Clear();
-					scores.Add(median);
+					scores.Add(closest);
 					return scores;
 				}
 
-				int dropBest = drops.DropBest(count);
 				if (dropBest > 0)
 					scores.RemoveRange(count - dropBest, dropBest);
 
-				int dropWorst = drops.DropWorst(count);
 				if (dropWorst > 0)
 					scores.RemoveRange(0, dropWorst);
 			}
@@ -1613,14 +1587,12 @@ namespace Torn.Report
 			report.Title = league.Title + (gridType == GridType.Ascension ? " Ascension" : gridType == GridType.Pyramid ? " Pyramid" : " Games");
 		}
 
-		static void FinishGridReport(League league, ZoomReport report, List<Game> games, DateTime? from, DateTime? to, bool description)
+		static void FinishReport(League league, ZoomReport report, List<Game> games, DateTime? from, DateTime? to, bool description)
 		{
 			report.Title += FromTo(games, from, to);
 
 			if (description)
 			{
-				report.Description = "This is a grid of games. Each row in the table is one team.";
-
 				if (games.Count == 0)
 					report.Description += " No games were found in the specified date/time range.";
 				else if (from != null && to != null)

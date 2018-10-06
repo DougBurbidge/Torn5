@@ -55,6 +55,7 @@ namespace Torn.UI
 			this.listViewReports.TabIndex = 1;
 			this.listViewReports.UseCompatibleStateImageBehavior = false;
 			this.listViewReports.View = System.Windows.Forms.View.Details;
+			this.listViewReports.DoubleClick += new System.EventHandler(this.ButtonEditClick);
 			// 
 			// colReport
 			// 

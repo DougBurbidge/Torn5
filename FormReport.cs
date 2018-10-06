@@ -28,11 +28,11 @@ namespace Torn.UI
 			timePickerFrom.CustomFormat = CultureInfo.CurrentUICulture.DateTimeFormat.ShortTimePattern;
 			timePickerTo.CustomFormat = CultureInfo.CurrentUICulture.DateTimeFormat.ShortTimePattern;
 		}
-		
+
 		void FormReportShown(object sender, EventArgs e)
 		{
 			listBoxReportType.Focus();
-			
+
 			if (ReportTemplate != null)
 			{
 				listBoxReportType.SelectedIndex = (int)ReportTemplate.ReportType - 1;
@@ -46,22 +46,40 @@ namespace Torn.UI
 				numericUpDownBest.Value = ReportTemplate.Drops == null ? 0 : (Decimal)Math.Max(ReportTemplate.Drops.CountBest, ReportTemplate.Drops.PercentBest);
 				numericUpDownWorst.Value = ReportTemplate.Drops == null ? 0 : (Decimal)Math.Max(ReportTemplate.Drops.CountWorst, ReportTemplate.Drops.PercentWorst);
 
-				if (ReportTemplate.From != null && (DateTime)ReportTemplate.From >= datePickerFrom.MinDate && (DateTime)ReportTemplate.From <= datePickerFrom.MaxDate)
-					datePickerFrom.Value = (DateTime)ReportTemplate.From;
-				if (ReportTemplate.To != null && (DateTime)ReportTemplate.To >= datePickerTo.MinDate && (DateTime)ReportTemplate.To <= datePickerTo.MaxDate)
-					datePickerTo.Value = (DateTime)ReportTemplate.To;
+				dateFrom.Checked = ReportTemplate.From != null && (DateTime)ReportTemplate.From >= datePickerFrom.MinDate && (DateTime)ReportTemplate.From <= datePickerFrom.MaxDate;
+				if (dateFrom.Checked)
+				{
+					datePickerFrom.Value = ((DateTime)ReportTemplate.From).Date;
+					timePickerFrom.Value = (DateTime)ReportTemplate.From;
+				}
 
-				string s = ReportTemplate.Settings.Find(x => x.StartsWith("TopN=", StringComparison.OrdinalIgnoreCase));
+				dateTo.Checked = ReportTemplate.To != null && (DateTime)ReportTemplate.To >= datePickerTo.MinDate && (DateTime)ReportTemplate.To <= datePickerTo.MaxDate;
+				if (dateTo.Checked)
+				{
+					datePickerTo.Value = ((DateTime)ReportTemplate.To).Date;
+					timePickerTo.Value = (DateTime)ReportTemplate.To;
+				}
+
+				string s = ReportTemplate.Settings.Find(x => x.StartsWith("ChartType=", StringComparison.OrdinalIgnoreCase));
+				chartType.Text = string.IsNullOrEmpty(s) ? "bar" : s.Substring(s.IndexOf('=') + 1);
+
+				s = ReportTemplate.Settings.Find(x => x.StartsWith("TopN=", StringComparison.OrdinalIgnoreCase));
 				bool b = !string.IsNullOrEmpty(s);
 				showTopN.Checked = b;
 				numericUpDownTopN.Enabled = b;
-				numericUpDownTopN.Value = b ? int.Parse(s.Substring(s.IndexOf('=')+1), CultureInfo.InvariantCulture) : 0;
+				numericUpDownTopN.Value = b ? int.Parse(s.Substring(s.IndexOf('=') + 1), CultureInfo.InvariantCulture) : 0;
 
 				s = ReportTemplate.Settings.Find(x => x.StartsWith("AtLeastN=", StringComparison.OrdinalIgnoreCase));
 				b = !string.IsNullOrEmpty(s);
 				atLeastN.Checked = b;
 				numericUpDownAtLeastN.Enabled = b;
-				numericUpDownAtLeastN.Value = b ? int.Parse(s.Substring(s.IndexOf('=')+1), CultureInfo.InvariantCulture) : 0;
+				numericUpDownAtLeastN.Value = b ? int.Parse(s.Substring(s.IndexOf('=') + 1), CultureInfo.InvariantCulture) : 0;
+
+				s = ReportTemplate.Settings.Find(x => x.StartsWith("ChartType=", StringComparison.OrdinalIgnoreCase));
+				chartType.Text = string.IsNullOrEmpty(s) ? "bar" : s.Substring(s.IndexOf('=') + 1);
+
+				s = ReportTemplate.Settings.Find(x => x.StartsWith("OrderBy=", StringComparison.OrdinalIgnoreCase));
+				orderBy.Text = string.IsNullOrEmpty(s) ? "score" : s.Substring(s.IndexOf('=') + 1);
 			}
 
 //			ListBoxReportTypeSelectedIndexChanged(null, null);
@@ -78,7 +96,7 @@ namespace Torn.UI
 
 				ReportTemplate.Settings.Clear();
 				foreach (Control c in this.Controls)
-					if (c is CheckBox && c.Tag != null && c.Enabled && ((CheckBox)c).Checked)
+					if (c.Enabled && c is CheckBox && ((CheckBox)c).Checked && !string.IsNullOrEmpty((string)c.Tag))
 						ReportTemplate.Settings.Add((string)c.Tag);
 
 				if (dropGames.Checked)
@@ -98,28 +116,35 @@ namespace Torn.UI
 					}
 				}
 
+				if (chartType.Text != "none")
+					ReportTemplate.Settings.Add("ChartType=" + chartType.Text);
+
 				if (showTopN.Checked)
 					ReportTemplate.Settings.Add("ShowTopN=" + numericUpDownTopN.Value.ToString(CultureInfo.InvariantCulture));
 
 				if (atLeastN.Checked)
 					ReportTemplate.Settings.Add("AtLeastN=" + numericUpDownAtLeastN.Value.ToString(CultureInfo.InvariantCulture));
-				
-				ReportTemplate.From = dateRange.Checked ? datePickerFrom.Value : (DateTime?)null;
-				ReportTemplate.To = dateRange.Checked ? datePickerTo.Value : (DateTime?)null;
+
+				if (orderBy.Enabled)
+					ReportTemplate.Settings.Add("OrderBy=" + orderBy.Text);
+
+				ReportTemplate.From = dateFrom.Checked ? datePickerFrom.Value.Add(timePickerFrom.Value.TimeOfDay) : (DateTime?)null;
+				ReportTemplate.To = dateTo.Checked ? datePickerTo.Value.Add(timePickerTo.Value.TimeOfDay) : (DateTime?)null;
 			}
 		}
-		
+
 		void ListBoxReportTypeSelectedIndexChanged(object sender, EventArgs e)
 		{
 			int i = listBoxReportType.SelectedIndex;
 
 			scaleGames.Enabled = i == 0;
 			dropGames.Enabled = i == 0 || i == 2 || i == 4;
-			dateRange.Enabled = true;
+			dateFrom.Enabled = true;
+			dateTo.Enabled = true;
 			showColours.Enabled = i == 0;
 			showPoints.Enabled = i == 1;
 			showComments.Enabled = i == 2;
-			scattergram.Enabled = i == 2;
+			chartType.Enabled = true;
 			showTopN.Enabled = i == 0 || i == 2;
 			numericUpDownTopN.Enabled = i == 0 || i == 2;
 			labelTopWhat.Enabled = i == 0 || i == 2;
@@ -132,12 +157,17 @@ namespace Torn.UI
 
 			labelTopWhat.Text = i == 2 ? "players" : "teams";
 		}
-		
-		void DateRangeCheckedChanged(object sender, EventArgs e)
+
+		void DatePickerFromValueChanged(object sender, EventArgs e)
 		{
-			groupBoxDateRange.Enabled = dateRange.Checked;
+			dateFrom.Checked = true;
 		}
 		
+		void DatePickerToValueChanged(object sender, EventArgs e)
+		{
+			dateTo.Checked = true;
+		}
+
 		void DropGamesCheckedChanged(object sender, EventArgs e)
 		{
 			groupBoxDrops.Enabled = dropGames.Checked;

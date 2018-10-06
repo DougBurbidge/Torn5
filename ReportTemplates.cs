@@ -11,6 +11,7 @@ namespace Torn.Report
 {
 	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, Ascension, Pyramid, Packs, Everything };
 
+	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate
 	{
 		public ReportType ReportType { get; set; }
@@ -24,41 +25,93 @@ namespace Torn.Report
 			Settings = new List<string>();
 		}
 
+		public ReportTemplate(ReportType reportType, string[] settings): this()
+		{
+			ReportType = reportType;
+			for (int i = 1; i < settings.Length; i++)
+				Settings.Add(settings[i].Trim());
+
+			From = ParseDateSetting("from ");
+			To = ParseDateSetting("to ");
+
+			int index = Settings.FindIndex(s => s.StartsWith("Drop "));
+			if (index > -1)
+			{
+				Drops = new Drops();
+				string drops = Settings[index];
+				index = drops.IndexOf(" worst ");
+				if (index > -1)
+				{
+					if (drops.Contains("%"))
+						Drops.PercentWorst = double.Parse(drops.Substring(index + " worst ".Length, drops.IndexOf('%', index) - index - " worst ".Length));
+					else
+						Drops.CountWorst = int.Parse(drops.Substring(index + " worst ".Length, drops.IndexOf(' ', index) - index - " worst ".Length));
+				}
+
+				index = drops.IndexOf(" best ");
+				if (index > -1)
+				{
+					if (drops.Contains("%"))
+						Drops.PercentBest = double.Parse(drops.Substring(index + " best ".Length, drops.IndexOf('%', index) - index - " best ".Length));
+					else
+						Drops.CountBest = int.Parse(drops.Substring(index + " best ".Length, drops.IndexOf(' ', index) - index - " best ".Length));
+				}
+			}
+		}
+
+		public string Setting(string name)
+		{
+			int index = Settings.FindIndex(s => s.StartsWith(name));
+			return index > -1 ? Settings[index].Substring(name.Length + 1) : null;
+		}
+
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append(ReportType.ToString());
 			sb.Append(", ");
 			sb.Append(string.Join(", ", Settings));
-			if (Drops != null)
+			sb.Append(", ");
+			if (Drops != null && Drops.HasDrops())
 			{
-				sb.Append(", Drop ");
+				sb.Append(", Drop");
 				if (Drops.CountWorst > 0)
 				{
-					sb.Append("worst ");
+					sb.Append(" worst ");
 					sb.Append(Drops.CountWorst);
-					sb.Append(", ");
 				}
-				if (Drops.PercentWorst > 0)
+				else if (Drops.PercentWorst > 0)
 				{
-					sb.Append("worst ");
+					sb.Append(" worst ");
 					sb.Append(Drops.PercentWorst);
-					sb.Append("%, ");
+					sb.Append('%');
 				}
 				if (Drops.CountBest > 0)
 				{
-					sb.Append("best ");
+					sb.Append(" best ");
 					sb.Append(Drops.CountBest);
-					sb.Append(", ");
 				}
-				if (Drops.PercentBest > 0)
+				else if (Drops.PercentBest > 0)
 				{
-					sb.Append("best ");
+					sb.Append(" best ");
 					sb.Append(Drops.PercentBest);
-					sb.Append("%, ");
+					sb.Append('%');
 				}
-				sb.Remove(sb.Length - 2, 2);
+				sb.Append(" , ");
 			}
+			if (From.HasValue)
+			{
+				sb.Append("from ");
+				sb.Append(((DateTime)From).ToString("yyyy-MM-dd HH:mm"));
+				sb.Append(", ");
+			}
+			if (To.HasValue)
+			{
+				sb.Append("to ");
+				sb.Append(((DateTime)To).ToString("yyyy-MM-dd HH:mm"));
+				sb.Append(", ");
+			}
+			sb.Remove(sb.Length - 2, 2);
 			return sb.ToString();
 		}
 
@@ -80,12 +133,22 @@ namespace Torn.Report
 				i = Settings.FindIndex(x => x.StartsWith("AtLeastN", StringComparison.OrdinalIgnoreCase));
 				if (i != -1)
 					Settings.RemoveAt(i);
-				// OrderBy: not implemented yet.
 			}
-			if (ReportType != ReportType.SoloLadder) 
-				Settings.Remove("Scattergram");
 			if (ReportType != ReportType.TeamLadder && ReportType != ReportType.SoloLadder && ReportType != ReportType.GameGrid)
 				Drops = null;
+		}
+
+		DateTime? ParseDateSetting(string name)
+		{
+			int index = Settings.FindIndex(s => s.StartsWith(name));
+			if (index > 0)
+			{
+				DateTime dt;
+				DateTime.TryParse(Settings[index].Substring(name.Length), out dt);
+				Settings.RemoveAt(index);
+				return dt;
+			}
+			return null;
 		}
 	}
 	
@@ -93,26 +156,19 @@ namespace Torn.Report
 	{
 		public void Parse(string s)
 		{
-			// TODO: implement.
-			string[] ss = s.Split('%');
+			string[] ss = s.Split('&');
 			foreach (string s1 in ss)
 			{
-				ReportType rt;
+				ReportType reportType;
 				string[] s2 = s1.Split(',');
-				if (s2.Length > 0 && Enum.TryParse(s2[0], out rt))
-				{
-					ReportTemplate rte = new ReportTemplate();
-					rte.ReportType = rt;
-					for (int i = 1; i < s2.Length; i++)
-						rte.Settings.Add(s2[i].Trim());
-					Add(rte);
-				}
+				if (s2.Length > 0 && Enum.TryParse(s2[0], out reportType))
+					Add(new ReportTemplate(reportType, s2));
 			}
 		}
 
 		public override string ToString()
 		{
-			return string.Join("%", this);
+			return string.Join("&", this);
 		}
 	}
 

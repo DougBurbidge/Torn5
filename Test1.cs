@@ -1,6 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
 using Torn;
+using Torn.Report;
+using Zoom;
 
 namespace TornWeb
 {
@@ -70,6 +72,25 @@ namespace TornWeb
 
 			Assert.AreEqual(3, league.Teams[0].Players.Count, "Number of players on team A");
 			Assert.AreEqual(5, clone.Teams[0].Players.Count, "Number of players on team A");
+		}
+		
+		[Test]
+		public void TestReportTemplates()
+		{
+			var reportTemplates = new ReportTemplates();
+			reportTemplates.Parse("TeamLadder, Description, ShowColours, ChartType=bar with rug, OrderBy=score, to 2018-09-11 23:59&SoloLadder, ChartType=bar with rug, OrderBy=score, , Drop worst 10% best 10% ");
+			Assert.AreEqual(2, reportTemplates.Count, "Number of report templates");
+			Assert.That(reportTemplates[0].ReportType == ReportType.TeamLadder, "team ladder");
+			Assert.That(reportTemplates[0].Settings.Contains("ShowColours"), "ShowColours");
+			Assert.That(reportTemplates[0].To == new DateTime(2018, 09, 11, 23,59, 00), "to 2018-09-11 23:59");
+			Assert.AreEqual("bar with rug", reportTemplates[0].Setting("ChartType"), "ChartType");
+			Assert.That(ChartTypeExtensions.ToChartType(reportTemplates[0].Setting("ChartType")) == (ChartType.Bar | ChartType.Rug), "parse ChartType");
+
+			Assert.That(reportTemplates[1].ReportType == ReportType.SoloLadder, "solo ladder");
+			Assert.That(reportTemplates[1].Drops != null, "drops");
+			Assert.That(reportTemplates[1].Drops.PercentWorst == 10.0, "worst 10%");
+			Assert.That(reportTemplates[1].Drops.PercentBest == 10.0, "best 10%");
+			Assert.That(reportTemplates[1].Drops.CountWorst == 0, "worst 0");
 		}
 	}
 }
