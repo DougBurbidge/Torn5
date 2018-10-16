@@ -42,11 +42,11 @@ namespace Torn.UI
 			if (treeView1.SelectedNode.Tag is LeagueTeam)
 			{
 				listViewScores.Items.Clear();
-				foreach (var gameTeam in ((LeagueTeam)treeView1.SelectedNode.Tag).AllGameTeams)
+				foreach (var gameTeam in ((LeagueTeam)treeView1.SelectedNode.Tag).AllPlayed)
 				{
 					var item = new ListViewItem(gameTeam.Game.Time.ToString());
 					item.SubItems.Add(gameTeam.Score.ToString());
-					item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : gameTeam.Game.Teams.IndexOf(gameTeam).ToString());
+					item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : (gameTeam.Game.Teams.IndexOf(gameTeam) + 1).ToString());
 					item.BackColor = gameTeam.Colour.ToColor();
 					listViewScores.Items.Add(item);
 				}

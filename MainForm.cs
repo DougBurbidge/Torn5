@@ -25,24 +25,23 @@ edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Can
 TODO for BOTH:
 output to screen and printer
 send to scoreboard (web browser)
-on commit auto-update scoreboard, teams and handicaps
+on commit auto-update scoreboard and teams
 right-click handicap player, merge player
 adjust team score/victory points
 
 TODO for LEAGUE:
 read from laserforce server
-handicap
+handicap, on commit auto-update team handicaps
 set up fixtures
 
 TODO for ZLTAC:
-group players by alias/colour/LotR
+group players by LotR
 set up pyramid round
 recalculate scores on Helios
 
 OTHER:
 better save format
 read from demo "server"
-sort teams by rank/colour
 league copy from
 upload to http, https, sftp
 Space Marines match play
@@ -60,6 +59,8 @@ namespace Torn.UI
 	{
 		GroupPlayersBy groupPlayersBy = GroupPlayersBy.Colour;
 		//SortTeamsBy sortTeamsBy;
+		bool autoUpdateScoreboard = true;
+		bool autoUpdateTeams = true;
 		SystemType systemType;
 		string serverAddress = "localhost";
 
@@ -167,32 +168,35 @@ namespace Torn.UI
 			Properties.Torn5.Default.Save();
 		}
 
-		Holder AddLeague(string fileName, string key = "")
+		Holder AddLeague(string fileName, string key = "", bool neww = false)
 		{
 			League league = new League();
 			ListViewItem item = new ListViewItem();
-			item.ImageKey = "tick";
+			if (!neww)
+				item.ImageKey = "tick";
 			try
 			{
-				league.Load(fileName);
+				if (!neww)
+					league.Load(fileName);
+				item.Text = key;
 			}
 			catch (Exception ex)
 			{
 				item.ImageKey = "cross";
 				item.Text = ex.Message + " -- " + ex.StackTrace;
 			}
-			
+
 			if (string.IsNullOrEmpty(key))
 				key = "league" + leagues.Count.ToString("D2", CultureInfo.InvariantCulture);
-			
+
 			Holder holder = new Holder(key, fileName, league);
 			leagues.Add(holder);
-		
+
 			item.Tag = holder;
-			item.Text = key;
 			item.SubItems.AddRange(new string[] { league.Title, fileName, league.AllGames.Count.ToString(CultureInfo.CurrentCulture), league.Teams.Count.ToString(CultureInfo.CurrentCulture)});
 			listViewLeagues.Items.Add(item);
-		
+			listViewLeagues.FocusedItem = item;
+
 			return holder;
 		}
 
@@ -338,7 +342,7 @@ namespace Torn.UI
 			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
 			{
 				foreach (string fileName in saveFileDialog1.FileNames)
-					AddLeague(fileName);
+					AddLeague(fileName, "", true);
 
 				RefreshGamesList();
 			}			
@@ -422,58 +426,35 @@ namespace Torn.UI
 
 		void ButtonCommitClick(object sender, EventArgs e)
 		{
-			if (listViewGames.SelectedItems.Count == 1)
+			foreach (ListViewItem item in listViewGames.SelectedItems)
 			{
-				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
-				if (game.Game == null)  // Game does not exist; create one.
-				{
-					game.Game = new Game();
-					game.Game.Time = game.Time;
-					foreach (Control c in tableLayoutPanel1.Controls)
-						if (c is TeamBox && ((TeamBox)c).Items.Count > 0)
-						{
-							var gameTeam = ((TeamBox)c).GameTeam; //.CopyTo(new GameTeam());
-							foreach (var player in ((TeamBox)c).Players())
-							{
-								var gamePlayer = player; //.CopyTo(new GamePlayer());
-								gamePlayer.GameTeam = gameTeam;
-								if (gamePlayer.LeaguePlayer == null)
-									gamePlayer.LeaguePlayer = activeHolder.League.Players.Find(p => p.Id == gamePlayer.PlayerId);
-								game.Game.Players.Add(gamePlayer);
-								gamePlayer.LeaguePlayer.Played.Add(gamePlayer);
-							}
-							gameTeam.Players.Sort();
-							game.Game.Teams.Add(gameTeam);
-						}
-					game.Game.Teams.Sort();
-					activeHolder.League.AllGames.Add(game.Game);
-				}
-				else  // Game already exists; revise the existing one.
-				{
-					game.Game.Time = game.Time;
-					foreach (Control c in tableLayoutPanel1.Controls)
-						if (c is TeamBox && ((TeamBox)c).Items.Count > 0)
-						{
-							var gameTeam = game.Game.Teams.Find(gt => gt.LeagueTeam == ((TeamBox)c).LeagueTeam);
-							if (gameTeam == null)
-							{
-								new GameTeam();
-								game.Game.Teams.Add(gameTeam);
-							}
+				ServerGame serverGame = ((ServerGame)item.Tag);
 
-							foreach (var player in ((TeamBox)c).Players())
-							{
-								var gamePlayer = game.Game.Players.Find(gp => gp.PlayerId == player.PlayerId) ?? player.CopyTo(new GamePlayer());
-								gamePlayer.GameTeam = gameTeam;
-								if (gamePlayer.LeaguePlayer == null)
-									gamePlayer.LeaguePlayer = activeHolder.League.Players.Find(p => p.Id == gamePlayer.PlayerId);
-								gamePlayer.LeaguePlayer.Played.Add(gamePlayer);
-							}
-							gameTeam.Players.Sort();
-						}
+				var teamDatas = new List<GameTeamData>();
+				foreach (Control c in tableLayoutPanel1.Controls)
+					if (c is TeamBox && ((TeamBox)c).Players().Count > 0)
+					{
+						var teamData = new GameTeamData();
+						teamData.GameTeam = ((TeamBox)c).GameTeam;
+						teamData.Players = ((TeamBox)c).Players();
+						teamDatas.Add(teamData);
+					}
+
+				if (teamDatas.Count > 0)
+				{
+					activeHolder.League.CommitGame(serverGame, teamDatas);
+
+					if (autoUpdateTeams)
+						foreach (Control c in tableLayoutPanel1.Controls)
+							if (c is TeamBox && ((TeamBox)c).GameTeam.LeagueTeam != null && ((TeamBox)c).Players().Count > 0)
+								((TeamBox)c).GameTeam.LeagueTeam.Handicap = ((TeamBox)c).Handicap;
+
+					RefreshGamesList();
+					RankTeams();
+
+//					if (autoUpdateScoreboard)
+//						UpdateScoreboard();
 				}
-				RefreshGamesList();
-				RankTeams();
 			}
 		}
 
@@ -545,11 +526,15 @@ namespace Torn.UI
 		{
 			var form = new FormPreferences();
 			form.GroupPlayersBy = groupPlayersBy;
+			form.AutoUpdateScoreboard = autoUpdateScoreboard;
+			form.AutoUpdateTeams = autoUpdateTeams;
 			form.SystemType = systemType;
 			form.ServerAddress = serverAddress;
 			if (form.ShowDialog() == DialogResult.OK)
 			{
 				groupPlayersBy = form.GroupPlayersBy;
+				autoUpdateScoreboard = form.AutoUpdateScoreboard;
+				autoUpdateTeams = form.AutoUpdateTeams;
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
 				switch (form.SystemType) {
@@ -612,6 +597,7 @@ namespace Torn.UI
 			}
 
 			RankTeamBoxes();
+			ArrangeTeamsByRank();
 		}
 
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
@@ -777,7 +763,7 @@ namespace Torn.UI
 
 		void RefreshGamesList()
 		{
-			var focused = listViewGames.FocusedItem;
+			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
 			List<ServerGame> games = laserGameServer.GetGames();
 
 			if (games.Count > 0)
@@ -842,6 +828,7 @@ namespace Torn.UI
 					{
 						listViewGames.FocusedItem = item;
 						listViewGames.SelectedIndices.Add(item.Index);
+						listViewGames.EnsureVisible(item.Index);
 					}
 			}
 		}
@@ -883,7 +870,7 @@ namespace Torn.UI
 		void MenuEditLeagueClick(object sender, EventArgs e)
 		{
 			var form = new FormLeague();
-			form.League = activeHolder.League.Clone();
+			form.League = activeHolder.League;//.Clone(); TODO: restore Clone().
 			form.FormPlayer = formPlayer;
 			if (form.ShowDialog() == DialogResult.OK)
 			{

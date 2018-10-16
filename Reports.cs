@@ -130,7 +130,7 @@ namespace Torn.Report
 		 		List<double> scoreList = new List<double>();  // Holds either scores or score ratios.
 
 				ZCell scoreCell;
-		 		foreach (GameTeam gameTeam in team.GameTeams(includeSecret))  // Roll through this team's games.
+		 		foreach (GameTeam gameTeam in team.Played(includeSecret))  // Roll through this team's games.
 		 		{
 		 			if ((from == null || gameTeam.Game.Time >= from) && (to == null || gameTeam.Game.Time <= to))
 					{
@@ -462,9 +462,9 @@ namespace Torn.Report
 
 				foreach (GameTeam gameTeam in game.Teams)
 				{
-					ZCell teamCell = new ZCell(gameTeam.LeagueTeam == null ? "Team ?" : gameTeam.LeagueTeam.Name, 
+					ZCell teamCell = new ZCell(gameTeam.LeagueTeam == null ? "Team ?" : gameTeam.ToString(), 
 					                           gameTeam.Colour.ToColor());  // team name
-					teamCell.Hyper = "team" + gameTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+					teamCell.Hyper = "team" + (gameTeam.TeamId ?? -1).ToString("D2", CultureInfo.InvariantCulture) + ".html";
 					row.Add(teamCell);
 					ZCell scoreCell = new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
 					row.Add(scoreCell);
@@ -525,10 +525,10 @@ namespace Torn.Report
 				}
 		
 				if (description)
-					report.Description = "This is a list of games.  Each row in the table is one game.  Across each row, you see the teams that were in that game (with the team that placed first listed first, and so on), and the score for each team.";
+					report.Description = "This is a list of games. Each row in the table is one game. Across each row, you see the teams that were in that game (with the team that placed first listed first, and so on), and the score for each team.";
 		
-				if (league.VictoryPointsHighScore != 0)
-					report.Description += "  At the end of each row, you see the high-scoring player for that game, and their score.";
+				if (description && league.VictoryPointsHighScore != 0)
+					report.Description += " At the end of each row, you see the high-scoring player for that game, and their score.";
 		
 		//            if WithinDateRange then
 		//                report.Description = report.Description + "  The report has been limited to games " FromTo(games, newFrom, thisgametime) + ".";
@@ -903,11 +903,11 @@ namespace Torn.Report
 				teamRow.Add(new ZCell(""));  // Rank.
 
 				if (gameTeam.LeagueTeam == null)
-					teamRow.Add(new ZCell("Team " + gameTeam.TeamId.ToString(CultureInfo.InvariantCulture), teamColor));
+					teamRow.Add(new ZCell("Team " + (gameTeam.TeamId ?? -1).ToString(CultureInfo.InvariantCulture), teamColor));
 				else
 				{
-					ZCell teamCell = new ZCell(gameTeam.LeagueTeam.Name, teamColor);
-			        teamCell.Hyper = "team" + gameTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+					ZCell teamCell = new ZCell(gameTeam.ToString(), teamColor);
+			        teamCell.Hyper = "team" + (gameTeam.TeamId ?? -1).ToString("D2", CultureInfo.InvariantCulture) + ".html";
 					teamRow.Add(teamCell);
 				}
 
@@ -977,7 +977,7 @@ namespace Torn.Report
 				double score = 0;
 				int count = 0;
 
-				foreach (GameTeam gameTeam in team.GameTeams(includeSecret))
+				foreach (GameTeam gameTeam in team.Played(includeSecret))
 					if (gameTeam.Game.Time > from && gameTeam.Game.Time < to)
 					{
 						GamePlayer gamePlayer = gameTeam.Players.Find(x => x.PlayerId == leaguePlayer.Id);
@@ -1015,7 +1015,7 @@ namespace Torn.Report
 			int teamGames = 0;
 			DateTime previousGameDate = DateTime.MinValue;
 			// Add a row for each of this team"s games. Fill in values for team score and player scores.
-			foreach (GameTeam gameTeam in team.GameTeams(includeSecret))
+			foreach (GameTeam gameTeam in team.Played(includeSecret))
 				if (from < gameTeam.Game.Time && gameTeam.Game.Time < to)
 				{
 				    if (gameTeam.Game.Time.Date > previousGameDate)  // We've crossed a date boundary, so
@@ -1388,7 +1388,7 @@ namespace Torn.Report
 				
 					row.Add(new ZCell(player.LeaguePlayer == null ? player.PlayerId : player.LeaguePlayer.Name));
 					row.Add(new ZCell(player.Pack));
-					row.Add(new ZCell(player.GameTeam == null || player.GameTeam.LeagueTeam == null ? " " : player.GameTeam.LeagueTeam.Name));
+					row.Add(new ZCell(player.GameTeam == null || player.GameTeam.LeagueTeam == null ? " " : player.GameTeam.ToString()));
 					row.Add(new ZCell(player.Rank));
 					row.Add(new ZCell(player.Score));
 					row.Add(new ZCell(player.HitsBy));

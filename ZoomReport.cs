@@ -731,7 +731,7 @@ namespace Zoom
 		// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
 		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max)
 		{
-			s.AppendFormat("\n<svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
+			s.AppendFormat("<svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
 
 			SvgRect(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
@@ -1059,7 +1059,6 @@ namespace Zoom
 			if (!string.IsNullOrEmpty(Description))
 		    	AppendStrings(s, "<p>", Description, "</p>\n");
 			    
-			s.Append("<br /><br />\n\n");
 			return s.ToString();
 		}
 	}
@@ -1200,16 +1199,14 @@ namespace Zoom
 				sb.Append(WebUtility.HtmlEncode(Title));
 			else if (Count > 0)
 				sb.Append(WebUtility.HtmlEncode(this[0].Title));
-			sb.Append("</title></head><body>\n");
+			sb.Append("</title></head><body>\n<div class=\"flex-container\">\n");
 			//sb.Append("");  // TODO: cellstyles.ToHtml here?
 
 			for (int i = 0; i < Count; i++)
-			{
 				sb.Append(this[i].ToSvg(i));
-		 		sb.Append("<br/>\n\n");
-			}
 
-			sb.Append(@"<script>
+			sb.Append(@"</div>
+<script>
   var texts = document.querySelectorAll('text');
   for (i = 0; i < texts.length; i++) {
     var fit = texts[i].getComputedTextLength() / (texts[i].getAttribute('width') - 2);

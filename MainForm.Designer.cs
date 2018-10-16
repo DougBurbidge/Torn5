@@ -58,8 +58,8 @@ namespace Torn.UI
 			this.colDescription = new System.Windows.Forms.ColumnHeader();
 			this.contextMenuStripGames = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.latestGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.commitGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.forgetGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panelLeague = new System.Windows.Forms.Panel();
 			this.labelNow = new System.Windows.Forms.Label();
@@ -257,6 +257,7 @@ namespace Torn.UI
 			this.buttonCommit2.TabIndex = 16;
 			this.buttonCommit2.Text = "Commit Game";
 			this.buttonCommit2.UseVisualStyleBackColor = true;
+			this.buttonCommit2.Visible = false;
 			this.buttonCommit2.Click += new System.EventHandler(this.ButtonCommitClick);
 			// 
 			// buttonLatestGame2
@@ -268,6 +269,7 @@ namespace Torn.UI
 			this.buttonLatestGame2.TabIndex = 13;
 			this.buttonLatestGame2.Text = "Latest Game";
 			this.buttonLatestGame2.UseVisualStyleBackColor = true;
+			this.buttonLatestGame2.Visible = false;
 			this.buttonLatestGame2.Click += new System.EventHandler(this.ButtonLatestGameClick);
 			// 
 			// listViewGames
@@ -284,7 +286,7 @@ namespace Torn.UI
 			this.listViewGames.HideSelection = false;
 			this.listViewGames.Location = new System.Drawing.Point(3, 3);
 			this.listViewGames.Name = "listViewGames";
-			this.listViewGames.Size = new System.Drawing.Size(315, 568);
+			this.listViewGames.Size = new System.Drawing.Size(315, 611);
 			this.listViewGames.TabIndex = 12;
 			this.listViewGames.UseCompatibleStateImageBehavior = false;
 			this.listViewGames.View = System.Windows.Forms.View.Details;
@@ -310,8 +312,8 @@ namespace Torn.UI
 			// 
 			this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.latestGameToolStripMenuItem,
-									this.setDescriptionToolStripMenuItem,
 									this.commitGameToolStripMenuItem,
+									this.setDescriptionToolStripMenuItem,
 									this.forgetGameToolStripMenuItem});
 			this.contextMenuStripGames.Name = "contextMenuStripGames";
 			this.contextMenuStripGames.Size = new System.Drawing.Size(176, 92);
@@ -323,19 +325,19 @@ namespace Torn.UI
 			this.latestGameToolStripMenuItem.Text = "&Latest Game";
 			this.latestGameToolStripMenuItem.Click += new System.EventHandler(this.ButtonLatestGameClick);
 			// 
-			// setDescriptionToolStripMenuItem
-			// 
-			this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
-			this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-			this.setDescriptionToolStripMenuItem.Text = "Set Description";
-			this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
-			// 
 			// commitGameToolStripMenuItem
 			// 
 			this.commitGameToolStripMenuItem.Name = "commitGameToolStripMenuItem";
 			this.commitGameToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
 			this.commitGameToolStripMenuItem.Text = "&Commit Game";
 			this.commitGameToolStripMenuItem.Click += new System.EventHandler(this.ButtonCommitClick);
+			// 
+			// setDescriptionToolStripMenuItem
+			// 
+			this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
+			this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+			this.setDescriptionToolStripMenuItem.Text = "Set Description";
+			this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
 			// 
 			// forgetGameToolStripMenuItem
 			// 

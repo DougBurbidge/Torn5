@@ -16,15 +16,20 @@ namespace TornWeb
 			var team = new LeagueTeam() { Name = "Team A" };
 			league.Teams.Add(team);
 
-			team.Players.Add(new LeaguePlayer() { Name = "One", Id = "001", Comment = "one" } );
-			team.Players.Add(new LeaguePlayer() { Name = "<&>' \"", Id = "002", Comment = "two" } );
-			team.Players.Add(new LeaguePlayer() { Name = "Three", Id = "003" } );
+			league.Players.Add(new LeaguePlayer() { Name = "One", Id = "001", Comment = "one" } );
+			team.Players.Add(league.Players[0]);
+			league.Players.Add(new LeaguePlayer() { Name = "<&>' \"", Id = "002", Comment = "two" } );
+			team.Players.Add(league.Players[1]);
+			league.Players.Add(new LeaguePlayer() { Name = "Three", Id = "003" } );
+			team.Players.Add(league.Players[2]);
 
 			team = new LeagueTeam() { Name = "Team B" };
 			league.Teams.Add(team);
 
-			team.Players.Add(new LeaguePlayer() { Name = "Four", Id = "004", Comment = "one" } );
-			team.Players.Add(new LeaguePlayer() { Name = "One", Id = "001" } );
+			league.Players.Add(new LeaguePlayer() { Name = "Four", Id = "004", Comment = "one" } );
+			team.Players.Add(league.Players[3]);
+			league.Players.Add(new LeaguePlayer() { Name = "One", Id = "001" } );
+			team.Players.Add(league.Players[4]);
 
 			team = new LeagueTeam() { Name = "Team C" };
 			league.Teams.Add(team);
@@ -72,6 +77,47 @@ namespace TornWeb
 
 			Assert.AreEqual(3, league.Teams[0].Players.Count, "Number of players on team A");
 			Assert.AreEqual(5, clone.Teams[0].Players.Count, "Number of players on team A");
+		}
+
+		[Test]
+		public void TestLeagueCommit()
+		{
+			var league = CreateLeague();
+			
+			var serverGame = new ServerGame();
+			serverGame.League = league;
+			serverGame.Time = new DateTime(2018, 1, 1, 12, 0, 0);
+			
+			var teamDatas = new System.Collections.Generic.List<GameTeamData>();
+
+			var teamData = new GameTeamData();
+			teamData.GameTeam = new GameTeam();
+			teamData.GameTeam.LeagueTeam = league.Teams[0];
+			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
+			var player = new ServerPlayer();
+			player.LeaguePlayer = league.Players[0];
+			teamData.Players.Add(player);
+			player = new ServerPlayer();
+			player.LeaguePlayer = league.Players[1];
+			teamData.Players.Add(player);
+			teamDatas.Add(teamData);
+			
+			teamData = new GameTeamData();
+			teamData.GameTeam = new GameTeam();
+			teamData.GameTeam.LeagueTeam = league.Teams[1];
+			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
+			player = new ServerPlayer();
+			player.LeaguePlayer = league.Players[3];
+			teamData.Players.Add(player);
+			player = new ServerPlayer();
+			player.LeaguePlayer = league.Players[4];
+			teamData.Players.Add(player);
+			teamDatas.Add(teamData);
+			
+			league.CommitGame(serverGame, teamDatas);
+			
+			Assert.AreEqual(1, league.AllGames.Count, "game count");
+			Assert.AreEqual(1, league.Teams[0].AllPlayed.Count, "team 0 game count");
 		}
 		
 		[Test]

@@ -28,8 +28,44 @@ namespace Torn.UI
 
 		double score;
 		public int Score { get { return (int)score; } }
-		public LeagueTeam LeagueTeam { get; set; }
-		public GameTeam GameTeam { get; set; }
+
+		LeagueTeam leagueTeam;
+		public LeagueTeam LeagueTeam 
+		{ 
+			get { return leagueTeam; }
+
+			set
+			{
+				if (leagueTeam == null && value != null && value.Handicap == null)
+					value.Handicap = handicap;
+				leagueTeam = value;				
+			}
+		}
+
+		Handicap handicap;
+		public Handicap Handicap 
+		{
+			get 
+			{
+				return LeagueTeam == null ? handicap : LeagueTeam.Handicap;
+			}
+
+			private set { }
+		}
+
+		GameTeam gameTeam;
+		public GameTeam GameTeam
+		{
+			get { return gameTeam; }
+
+			set
+			{
+				gameTeam = value;
+				if (gameTeam.LeagueTeam == null)
+					gameTeam.LeagueTeam = leagueTeam;
+			}
+		}
+
 		public League League { get; set; }
 		/// <summary>Dialog used when the user ID's a player.</summary>
 		public FormPlayer FormPlayer { get; set; }
@@ -53,6 +89,7 @@ namespace Torn.UI
 			Rank = 0;
 			LeagueTeam = null;
 			GameTeam = new GameTeam();
+			handicap = new Handicap();
 			ListView.Columns[2].Text = "Score";
 		}
 
@@ -133,7 +170,7 @@ namespace Torn.UI
 				{
 					var item = new ToolStripMenuItem(team.Name);
 					item.Tag = team;
-					item.Click += MenuIdentifyClick;
+					item.Click += MenuIdentifyTeamClick;
 					menuIdentifyTeam.DropDownItems.Add(item);
 				}
 			else  // There are so many teams that a flat list will be large and hard to visually scan. Create intermediate items.
@@ -152,7 +189,7 @@ namespace Torn.UI
 				{
 					var item = new ToolStripMenuItem(team.Name);
 					item.Tag = team;
-					item.Click += MenuIdentifyClick;
+					item.Click += MenuIdentifyTeamClick;
 					FindMenu(team.Name).DropDownItems.Add(item);
 				}
 			}
@@ -166,11 +203,11 @@ namespace Torn.UI
 
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			LeagueTeam.Handicap.Value = InputDialog.GetInteger("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , LeagueTeam.Handicap.Value);
+			Handicap.Value = InputDialog.GetInteger("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , (int)Handicap.Value);
 			Recalculate(false);
 		}
 
-		private void MenuIdentifyClick(object sender, EventArgs e)
+		private void MenuIdentifyTeamClick(object sender, EventArgs e)
 		{
 			LeagueTeam = (LeagueTeam)((ToolStripMenuItem)sender).Tag;
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
@@ -184,7 +221,8 @@ namespace Torn.UI
 
 		void MenuRememberTeamClick(object sender, EventArgs e)
 		{
-			if (LeagueTeam == null)
+			if (LeagueTeam == null || MessageBox.Show("This box already has a team (" + LeagueTeam.Name + "). Create a new team anyway?",
+													  "Create new team", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
 			{
 				LeagueTeam = new LeagueTeam();
 				foreach (var serverPlayer in Players())
@@ -200,10 +238,6 @@ namespace Torn.UI
 					LeagueTeam.Players.Add(leaguePlayer);
 				}
 				League.Teams.Add(LeagueTeam);
-			}
-			else
-			{
-				// offer to create a new team?
 			}
 		}
 
