@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 
@@ -96,26 +97,85 @@ namespace Torn
 			return games;
 		}
 
+		class Event
+		{
+			public int PandCPlayerId;  // ID of shooter
+			public int PandCPlayerTeamId;  // team of shooter
+			public int Event_Type;  // see below
+			public int Score;  // points gained by shooter
+			public int HitPlayer;  // ID of shootee
+			public int HitTeam;  // team of shootee
+			public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
+			public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
+
+// EventType:
+//  0..6:   tagged foe (in various hit locations: chest, back, left shoulder, right shoulder, other, other, laser);
+//  7..13:  tagged ally;
+//  14..20: tagged by foe;
+//  21..27: tagged by ally;
+//  28: warning;
+//  29: termination;
+//  30: hit base;
+//  31: destroyed base;
+//  32: eliminated;
+//  33: hit by base;
+//  34: hit by mine;
+//  35: trigger pressed;
+//  36: game state (whatever that means);
+//  37..46: player tagged target (whatever that means);
+//  1402: score denial points.
+//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
+
+			public override string ToString()
+			{
+				return "Event Type " + Event_Type.ToString();
+			}
+ 
+		}
+		
 		public override void PopulateGame(ServerGame game)
 		{
 			if (!Connected)
 				return;
 
+			var events = new List<Event>();
+			string sql = "SELECT Player_ID, Player_Team_ID, Event_Type, Score, Result_Data_1, Result_Data_2, Result_Data_3, Result_Data_4 " +
+				"FROM ng_player_event_log " +
+				"WHERE Game_ID = " + game.GameId.ToString();
+			MySqlCommand cmd = new MySqlCommand(sql, connection);
+			using (var reader = cmd.ExecuteReader())
+			{
+				while (reader.Read())
+				{
+					var oneEvent = new Event();
+					oneEvent.PandCPlayerId = reader.GetInt32("Player_ID");
+					oneEvent.PandCPlayerTeamId = reader.GetInt32("Player_Team_ID");
+					oneEvent.Event_Type = reader.GetInt32("Event_Type");
+					oneEvent.Score = reader.GetInt32("Score");
+					oneEvent.HitPlayer = reader.GetInt32("Result_Data_1");
+					oneEvent.HitTeam = reader.GetInt32("Result_Data_2");
+					oneEvent.PointsLostByDeniee = reader.GetInt32("Result_Data_3");
+					oneEvent.ShotsDenied = reader.GetInt32("Result_Data_4");
+					events.Add(oneEvent);
+				}
+			}
+
 			game.Players = new List<ServerPlayer>();
 
-			string sql = "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
+			sql = "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
                 "FROM ng_player_event_log EL " +
                 "LEFT JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
                 "LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
 				"WHERE EL.Game_ID = " + game.GameId.ToString() +
                 " GROUP BY Player_ID " +
                 "ORDER BY Score DESC";
-			MySqlCommand cmd = new MySqlCommand(sql, connection);
+			cmd = new MySqlCommand(sql, connection);
 			using (var reader = cmd.ExecuteReader())
 			{
 				while (reader.Read())
 				{
 					ServerPlayer player = new ServerPlayer();
+
 					player.PandCPlayerId = reader.GetInt32("Player_ID");
 					player.PandCPlayerTeamId = reader.GetInt32("Player_Team_ID");
 					player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
@@ -123,6 +183,18 @@ namespace Torn
 					player.PackName = reader.GetString("Pack_Name");
 					player.PlayerId = reader.GetString("Button_ID");
 					player.Alias = reader.GetString("Alias");
+
+					player.HitsBy = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
+					                               (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
+					player.HitsOn = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
+					                               (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
+					player.BaseHits = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 30);
+					player.BaseDestroys = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 31);
+					player.BaseDenies = events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 1402).Sum(x => x.ShotsDenied);
+					player.BaseDenied = events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 1404).Sum(x => x.ShotsDenied);
+					player.YellowCards = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 28);
+					player.RedCards = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 29);
+
 					game.Players.Add(player);
 				}
 			}
