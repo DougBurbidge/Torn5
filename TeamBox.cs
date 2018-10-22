@@ -53,18 +53,7 @@ namespace Torn.UI
 			private set { }
 		}
 
-		GameTeam gameTeam;
-		public GameTeam GameTeam
-		{
-			get { return gameTeam; }
-
-			set
-			{
-				gameTeam = value;
-				if (gameTeam.LeagueTeam == null)
-					gameTeam.LeagueTeam = leagueTeam;
-			}
-		}
+		public GameTeam GameTeam { get; set; }
 
 		public League League { get; set; }
 		/// <summary>Dialog used when the user ID's a player.</summary>
@@ -105,27 +94,14 @@ namespace Torn.UI
 				return;
 			}
 
-			foreach (var listPlayer in Players())
-			{
-				var gamePlayer = GameTeam.Players.Find(x => x.PlayerId == listPlayer.PlayerId);
-				if (gamePlayer == null)
-				{
-					gamePlayer = new GamePlayer();
-					GameTeam.Players.Add(gamePlayer);
-				}
-				listPlayer.CopyTo(gamePlayer);
-			}
-
-			score = GameTeam.CalculateScore(League == null ? HandicapStyle.Percent : League.HandicapStyle);
+			var tempTeam = new GameTeam();
+			tempTeam.Players.AddRange(Players());
+			score = League.CalculateScore(tempTeam);
 			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture);
 
 			var ids = new List<string>();
 			foreach (var listPlayer in Players())
 				ids.Add(listPlayer.PlayerId);
-
-//			if (ListView.ListViewItemSorter == null)
-//				ListView.ListViewItemSorter = new SortByScore();
-//			ListView.Sort();
 
 			if (guessTeam && League != null)
 				LeagueTeam = League.GuessTeam(ids);
@@ -135,7 +111,7 @@ namespace Torn.UI
 		
 		LeaguePlayer LeaguePlayer(ListViewItem item)
 		{
-			return item.Tag is ServerPlayer && ((ServerPlayer)item.Tag).LeaguePlayer != null ? ((ServerPlayer)item.Tag).LeaguePlayer : null;
+			return item.Tag is ServerPlayer && League.LeaguePlayer((ServerPlayer)item.Tag) != null ? League.LeaguePlayer((ServerPlayer)item.Tag) : null;
 		}
 
 		ToolStripMenuItem FindMenu(string s)
@@ -227,7 +203,7 @@ namespace Torn.UI
 				LeagueTeam = new LeagueTeam();
 				foreach (var serverPlayer in Players())
 				{
-					var leaguePlayer = serverPlayer.LeaguePlayer ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
+					var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
 					if (leaguePlayer == null)
 					{
 						leaguePlayer = new LeaguePlayer();
@@ -251,7 +227,7 @@ namespace Torn.UI
 		{
 			foreach (var serverPlayer in Players())
 			{
-				var leaguePlayer = serverPlayer.LeaguePlayer ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
+				var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
 				if (leaguePlayer == null)
 				{
 					leaguePlayer = new LeaguePlayer();
@@ -269,10 +245,7 @@ namespace Torn.UI
 			var player = (ServerPlayer)ListView.SelectedItems[0].Tag;
 			FormPlayer.PlayerId = player.PlayerId;
 			if (FormPlayer.ShowDialog() == DialogResult.OK)
-			{
 				player.PlayerId = FormPlayer.PlayerId;
-				player.LeaguePlayer = null;
-			}
 		}
 
 		void MenuHandicapPlayerClick(object sender, EventArgs e)

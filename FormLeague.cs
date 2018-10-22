@@ -44,9 +44,10 @@ namespace Torn.UI
 				listViewScores.Items.Clear();
 				foreach (var gameTeam in ((LeagueTeam)treeView1.SelectedNode.Tag).AllPlayed)
 				{
-					var item = new ListViewItem(gameTeam.Game.Time.ToString());
+					Game game = League.Game(gameTeam);
+					var item = new ListViewItem(game == null ? "?" : game.Time.ToString());
 					item.SubItems.Add(gameTeam.Score.ToString());
-					item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : (gameTeam.Game.Teams.IndexOf(gameTeam) + 1).ToString());
+					item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : game == null ? "?" : (game.Teams.IndexOf(gameTeam) + 1).ToString());
 					item.BackColor = gameTeam.Colour.ToColor();
 					listViewScores.Items.Add(item);
 				}
@@ -57,7 +58,7 @@ namespace Torn.UI
 				listViewScores.Items.Clear();
 				foreach (var gamePlayer in ((LeaguePlayer)treeView1.SelectedNode.Tag).Played)
 				{
-					var item = new ListViewItem(gamePlayer.GameTeam.Game.Time.ToString());
+					var item = new ListViewItem(League.Game(gamePlayer).Time.ToString());
 					item.SubItems.Add(gamePlayer.Score.ToString());
 					item.SubItems.Add(gamePlayer.Rank.ToString());
 					item.BackColor = gamePlayer.Colour.ToColor();

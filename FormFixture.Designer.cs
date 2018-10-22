@@ -96,6 +96,7 @@ namespace Torn.UI
 			this.buttonImportTeams.TabIndex = 10;
 			this.buttonImportTeams.Text = "Import";
 			this.buttonImportTeams.UseVisualStyleBackColor = true;
+			this.buttonImportTeams.Click += new System.EventHandler(this.ButtonImportTeamsClick);
 			// 
 			// label1
 			// 
@@ -108,7 +109,7 @@ namespace Torn.UI
 			// buttonImportGames
 			// 
 			this.buttonImportGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonImportGames.Location = new System.Drawing.Point(311, 12);
+			this.buttonImportGames.Location = new System.Drawing.Point(307, 12);
 			this.buttonImportGames.Name = "buttonImportGames";
 			this.buttonImportGames.Size = new System.Drawing.Size(75, 23);
 			this.buttonImportGames.TabIndex = 19;
@@ -173,7 +174,7 @@ namespace Torn.UI
 			this.textBoxGames.Multiline = true;
 			this.textBoxGames.Name = "textBoxGames";
 			this.textBoxGames.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.textBoxGames.Size = new System.Drawing.Size(373, 570);
+			this.textBoxGames.Size = new System.Drawing.Size(369, 570);
 			this.textBoxGames.TabIndex = 18;
 			this.textBoxGames.Text = "1/1/2000 7:00pm\t1\t2\t3\r\n1/1/2000 7:15pm\t2\t3\t4\r\n1/1/2000 7:30pm\t3\t4\t1\r\n1/1/2000 7:4" +
 			"5pm\t2\t3\t4";

@@ -125,7 +125,7 @@ namespace Torn
 
 				foreach (GameTeam gt in lg.Teams)
 				{
-					FixtureTeam ft = teams.Find(x => x.LeagueTeam == gt.LeagueTeam);
+					FixtureTeam ft = teams.Find(x => x.LeagueTeam == league.LeagueTeam(gt));
 					if (ft != null)
 						fg.Teams.Add(ft, gt.Colour);
 				}

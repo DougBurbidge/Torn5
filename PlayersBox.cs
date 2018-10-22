@@ -25,7 +25,7 @@ namespace Torn.UI
 			//
 		}
 		
-		public void LoadGame(ServerGame game)
+		public void LoadGame(League league, ServerGame game)
 		{
 			Items.Clear();
 
@@ -33,10 +33,10 @@ namespace Torn.UI
 				foreach (var player in game.Game.Players)
 				{
 					var serverPlayer = new ServerPlayer();
-					if (player.LeaguePlayer != null)
-						serverPlayer.Alias = player.LeaguePlayer.Name;
+					LeaguePlayer leagueplayer = league.LeaguePlayer(player);
+					if (leagueplayer != null)
+						serverPlayer.Alias = leagueplayer.Name;
 					serverPlayer.PlayerId = player.PlayerId;
-					serverPlayer.LeaguePlayer = player.LeaguePlayer;
 					serverPlayer.PandCPlayerTeamId = (int)player.Colour - 1;
 					serverPlayer.Score = player.Score;
 

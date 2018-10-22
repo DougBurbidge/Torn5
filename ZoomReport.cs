@@ -363,6 +363,13 @@ namespace Zoom
 					row.RemoveAt(i);
 		}
 
+		public void RemoveZeroColumns()
+		{
+			for (int i = Columns.Count - 1; i >= 0; i--)
+				if (ColumnZero(i))
+					RemoveColumn(i);
+		}
+
 		/// <summary>For each column, calculate a pixel width, and find the min and max values.</summary>
 		void Widths(List<float> widths, List<double> mins, List<double> maxs)
 		{

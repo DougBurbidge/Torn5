@@ -92,25 +92,25 @@ namespace TornWeb
 
 			var teamData = new GameTeamData();
 			teamData.GameTeam = new GameTeam();
-			teamData.GameTeam.LeagueTeam = league.Teams[0];
+			//teamData.GameTeam.LeagueTeam = league.Teams[0];
 			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
 			var player = new ServerPlayer();
-			player.LeaguePlayer = league.Players[0];
+			//player.LeaguePlayer = league.Players[0];
 			teamData.Players.Add(player);
 			player = new ServerPlayer();
-			player.LeaguePlayer = league.Players[1];
+			//player.LeaguePlayer = league.Players[1];
 			teamData.Players.Add(player);
 			teamDatas.Add(teamData);
 			
 			teamData = new GameTeamData();
 			teamData.GameTeam = new GameTeam();
-			teamData.GameTeam.LeagueTeam = league.Teams[1];
+			//teamData.GameTeam.LeagueTeam = league.Teams[1];
 			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
 			player = new ServerPlayer();
-			player.LeaguePlayer = league.Players[3];
+			//player.LeaguePlayer = league.Players[3];
 			teamData.Players.Add(player);
 			player = new ServerPlayer();
-			player.LeaguePlayer = league.Players[4];
+			//player.LeaguePlayer = league.Players[4];
 			teamData.Players.Add(player);
 			teamDatas.Add(teamData);
 			

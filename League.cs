@@ -110,7 +110,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return Value == null ? "Handicap" :
+			return Value == null ? "" :
 				(Style == HandicapStyle.Percent) ? ((double)Value).ToString(CultureInfo.InvariantCulture) + '%' :
 				Style.ToString() + ((double)Value).ToString(CultureInfo.InvariantCulture);
 		}
@@ -118,7 +118,7 @@ namespace Torn
 		/// <summary>True if the handicap is 100%, +0 or -0.</summary>
 		public bool IsZero()
 		{
-			return (Style == HandicapStyle.Percent && Value == 100) || (Style != HandicapStyle.Percent && Value == 0);
+			return Value == null || (Style == HandicapStyle.Percent && Value == 100) || (Style != HandicapStyle.Percent && Value == 0);
 		}
 	}
 
@@ -150,7 +150,7 @@ namespace Torn
 			clone.Handicap = Handicap;
 			clone.Comment = Comment;
 
-			//clone.played = new Collection<GamePlayer>(played);
+			clone.played = new Collection<GamePlayer>(played);
 
 			return clone;
 		}
@@ -182,7 +182,7 @@ namespace Torn
 			
 			set { name = value; } 
 		}
-		
+
 		internal int Id  { get; set; }
 		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
@@ -193,21 +193,6 @@ namespace Torn
 		{
 			Players = new List<LeaguePlayer>();
 			AllPlayed = new List<GameTeam>();
-		}
-		
-		public List<GameTeam> Played(bool includeSecret)
-		{
-			return includeSecret ? AllPlayed : AllPlayed.FindAll(x => !x.Game.Secret);
-		}
-		
-		public double AverageScore(bool includeSecret)
-		{
-			return Played(includeSecret).Average(x => x.Score);
-		}
-
-		public double AveragePoints(bool includeSecret)
-		{
-			return Played(includeSecret).Average(x => x.Points);
 		}
 
 		public LeagueTeam Clone()
@@ -238,8 +223,6 @@ namespace Torn
 	public class GameTeam: IComparable
 	{
 		public int? TeamId { get; set; }
-		public LeagueTeam LeagueTeam { get; set; }
-		public Game Game { get; set; }
 		Colour colour;
 		public Colour Colour
 		{
@@ -270,18 +253,6 @@ namespace Torn
 			players = new List<GamePlayer>();
 		}
 
-		public double CalculateScore(HandicapStyle handicapStyle)
-		{
-			double score = 0;
-
-			foreach (var player in players)
-				score += player.Score;
-
-			score += Adjustment;
-
-			return LeagueTeam != null && LeagueTeam.Handicap != null ? new Handicap(LeagueTeam.Handicap.Value, handicapStyle).Apply(score) : score;
-		}
-
 		public GameTeam Clone()
 		{
 			var clone = new GameTeam();
@@ -291,7 +262,7 @@ namespace Torn
 			clone.Adjustment = Adjustment;
 			clone.Points = Points;
 			clone.PointsAdjustment = PointsAdjustment;
-			// Don't clone LeagueTeam, Game, or players as these will be done by LinkThings().
+			// Don't clone players as this will be done by LinkThings().
 
 			return clone;
 		}
@@ -307,20 +278,13 @@ namespace Torn
 
 		public override string ToString()
 		{
-			if (LeagueTeam == null)
-				return (TeamId ?? -1).ToString();
-			else
-				return LeagueTeam.Name;
-
-//			return "GameTeam " + LeagueTeam == null ? (TeamId ?? -1).ToString() : LeagueTeam.Name;
+			return "GameTeam " + (TeamId ?? -1).ToString();
 		}
 	}
 
 	public class GamePlayer: IComparable
 	{
 		public int GameTeamId { get; set; }
-		public GameTeam GameTeam { get; set; }
-		public LeaguePlayer LeaguePlayer { get; set; }
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
 		public string Pack { get; set; }
@@ -340,20 +304,32 @@ namespace Torn
 		public GamePlayer CopyTo(GamePlayer target)
 		{
 			target.GameTeamId = GameTeamId;
-			target.GameTeam = GameTeam;
-			target.LeaguePlayer = LeaguePlayer;
 			target.PlayerId = PlayerId;
 			target.Pack = Pack;
 			target.Score = Score;
 			target.Rank = Rank;
+			target.Colour = Colour;
 			target.HitsBy = HitsBy;
 			target.HitsOn = HitsOn;
 			target.BaseHits = BaseHits;
 			target.BaseDestroys = BaseDestroys;
-			target.Colour = Colour;
+			target.BaseDenies = BaseDenies;
+			target.BaseDenied = BaseDenied;
+			target.YellowCards = YellowCards;
+			target.RedCards = RedCards;
 			target.Game = Game;
 			
 			return target;
+		}
+
+		public GameTeam GameTeam(League league)
+		{
+			foreach (var game in league.AllGames)
+				foreach (var gameTeam in game.Teams)
+					if (gameTeam.Players.Contains(this))
+						return gameTeam;
+			
+			return null;
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -363,7 +339,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return LeaguePlayer == null ? "Player " + PlayerId.ToString() : LeaguePlayer.Name;
+			return "GamePlayer " + PlayerId;
 		}
 	}
 
@@ -466,6 +442,13 @@ namespace Torn
 			HandicapStyle = HandicapStyle.Percent;
 		}
 
+		public League(string fileName): this()
+		{
+			Clear();
+			file = fileName;
+			Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
+		}
+
 		void Clear()
 		{
 			Title = "";
@@ -501,75 +484,90 @@ namespace Torn
 			return clone;
 		}
 
-		void LinkPlayerToGame(GamePlayer gamePlayer, GameTeam gameTeam, ServerGame game)
-		{
-			gamePlayer.GameTeam = gameTeam;
-
-			if (!game.Game.Players.Contains(gamePlayer))
-				game.Game.Players.Add(gamePlayer);
-
-			if (gamePlayer.LeaguePlayer == null)
-				gamePlayer.LeaguePlayer = Players.Find(p => p.Id == gamePlayer.PlayerId);
-
-			if (gamePlayer.LeaguePlayer == null)
-			{
-				gamePlayer.LeaguePlayer = new LeaguePlayer();
-				if (gamePlayer is ServerPlayer)
-					gamePlayer.LeaguePlayer.Name = ((ServerPlayer)gamePlayer).Alias;
-				gamePlayer.LeaguePlayer.Id = gamePlayer.PlayerId;
-				Players.Add(gamePlayer.LeaguePlayer);
-			}
-
-			if (!gameTeam.LeagueTeam.Players.Contains(gamePlayer.LeaguePlayer))
-				gameTeam.LeagueTeam.Players.Add(gamePlayer.LeaguePlayer);
-
-			if (!gamePlayer.LeaguePlayer.Played.Contains(gamePlayer))
-				gamePlayer.LeaguePlayer.Played.Add(gamePlayer);
-		}
-
-		void LinkTeamToGame(GameTeamData teamData, ServerGame serverGame, LeagueTeam leagueTeam)
+		void LinkTeamToGame(GameTeamData teamData, ServerGame serverGame)
 		{
 			if (teamData.GameTeam == null)
 				teamData.GameTeam = new GameTeam();
 
 			var gameTeam = teamData.GameTeam;
-			gameTeam.Game = serverGame.Game;
-
-			gameTeam.Game.Teams.Add(gameTeam);
-
-			gameTeam.LeagueTeam = leagueTeam ?? GuessTeam(gameTeam.Players.Select(x => x.PlayerId).ToList());
-			
-			if (gameTeam.LeagueTeam == null)
+			Game game = serverGame.Game ?? Game(gameTeam);
+			if (game == null)
 			{
-				gameTeam.LeagueTeam = new LeagueTeam();
-				gameTeam.LeagueTeam.Id = NextTeamID();
-				Teams.Add(gameTeam.LeagueTeam);
+				game = new Game();
+				game.Time = serverGame.Time;
+				serverGame.Game = game;
+			}
+
+			game.Teams.Add(gameTeam);
+
+			LeagueTeam leagueTeam = LeagueTeam(teamData.GameTeam);
+
+			if (leagueTeam == null)
+				leagueTeam = GuessTeam(teamData.Players.Select(x => x.PlayerId).ToList());
+			
+			if (leagueTeam == null)
+			{
+				leagueTeam = new LeagueTeam();
+				leagueTeam.Id = NextTeamID();
+				Teams.Add(leagueTeam);
 			}
 			
-			gameTeam.TeamId = gameTeam.LeagueTeam.Id;
+			gameTeam.TeamId = leagueTeam.Id;
 
-			gameTeam.LeagueTeam.AllPlayed.RemoveAll(x => x.Game.Time == gameTeam.Game.Time);
-			gameTeam.LeagueTeam.AllPlayed.Add(gameTeam);
+			leagueTeam.AllPlayed.RemoveAll(x => Game(x) != null && Game(x).Time == game.Time);
+			leagueTeam.AllPlayed.Add(gameTeam);
+			
+			gameTeam.Players.Clear();
+			gameTeam.Players.AddRange(teamData.Players);
+		}
+
+		void LinkPlayerToGame(GamePlayer gamePlayer, GameTeam gameTeam, ServerGame game)
+		{
+			gamePlayer.GameTeamId = (int)gameTeam.TeamId;
+
+			if (!game.Game.Players.Contains(gamePlayer))
+				game.Game.Players.Add(gamePlayer);
+
+			var leaguePlayer = LeaguePlayer(gamePlayer);
+
+			if (leaguePlayer == null)
+				leaguePlayer = Players.Find(p => p.Id == gamePlayer.PlayerId);
+
+			if (leaguePlayer == null)
+			{
+				leaguePlayer = new LeaguePlayer();
+				if (gamePlayer is ServerPlayer)
+					leaguePlayer.Name = ((ServerPlayer)gamePlayer).Alias;
+				leaguePlayer.Id = gamePlayer.PlayerId;
+				Players.Add(leaguePlayer);
+			}
+
+			if (!LeagueTeam(gameTeam).Players.Contains(leaguePlayer))
+				LeagueTeam(gameTeam).Players.Add(leaguePlayer);
+
+			if (!leaguePlayer.Played.Contains(gamePlayer))
+				leaguePlayer.Played.Add(gamePlayer);
 		}
 
 		public void CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas)
 		{
 			if (serverGame.Game == null)
+			{
 				serverGame.Game = new Game();
+				serverGame.Game.Time = serverGame.Time;
+			}
 
-			serverGame.Game.Time = serverGame.Time;
 			serverGame.Game.Teams.Clear();
 			foreach (var teamData in teamDatas)
 			{
-//				var gameTeam = serverGame.Game.Teams.Find(gt => gt.LeagueTeam == teamData.GameTeam.LeagueTeam);
-				LinkTeamToGame(teamData, serverGame, teamData.GameTeam.LeagueTeam);
+				LinkTeamToGame(teamData, serverGame);
 
 				foreach (var player in teamData.Players)
 					LinkPlayerToGame(serverGame.Game.Players.Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
 					                 teamData.GameTeam, serverGame);
 
 				teamData.GameTeam.Players.Sort();
-				teamData.GameTeam.Score = (int)teamData.GameTeam.CalculateScore(HandicapStyle);
+				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
 			}
 
 			serverGame.Game.Players.Sort();
@@ -580,6 +578,9 @@ namespace Torn
 				AllGames.Add(serverGame.Game);
 
 			serverGame.Game.Teams.Sort();
+			serverGame.League = this;
+			
+			Save();
 		}
 
 		public Games Games(bool includeSecret)
@@ -754,7 +755,6 @@ namespace Torn
 					GameTeam gameTeam = new GameTeam();
 
 					gameTeam.TeamId = XmlInt(xteam, "teamid");
-					gameTeam.Game = game;
 					gameTeam.Colour = ColourExtensions.ToColour(XmlValue(xteam, "colour"));
 					gameTeam.Score = XmlInt(xteam, "score");
 					gameTeam.Points = XmlInt(xteam, "points");
@@ -778,9 +778,15 @@ namespace Torn
 					gamePlayer.Rank = (uint)XmlInt(xplayer, "rank");
 					gamePlayer.HitsBy = XmlInt(xplayer, "hitsby");
 					gamePlayer.HitsOn = XmlInt(xplayer, "hitson");
+					gamePlayer.BaseHits = XmlInt(xplayer, "basehits");
+					gamePlayer.BaseDestroys = XmlInt(xplayer, "basedestroys");
+					gamePlayer.BaseDenies = XmlInt(xplayer, "basedenies");
+					gamePlayer.BaseDenied = XmlInt(xplayer, "basedenied");
+					gamePlayer.YellowCards = XmlInt(xplayer, "yellowcards");
+					gamePlayer.RedCards = XmlInt(xplayer, "redcards");
 
 					if (xplayer.SelectSingleNode("colour") != null)
-						gamePlayer.Colour = (Colour)(XmlInt(xplayer, "colour") + 1);
+						gamePlayer.Colour = (Colour)(XmlInt(xplayer, "colour"));
 
 					game.Players.Add(gamePlayer);
 				}
@@ -814,41 +820,28 @@ namespace Torn
 				foreach (GameTeam gameTeam in game.Teams) 
 				{
 					// Connect each game team back to their league team.
-					gameTeam.LeagueTeam = teams.Find(x => x.Id == gameTeam.TeamId);
-					if (gameTeam.LeagueTeam != null)
+					var leagueTeam = teams.Find(x => x.Id == gameTeam.TeamId);
+					if (leagueTeam != null)
 					{
-						gameTeam.LeagueTeam.AllPlayed.Add(gameTeam);
+						leagueTeam.AllPlayed.Add(gameTeam);
 
 						// Connect each game player to their game team.
 						gameTeam.Players.Clear();
 						foreach (GamePlayer gamePlayer in game.Players)
 							if (gamePlayer.GameTeamId == gameTeam.TeamId)
-						{
 								gameTeam.Players.Add(gamePlayer);
-								gamePlayer.GameTeam = gameTeam;
-						}
 
 						// Connect each game player to their league player.
 						foreach (GamePlayer gamePlayer in gameTeam.Players)
-							foreach (LeaguePlayer leaguePlayer in gameTeam.LeagueTeam.Players) 
+							foreach (LeaguePlayer leaguePlayer in LeagueTeam(gameTeam).Players)
 								if (gamePlayer.PlayerId == leaguePlayer.Id)
-								{
-									gamePlayer.LeaguePlayer = leaguePlayer;
 									leaguePlayer.Played.Add(gamePlayer);
-								}
 					}
-					
+
 					foreach (var player in game.Players)
 						player.Game = game;
 				}
 			}
-		}
-
-		public void New(string fileName)
-		{
-			Clear();
-
-			Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
 		}
 
 		void AppendNode(XmlDocument doc, XmlNode parent, string name, string value)
@@ -973,21 +966,91 @@ namespace Torn
 					AppendNode(doc, playerNode, "playerid", player.PlayerId);
 					AppendNode(doc, playerNode, "pack", player.Pack);
 					AppendNode(doc, playerNode, "score", player.Score);
-					AppendNode(doc, playerNode, "rank", player.Rank.ToString());
+					AppendNode(doc, playerNode, "rank", (int)player.Rank);
 					AppendNonZero(doc, playerNode, "hitsby", player.HitsBy);
 					AppendNonZero(doc, playerNode, "hitson", player.HitsOn);
 					AppendNonZero(doc, playerNode, "basehits", player.BaseHits);
 					AppendNonZero(doc, playerNode, "basedestroys", player.BaseDestroys);
+					AppendNonZero(doc, playerNode, "basedenies", player.BaseDenies);
+					AppendNonZero(doc, playerNode, "basedenied", player.BaseDenied);
+					AppendNonZero(doc, playerNode, "yellowcards", player.YellowCards);
+					AppendNonZero(doc, playerNode, "redcards", player.RedCards);
 
 					AppendNode(doc, playerNode, "colour", (int)player.Colour);
 				}
 			}
-			doc.Save(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "5") + Path.GetExtension(file));
+			doc.Save(file);
+//			doc.Save(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "5") + Path.GetExtension(file));
 		}
 
 		public override string ToString()
 		{
 			return Title ?? "league with blank title";
+		}
+
+		public Game Game(GamePlayer gamePlayer)
+		{
+			return AllGames.Find(g => g.Players.Contains(gamePlayer));
+		}
+
+		public Game Game(GameTeam gameTeam)
+		{
+			return AllGames.Find(g => g.Teams.Contains(gameTeam));
+		}
+
+		public GameTeam GameTeam(GamePlayer gamePlayer)
+		{
+			foreach (var game in AllGames)
+			{
+				GameTeam gameTeam = game.Teams.Find(gt => gt.Players.Contains(gamePlayer));
+				if (gameTeam != null)
+					return gameTeam;
+			}
+			
+			return null;
+		}
+
+		public LeaguePlayer LeaguePlayer(GamePlayer gamePlayer)
+		{
+			return players.Find(p => p.Id == gamePlayer.PlayerId);
+		}
+
+		public LeagueTeam LeagueTeam(GameTeam gameTeam)
+		{
+			return teams.Find(t => t.AllPlayed.Contains(gameTeam));
+		}
+
+		public LeagueTeam LeagueTeam(LeaguePlayer leaguePlayer)
+		{
+			return teams.Find(t => t.Players.Contains(leaguePlayer));
+		}
+
+		public double AverageScore(LeagueTeam leagueTeam, bool includeSecret)
+		{
+			return Played(leagueTeam, includeSecret).Average(x => x.Score);
+		}
+
+		public double AveragePoints(LeagueTeam leagueTeam, bool includeSecret)
+		{
+			return Played(leagueTeam, includeSecret).Average(x => x.Points);
+		}
+
+		public double CalculateScore(GameTeam gameTeam)
+		{
+			double score = 0;
+
+			foreach (var player in gameTeam.Players)
+				score += player.Score;
+
+			score += gameTeam.Adjustment;
+
+			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
+			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+		}
+
+		public List<GameTeam> Played(LeagueTeam leagueTeam, bool includeSecret)
+		{
+			return includeSecret ? leagueTeam.AllPlayed : leagueTeam.AllPlayed.FindAll(x => Game(x) != null && !Game(x).Secret);
 		}
 	}
 
@@ -1024,5 +1087,10 @@ namespace Torn
 		public string Alias { get; set; }
 		/// <summary>If this object is linked from a ListViewItem's Tag, list that ListViewItem here.</summary>
 		public ListViewItem Item { get; set; }
+
+		public override string ToString()
+		{
+			return "ServerPlayer " + Alias;
+		}
 	}
 }

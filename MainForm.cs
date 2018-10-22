@@ -170,7 +170,7 @@ namespace Torn.UI
 
 		Holder AddLeague(string fileName, string key = "", bool neww = false)
 		{
-			League league = new League();
+			League league = new League(fileName);
 			ListViewItem item = new ListViewItem();
 			if (!neww)
 				item.ImageKey = "tick";
@@ -230,6 +230,11 @@ namespace Torn.UI
 				teamBox.Dock = DockStyle.Fill;
 			}
 			EnableRemoveRowColumnButtons();
+		}
+
+		void AboutToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			MessageBox.Show("A tournament scores editor by Doug Burbidge.\nhttp://www.dougburbidge.com/Apps/", "Torn 5");
 		}
 
 		void ButtonAddRowClick(object sender, EventArgs e)
@@ -446,8 +451,8 @@ namespace Torn.UI
 
 					if (autoUpdateTeams)
 						foreach (Control c in tableLayoutPanel1.Controls)
-							if (c is TeamBox && ((TeamBox)c).GameTeam.LeagueTeam != null && ((TeamBox)c).Players().Count > 0)
-								((TeamBox)c).GameTeam.LeagueTeam.Handicap = ((TeamBox)c).Handicap;
+							if (c is TeamBox && activeHolder.League.LeagueTeam(((TeamBox)c).GameTeam) != null && ((TeamBox)c).Players().Count > 0)
+								activeHolder.League.LeagueTeam(((TeamBox)c).GameTeam).Handicap = ((TeamBox)c).Handicap;
 
 					RefreshGamesList();
 					RankTeams();
@@ -554,9 +559,9 @@ namespace Torn.UI
 			return null;
 		}
 
-		void TransferPlayers(ServerGame game)
+		void TransferPlayers(ServerGame serverGame)
 		{
-			League league = game.League ?? (listViewLeagues.SelectedItems.Count == 1 ? ((Holder)listViewLeagues.SelectedItems[0].Tag).League : null);
+			League league = serverGame.League ?? (listViewLeagues.SelectedItems.Count == 1 ? ((Holder)listViewLeagues.SelectedItems[0].Tag).League : null);
 			if (league == null)
 				return;
 
@@ -567,7 +572,7 @@ namespace Torn.UI
 
 			int box = 0;
 
-			if (game.Game == null)  // This game is not yet committed. Match players to league teams.
+			if (serverGame.Game == null)  // This game is not yet committed. Match players to league teams.
 			{
 				if (groupPlayersBy == GroupPlayersBy.Colour)
 					foreach (var colour in (Colour[])Enum.GetValues(typeof(Colour)))
@@ -586,11 +591,10 @@ namespace Torn.UI
 			}
 			else  // This game is previously committed. Match game players to game teams.
 			{
-				var leagueGame = game.Game;
+				var leagueGame = serverGame.Game;
 				foreach (var gameTeam in leagueGame.Teams)
 				{
-					var teamPlayers = leagueGame.Players.Where(p => p.GameTeam == gameTeam).ToList();
-					var serverPlayers = playersBox.Players().FindAll(sp => teamPlayers.Exists(gp => sp.PlayerId == gp.PlayerId)).ToList();
+					var serverPlayers = playersBox.Players().FindAll(sp => gameTeam.Players.Exists(gp => sp.PlayerId == gp.PlayerId)).ToList();
 					if (serverPlayers.Count > 0 && box < teamBoxes.Count)
 						teamBoxes[box++].Accept(serverPlayers);
 				}
@@ -614,7 +618,7 @@ namespace Torn.UI
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
 				laserGameServer.PopulateGame(game);
-				playersBox.LoadGame(game);
+				playersBox.LoadGame(activeHolder.League, game);
 
 				foreach (Control c in tableLayoutPanel1.Controls)
 					if (c is TeamBox)

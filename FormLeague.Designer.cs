@@ -214,7 +214,7 @@ namespace Torn.UI
 			// colGame
 			// 
 			this.colGame.Text = "Game";
-			this.colGame.Width = 125;
+			this.colGame.Width = 130;
 			// 
 			// colScore
 			// 
