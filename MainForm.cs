@@ -49,6 +49,7 @@ read from Ozone server
 spark lines
 check latest version via REST
 reports and uploads in worker thread
+sanity check report. Add new check: are there odd games out with no victory points?
 
 */
 
@@ -436,12 +437,14 @@ namespace Torn.UI
 				ServerGame serverGame = ((ServerGame)item.Tag);
 
 				var teamDatas = new List<GameTeamData>();
-				foreach (Control c in tableLayoutPanel1.Controls)
-					if (c is TeamBox && ((TeamBox)c).Players().Count > 0)
+				var teamBoxes = TeamBoxes();
+
+				foreach (TeamBox teamBox in teamBoxes)
+					if (teamBox.Players().Count > 0)
 					{
 						var teamData = new GameTeamData();
-						teamData.GameTeam = ((TeamBox)c).GameTeam;
-						teamData.Players = ((TeamBox)c).Players();
+						teamData.GameTeam = teamBox.GameTeam;
+						teamData.Players = teamBox.Players();
 						teamDatas.Add(teamData);
 					}
 
@@ -449,11 +452,17 @@ namespace Torn.UI
 				{
 					activeHolder.League.CommitGame(serverGame, teamDatas);
 
-					if (autoUpdateTeams)
-						foreach (Control c in tableLayoutPanel1.Controls)
-							if (c is TeamBox && activeHolder.League.LeagueTeam(((TeamBox)c).GameTeam) != null && ((TeamBox)c).Players().Count > 0)
-								activeHolder.League.LeagueTeam(((TeamBox)c).GameTeam).Handicap = ((TeamBox)c).Handicap;
+					foreach (TeamBox teamBox in teamBoxes)
+					{
+						var teamData = teamDatas.Find(x => x.GameTeam.TeamId == teamBox.GameTeam.TeamId);
+						if (teamData != null)
+							teamBox.GameTeam = teamData.GameTeam;
 
+						if (autoUpdateTeams &&
+						    activeHolder.League.LeagueTeam(teamBox.GameTeam) != null && teamBox.Players().Count > 0)
+							activeHolder.League.LeagueTeam(teamBox.GameTeam).Handicap = teamBox.Handicap;
+					}
+				
 					RefreshGamesList();
 					RankTeams();
 
@@ -523,6 +532,8 @@ namespace Torn.UI
 					if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
 					{
 						((ServerGame)item.Tag).Game.Title = id.Response;
+						while (item.SubItems.Count <= 2)
+							item.SubItems.Add("");
 						item.SubItems[2].Text = id.Response;
 					}
 		}
@@ -547,6 +558,8 @@ namespace Torn.UI
 					case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
 					case SystemType.Demo: laserGameServer = new PAndC(serverAddress);  break;
 				}
+				timeToNextCheck = TimeSpan.FromSeconds(1);
+				ButtonLatestGameClick(null,null);
 			}
 		}
 
@@ -559,16 +572,23 @@ namespace Torn.UI
 			return null;
 		}
 
+		List<TeamBox> TeamBoxes()
+		{
+			var teamBoxes = new List<TeamBox>();
+			foreach (Control c in tableLayoutPanel1.Controls)
+				if (c is TeamBox)
+					teamBoxes.Add((TeamBox)c);
+
+			return teamBoxes;
+		}
+
 		void TransferPlayers(ServerGame serverGame)
 		{
 			League league = serverGame.League ?? (listViewLeagues.SelectedItems.Count == 1 ? ((Holder)listViewLeagues.SelectedItems[0].Tag).League : null);
 			if (league == null)
 				return;
 
-			var teamBoxes = new List<TeamBox>();
-			foreach (Control c in tableLayoutPanel1.Controls)
-				if (c is TeamBox)
-					teamBoxes.Add((TeamBox)c);
+			var teamBoxes = TeamBoxes();
 
 			int box = 0;
 
@@ -604,21 +624,28 @@ namespace Torn.UI
 			ArrangeTeamsByRank();
 		}
 
+		bool EnableCommit()
+		{
+			if (listViewGames.SelectedItems.Count != 1)
+				return false;
+
+			return !((ServerGame)listViewGames.SelectedItems[0].Tag).InProgress;
+		}
+
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
 		{
 			buttonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonForget.Enabled = listViewGames.SelectedItems.Count > 0;
-			buttonCommit.Enabled = listViewGames.SelectedItems.Count == 1;
-			buttonCommit2.Enabled = listViewGames.SelectedItems.Count == 1;
+			buttonCommit.Enabled = EnableCommit();
+			buttonCommit2.Enabled = EnableCommit();
 			
-			buttonForget.Text = "Forget Game" + (listViewGames.SelectedItems.Count > 1 ? "s" : "");
-
 			if (listViewGames.SelectedItems.Count == 1)
 			{
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
 				laserGameServer.PopulateGame(game);
-				playersBox.LoadGame(activeHolder.League, game);
+				if (activeHolder.League != null)
+					playersBox.LoadGame(activeHolder.League, game);
 
 				foreach (Control c in tableLayoutPanel1.Controls)
 					if (c is TeamBox)
@@ -661,7 +688,7 @@ namespace Torn.UI
 			buttonSave.Enabled = b;
 			menuSaveLeague.Enabled = b;
 			menuExportReports.Enabled = b;
-			buttonTsvExport.Enabled = b;
+			menuTsvExport.Enabled = b;
 			menuBulkUploadReports.Enabled = b;
 			menuPackReport.Enabled = b;
 			menuConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
@@ -692,30 +719,48 @@ namespace Torn.UI
 					((TeamBox)c).League = activeHolder == null ? null : activeHolder.League;
 		}
 
-		TimeSpan lastDBCheck = TimeSpan.Zero;
+		TimeSpan timeToNextCheck = TimeSpan.FromMinutes(1);
 		TimeSpan timeElapsed = TimeSpan.Zero;
+		bool gameInProgress = false;
 
 		void TimerGameTick(object sender, EventArgs e)
 		{
-			if (lastDBCheck <= TimeSpan.Zero)
+			if (timeToNextCheck <= TimeSpan.Zero)
 			{
-				timeElapsed = laserGameServer.GameTimeElapsed();
-				lastDBCheck = new TimeSpan(0, 1, 0);  // Only query the database for time elapsed once per minute. Outside that, dead-reckon.
+				timeElapsed = laserGameServer.GameTimeElapsed();  // This queries the database server.
+				webOutput.MostRecentHolder = leagues.MostRecent();
+				webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.Last();
+				webOutput.MostRecentServerGame = MostRecent();  // This also queries the database server.
+
+				if (timeElapsed > TimeSpan.FromSeconds(1))
+					timeToNextCheck = TimeSpan.FromSeconds(61 - timeElapsed.TotalSeconds % 60);  // Set the next query to be one second after an integer number of minutes elapsed. This way, we will query one second after the game finishes.
+				else
+					timeToNextCheck = TimeSpan.FromMinutes(1);  // Only query the database for time elapsed once per minute. Outside that, dead-reckon.
 			}
 			else
 			{
-				timeElapsed.Subtract(new TimeSpan(timerGame.Interval * 10000));  // The *10000 converts from timer ticks (1 millisecond) to TimeSpan ticks (100 nanoseconds).
-				lastDBCheck.Subtract(new TimeSpan(timerGame.Interval * 10000));
+				if (timeElapsed > TimeSpan.Zero)
+					timeElapsed = timeElapsed.Add(TimeSpan.FromMilliseconds(timerGame.Interval));
+				timeToNextCheck = timeToNextCheck.Subtract(TimeSpan.FromMilliseconds(timerGame.Interval));
 			}
 
 			if (timeElapsed == TimeSpan.Zero)
 				labelTime.Text = "Idle";
 			else if (timeElapsed.TotalHours < 1)
-				labelTime.Text = timeElapsed.ToString("m\\:ss");
+				labelTime.Text = "+" + timeElapsed.ToString("m\\:ss");
 			else
-				labelTime.Text = timeElapsed.ToString();
+				labelTime.Text = "+" + timeElapsed.ToString();
 
-			webOutput.Tick(timeElapsed);
+			if (timeElapsed > TimeSpan.Zero && !gameInProgress)
+			{
+				webOutput.Update();
+				gameInProgress = true;
+			}
+			if (timeElapsed == TimeSpan.Zero && gameInProgress)
+			{
+				webOutput.Update();
+				gameInProgress = false;
+			}
 			labelNow.Text = webOutput.NowText();
 		}
 
@@ -765,10 +810,27 @@ namespace Torn.UI
 			return date.ToShortDateString();
 		}
 
+		ServerGame MostRecent()
+		{
+			if (timeElapsed == TimeSpan.Zero)
+				return null;
+
+			var serverGames = laserGameServer.GetGames();
+
+			if (serverGames.Count > 0)
+			{
+				laserGameServer.PopulateGame(serverGames.Last());
+				serverGames.Last().InProgress = timeElapsed > TimeSpan.Zero;
+				return serverGames.Last();
+			}
+
+			return null;
+		}
+
 		void RefreshGamesList()
 		{
 			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
-			List<ServerGame> games = laserGameServer.GetGames();
+			var games = laserGameServer.GetGames();
 
 			if (games.Count > 0)
 				games.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
@@ -811,7 +873,7 @@ namespace Torn.UI
 					item.Text = FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm");
 
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
-						                       	serverGame.Game == null ? serverGame.Description : serverGame.Game.Title });
+					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
 					item.Tag = serverGame;
 					if (!serverGame.OnServer)
 						item.BackColor = SystemColors.ControlLight;

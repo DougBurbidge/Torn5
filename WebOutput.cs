@@ -15,7 +15,7 @@ using Zoom;
 namespace Torn.Report
 {
 	/// <summary>
-	/// Description of Class1.
+	/// Serve web pages on demand. Also generates web pages to file for export or upload.
 	/// </summary>
 	public class WebOutput: IDisposable
 	{
@@ -25,13 +25,12 @@ namespace Torn.Report
 		public Holder MostRecentHolder { get; set; }  // This is the league that owns the game with the most recent DateTime.
 		public Game MostRecentGame { get; set; }
 		public FixtureGame NextGame { get; set; }
-		public bool Playing { get; set; }
+		public ServerGame MostRecentServerGame { get; set; }
 
 		public WebOutput(int port = 8080)
 		{
 			ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
 	        ws.Run();
-	        Playing = true;
 		}
 
 		public void Dispose()
@@ -166,13 +165,13 @@ namespace Torn.Report
 				sb.Append("No game found.");
 			else
 			{
-				if (Playing)
-					sb.Append("Now Playing: ");
-				else
+				if (MostRecentServerGame == null)
 					sb.Append("<a href=\"" + MostRecentHolder.Key + "/game" + 
-					          MostRecentGame.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: ");
-
-				sb.Append(MostRecentGame.ToString());
+					          MostRecentGame.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " + 
+					          MostRecentHolder.League.GameString(MostRecentGame));
+				else
+					sb.Append(MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " + 
+					          MostRecentHolder.League.GameString(MostRecentServerGame));
 			}
 
 			if (NextGame != null)
@@ -402,12 +401,10 @@ namespace Torn.Report
 	        ws.Run();
 		}
 
-		/// <summary>Call this when time remaining in the game has changed.</summary>
-		public void Tick(TimeSpan timeElapsed)
+		/// <summary>Call this when we have switched from playing to idle or vice versa.</summary>
+		public void Update()
 		{
-			bool playingChanged = (timeElapsed == TimeSpan.Zero ^ !Playing);
-			Playing = timeElapsed != TimeSpan.Zero;
-			if (playingChanged && Leagues != null)
+			if (Leagues != null)
 			{
 				MostRecentHolder = Leagues.MostRecent();
 				if (MostRecentHolder == null || MostRecentHolder.League.AllGames.Count() == 0)
@@ -430,12 +427,16 @@ namespace Torn.Report
 		/// <summary>Return a text description of the current and next games.</summary>
 		public string NowText()
 		{
-			string nowText = Playing ? "Now Playing: " : "Just Played: ";
+			string nowText = "";
+			if (MostRecentServerGame == null)
+			{
+				if (MostRecentHolder != null && MostRecentGame != null)
+					nowText = "Just Played: " + MostRecentHolder.League.GameString(MostRecentGame);
+			}
+			else if (MostRecentHolder != null)
+				nowText = MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " + 
+					MostRecentHolder.League.GameString(MostRecentServerGame);
 
-			if (MostRecentGame != null)
-				nowText += MostRecentGame.ToString();
-
-			
 			FixtureGame fg = MostRecentHolder == null ? null : MostRecentHolder.Fixture.BestMatch(MostRecentGame);
 			if (fg != null && NextGame != null)
 			{

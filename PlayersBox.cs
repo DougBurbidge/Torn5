@@ -29,7 +29,7 @@ namespace Torn.UI
 		{
 			Items.Clear();
 
-			if (game.Players.Count == 0 && game.Game != null)  // ServerGame is a fake, created from game; but ServerGame.players is not filled in yet, so fill it in.
+			if (game.Players != null && game.Players.Count == 0 && game.Game != null)  // ServerGame is a fake, created from game; but ServerGame.players is not filled in yet, so fill it in.
 				foreach (var player in game.Game.Players)
 				{
 					var serverPlayer = new ServerPlayer();

@@ -384,6 +384,7 @@ namespace Zoom
 				double min = 0.0;
 				double max = 0.0;
 				string numberFormat = "";
+				bool hasNumber = false;
 
 				for (int row = 0; row < Rows.Count; row++)
 				{
@@ -391,6 +392,7 @@ namespace Zoom
 					{
 						if (Rows[row][col].Number.HasValue && !double.IsNaN((double)Rows[row][col].Number))
 						{
+							hasNumber = true;
 							min = Math.Min(min, Math.Abs((double)Rows[row][col].Number));
 							max = Math.Max(max, Math.Abs((double)Rows[row][col].Number));
 							if (Rows[row][col].Data != null)
@@ -411,8 +413,11 @@ namespace Zoom
 					}
 				}
 
-				if (max > 0 || !string.IsNullOrEmpty(numberFormat))
-					widths.Add(graphics.MeasureString(max.ToString(numberFormat), font, 1000).Width * 1.01f);
+				if (hasNumber)
+				{
+					string stringMax = string.IsNullOrEmpty(numberFormat) ? max.ToString() : max.ToString(numberFormat);
+					widths.Add(graphics.MeasureString(stringMax, font, 1000).Width * 1.01f);
+				}
 				else
 					widths.Add(widest > 2 * total / count ?  // Are there are a few pathologically wide fields?
 						       total / count * 1.4f :        // Just use the average, plus some padding.
@@ -1037,15 +1042,24 @@ namespace Zoom
 			foreach (ZColumn col in Columns)
 				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
 
-			int rowHeight = 15;  // This is enough to fit 11-point text.
-			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (rowHeight + 1);
-
 			var widths = new List<float>();  // Width of each column in pixels. "float", because MeasureString().Width returns a float.
 			var mins = new List<double>();   // Minimum numeric value in each column, or if all numbers are positive, 0.
 			var maxs = new List<double>();   // Maximum numeric value in each column.
 			Widths(widths, mins, maxs);
 			int width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
 			double max = maxs.DefaultIfEmpty(1).Max();
+
+			int rowHeight = 15;  // This is enough to fit 11-point text.
+			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (rowHeight + 1);
+
+			if (Columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so add to height to allow room for those 45 degree headers.
+			{
+				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
+				var font = new Font("Arial", 11);
+
+				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
+				height += (int)(widest / Math.Sqrt(2) + 10 - rowHeight);
+			}
 
 			StringBuilder s = new StringBuilder();
 

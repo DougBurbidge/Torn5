@@ -197,7 +197,7 @@ namespace Torn.Report
 			return Result;
 		}
 	}
-		
+
 	/// <summary>
 	/// Holds a league and its settings.
 	/// </summary>

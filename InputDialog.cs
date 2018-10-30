@@ -47,13 +47,13 @@ namespace Torn.UI
 			return b;
 		}
 
-		public static Boolean UpdateInput(string title, string message, ref string defaultResponse)
+		public static Boolean UpdateInput(string title, string message, ref string response)
 		{
-			var id = new InputDialog(title, message, defaultResponse);
+			var id = new InputDialog(title, message, response);
 			Boolean b = (id.ShowDialog() == DialogResult.OK);
 			
 			if (b)
-				defaultResponse = id.Response;
+				response = id.Response;
 			return b;
 		}
 
@@ -62,8 +62,19 @@ namespace Torn.UI
 			var id = new InputDialog(title, message);
 			id.textBox1.Visible = false;
 			id.numericUpDown1.Visible = true;
+			id.numericUpDown1.Focus();
 			id.numericUpDown1.Value = defaultResponse;
 			return id.ShowDialog() == DialogResult.OK ? (int)id.numericUpDown1.Value : defaultResponse;
+		}
+
+		public static double GetDouble(string title, string message, double defaultResponse = 0)
+		{
+			var id = new InputDialog(title, message);
+			id.textBox1.Visible = false;
+			id.numericUpDown1.Visible = true;
+			id.numericUpDown1.Focus();
+			id.numericUpDown1.Value = (decimal)defaultResponse;
+			return id.ShowDialog() == DialogResult.OK ? (double)id.numericUpDown1.Value : defaultResponse;
 		}
 	}
 }

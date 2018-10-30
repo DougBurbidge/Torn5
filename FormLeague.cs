@@ -35,10 +35,23 @@ namespace Torn.UI
 				}
 				treeView1.Nodes.Add(teamNode);
 			}
+
+			totalScore.Checked = League.VictoryPoints.Count == 0;
+			victoryPoints.Checked = League.VictoryPoints.Count > 0;
+			if (League.VictoryPoints.Count > 0)
+				numeric1st.Value = (decimal)League.VictoryPoints[0];
+			if (League.VictoryPoints.Count > 1)
+				numeric2nd.Value = (decimal)League.VictoryPoints[1];
+			if (League.VictoryPoints.Count > 2)
+				numeric3rd.Value = (decimal)League.VictoryPoints[2];
+
+			RankCheckedChanged(null, null);
 		}
 
 		void TreeView1AfterSelect(object sender, TreeViewEventArgs e)
 		{
+			tabControl1.SelectedTab = scoresPage;
+
 			if (treeView1.SelectedNode.Tag is LeagueTeam)
 			{
 				listViewScores.Items.Clear();
@@ -167,6 +180,39 @@ namespace Torn.UI
 				treeView1.SelectedNode.Text = FormPlayer.PlayerAlias;
 			}
 
+		}
+
+		void RankCheckedChanged(object sender, EventArgs e)
+		{
+			label1st.Enabled = victoryPoints.Checked;
+			label2nd.Enabled = victoryPoints.Checked;
+			label3rd.Enabled = victoryPoints.Checked;
+			numeric1st.Enabled = victoryPoints.Checked;
+			numeric2nd.Enabled = victoryPoints.Checked;
+			numeric3rd.Enabled = victoryPoints.Checked;
+			
+			if (totalScore.Checked)
+				League.VictoryPoints.Clear();
+
+			if (victoryPoints.Checked)
+			{
+				Force(0, (double)numeric1st.Value);
+				Force(1, (double)numeric2nd.Value);
+				Force(2, (double)numeric3rd.Value);
+			}
+		}
+
+		void victoryPointsChanged(object sender, EventArgs e)
+		{
+			NumericUpDown c = (NumericUpDown)sender;
+			Force(int.Parse((string)c.Tag), (double)c.Value);
+		}
+
+		void Force(int index, double value)
+		{
+			while (League.VictoryPoints.Count <= index)
+				League.VictoryPoints.Add(0);
+			League.VictoryPoints[index] = value;
 		}
 	}
 }

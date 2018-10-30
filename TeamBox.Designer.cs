@@ -44,6 +44,7 @@ namespace Torn.UI
 			this.menuMergePlayer = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.menuAdjustTeamScore = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuAdjustVictoryPoints = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -58,98 +59,105 @@ namespace Torn.UI
 									this.menuNameTeam,
 									this.menuIdentifyTeam,
 									this.toolStripSeparator2,
+									this.menuAdjustTeamScore,
+									this.menuAdjustVictoryPoints,
+									this.toolStripSeparator3,
 									this.menuIdentifyPlayer,
 									this.menuHandicapPlayer,
-									this.menuMergePlayer,
-									this.toolStripSeparator3,
-									this.menuAdjustTeamScore});
+									this.menuMergePlayer});
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(210, 264);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(217, 286);
 			this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip1Opening);
 			// 
 			// menuSortTeams
 			// 
 			this.menuSortTeams.Name = "menuSortTeams";
-			this.menuSortTeams.Size = new System.Drawing.Size(209, 22);
+			this.menuSortTeams.Size = new System.Drawing.Size(216, 22);
 			this.menuSortTeams.Text = "&Sort teams by rank";
 			this.menuSortTeams.Click += new System.EventHandler(this.MenuSortTeamsClick);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(206, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(213, 6);
 			// 
 			// menuHandicapTeam
 			// 
 			this.menuHandicapTeam.Name = "menuHandicapTeam";
-			this.menuHandicapTeam.Size = new System.Drawing.Size(209, 22);
+			this.menuHandicapTeam.Size = new System.Drawing.Size(216, 22);
 			this.menuHandicapTeam.Text = "&Handicap this team";
 			this.menuHandicapTeam.Click += new System.EventHandler(this.MenuHandicapTeamClick);
 			// 
 			// menuRememberTeam
 			// 
 			this.menuRememberTeam.Name = "menuRememberTeam";
-			this.menuRememberTeam.Size = new System.Drawing.Size(209, 22);
+			this.menuRememberTeam.Size = new System.Drawing.Size(216, 22);
 			this.menuRememberTeam.Text = "&Remember this team";
 			this.menuRememberTeam.Click += new System.EventHandler(this.MenuRememberTeamClick);
 			// 
 			// menuUpdateTeam
 			// 
 			this.menuUpdateTeam.Name = "menuUpdateTeam";
-			this.menuUpdateTeam.Size = new System.Drawing.Size(209, 22);
+			this.menuUpdateTeam.Size = new System.Drawing.Size(216, 22);
 			this.menuUpdateTeam.Text = "&Update this team";
 			this.menuUpdateTeam.Click += new System.EventHandler(this.MenuUpdateTeamClick);
 			// 
 			// menuNameTeam
 			// 
 			this.menuNameTeam.Name = "menuNameTeam";
-			this.menuNameTeam.Size = new System.Drawing.Size(209, 22);
+			this.menuNameTeam.Size = new System.Drawing.Size(216, 22);
 			this.menuNameTeam.Text = "&Name this team...";
 			this.menuNameTeam.Click += new System.EventHandler(this.MenuNameTeamClick);
 			// 
 			// menuIdentifyTeam
 			// 
 			this.menuIdentifyTeam.Name = "menuIdentifyTeam";
-			this.menuIdentifyTeam.Size = new System.Drawing.Size(209, 22);
+			this.menuIdentifyTeam.Size = new System.Drawing.Size(216, 22);
 			this.menuIdentifyTeam.Text = "&Identify this team";
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(206, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(213, 6);
 			// 
 			// menuIdentifyPlayer
 			// 
 			this.menuIdentifyPlayer.Name = "menuIdentifyPlayer";
-			this.menuIdentifyPlayer.Size = new System.Drawing.Size(209, 22);
+			this.menuIdentifyPlayer.Size = new System.Drawing.Size(216, 22);
 			this.menuIdentifyPlayer.Text = "I&dentify ";
 			this.menuIdentifyPlayer.Click += new System.EventHandler(this.MenuIdentifyPlayerClick);
 			// 
 			// menuHandicapPlayer
 			// 
 			this.menuHandicapPlayer.Name = "menuHandicapPlayer";
-			this.menuHandicapPlayer.Size = new System.Drawing.Size(209, 22);
+			this.menuHandicapPlayer.Size = new System.Drawing.Size(216, 22);
 			this.menuHandicapPlayer.Text = "Handi&cap ";
 			this.menuHandicapPlayer.Click += new System.EventHandler(this.MenuHandicapPlayerClick);
 			// 
 			// menuMergePlayer
 			// 
 			this.menuMergePlayer.Name = "menuMergePlayer";
-			this.menuMergePlayer.Size = new System.Drawing.Size(209, 22);
+			this.menuMergePlayer.Size = new System.Drawing.Size(216, 22);
 			this.menuMergePlayer.Text = "&Merge ";
 			this.menuMergePlayer.Click += new System.EventHandler(this.MenuMergePlayerClick);
 			// 
 			// toolStripSeparator3
 			// 
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(206, 6);
+			this.toolStripSeparator3.Size = new System.Drawing.Size(213, 6);
 			// 
 			// menuAdjustTeamScore
 			// 
 			this.menuAdjustTeamScore.Name = "menuAdjustTeamScore";
-			this.menuAdjustTeamScore.Size = new System.Drawing.Size(209, 22);
+			this.menuAdjustTeamScore.Size = new System.Drawing.Size(216, 22);
 			this.menuAdjustTeamScore.Text = "&Adjust team score...";
 			this.menuAdjustTeamScore.Click += new System.EventHandler(this.MenuAdjustTeamScoreClick);
+			// 
+			// menuAdjustVictoryPoints
+			// 
+			this.menuAdjustVictoryPoints.Name = "menuAdjustVictoryPoints";
+			this.menuAdjustVictoryPoints.Size = new System.Drawing.Size(216, 22);
+			this.menuAdjustVictoryPoints.Text = "Adjust &victory points...";
 			// 
 			// TeamBox
 			// 
@@ -159,6 +167,7 @@ namespace Torn.UI
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ToolStripMenuItem menuAdjustVictoryPoints;
 		private System.Windows.Forms.ToolStripMenuItem menuAdjustTeamScore;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem menuMergePlayer;

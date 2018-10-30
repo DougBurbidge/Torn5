@@ -29,7 +29,7 @@ namespace Torn
 				using (var reader = cmd.ExecuteReader())
 				{
 					if (reader.Read())
-						heliosType = reader.GetInt32("Int_Data_1");
+						heliosType = GetInt(reader, "Int_Data_1");
 				}
 			}
 			catch
@@ -52,20 +52,26 @@ namespace Torn
 		{
 			if (!Connected)
 				return TimeSpan.Zero;
-
-			string sql = "SELECT Event_Type, Time_Logged, CURRENT_TIMESTAMP FROM ng_game_log ORDER BY Time_Logged DESC";
-			MySqlCommand cmd = new MySqlCommand(sql, connection);
-			using (var reader = cmd.ExecuteReader())
+			try
 			{
-				if (reader.Read())
+				string sql = "SELECT Event_Type, Time_Logged, CURRENT_TIMESTAMP FROM ng_game_log ORDER BY Time_Logged DESC";
+				MySqlCommand cmd = new MySqlCommand(sql, connection);
+				using (var reader = cmd.ExecuteReader())
 				{
-					if (reader.GetUInt32("Event_Type") == 0)  // 0 is 'Game Started'.
-						return reader.GetDateTime("CURRENT_TIMESTAMP") - reader.GetDateTime("Time_Logged");
+					if (reader.Read())
+					{
+						if (reader.GetUInt32("Event_Type") == 0)  // 0 is 'Game Started'.
+							return reader.GetDateTime("CURRENT_TIMESTAMP") - reader.GetDateTime("Time_Logged");
+						else
+							return TimeSpan.Zero;
+					}
 					else
 						return TimeSpan.Zero;
 				}
-				else
-					return TimeSpan.Zero;
+			}
+			catch
+			{
+				return TimeSpan.Zero; // If we throw here it's probably because the server went away (e.g. due to server power-saving, network breakage, etc). MySql.Data.MySqlClient.MySqlException
 			}
 		}
 
@@ -86,8 +92,8 @@ namespace Torn
 				while (reader.Read())
 				{
 					ServerGame game = new ServerGame();
-					game.GameId = reader.GetInt32("Game_ID");
-					game.Description = reader.GetString("Description");
+					game.GameId = GetInt(reader, "Game_ID");
+					game.Description = GetString(reader, "Description");
 					game.Time = reader.GetDateTime("Start_Time");
 					game.OnServer = true;
 					games.Add(game);
@@ -132,7 +138,7 @@ namespace Torn
 			}
  
 		}
-		
+
 		public override void PopulateGame(ServerGame game)
 		{
 			if (!Connected)
@@ -148,14 +154,14 @@ namespace Torn
 				while (reader.Read())
 				{
 					var oneEvent = new Event();
-					oneEvent.PandCPlayerId = reader.GetInt32("Player_ID");
-					oneEvent.PandCPlayerTeamId = reader.GetInt32("Player_Team_ID");
-					oneEvent.Event_Type = reader.GetInt32("Event_Type");
-					oneEvent.Score = reader.GetInt32("Score");
-					oneEvent.HitPlayer = reader.GetInt32("Result_Data_1");
-					oneEvent.HitTeam = reader.GetInt32("Result_Data_2");
-					oneEvent.PointsLostByDeniee = reader.GetInt32("Result_Data_3");
-					oneEvent.ShotsDenied = reader.GetInt32("Result_Data_4");
+					oneEvent.PandCPlayerId = GetInt(reader, "Player_ID");
+					oneEvent.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
+					oneEvent.Event_Type = GetInt(reader, "Event_Type");
+					oneEvent.Score = GetInt(reader, "Score");
+					oneEvent.HitPlayer = GetInt(reader, "Result_Data_1");
+					oneEvent.HitTeam = GetInt(reader, "Result_Data_2");
+					oneEvent.PointsLostByDeniee = GetInt(reader, "Result_Data_3");
+					oneEvent.ShotsDenied = GetInt(reader, "Result_Data_4");
 					events.Add(oneEvent);
 				}
 			}
@@ -176,13 +182,13 @@ namespace Torn
 				{
 					ServerPlayer player = new ServerPlayer();
 
-					player.PandCPlayerId = reader.GetInt32("Player_ID");
-					player.PandCPlayerTeamId = reader.GetInt32("Player_Team_ID");
+					player.PandCPlayerId = GetInt(reader, "Player_ID");
+					player.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
 					player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
-					player.Score = reader.GetInt32("Score");
-					player.PackName = reader.GetString("Pack_Name");
-					player.PlayerId = reader.GetString("Button_ID");
-					player.Alias = reader.GetString("Alias");
+					player.Score = GetInt(reader, "Score");
+					player.PackName = GetString(reader, "Pack_Name");
+					player.PlayerId = GetString(reader, "Button_ID");
+					player.Alias = GetString(reader, "Alias");
 
 					player.HitsBy = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
 					                               (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
@@ -227,6 +233,18 @@ namespace Torn
 		public override bool HasNames() 
 		{
 			return heliosType < 47;
+		}
+
+		string GetString(MySqlDataReader reader, string column)
+		{
+			int i = reader.GetOrdinal(column);
+			return reader.IsDBNull(i) ? null : reader.GetString(i);
+		}
+
+		int GetInt(MySqlDataReader reader, string column)
+		{
+			int i = reader.GetOrdinal(column);
+			return reader.IsDBNull(i) ? -1 : reader.GetInt32(i);
 		}
 	}
 }

@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -85,7 +86,7 @@ namespace Torn
 			{
 				if (s[s.Length - 1] == '%')
 				{
-					h.Value = int.Parse(s.Substring(0, s.Length - 2), CultureInfo.InvariantCulture);
+					h.Value = int.Parse(s.Substring(0, s.Length - 1), CultureInfo.InvariantCulture);
 					h.Style = HandicapStyle.Percent;
 				}
 				else if (s[0] == '+')
@@ -242,8 +243,8 @@ namespace Torn
 		}
 		public int Score { get; set; }
 		public int Adjustment { get; set; }
-		public int Points { get; set; }
-		public int PointsAdjustment { get; set; }
+		public double Points { get; set; }
+		public double PointsAdjustment { get; set; }
 
 		List<GamePlayer> players;
 		public List<GamePlayer> Players { get { return players; } }
@@ -273,7 +274,7 @@ namespace Torn
 			if (this.Points == gt.Points)
 				return gt.Score - this.Score;
 			else
-				return gt.Points - this.Points;
+				return Math.Sign(gt.Points - this.Points);
 		}
 
 		public override string ToString()
@@ -299,7 +300,6 @@ namespace Torn
 		public int BaseDenied { get; set; }
 		public int YellowCards { get; set; }
 		public int RedCards { get; set; }
-		public Game Game { get; set; }
 
 		public GamePlayer CopyTo(GamePlayer target)
 		{
@@ -317,7 +317,6 @@ namespace Torn
 			target.BaseDenied = BaseDenied;
 			target.YellowCards = YellowCards;
 			target.RedCards = RedCards;
-			target.Game = Game;
 			
 			return target;
 		}
@@ -371,6 +370,21 @@ namespace Torn
 		{
 		   Game g = (Game)obj;
 		   return DateTime.Compare(this.Time, g.Time);
+		}
+
+		/// <summary>True if any team in this gamehas victory points.</summary>
+		public bool IsPoints()
+		{
+			foreach (GameTeam gameTeam in Teams)
+				if (gameTeam.Points != 0)
+					return true;
+			
+			return false;
+		}
+
+		public int Rank(string playerId)
+		{
+			return Players.FindIndex(x => x.PlayerId == playerId) + 1;
 		}
 
 		public override string ToString()
@@ -579,7 +593,10 @@ namespace Torn
 
 			serverGame.Game.Teams.Sort();
 			serverGame.League = this;
-			
+
+			foreach (var teamData in teamDatas)
+				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam);
+
 			Save();
 		}
 
@@ -595,14 +612,17 @@ namespace Torn
 		
 		public List<LeagueTeam> GuessTeams(ServerGame game)
 		{
-			List<LeagueTeam> Result = new List<LeagueTeam>();
+			List<LeagueTeam> result = new List<LeagueTeam>();
+
+			if (game.Players == null)
+				return result;
 
 			var teams = game.Players.Select(x => x.PandCPlayerTeamId).Distinct();
 
 			foreach (int teamId in teams)
-				Result.Add(GuessTeam(game.Players.FindAll(x => x.PandCPlayerTeamId == teamId).Select(y => y.PlayerId).ToList()));
+				result.Add(GuessTeam(game.Players.FindAll(x => x.PandCPlayerTeamId == teamId).Select(y => y.PlayerId).ToList()));
 
-			return Result;
+			return result;
 		}
 
 		public LeagueTeam GuessTeam(List<string> ids)
@@ -628,13 +648,19 @@ namespace Torn
 			return bestTeam;
 		}
 
+		/// <summary>True if any game in this league has victory points.</summary>
 		public bool IsPoints()
 		{
-			foreach (Game game in AllGames)
-				foreach (GameTeam gameTeam in game.Teams)
-					if (gameTeam.Points != 0)
-						return true;
-			
+			return IsPoints(AllGames);
+		}
+
+		/// <summary>True if any game in the list has victory points.</summary>
+		public bool IsPoints(List<Game> games)
+		{
+			foreach (Game game in games)
+				if (game.IsPoints())
+					return true;
+
 			return false;
 		}
 
@@ -666,12 +692,14 @@ namespace Torn
 		{
 			Clear();
 
-			Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
-
 			var doc = new XmlDocument();
 			doc.Load(fileName);
 
 			var root = doc.DocumentElement;
+
+			Title = XmlValue(root, "Title");
+			if (string.IsNullOrEmpty(Title))
+				Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
 
 			GridHigh = XmlInt(root, "GridHigh");
 			GridWide = XmlInt(root, "GridWide");
@@ -837,9 +865,6 @@ namespace Torn
 								if (gamePlayer.PlayerId == leaguePlayer.Id)
 									leaguePlayer.Played.Add(gamePlayer);
 					}
-
-					foreach (var player in game.Players)
-						player.Game = game;
 				}
 			}
 		}
@@ -859,7 +884,7 @@ namespace Torn
 			AppendNode(doc, parent, name, value.ToString());
 		}
 
-		void AppendNonZero(XmlDocument doc, XmlNode parent, string name, int value)
+		void AppendNonZero(XmlDocument doc, XmlNode parent, string name, double value)
 		{
 			if (value != 0)
 				AppendNode(doc, parent, name, value.ToString());
@@ -878,6 +903,7 @@ namespace Torn
 			XmlNode bodyNode = doc.CreateElement("body");
 			doc.AppendChild(bodyNode);
 
+			AppendNode(doc, bodyNode, "Title", Title);
 			AppendNode(doc, bodyNode, "GridHigh", GridHigh);
 			AppendNode(doc, bodyNode, "GridWide", GridWide);
 			AppendNode(doc, bodyNode, "GridPlayers", GridPlayers);
@@ -998,6 +1024,11 @@ namespace Torn
 			return AllGames.Find(g => g.Teams.Contains(gameTeam));
 		}
 
+		public Game Game(ServerGame serverGame)
+		{
+			return AllGames.Find(x => x.Time == serverGame.Time);
+		}
+
 		public GameTeam GameTeam(GamePlayer gamePlayer)
 		{
 			foreach (var game in AllGames)
@@ -1006,7 +1037,7 @@ namespace Torn
 				if (gameTeam != null)
 					return gameTeam;
 			}
-			
+
 			return null;
 		}
 
@@ -1023,6 +1054,25 @@ namespace Torn
 		public LeagueTeam LeagueTeam(LeaguePlayer leaguePlayer)
 		{
 			return teams.Find(t => t.Players.Contains(leaguePlayer));
+		}
+
+		public string GameString(Game game)
+		{
+			var teamNames = new List<string>();
+			foreach (var gameTeam in game.Teams)
+			{
+				var leagueTeam = LeagueTeam(gameTeam);
+				teamNames.Add(leagueTeam != null ? leagueTeam.Name : gameTeam.ToString());
+			}
+			if (game.Secret)
+				teamNames.Sort();
+			return string.Join(", ", teamNames);
+		}
+
+		public string GameString(ServerGame serverGame)
+		{
+			var leagueTeams = GuessTeams(serverGame);
+			return leagueTeams.Count == 0 ? "?" : string.Join(", ", leagueTeams);
 		}
 
 		public double AverageScore(LeagueTeam leagueTeam, bool includeSecret)
@@ -1046,6 +1096,19 @@ namespace Torn
 
 			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
 			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+		}
+
+		public double CalculatePoints(GameTeam gameTeam)
+		{
+			var game = Game(gameTeam);
+			if (game != null)
+			{
+				int index = game.Teams.IndexOf(gameTeam);
+				if (index > -1 && index < victoryPoints.Count)
+					return victoryPoints[index] + gameTeam.PointsAdjustment;
+			}
+
+			return 0;
 		}
 
 		public List<GameTeam> Played(LeagueTeam leagueTeam, bool includeSecret)

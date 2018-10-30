@@ -94,10 +94,13 @@ namespace Torn.UI
 				return;
 			}
 
-			var tempTeam = new GameTeam();
+			var tempTeam = GameTeam.Clone();
+			tempTeam.Players.Clear();
 			tempTeam.Players.AddRange(Players());
 			score = League.CalculateScore(tempTeam);
-			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture);
+			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
+				(GameTeam.Adjustment == 0 ? "" : "*");
+				
 
 			var ids = new List<string>();
 			foreach (var listPlayer in Players())
@@ -177,9 +180,15 @@ namespace Torn.UI
 			Recalculate(false);
 		}
 
+		void MenuAdjustVictoryPointsClick(object sender, EventArgs e)
+		{
+			GameTeam.PointsAdjustment = InputDialog.GetDouble("Victory Points Adjustment", "Set team victory points adjustment", GameTeam.PointsAdjustment);
+			Recalculate(false);
+		}
+
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			Handicap.Value = InputDialog.GetInteger("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , (int)Handicap.Value);
+			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , (double)Handicap.Value);
 			Recalculate(false);
 		}
 

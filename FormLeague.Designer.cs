@@ -42,6 +42,18 @@ namespace Torn.UI
 			this.buttonDeletePlayer = new System.Windows.Forms.Button();
 			this.buttonAddPlayer = new System.Windows.Forms.Button();
 			this.panelRight = new System.Windows.Forms.Panel();
+			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.leaguePage = new System.Windows.Forms.TabPage();
+			this.numeric3rd = new System.Windows.Forms.NumericUpDown();
+			this.label3rd = new System.Windows.Forms.Label();
+			this.numeric2nd = new System.Windows.Forms.NumericUpDown();
+			this.label2nd = new System.Windows.Forms.Label();
+			this.numeric1st = new System.Windows.Forms.NumericUpDown();
+			this.label1st = new System.Windows.Forms.Label();
+			this.victoryPoints = new System.Windows.Forms.RadioButton();
+			this.totalScore = new System.Windows.Forms.RadioButton();
+			this.label1 = new System.Windows.Forms.Label();
+			this.scoresPage = new System.Windows.Forms.TabPage();
 			this.listViewScores = new System.Windows.Forms.ListView();
 			this.colGame = new System.Windows.Forms.ColumnHeader();
 			this.colScore = new System.Windows.Forms.ColumnHeader();
@@ -52,6 +64,12 @@ namespace Torn.UI
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.panelRight.SuspendLayout();
+			this.tabControl1.SuspendLayout();
+			this.leaguePage.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numeric3rd)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numeric2nd)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numeric1st)).BeginInit();
+			this.scoresPage.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeView1
@@ -62,7 +80,7 @@ namespace Torn.UI
 			this.treeView1.HideSelection = false;
 			this.treeView1.Location = new System.Drawing.Point(12, 12);
 			this.treeView1.Name = "treeView1";
-			this.treeView1.Size = new System.Drawing.Size(312, 693);
+			this.treeView1.Size = new System.Drawing.Size(312, 463);
 			this.treeView1.TabIndex = 0;
 			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView1AfterSelect);
 			// 
@@ -188,25 +206,149 @@ namespace Torn.UI
 			// 
 			this.panelRight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 									| System.Windows.Forms.AnchorStyles.Right)));
-			this.panelRight.Controls.Add(this.listViewScores);
+			this.panelRight.Controls.Add(this.tabControl1);
 			this.panelRight.Location = new System.Drawing.Point(330, 124);
 			this.panelRight.Name = "panelRight";
-			this.panelRight.Size = new System.Drawing.Size(273, 584);
+			this.panelRight.Size = new System.Drawing.Size(273, 354);
 			this.panelRight.TabIndex = 4;
+			// 
+			// tabControl1
+			// 
+			this.tabControl1.Controls.Add(this.leaguePage);
+			this.tabControl1.Controls.Add(this.scoresPage);
+			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl1.Location = new System.Drawing.Point(0, 0);
+			this.tabControl1.Name = "tabControl1";
+			this.tabControl1.SelectedIndex = 0;
+			this.tabControl1.Size = new System.Drawing.Size(273, 354);
+			this.tabControl1.TabIndex = 1;
+			// 
+			// leaguePage
+			// 
+			this.leaguePage.Controls.Add(this.numeric3rd);
+			this.leaguePage.Controls.Add(this.label3rd);
+			this.leaguePage.Controls.Add(this.numeric2nd);
+			this.leaguePage.Controls.Add(this.label2nd);
+			this.leaguePage.Controls.Add(this.numeric1st);
+			this.leaguePage.Controls.Add(this.label1st);
+			this.leaguePage.Controls.Add(this.victoryPoints);
+			this.leaguePage.Controls.Add(this.totalScore);
+			this.leaguePage.Controls.Add(this.label1);
+			this.leaguePage.Location = new System.Drawing.Point(4, 22);
+			this.leaguePage.Name = "leaguePage";
+			this.leaguePage.Padding = new System.Windows.Forms.Padding(3);
+			this.leaguePage.Size = new System.Drawing.Size(265, 328);
+			this.leaguePage.TabIndex = 0;
+			this.leaguePage.Text = "League";
+			this.leaguePage.UseVisualStyleBackColor = true;
+			// 
+			// numeric3rd
+			// 
+			this.numeric3rd.Location = new System.Drawing.Point(112, 122);
+			this.numeric3rd.Name = "numeric3rd";
+			this.numeric3rd.Size = new System.Drawing.Size(60, 20);
+			this.numeric3rd.TabIndex = 11;
+			this.numeric3rd.Tag = "2";
+			this.numeric3rd.ValueChanged += new System.EventHandler(this.victoryPointsChanged);
+			// 
+			// label3rd
+			// 
+			this.label3rd.AutoSize = true;
+			this.label3rd.Location = new System.Drawing.Point(32, 124);
+			this.label3rd.Name = "label3rd";
+			this.label3rd.Size = new System.Drawing.Size(69, 13);
+			this.label3rd.TabIndex = 10;
+			this.label3rd.Text = "Points for 3rd";
+			// 
+			// numeric2nd
+			// 
+			this.numeric2nd.Location = new System.Drawing.Point(112, 96);
+			this.numeric2nd.Name = "numeric2nd";
+			this.numeric2nd.Size = new System.Drawing.Size(60, 20);
+			this.numeric2nd.TabIndex = 9;
+			this.numeric2nd.Tag = "1";
+			this.numeric2nd.ValueChanged += new System.EventHandler(this.victoryPointsChanged);
+			// 
+			// label2nd
+			// 
+			this.label2nd.AutoSize = true;
+			this.label2nd.Location = new System.Drawing.Point(32, 98);
+			this.label2nd.Name = "label2nd";
+			this.label2nd.Size = new System.Drawing.Size(72, 13);
+			this.label2nd.TabIndex = 8;
+			this.label2nd.Text = "Points for 2nd";
+			// 
+			// numeric1st
+			// 
+			this.numeric1st.Location = new System.Drawing.Point(112, 70);
+			this.numeric1st.Name = "numeric1st";
+			this.numeric1st.Size = new System.Drawing.Size(60, 20);
+			this.numeric1st.TabIndex = 7;
+			this.numeric1st.Tag = "0";
+			this.numeric1st.ValueChanged += new System.EventHandler(this.victoryPointsChanged);
+			// 
+			// label1st
+			// 
+			this.label1st.AutoSize = true;
+			this.label1st.Location = new System.Drawing.Point(32, 72);
+			this.label1st.Name = "label1st";
+			this.label1st.Size = new System.Drawing.Size(68, 13);
+			this.label1st.TabIndex = 3;
+			this.label1st.Text = "Points for 1st";
+			// 
+			// victoryPoints
+			// 
+			this.victoryPoints.Location = new System.Drawing.Point(16, 44);
+			this.victoryPoints.Name = "victoryPoints";
+			this.victoryPoints.Size = new System.Drawing.Size(104, 24);
+			this.victoryPoints.TabIndex = 2;
+			this.victoryPoints.Text = "victory points";
+			this.victoryPoints.UseVisualStyleBackColor = true;
+			// 
+			// totalScore
+			// 
+			this.totalScore.Checked = true;
+			this.totalScore.Location = new System.Drawing.Point(16, 24);
+			this.totalScore.Name = "totalScore";
+			this.totalScore.Size = new System.Drawing.Size(104, 24);
+			this.totalScore.TabIndex = 1;
+			this.totalScore.TabStop = true;
+			this.totalScore.Text = "total score";
+			this.totalScore.UseVisualStyleBackColor = true;
+			this.totalScore.CheckedChanged += new System.EventHandler(this.RankCheckedChanged);
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(8, 8);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(114, 13);
+			this.label1.TabIndex = 0;
+			this.label1.Text = "Rank teams based on:";
+			// 
+			// scoresPage
+			// 
+			this.scoresPage.Controls.Add(this.listViewScores);
+			this.scoresPage.Location = new System.Drawing.Point(4, 22);
+			this.scoresPage.Name = "scoresPage";
+			this.scoresPage.Padding = new System.Windows.Forms.Padding(3);
+			this.scoresPage.Size = new System.Drawing.Size(265, 328);
+			this.scoresPage.TabIndex = 1;
+			this.scoresPage.Text = "Scores";
+			this.scoresPage.UseVisualStyleBackColor = true;
 			// 
 			// listViewScores
 			// 
-			this.listViewScores.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left)));
 			this.listViewScores.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 									this.colGame,
 									this.colScore,
 									this.colRankorPoints});
+			this.listViewScores.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listViewScores.FullRowSelect = true;
 			this.listViewScores.HideSelection = false;
-			this.listViewScores.Location = new System.Drawing.Point(3, 67);
+			this.listViewScores.Location = new System.Drawing.Point(3, 3);
 			this.listViewScores.Name = "listViewScores";
-			this.listViewScores.Size = new System.Drawing.Size(267, 514);
+			this.listViewScores.Size = new System.Drawing.Size(259, 322);
 			this.listViewScores.TabIndex = 0;
 			this.listViewScores.UseCompatibleStateImageBehavior = false;
 			this.listViewScores.View = System.Windows.Forms.View.Details;
@@ -231,7 +373,7 @@ namespace Torn.UI
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.Location = new System.Drawing.Point(444, 714);
+			this.buttonOK.Location = new System.Drawing.Point(444, 484);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 5;
@@ -243,7 +385,7 @@ namespace Torn.UI
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.Enabled = false;
-			this.buttonCancel.Location = new System.Drawing.Point(525, 714);
+			this.buttonCancel.Location = new System.Drawing.Point(525, 484);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 6;
@@ -256,7 +398,7 @@ namespace Torn.UI
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(615, 749);
+			this.ClientSize = new System.Drawing.Size(615, 519);
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.Controls.Add(this.panelRight);
@@ -272,8 +414,27 @@ namespace Torn.UI
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox3.ResumeLayout(false);
 			this.panelRight.ResumeLayout(false);
+			this.tabControl1.ResumeLayout(false);
+			this.leaguePage.ResumeLayout(false);
+			this.leaguePage.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numeric3rd)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numeric2nd)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numeric1st)).EndInit();
+			this.scoresPage.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.RadioButton totalScore;
+		private System.Windows.Forms.RadioButton victoryPoints;
+		private System.Windows.Forms.Label label1st;
+		private System.Windows.Forms.NumericUpDown numeric1st;
+		private System.Windows.Forms.Label label2nd;
+		private System.Windows.Forms.NumericUpDown numeric2nd;
+		private System.Windows.Forms.Label label3rd;
+		private System.Windows.Forms.NumericUpDown numeric3rd;
+		private System.Windows.Forms.TabPage scoresPage;
+		private System.Windows.Forms.TabPage leaguePage;
+		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.ColumnHeader colRankorPoints;
 		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.Button buttonOK;

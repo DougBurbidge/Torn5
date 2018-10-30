@@ -138,5 +138,23 @@ namespace TornWeb
 			Assert.That(reportTemplates[1].Drops.PercentBest == 10.0, "best 10%");
 			Assert.That(reportTemplates[1].Drops.CountWorst == 0, "worst 0");
 		}
+		
+		[Test]
+		public void TestHandicap()
+		{
+			var h = Handicap.Parse("100%");
+			Assert.AreEqual(100, h.Value, "handicap is 100");
+			Assert.That(h.IsZero(), "handicap is 100%");
+
+			h = Handicap.Parse("+0");
+			Assert.AreEqual(0, h.Value, "handicap is 0");
+			Assert.That(h.IsZero(), "handicap is +0");
+
+			h = Handicap.Parse("-0");
+			Assert.That(h.IsZero(), "handicap is -0");
+
+			h = Handicap.Parse("0");
+			Assert.AreEqual(0, h.Value, "handicap is still 0");
+		}
 	}
 }
