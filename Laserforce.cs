@@ -121,7 +121,7 @@ namespace Torn
 			}
 		}
 
-		public override DbDataReader GetPlayers(string mask)
+		public override IEnumerable<Dto.Player> GetPlayers(string mask)
 		{
 			string sql = "SELECT M.codename AS [Alias], M.givenNames + ' ' + M.surname AS [Name], " +
                     "cast(C.region as varchar) + ''-'' + cast(C.site as varchar) + ''-'' + cast(M.id as varchar) as [ID] " +
@@ -135,8 +135,31 @@ namespace Torn
 //			    param.Value = mask + "%";
 
 			    cmd.Parameters.AddWithValue("@mask", mask);
-			    return cmd.ExecuteReader();
-			}
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return new Dto.Player
+                        {
+                            Alias = GetString(reader, "Alias"),
+                            Name = GetString(reader, "Name"),
+                            UserId = GetString(reader, "User_Id")
+                        };
+                    }
+                }
+            }
 		}
-	}
+
+        string GetString(SqlDataReader reader, string column)
+        {
+            int i = reader.GetOrdinal(column);
+            return reader.IsDBNull(i) ? null : reader.GetString(i);
+        }
+
+        int GetInt(SqlDataReader reader, string column)
+        {
+            int i = reader.GetOrdinal(column);
+            return reader.IsDBNull(i) ? -1 : reader.GetInt32(i);
+        }
+    }
 }

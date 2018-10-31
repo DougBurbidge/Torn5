@@ -42,29 +42,23 @@ namespace Torn.UI
 			search = textSearch.Text;
 			if (search.Length >= 1)
 			{
-				var reader = LaserGameServer.GetPlayers(search);
+                try
+                {
+                    var players = LaserGameServer.GetPlayers(search);
 
-				try
-				{
 					listViewPlayers.Items.Clear();
-					while (reader.Read())
-					{
-						var item = new ListViewItem(reader.GetString(0));
-						item.SubItems.Add(reader.GetString(1));
-						item.Tag = reader.GetString(2);
-						listViewPlayers.Items.Add(item);
-					}
-
-					for (int i = 0; i < listViewPlayers.Items.Count; i++)
-						if (listViewPlayers.Items[i].Text.StartsWith(search, true, CultureInfo.CurrentCulture))
-						{
-							listViewPlayers.Items[i].Selected = true;
-							break;
-						}
+                    foreach (var player in players)
+                    {
+                        var item = new ListViewItem(player.Alias);
+                        item.SubItems.Add(player.Name);
+                        item.Tag =player.UserId;
+                        item.Selected = player.Alias.StartsWith(search, true, CultureInfo.CurrentCulture);
+                        listViewPlayers.Items.Add(item);
+                    }
 				}
 				finally
 				{
-					reader.Close();
+				
 				}
 			}
 
