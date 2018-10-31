@@ -22,9 +22,19 @@ namespace Torn
 
 		public abstract void PopulateGame(ServerGame game);
 
-		public abstract DbDataReader GetPlayers(string mask);
+		public abstract IEnumerable<Dto.Player> GetPlayers(string mask);
 		
 		/// <summary>True if the GetPlayers query returns player names as well as aliases. (False for PAndC where heliosType >= 47.)</summary>
 		public virtual bool HasNames() { return true; }
 	}
+}
+
+namespace Torn.Dto 
+{
+    public class Player 
+    {
+        public string UserId { get; set; }
+        public string Alias { get; set; }
+        public string Name { get; set; }
+    }    
 }

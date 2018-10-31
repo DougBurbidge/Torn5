@@ -206,7 +206,7 @@ namespace Torn
 			}
 		}
 
-		public override DbDataReader GetPlayers(string mask)
+		public override IEnumerable<Dto.Player> GetPlayers(string mask)
 		{
 //			Acacia: "SELECT Player_Alias AS Alias, First_Name + ' ' + Last_Name AS Name, User_ID FROM MEMBERS WHERE User_ID <> ''"
 //			Nexus: "SELECT Alias AS Alias, '' AS Name, Button_ID AS User_ID FROM members"
@@ -226,7 +226,18 @@ namespace Torn
 			using (var cmd = new MySqlCommand(sql, connection))
 			{
 				cmd.Parameters.AddWithValue("@mask", "%" + mask + "%");
-			    return cmd.ExecuteReader();
+                using (var reader = cmd.ExecuteReader()) 
+                {
+                    while (reader.Read())
+                    {
+                        yield return new Dto.Player
+                        { 
+                            Alias = GetString(reader, "Alias"),
+                            Name = GetString(reader, "Name"),
+                            UserId = GetString(reader, "User_Id")
+                        };
+                    } 
+                }  
 			}
 		}
 
