@@ -268,7 +268,10 @@ namespace Zoom
 
 	public abstract class ZoomReportBase
 	{
-		public string Title { get; set; }  // Title for the whole report.
+		/// <summary>Title for the whole report.</summary>
+		public string Title { get; set; }
+		/// <summary>If threport title contains text which links to another report, put the URL of that report here.</summary>
+		public virtual string TitleHyper { get; set; }
 		public ZReportColors Colors { get; set; }
 
 		/// <summary>Export to character-separated value.</summary>
@@ -634,7 +637,7 @@ namespace Zoom
 				AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
 
 			s.Append("<text ");
-			if (!string.IsNullOrEmpty(id))
+			if (!string.IsNullOrEmpty(id))  // id is so that cells can be given an ID that can e.g. be used later by JavaScript. It's not currently used.
 				AppendStrings(s, "id=\"", id, "\" ");
 
 			if (!string.IsNullOrEmpty(hyper))
@@ -751,7 +754,7 @@ namespace Zoom
 			s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&nbsp;+&nbsp;</text>\n");
 			s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&nbsp;-&nbsp;</text>\n");
 
-			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title);  // Paint title "row" text.
+			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, TitleHyper);  // Paint title "row" text.
 			s.Append('\n');
 
 			// Add '-' and '+' zoom buttons (with transparent text, so the text added above appears behind the report title text).

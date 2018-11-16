@@ -274,7 +274,7 @@ namespace Torn.Report
 							foreach (Game game in league.AllGames)
 								if (game.Time.Date == day)
 								{
-									reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\"><div/>"));
+									reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\">"));
 									reports.Add(Reports.OneGame(league, game));
 								}
 							reports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
@@ -282,6 +282,18 @@ namespace Torn.Report
 								using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "games" + day.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
 									sw.Write(reports.ToSvg());
 						}
+
+					var playerTeams = league.BuildPlayerTeamList();
+					ZoomReports playerReports = new ZoomReports("Players in " + league.Title);
+					foreach (var pt in playerTeams)
+					{
+						playerReports.Add(new ZoomHtmlInclusion("<a name=\"player" + pt.Key.Id + "\">"));
+						playerReports.Add(Reports.OnePlayer(league, pt.Key, pt.Value, GameHyper));
+					}
+					playerReports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
+					if (playerReports.Count > 1)
+						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "players.html")))
+							sw.Write(playerReports.ToSvg());
 
 					foreach (LeagueTeam leagueTeam in league.Teams)
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))

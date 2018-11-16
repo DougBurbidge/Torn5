@@ -382,6 +382,11 @@ namespace Torn
 			return false;
 		}
 
+		public string LongTitle()
+		{
+			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Time.ToString();
+		}
+
 		public int Rank(string playerId)
 		{
 			return Players.FindIndex(x => x.PlayerId == playerId) + 1;
@@ -1051,9 +1056,59 @@ namespace Torn
 			return teams.Find(t => t.AllPlayed.Contains(gameTeam));
 		}
 
+		public LeagueTeam LeagueTeam(GamePlayer gamePlayer)
+		{
+			return LeagueTeam(GameTeam(gamePlayer));
+		}
+
 		public LeagueTeam LeagueTeam(LeaguePlayer leaguePlayer)
 		{
 			return teams.Find(t => t.Players.Contains(leaguePlayer));
+		}
+
+		class TeamPlayerCount
+		{
+			public LeagueTeam LeagueTeam;
+			public LeaguePlayer LeaguePlayer;
+			public int Count;
+
+			public TeamPlayerCount(LeagueTeam leagueTeam, LeaguePlayer leaguePlayer, int count)
+			{
+				LeagueTeam = leagueTeam;
+				LeaguePlayer = leaguePlayer;
+				Count = count;
+			}
+		}
+
+		/// <summary>A list of players and all the teams they play on, with the teams list sorted by number of games played by that player for that team.</summary>
+		public List<KeyValuePair<LeaguePlayer, List<LeagueTeam>>> BuildPlayerTeamList()
+		{
+			var tpcList = new List<TeamPlayerCount>();
+			foreach (var leagueTeam in teams)
+				foreach (var leaguePlayer in leagueTeam.Players)
+					tpcList.Add(new TeamPlayerCount(leagueTeam, leaguePlayer, leagueTeam.AllPlayed.Sum(gt => gt.Players.Count(gp => gp.PlayerId == leaguePlayer.Id))));
+
+			tpcList.Sort((x, y) => y.Count - x.Count);
+
+			var playerTeamList = new List<KeyValuePair<LeaguePlayer, List<LeagueTeam>>>();
+			foreach (var tpc in tpcList)
+			{
+				KeyValuePair<LeaguePlayer, List<LeagueTeam>> entry;
+				if (playerTeamList.Exists(pt => pt.Key == tpc.LeaguePlayer))
+					entry = playerTeamList.Find(pt => pt.Key == tpc.LeaguePlayer);
+				else
+				{
+					entry = new KeyValuePair<LeaguePlayer, List<LeagueTeam>>(tpc.LeaguePlayer, new List<LeagueTeam>());
+					playerTeamList.Add(entry);
+				}
+				entry.Value.Add(tpc.LeagueTeam);
+			}
+			return playerTeamList.OrderBy(pt => pt.Value[0].Name).ThenBy(pt => pt.Key.Name).ToList();
+		}
+
+		int Plays(LeagueTeam leagueTeam, LeaguePlayer leaguePlayer)
+		{
+			return leaguePlayer.Played.Where(x => this.LeagueTeam(x.GameTeam(this)) == leagueTeam).Count();
 		}
 
 		public string GameString(Game game)
@@ -1117,6 +1172,44 @@ namespace Torn
 		}
 	}
 
+	/// <summary>This is P&C/Helios/Nexus-specific, because at the moment that's the only server we get this detailed data for.</summary>
+	public class Event
+	{
+		public DateTime Time;
+		public int PandCPlayerId;  // ID of shooter
+		public int PandCPlayerTeamId;  // team of shooter
+		public int Event_Type;  // see below
+		public int Score;  // points gained by shooter
+		public int HitPlayer;  // ID of shootee
+		public int HitTeam;  // team of shootee
+		public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
+		public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
+
+// EventType:
+//  0..6:   tagged foe (in various hit locations: chest, back, left shoulder, right shoulder, other, other, laser);
+//  7..13:  tagged ally;
+//  14..20: tagged by foe;
+//  21..27: tagged by ally;
+//  28: warning;
+//  29: termination;
+//  30: hit base;
+//  31: destroyed base;
+//  32: eliminated;
+//  33: hit by base;
+//  34: hit by mine;
+//  35: trigger pressed;
+//  36: game state (whatever that means);
+//  37..46: player tagged target (whatever that means);
+//  1402: score denial points.
+//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
+
+		public override string ToString()
+		{
+			return "Event Type " + Event_Type.ToString();
+		}
+
+	}
+
 	/// <summary>Represents a game as stored on the laser game server.</summary>
 	public class ServerGame: IComparable<ServerGame>
 	{
@@ -1128,11 +1221,11 @@ namespace Torn
 		public List<ServerPlayer> Players { get; set; }
 		public bool InProgress { get; set; }
 		public bool OnServer { get; set; }
-//		public List<Event> Events { get; set; }
+		public List<Event> Events { get; set; }
 		
 		public ServerGame()
 		{
-//			Events = new List<Event>();
+			Events = new List<Event>();
 		}
 
 		public int CompareTo(ServerGame compareGame)
