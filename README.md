@@ -33,7 +33,3 @@ I'm using SharpDevelop 4.4 as the IDE, and targeting .NET 4.0.
 - My apps: http://dougburbidge.com/Apps/
 - Repository: https://github.com/DougBurbidge/Torn5
 - Past tournament results: http://dougburbidge.com/OzNationals/
-
-## Licensing
-
-The code in this project is licensed under GPL v2.
