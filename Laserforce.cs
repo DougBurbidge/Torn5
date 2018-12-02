@@ -23,8 +23,7 @@ namespace Torn
 				server = "lf-main\\lf6";
 			try
 			{
-				connection = new SqlConnection("Data Source=" + server + 
-					";Database=Laserforce;Trusted_Connection=True");
+				connection = new SqlConnection("Data Source=" + server + ";Database=Laserforce;Trusted_Connection=True");
 				connection.Open();
 				Connected = true;
 			}

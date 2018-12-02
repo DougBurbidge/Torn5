@@ -301,6 +301,26 @@ namespace Torn
 		public int YellowCards { get; set; }
 		public int RedCards { get; set; }
 
+		/// <summary>Used for accumulating data to be used for a team total, a game average, etc.</summary>
+		public void Add(GamePlayer source)
+		{
+			Score += source.Score;
+			Rank += source.Rank;
+			HitsBy += source.HitsBy;
+			HitsOn += source.HitsOn;
+			BaseHits += source.BaseHits;
+			BaseDestroys += source.BaseDestroys;
+			BaseDenies += source.BaseDenies;
+			BaseDenied += source.BaseDenied;
+			YellowCards += source.YellowCards;
+			RedCards += source.RedCards;
+		}
+
+		int IComparable.CompareTo(object obj)
+		{
+			return ((GamePlayer)obj).Score - this.Score;
+		}
+
 		public GamePlayer CopyTo(GamePlayer target)
 		{
 			target.GameTeamId = GameTeamId;
@@ -317,8 +337,23 @@ namespace Torn
 			target.BaseDenied = BaseDenied;
 			target.YellowCards = YellowCards;
 			target.RedCards = RedCards;
-			
+
 			return target;
+		}
+
+		/// <summary>Used for averaging data for a team, a game, etc.</summary>
+		public void DivideBy(int divisor)
+		{
+			Score /= divisor;
+			Rank /= (uint)divisor;
+			HitsBy /= divisor;
+			HitsOn /= divisor;
+			BaseHits /= divisor;
+			BaseDestroys /= divisor;
+			BaseDenies /= divisor;
+			BaseDenied /= divisor;
+			YellowCards /= divisor;
+			RedCards /= divisor;
 		}
 
 		public GameTeam GameTeam(League league)
@@ -329,11 +364,6 @@ namespace Torn
 						return gameTeam;
 			
 			return null;
-		}
-
-		int IComparable.CompareTo(object obj)
-		{
-			return ((GamePlayer)obj).Score - this.Score;
 		}
 
 		public override string ToString()
@@ -349,6 +379,7 @@ namespace Torn
 		public bool Secret { get; set; }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
 		public List<GameTeam> Teams { get; private set; }
 		public List<GamePlayer> Players { get; private set; }
+		public ServerGame ServerGame {get; set; }
 
 		int? hits = null;
 		public int Hits { get 
@@ -515,6 +546,7 @@ namespace Torn
 				game = new Game();
 				game.Time = serverGame.Time;
 				serverGame.Game = game;
+				serverGame.Game.ServerGame = serverGame;
 			}
 
 			game.Teams.Add(gameTeam);
@@ -574,6 +606,7 @@ namespace Torn
 			{
 				serverGame.Game = new Game();
 				serverGame.Game.Time = serverGame.Time;
+				serverGame.Game.ServerGame = serverGame;
 			}
 
 			serverGame.Game.Teams.Clear();
@@ -594,7 +627,10 @@ namespace Torn
 				serverGame.Game.Players[i].Rank = (uint)i + 1;
 
 			if (!AllGames.Contains(serverGame.Game))
+			{
 				AllGames.Add(serverGame.Game);
+				AllGames.Sort();
+			}
 
 			serverGame.Game.Teams.Sort();
 			serverGame.League = this;
@@ -823,6 +859,7 @@ namespace Torn
 
 					game.Players.Add(gamePlayer);
 				}
+				game.Players.Sort();
 				
 				AllGames.Add(game);
 			}
@@ -1010,6 +1047,9 @@ namespace Torn
 					AppendNode(doc, playerNode, "colour", (int)player.Colour);
 				}
 			}
+			if (File.Exists(file + "5Backup"))
+				File.Delete(file + "5Backup");  // Delete old backup file, if any.
+			File.Move(file, file + "5Backup");  // Rename the old league file before we save over it, by changing its extension to ".Torn5Backup".
 			doc.Save(file);
 //			doc.Save(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "5") + Path.GetExtension(file));
 		}

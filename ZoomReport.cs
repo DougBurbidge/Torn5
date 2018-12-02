@@ -616,10 +616,13 @@ namespace Zoom
 
 		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
 		{
-			s.Append('\t', indent);
-			s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
-			s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
-			s.Append("\" />\n");
+			if (fillColor != Color.Empty)
+			{
+				s.Append('\t', indent);
+				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
+				s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
+				s.Append("\" />\n");
+			}
 		}
 
 		void SvgRect2(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
@@ -746,7 +749,7 @@ namespace Zoom
 		// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
 		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max)
 		{
-			s.AppendFormat("<svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
+			s.AppendFormat("<div><svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
 
 			SvgRect(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
@@ -1082,7 +1085,8 @@ namespace Zoom
 	
 			if (!string.IsNullOrEmpty(Description))
 		    	AppendStrings(s, "<p>", Description, "</p>\n");
-			    
+			s.Append("</div>");
+
 			return s.ToString();
 		}
 	}
@@ -1108,21 +1112,21 @@ namespace Zoom
 		/// <summary>If true, show bars in HTML reports.</summary>
 		bool Bars { get; set; }
 
-		ZReportColors Colors { get; set; }
-		public ZReportColors Colours { get { return Colors; } }
+		ZReportColors colors;
+		public ZReportColors Colors { get { return colors; } }
 		
 //		int HeightUsed { get; set; }
 
 		public ZoomReports()
 		{
-			Colors = new ZReportColors();
+			colors = new ZReportColors();
 			Bars = true;
 		}
 
 		public ZoomReports(string title)
 		{
 			Title = title;
-			Colors = new ZReportColors();
+			colors = new ZReportColors();
 			Bars = true;
 		}
 
@@ -1130,7 +1134,7 @@ namespace Zoom
 		{
 			base.Add(report);
 			if (report.Colors == null)
-				report.Colors = Colors;
+				report.Colors = colors;
 		}
 
 		// Return a list of colours of bar cells, over all reports.
@@ -1144,16 +1148,16 @@ namespace Zoom
 					foreach (var row in ((ZoomReport)report).Rows)
 					{
 						foreach (var cell in row)
-							if (!result.Contains(cell.GetBarColor(Colors.GetBackColor(odd))))
-							    result.Add(cell.GetBarColor(Colors.GetBackColor(odd)));
+							if (!result.Contains(cell.GetBarColor(colors.GetBackColor(odd))))
+							    result.Add(cell.GetBarColor(colors.GetBackColor(odd)));
 						odd = !odd;
 					}
 				}
 
-			if (!result.Contains(Colors.BarNone))
-				result.Add(Colors.BarNone);
-			if (!result.Contains(ZReportColors.AddDark(Colors.BarNone, Colors.OddColor)))
-				result.Add(ZReportColors.AddDark(Colors.BarNone, Colors.OddColor));
+			if (!result.Contains(colors.BarNone))
+				result.Add(colors.BarNone);
+			if (!result.Contains(ZReportColors.AddDark(colors.BarNone, colors.OddColor)))
+				result.Add(ZReportColors.AddDark(colors.BarNone, colors.OddColor));
 
 			return result;
 //			return this.SelectMany(x => x.BarCellColors()).Distinct().ToList();
@@ -1203,7 +1207,7 @@ namespace Zoom
 				sb.Append("  </style>\n");
 			}
 
-			sb.Append("</head><body>\n");
+			sb.Append("</head><body style=\"background-color: #EEF\">\n");
 			//sb.Append("");  // TODO: cellstyles.ToHtml here?
 
 			foreach (ZoomReportBase report in this) {
@@ -1219,12 +1223,18 @@ namespace Zoom
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"/><title>");
+
 			if (!string.IsNullOrEmpty(Title))
 				sb.Append(WebUtility.HtmlEncode(Title));
 			else if (Count > 0)
 				sb.Append(WebUtility.HtmlEncode(this[0].Title));
-			sb.Append("</title></head><body>\n<div class=\"flex-container\">\n");
+			sb.Append("</title></head><body style=\"background-color: #EEF\">\n");
 			//sb.Append("");  // TODO: cellstyles.ToHtml here?
+
+			if (Count == 1)
+				sb.Append("<div>\n");
+			else
+				sb.Append("<div style=\"display: flex; flex-flow: row wrap; justify-content: space-around;\">\n");
 
 			for (int i = 0; i < Count; i++)
 				sb.Append(this[i].ToSvg(i));

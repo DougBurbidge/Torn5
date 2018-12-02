@@ -21,6 +21,8 @@ transfer to team boxes via drag-drop, transfer to team boxes on game selection, 
 show team name, scores and rank in team boxes
 right-click remember team, identify team, identify player, handicap team
 edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Cancel
+better save format
+read from demo "server"
 
 TODO for BOTH:
 output to screen and printer
@@ -40,8 +42,6 @@ set up pyramid round
 recalculate scores on Helios
 
 OTHER:
-better save format
-read from demo "server"
 league copy from
 upload to http, https, sftp
 Space Marines match play
@@ -50,6 +50,7 @@ spark lines
 check latest version via REST
 reports and uploads in worker thread
 sanity check report. Add new check: are there odd games out with no victory points?
+option to zero eliminated players.
 
 */
 
@@ -84,43 +85,16 @@ namespace Torn.UI
 
 		void MainFormShown(object sender, EventArgs e)
 		{
-			//leagues = new Dictionary<string, League>();
 			leagues = new Holders();
 
-			if (Properties.Torn5.Default.UpgradeRequired)
-			{
-				Properties.Torn5.Default.Upgrade();
-				Properties.Torn5.Default.UpgradeRequired = false;
-				Properties.Torn5.Default.Save();
-			}
+			LoadSettings();
 
 			toolStripTeams.Location = new Point(3, 24);
 			toolStripGame.Location = new Point(2, 24);
 			toolStripLeague.Location = new Point(1, 24);
 
-			//Properties.TornWeb.Default.Reload();
-			numericPort.Value = Properties.Torn5.Default.Port;
-
-			var serializedDictionary = Properties.Torn5.Default.Leagues.Split('|');
-			foreach (string entry in serializedDictionary)
-			{
-				Holder holder;
-				var keyValue = entry.Split('?');
-				if (keyValue.Length > 1)
-				{
-					holder = AddLeague(keyValue[1], keyValue[0]);
-
-					if (keyValue.Length > 2)
-						holder.ReportTemplates.Parse(keyValue[2]);
-					holder.Fixture.Teams.Parse(holder.League);
-					if (keyValue.Length > 3)
-						holder.Fixture.Games.Parse(keyValue[3], holder.Fixture.Teams, '\t');
-				}
-			}
-
 			webOutput = new WebOutput((int)numericPort.Value);
 			webOutput.Leagues = leagues;
-	        laserGameServer = new PAndC(serverAddress);
 
 	        playersBox = new PlayersBox();
 			playersBox.Images = imageListPacks;
@@ -130,7 +104,7 @@ namespace Torn.UI
 			playersBox.Dock = DockStyle.Fill;
 			
 			formPlayer = new FormPlayer();
-			formPlayer.LaserGameServer = laserGameServer;
+	        ConnectLaserGameServer();
 
 	        RefreshGamesList();
 			AddTeamBoxes();
@@ -140,33 +114,27 @@ namespace Torn.UI
 				listViewLeagues.SelectedIndices.Add(0);
 		}
 
+		void ConnectLaserGameServer()
+		{
+			if (laserGameServer != null)
+				laserGameServer.Dispose();
+
+			switch (systemType) {
+				case SystemType.Laserforce: laserGameServer = new Laserforce(serverAddress);  break;
+				case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
+				case SystemType.Demo: laserGameServer = new DemoServer();  break;
+			}
+
+			formPlayer.LaserGameServer = laserGameServer;
+			RefreshGamesList();
+		}
+
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			webOutput.Dispose();
 			laserGameServer.Dispose();
 
-			Properties.Torn5.Default.Port = (int)numericPort.Value;
-
-			StringBuilder sb = new StringBuilder();
-			foreach (Holder holder in leagues)
-			{
-				sb.Append(holder.Key);
-				sb.Append('?');
-				sb.Append(holder.FileName);
-				if (holder.ReportTemplates.Count > 0 || holder.Fixture.Games.Count() > 0)
-				{
-					sb.Append('?');
-					sb.Append(holder.ReportTemplates.ToString());
-				}
-				if (holder.Fixture.Games.Count() > 0)
-				{
-					sb.Append('?');
-					sb.Append(holder.Fixture.Games.ToString());
-				}
-				sb.Append('|');
-			}
-			Properties.Torn5.Default.Leagues = sb.ToString();
-			Properties.Torn5.Default.Save();
+			SaveSettings();
 		}
 
 		Holder AddLeague(string fileName, string key = "", bool neww = false)
@@ -553,11 +521,7 @@ namespace Torn.UI
 				autoUpdateTeams = form.AutoUpdateTeams;
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
-				switch (form.SystemType) {
-					case SystemType.Laserforce: laserGameServer = new Laserforce(serverAddress);  break;
-					case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
-					case SystemType.Demo: laserGameServer = new PAndC(serverAddress);  break;
-				}
+				ConnectLaserGameServer();
 				timeToNextCheck = TimeSpan.FromSeconds(1);
 				ButtonLatestGameClick(null,null);
 			}
@@ -644,7 +608,7 @@ namespace Torn.UI
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
 				laserGameServer.PopulateGame(game);
-				if (activeHolder.League != null)
+				if (activeHolder != null && activeHolder.League != null)
 					playersBox.LoadGame(activeHolder.League, game);
 
 				foreach (Control c in tableLayoutPanel1.Controls)
@@ -766,7 +730,8 @@ namespace Torn.UI
 
 		void NumericPortValueChanged(object sender, EventArgs e)
 		{
-			webOutput.Restart((int)numericPort.Value);
+			if (webOutput != null)
+				webOutput.Restart((int)numericPort.Value);
 		}
 
 		void RankTeamBoxes()
@@ -936,13 +901,147 @@ namespace Torn.UI
 		void MenuEditLeagueClick(object sender, EventArgs e)
 		{
 			var form = new FormLeague();
-			form.League = activeHolder.League;//.Clone(); TODO: restore Clone().
+			form.League = activeHolder.League.Clone();
 			form.FormPlayer = formPlayer;
 			if (form.ShowDialog() == DialogResult.OK)
 			{
 				activeHolder.League = form.League;
 				activeHolder.League.Save();
 			}
+		}
+
+		char Base62(int i)
+		{
+			return i < 10 ? (char)(i + '0') :
+				   i < 36 ? (char)(i + 'a' - 10) :
+				            (char)(i + 'A' - 36);
+		}
+
+		void ScoresImageButtonClick(object sender, EventArgs e)
+		{
+			if (listViewGames.SelectedItems.Count != 1)
+				return;
+
+			var path = GetExportFolder();
+			if (path == null)
+				return;
+
+			var league = activeHolder.League;
+			var serverGame = ((ServerGame)listViewGames.SelectedItems[0].Tag);
+			var game = activeHolder.League.Game(serverGame);
+			var maxScore = game.Players.Max(x => x.Score);
+			var rect = new RectangleF(0, 0, 90, 20);
+			var sf = new StringFormat(StringFormatFlags.NoWrap);
+			sf.Alignment = StringAlignment.Near;
+			sf.LineAlignment = StringAlignment.Center;
+			var first = serverGame.Events.First().Time;
+			var last = serverGame.Events.Last().Time;
+			var duration = last.Subtract(first).TotalMilliseconds;
+
+			foreach (var gamePlayer in game.Players)
+			{
+				var serverPlayer = serverGame.Players.Find(x => x.PlayerId == gamePlayer.PlayerId);
+				var bitmap = new Bitmap(90, 20);
+				var graphics = Graphics.FromImage(bitmap);
+				graphics.FillRectangle(Brushes.White, 0, 0, 90, 20);
+				var font = new Font("Arial", 72);
+
+				string name = league.LeaguePlayer(gamePlayer).Name;
+				var size = graphics.MeasureString(name, font, 1000);
+				font = new Font("Arial", Math.Min(72 * 90 / size.Width, 20));
+				graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+				graphics.DrawString(name, font, Brushes.Silver, rect);
+
+				int score = 0;
+				foreach (var oneEvent in serverGame.Events)
+					if (gamePlayer is ServerPlayer && oneEvent.PandCPlayerId == ((ServerPlayer)gamePlayer).PandCPlayerId)
+					{
+						score += oneEvent.Score;
+						graphics.FillRectangle(Brushes.Red, (float)(oneEvent.Time.Subtract(first).TotalMilliseconds / duration * 90), 20f - 20f * score / maxScore, 1, 1);
+					}
+
+				bitmap.Save(Path.Combine(path, "score" + Base62(serverPlayer.PandCPlayerTeamId) + Base62(serverPlayer.PandCPlayerId) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+			}
+		}
+
+		static string XmlValue(XmlNode node, string name, string defaultValue = null)
+		{
+			var child = node.SelectSingleNode(name);
+			return child == null ? defaultValue : child.InnerText;
+		}
+
+		public void LoadSettings()
+		{
+			var doc = new XmlDocument();
+			doc.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn", "Torn5.Settings"));
+
+			var root = doc.DocumentElement;
+
+			Enum.TryParse(XmlValue(root, "SystemType", "Acacia"), out systemType);
+			Enum.TryParse(XmlValue(root, "GroupPlayersBy", "Colour"), out groupPlayersBy);
+			serverAddress = XmlValue(root, "GameServerAddress", "localhost");
+			numericPort.Value = decimal.Parse(XmlValue(root, "WebServerPort", "8080"));
+
+			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
+
+			foreach (XmlNode xleague in xleagues)
+			{
+				Holder holder = AddLeague(XmlValue(xleague, "filename"), XmlValue(xleague, "key"));
+
+				var xtemplates = xleague.SelectSingleNode("reporttemplates");
+				if (xtemplates != null)
+					holder.ReportTemplates.FromXml(doc, xtemplates);
+
+				holder.Fixture.Teams.Parse(holder.League);
+				var xfixtures = xleague.SelectSingleNode("fixtures");
+				if (xfixtures != null)
+					holder.Fixture.Games.Parse(xfixtures.InnerText, holder.Fixture.Teams, '\t');  // TODO: change to .FromXml(doc, xfixtures);
+			}
+		}
+
+		void AppendNode(XmlDocument doc, XmlNode parent, string name, string value)
+		{
+			if (!string.IsNullOrEmpty(value))
+			{
+				XmlNode node = doc.CreateElement(name);
+				node.AppendChild(doc.CreateTextNode(value));
+				parent.AppendChild(node);
+			}
+		}
+
+		public void SaveSettings()
+		{
+			XmlDocument doc = new XmlDocument();
+			XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+			doc.AppendChild(docNode);
+
+			XmlNode bodyNode = doc.CreateElement("body");
+			doc.AppendChild(bodyNode);
+
+			AppendNode(doc, bodyNode, "SystemType", systemType.ToString());
+			AppendNode(doc, bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
+			AppendNode(doc, bodyNode, "GameServerAddress", serverAddress);
+			AppendNode(doc, bodyNode, "WebServerPort", numericPort.Value.ToString());
+
+			XmlNode leaguesNode = doc.CreateElement("leagues");
+			bodyNode.AppendChild(leaguesNode);
+
+			foreach (var holder in leagues)
+			{
+				XmlNode holderNode = doc.CreateElement("holder");
+				leaguesNode.AppendChild(holderNode);
+
+				AppendNode(doc, holderNode, "key", holder.Key);
+				AppendNode(doc, holderNode, "filename", holder.FileName);
+
+				if (holder.ReportTemplates.Count > 0 || holder.Fixture.Games.Count() > 0)
+					holder.ReportTemplates.ToXml(doc, holderNode);
+
+				if (holder.Fixture.Games.Count() > 0)
+					AppendNode(doc, holderNode, "fixtures", holder.Fixture.Games.ToString());  // TODO: change to .ToXml(doc, holderNode);
+			}
+
+			doc.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn", "Torn5.Settings"));
 		}
 	}
 }

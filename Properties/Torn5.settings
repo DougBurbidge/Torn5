@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <SettingsFile CurrentProfile="(Default)" GeneratedClassNamespace="TornWeb.Properties" GeneratedClassName="Torn5" xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings">
   <Profiles>
     <Profile Name="(Default)" />
@@ -6,9 +6,6 @@
   <Settings>
     <Setting Name="Leagues" Type="System.String" Scope="User" Roaming="true">
       <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="Port" Type="System.Int32" Scope="User" Roaming="true">
-      <Value Profile="(Default)">8080</Value>
     </Setting>
     <Setting Name="UpgradeRequired" Type="System.Boolean" Scope="User" Roaming="true">
       <Value Profile="(Default)">True</Value>

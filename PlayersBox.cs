@@ -43,15 +43,16 @@ namespace Torn.UI
 					game.Players.Add(serverPlayer);
 				}
 
-			foreach (var player in game.Players)
-			{
-				ListViewItem item = new ListViewItem(player.PackName, player.PandCPlayerTeamId + 1);
-				item.SubItems.Add(player.Alias);
-				item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
-				item.Tag = player;
-				player.Item = item;
-				Items.Add(item);
-			}
+			if (game.Players != null)
+				foreach (var player in game.Players)
+				{
+					ListViewItem item = new ListViewItem(player.PackName, player.PandCPlayerTeamId + 1);
+					item.SubItems.Add(player.Alias);
+					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
+					item.Tag = player;
+					player.Item = item;
+					Items.Add(item);
+				}
 		}
 	}
 }

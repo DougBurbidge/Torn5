@@ -30,7 +30,7 @@ namespace Torn.Report
 		public WebOutput(int port = 8080)
 		{
 			ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
-	        ws.Run();
+			ws.Run();
 		}
 
 		public void Dispose()
@@ -41,10 +41,10 @@ namespace Torn.Report
 		static string RootPage(List<Holder> leagues)
 		{
 			if (leagues.Count == 0)
-    			return "<html><body>No league file loaded.</body></html>";
+				return "<html><body>No league file loaded.</body></html>";
 
 			StringBuilder sb = new StringBuilder();
-			sb.Append("<html><head><title>Leagues</title></head><body>\n");
+			sb.Append("<html><head><title>Leagues</title></head><body style=\"background-color: #EEF\">\n");
 
 			foreach(Holder item in leagues)
 			{
@@ -65,7 +65,7 @@ namespace Torn.Report
 			
 			if (holder.ReportTemplates == null || holder.ReportTemplates.Count == 0)
 			{
-	    		reports.Add(Reports.TeamLadder(holder.League, includeSecret, null, null, null, ChartType.Bar | ChartType.Rug, false, false, false, true));
+				reports.Add(Reports.TeamLadder(holder.League, includeSecret, null, null, null, ChartType.Bar | ChartType.Rug, false, false, false, true));
 				reports.Add(Reports.GamesList(holder.League, includeSecret, DateTime.MinValue, DateTime.MaxValue, true, gameHyper));
 				if (!string.IsNullOrEmpty(holder.League.Title) && (holder.League.Title.Contains("Solo") || holder.League.Title.Contains("solo") || holder.League.Title.Contains("oubles") ||
 				                                                   holder.League.Title.Contains("riples") || holder.League.Title.Contains("ripples") || holder.League.Title.Contains("rippples")))
@@ -84,23 +84,23 @@ namespace Torn.Report
 				switch (r.ReportType)
 				{
 						case ReportType.TeamLadder: reports.Add(Reports.TeamLadder(holder.League, includeSecret, r.From, r.To, r.Drops, ChartTypeExtensions.ToChartType(r.Setting("ChartType")),
-						                                                  r.Settings.Contains("ScaleGames"), false, r.Settings.Contains("ShowColours"), description)); break;
-					case ReportType.TeamsVsTeams: reports.Add(Reports.TeamsVsTeams(holder.League, includeSecret, r.From, r.To, description, gameHyper)); break;
-					case ReportType.SoloLadder: reports.Add(Reports.SoloLadder(holder.League, includeSecret, r.Settings.Contains("ShowComments"), r.From, r.To, r.Drops, ChartTypeExtensions.ToChartType(r.Setting("ChartType")), description)); break;
-					case ReportType.GameByGame: reports.Add(Reports.GamesList(holder.League, includeSecret, r.From, r.To, description, gameHyper)); break;
-					case ReportType.GameGrid:   reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.GameGrid, gameHyper)); break;
-					case ReportType.Ascension:  reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Ascension, gameHyper)); break;
-					case ReportType.Pyramid:    reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Pyramid, gameHyper)); break;
+						                                                           r.Settings.Contains("ScaleGames"), false, r.Settings.Contains("ShowColours"), description)); break;
+						case ReportType.TeamsVsTeams: reports.Add(Reports.TeamsVsTeams(holder.League, includeSecret, r.From, r.To, description, gameHyper)); break;
+						case ReportType.SoloLadder: reports.Add(Reports.SoloLadder(holder.League, includeSecret, r.Settings.Contains("ShowComments"), r.From, r.To, r.Drops, ChartTypeExtensions.ToChartType(r.Setting("ChartType")), description)); break;
+						case ReportType.GameByGame: reports.Add(Reports.GamesList(holder.League, includeSecret, r.From, r.To, description, gameHyper)); break;
+						case ReportType.GameGrid:   reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.GameGrid, gameHyper)); break;
+						case ReportType.Ascension:  reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Ascension, gameHyper)); break;
+						case ReportType.Pyramid:    reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Pyramid, gameHyper)); break;
 					case ReportType.Packs:
 						var x = new List<League>();
 						x.Add(holder.League);
 						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), r.From, r.To, ChartTypeExtensions.ToChartType(r.Setting("ChartType")), description));
 						break;
-					case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, r.From, r.To, description)); break;
+						case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, r.From, r.To, description)); break;
 				}
 			}
 
-			reports.Add(new ZoomHtmlInclusion("<br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"/\">Index</a>"));
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"/\">Index</a><div>"));
 
 			return reports;
 		}
@@ -113,8 +113,10 @@ namespace Torn.Report
 		static string GamePage(League league, Game game)
 		{
 			ZoomReports reports = new ZoomReports();
+			reports.Colors.BackgroundColor = Color.Empty;
+			reports.Colors.OddColor = Color.Empty;
 			reports.Add(Reports.OneGame(league, game));
-			reports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>"));
 			return reports.ToSvg();
 		}
 
@@ -122,7 +124,7 @@ namespace Torn.Report
 		{
 			ZoomReports reports = new ZoomReports();
 			reports.Add(Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true, gameHyper));
-			reports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>"));
 			return reports.ToSvg();
 		}
 
@@ -147,7 +149,7 @@ namespace Torn.Report
 			//if (teamId == -1) reports.Add(Reports.FixtureGrid(fixture, league));
 			reports.Add(Reports.FixtureList(fixture, league, teamId));
 			reports.Add(Reports.FixtureGrid(fixture, league, teamId));
-			reports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a> <a href=\"fixture.html\">Fixture</a>"));
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a> <a href=\"fixture.html\">Fixture</a><div>"));
 			return reports.ToHtml();
 		}
 
@@ -159,18 +161,18 @@ namespace Torn.Report
 		string NowPage()
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.Append("<html><body><p>");
+			sb.Append("<html><body style=\"background-color: #EEF\"><p>");
 
 			if (MostRecentGame == null)
 				sb.Append("No game found.");
 			else
 			{
 				if (MostRecentServerGame == null)
-					sb.Append("<a href=\"" + MostRecentHolder.Key + "/game" + 
-					          MostRecentGame.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " + 
+					sb.Append("<a href=\"" + MostRecentHolder.Key + "/game" +
+					          MostRecentGame.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " +
 					          MostRecentHolder.League.GameString(MostRecentGame));
 				else
-					sb.Append(MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " + 
+					sb.Append(MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " +
 					          MostRecentHolder.League.GameString(MostRecentServerGame));
 			}
 
@@ -224,14 +226,14 @@ namespace Torn.Report
 					int teamId;
 					if (int.TryParse(lastPart.Substring(4, 2), out teamId))
 					{
-					 	LeagueTeam leagueTeam = holder.League.Teams.Find(x => x.Id == teamId);
+						LeagueTeam leagueTeam = holder.League.Teams.Find(x => x.Id == teamId);
 						if (leagueTeam == null)
 							return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid team number: <br>{0}</body></html>", request.RawUrl);
 						else
 							return TeamPage(holder.League, false, leagueTeam, GameHyper);
 					}
 					else
-							return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid team: <br>{0}</body></html>", request.RawUrl);
+						return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid team: <br>{0}</body></html>", request.RawUrl);
 				}
 				else if (lastPart.StartsWith("fixture", StringComparison.OrdinalIgnoreCase))
 				{
@@ -247,7 +249,7 @@ namespace Torn.Report
 				return "<html><body>\n" + ex.Message + "\n<br/><br/>\n" + ex.StackTrace + "</body></html>";
 				throw;
 			}
-	    }
+		}
 
 		/// <summary>Generate reports for the selected leagues, and write them to disk.</summary>
 		public void ExportReports(string path, bool includeSecret, List<Holder> selected)
@@ -266,34 +268,9 @@ namespace Torn.Report
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index.html")))
 						sw.Write(OverviewPage(holder, includeSecret, GameHyper));
 
-					if (league.AllGames.Count > 0)
-						for (DateTime day = league.AllGames[0].Time.Date; day <= league.AllGames[league.AllGames.Count - 1].Time.Date; day = day.AddDays(1))
-						{
-							ZoomReports reports = new ZoomReports();
-							league.AllGames.Sort();
-							foreach (Game game in league.AllGames)
-								if (game.Time.Date == day)
-								{
-									reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\">"));
-									reports.Add(Reports.OneGame(league, game));
-								}
-							reports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
-							if (reports.Count > 1)  // There were games this day.
-								using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "games" + day.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
-									sw.Write(reports.ToSvg());
-						}
+					ExportGames(league, path, holder.Key);
 
-					var playerTeams = league.BuildPlayerTeamList();
-					ZoomReports playerReports = new ZoomReports("Players in " + league.Title);
-					foreach (var pt in playerTeams)
-					{
-						playerReports.Add(new ZoomHtmlInclusion("<a name=\"player" + pt.Key.Id + "\">"));
-						playerReports.Add(Reports.OnePlayer(league, pt.Key, pt.Value, GameHyper));
-					}
-					playerReports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
-					if (playerReports.Count > 1)
-						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "players.html")))
-							sw.Write(playerReports.ToSvg());
+					ExportPlayers(league, path, holder.Key);
 
 					foreach (LeagueTeam leagueTeam in league.Teams)
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
@@ -302,20 +279,66 @@ namespace Torn.Report
 			}
 		}
 
+		void ExportGames(League league, string path, string key)
+		{
+			if (league.AllGames.Count > 0)
+				for (DateTime day = league.AllGames[0].Time.Date; day <= league.AllGames[league.AllGames.Count - 1].Time.Date; day = day.AddDays(1)) 
+				{
+					ZoomReports reports = new ZoomReports(league.Title + " games on " + day.ToShortDateString());
+					reports.Colors.BackgroundColor = Color.Empty;
+					reports.Colors.OddColor = Color.Empty;
+					league.AllGames.Sort();
+
+					foreach (Game game in league.AllGames)
+						if (game.Time.Date == day)
+						{
+							reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\">"));
+							reports.Add(Reports.OneGame(league, game));
+							if (game.ServerGame != null)
+								reports.Add(Reports.GameHeatMap(league, game));
+						}
+
+					reports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
+					if (reports.Count > 1)  // There were games this day.
+						using (StreamWriter sw = File.CreateText(Path.Combine(path, key, "games" + day.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
+							sw.Write(reports.ToSvg());
+				}
+		}
+
+		void ExportPlayers(League league, string path, string key)
+		{
+			var playerTeams = league.BuildPlayerTeamList();
+			ZoomReports playerReports = new ZoomReports("Players in " + league.Title);
+			playerReports.Colors.BackgroundColor = Color.Empty;
+			playerReports.Colors.OddColor = Color.Empty;
+
+			foreach (var pt in playerTeams)
+			{
+				playerReports.Add(new ZoomHtmlInclusion("<a name=\"player" + pt.Key.Id + "\">"));
+				playerReports.Add(Reports.OnePlayer(league, pt.Key, pt.Value, GameHyper));
+			}
+
+			playerReports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
+
+			if (playerReports.Count > 1)
+				using (StreamWriter sw = File.CreateText(Path.Combine(path, key, "players.html")))
+					sw.Write(playerReports.ToSvg());
+		}
+
 		/// <summary>Generate reports and write them to disk as TSV instead of as HTML/SVG.</summary>
 		public void ExportReportsAsTsv(string path, bool includeSecret, List<Holder> selected)
 		{
 			if (path != null)
 				foreach (Holder holder in selected)
-				{
-					League league = holder.League;
+			{
+				League league = holder.League;
 
-					Directory.CreateDirectory(Path.Combine(path, holder.Key));
+				Directory.CreateDirectory(Path.Combine(path, holder.Key));
 
-					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "output.tsv")))
-						sw.Write(OverviewReports(holder, includeSecret, game => "").ToTsv());
+				using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "output.tsv")))
+					sw.Write(OverviewReports(holder, includeSecret, game => "").ToTsv());
 
-				}
+			}
 		}
 
 		/// <summary>Write fixtures for the selected leagues out as HTML/SVG.</summary>
@@ -323,16 +346,16 @@ namespace Torn.Report
 		{
 			if (path != null)
 				foreach (Holder holder in selected)
-				{
-					Directory.CreateDirectory(Path.Combine(path, holder.Key));
+			{
+				Directory.CreateDirectory(Path.Combine(path, holder.Key));
 
-					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture.html")))
-						sw.Write(FixturePage(holder.Fixture, holder.League));
+				using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture.html")))
+					sw.Write(FixturePage(holder.Fixture, holder.League));
 
-					foreach (var ft in holder.Fixture.Teams)
-						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture" + ft.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
-							sw.Write(FixturePage(holder.Fixture, holder.League, ft.Id));
-				}
+				foreach (var ft in holder.Fixture.Teams)
+					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture" + ft.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
+						sw.Write(FixturePage(holder.Fixture, holder.League, ft.Id));
+			}
 		}
 
 		void UploadFile(WebClient client, string to, string from, string file, double progress)
@@ -340,7 +363,7 @@ namespace Torn.Report
 			//labelStatus.Text = file;
 			//progressBar1.Value = (int)(progress * progressBar1.Maximum);
 			Application.DoEvents();
-		    client.UploadFile(to + file, Path.Combine(from, file));
+			client.UploadFile(to + file, Path.Combine(from, file));
 		}
 
 		/// <summary>Upload files from the named path via FTP to the internet.</summary>
@@ -362,7 +385,7 @@ namespace Torn.Report
 
 						DirectoryInfo di = new DirectoryInfo(Path.Combine(path, key));
 
-// Create a directory on FTP site:
+						// Create a directory on FTP site:
 //					    WebRequest wr = WebRequest.Create("ftp://dougburbidge.com/" + key);
 //						wr.Method = WebRequestMethods.Ftp.MakeDirectory;
 //						wr.Credentials = client.Credentials;
@@ -384,7 +407,7 @@ namespace Torn.Report
 				//labelStatus.Text = "";
 				//progressBar1.Visible = false;
 			}
-					
+			
 		}
 
 		/// <summary>Write a single pack report incorporating data from al the selected leagues.</summary>
@@ -394,8 +417,8 @@ namespace Torn.Report
 			{
 				var soloGames = new List<Game>();
 				foreach (var league in leagues)
-					soloGames.AddRange(league.AllGames.Where(g => g.Title == "Round Robin" || g.Title == "Round 1" || 
-					                                      g.Title == "Rep 1" || g.Title == "Repechage 1"));
+					soloGames.AddRange(league.AllGames.Where(g => g.Title == "Round Robin" || g.Title == "Round 1" ||
+					                                         g.Title == "Rep 1" || g.Title == "Repechage 1"));
 
 				var reports = new ZoomReports();
 				reports.Add(Reports.PackReport(leagues, soloGames, null, null, ChartType.KernelDensityEstimate | ChartType.Rug, true));
@@ -410,7 +433,7 @@ namespace Torn.Report
 		{
 			ws.Stop();
 			ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
-	        ws.Run();
+			ws.Run();
 		}
 
 		/// <summary>Call this when we have switched from playing to idle or vice versa.</summary>
@@ -446,7 +469,7 @@ namespace Torn.Report
 					nowText = "Just Played: " + MostRecentHolder.League.GameString(MostRecentGame);
 			}
 			else if (MostRecentHolder != null)
-				nowText = MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " + 
+				nowText = MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " +
 					MostRecentHolder.League.GameString(MostRecentServerGame);
 
 			FixtureGame fg = MostRecentHolder == null ? null : MostRecentHolder.Fixture.BestMatch(MostRecentGame);

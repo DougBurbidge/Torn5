@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Xml;
 using NUnit.Framework;
 using Torn;
 using Torn.Report;
@@ -11,7 +13,7 @@ namespace TornWeb
 	{
 		League CreateLeague()
 		{
-			var league = new League();
+			var league = new League(Path.Combine(Path.GetTempPath(), "TestLeague1.Torn"));
 
 			var team = new LeagueTeam() { Name = "Team A" };
 			league.Teams.Add(team);
@@ -45,7 +47,7 @@ namespace TornWeb
 			league.Save("testleague.Torn");
 
 			var league2 = new League();
-			league2.Load("testleague5.Torn");
+			league2.Load("testleague.Torn");
 
 			Assert.AreEqual(3, league2.Teams.Count, "Number of teams");
 			Assert.AreEqual("Team A", league2.Teams[0].Name, "name of team 1");
@@ -92,32 +94,25 @@ namespace TornWeb
 
 			var teamData = new GameTeamData();
 			teamData.GameTeam = new GameTeam();
-			//teamData.GameTeam.LeagueTeam = league.Teams[0];
 			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
-			var player = new ServerPlayer();
-			//player.LeaguePlayer = league.Players[0];
-			teamData.Players.Add(player);
-			player = new ServerPlayer();
-			//player.LeaguePlayer = league.Players[1];
-			teamData.Players.Add(player);
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "001" } );
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "002" } );
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "003" } );
 			teamDatas.Add(teamData);
 			
 			teamData = new GameTeamData();
 			teamData.GameTeam = new GameTeam();
-			//teamData.GameTeam.LeagueTeam = league.Teams[1];
 			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
-			player = new ServerPlayer();
-			//player.LeaguePlayer = league.Players[3];
-			teamData.Players.Add(player);
-			player = new ServerPlayer();
-			//player.LeaguePlayer = league.Players[4];
-			teamData.Players.Add(player);
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "004" } );
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "nonexistent" } );
 			teamDatas.Add(teamData);
 			
 			league.CommitGame(serverGame, teamDatas);
 			
 			Assert.AreEqual(1, league.AllGames.Count, "game count");
 			Assert.AreEqual(1, league.Teams[0].AllPlayed.Count, "team 0 game count");
+			Assert.AreEqual(1, league.Teams[1].AllPlayed.Count, "team 1 game count");
+			Assert.AreEqual(0, league.Teams[2].AllPlayed.Count, "team 2 game count");
 		}
 		
 		[Test]
@@ -137,6 +132,31 @@ namespace TornWeb
 			Assert.That(reportTemplates[1].Drops.PercentWorst == 10.0, "worst 10%");
 			Assert.That(reportTemplates[1].Drops.PercentBest == 10.0, "best 10%");
 			Assert.That(reportTemplates[1].Drops.CountWorst == 0, "worst 0");
+			
+			var doc = new XmlDocument();
+			XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+			doc.AppendChild(docNode);
+			XmlNode bodyNode = doc.CreateElement("body");
+			doc.AppendChild(bodyNode);
+
+			var root = doc.DocumentElement;
+			reportTemplates.ToXml(doc, bodyNode);
+			
+			var reportTemplates2 = new ReportTemplates();
+			reportTemplates2.FromXml(doc, bodyNode.FirstChild);
+			
+			Assert.AreEqual(2, reportTemplates2.Count, "XML Number of report templates");
+			Assert.That(reportTemplates2[0].ReportType == ReportType.TeamLadder, "XML team ladder");
+			Assert.That(reportTemplates2[0].Settings.Contains("ShowColours"), "XML ShowColours");
+			Assert.That(reportTemplates2[0].To == new DateTime(2018, 09, 11, 23,59, 00), "XML to 2018-09-11 23:59");
+			Assert.AreEqual("bar with rug", reportTemplates2[0].Setting("ChartType"), "XML ChartType");
+			Assert.That(ChartTypeExtensions.ToChartType(reportTemplates2[0].Setting("ChartType")) == (ChartType.Bar | ChartType.Rug), "XML parse ChartType");
+
+			Assert.That(reportTemplates2[1].ReportType == ReportType.SoloLadder, "XML solo ladder");
+			Assert.That(reportTemplates2[1].Drops != null, "XML drops");
+			Assert.That(reportTemplates2[1].Drops.PercentWorst == 10.0, "XML worst 10%");
+			Assert.That(reportTemplates2[1].Drops.PercentBest == 10.0, "XML best 10%");
+			Assert.That(reportTemplates2[1].Drops.CountWorst == 0, "XML worst 0");
 		}
 		
 		[Test]

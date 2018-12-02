@@ -62,6 +62,7 @@ namespace Torn.UI
 			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.forgetGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panelLeague = new System.Windows.Forms.Panel();
+			this.scoresImageButton = new System.Windows.Forms.Button();
 			this.labelNow = new System.Windows.Forms.Label();
 			this.labelTime = new System.Windows.Forms.Label();
 			this.numericPort = new System.Windows.Forms.NumericUpDown();
@@ -146,17 +147,15 @@ namespace Torn.UI
 			// 
 			// toolStripContainer1
 			// 
-			this.toolStripContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
 			// 
 			// toolStripContainer1.ContentPanel
 			// 
 			this.toolStripContainer1.ContentPanel.Controls.Add(this.tableLayoutPanel1);
-			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1272, 561);
+			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1272, 593);
+			this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
 			this.toolStripContainer1.Name = "toolStripContainer1";
-			this.toolStripContainer1.Size = new System.Drawing.Size(1272, 660);
+			this.toolStripContainer1.Size = new System.Drawing.Size(1272, 692);
 			this.toolStripContainer1.TabIndex = 21;
 			this.toolStripContainer1.Text = "toolStripContainer1";
 			// 
@@ -184,7 +183,7 @@ namespace Torn.UI
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(1272, 561);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(1272, 593);
 			this.tableLayoutPanel1.TabIndex = 20;
 			// 
 			// listViewLeagues
@@ -200,7 +199,7 @@ namespace Torn.UI
 			this.listViewLeagues.LabelEdit = true;
 			this.listViewLeagues.Location = new System.Drawing.Point(3, 3);
 			this.listViewLeagues.Name = "listViewLeagues";
-			this.listViewLeagues.Size = new System.Drawing.Size(312, 274);
+			this.listViewLeagues.Size = new System.Drawing.Size(312, 290);
 			this.listViewLeagues.SmallImageList = this.imageListLeagues;
 			this.listViewLeagues.TabIndex = 11;
 			this.listViewLeagues.UseCompatibleStateImageBehavior = false;
@@ -245,13 +244,13 @@ namespace Torn.UI
 			this.panelGames.Margin = new System.Windows.Forms.Padding(0);
 			this.panelGames.Name = "panelGames";
 			this.tableLayoutPanel1.SetRowSpan(this.panelGames, 2);
-			this.panelGames.Size = new System.Drawing.Size(318, 561);
+			this.panelGames.Size = new System.Drawing.Size(318, 593);
 			this.panelGames.TabIndex = 15;
 			// 
 			// buttonCommit2
 			// 
 			this.buttonCommit2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonCommit2.Location = new System.Drawing.Point(90, 521);
+			this.buttonCommit2.Location = new System.Drawing.Point(90, 553);
 			this.buttonCommit2.Name = "buttonCommit2";
 			this.buttonCommit2.Size = new System.Drawing.Size(81, 34);
 			this.buttonCommit2.TabIndex = 16;
@@ -263,7 +262,7 @@ namespace Torn.UI
 			// buttonLatestGame2
 			// 
 			this.buttonLatestGame2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonLatestGame2.Location = new System.Drawing.Point(3, 521);
+			this.buttonLatestGame2.Location = new System.Drawing.Point(3, 553);
 			this.buttonLatestGame2.Name = "buttonLatestGame2";
 			this.buttonLatestGame2.Size = new System.Drawing.Size(81, 34);
 			this.buttonLatestGame2.TabIndex = 13;
@@ -286,7 +285,7 @@ namespace Torn.UI
 			this.listViewGames.HideSelection = false;
 			this.listViewGames.Location = new System.Drawing.Point(3, 3);
 			this.listViewGames.Name = "listViewGames";
-			this.listViewGames.Size = new System.Drawing.Size(315, 555);
+			this.listViewGames.Size = new System.Drawing.Size(315, 587);
 			this.listViewGames.TabIndex = 12;
 			this.listViewGames.UseCompatibleStateImageBehavior = false;
 			this.listViewGames.View = System.Windows.Forms.View.Details;
@@ -348,6 +347,7 @@ namespace Torn.UI
 			// 
 			// panelLeague
 			// 
+			this.panelLeague.Controls.Add(this.scoresImageButton);
 			this.panelLeague.Controls.Add(this.labelNow);
 			this.panelLeague.Controls.Add(this.labelTime);
 			this.panelLeague.Controls.Add(this.numericPort);
@@ -355,16 +355,26 @@ namespace Torn.UI
 			this.panelLeague.Controls.Add(this.progressBar1);
 			this.panelLeague.Controls.Add(this.labelStatus);
 			this.panelLeague.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelLeague.Location = new System.Drawing.Point(3, 283);
+			this.panelLeague.Location = new System.Drawing.Point(3, 299);
 			this.panelLeague.Name = "panelLeague";
-			this.panelLeague.Size = new System.Drawing.Size(312, 275);
+			this.panelLeague.Size = new System.Drawing.Size(312, 291);
 			this.panelLeague.TabIndex = 16;
+			// 
+			// scoresImageButton
+			// 
+			this.scoresImageButton.Location = new System.Drawing.Point(19, 96);
+			this.scoresImageButton.Name = "scoresImageButton";
+			this.scoresImageButton.Size = new System.Drawing.Size(82, 23);
+			this.scoresImageButton.TabIndex = 20;
+			this.scoresImageButton.Text = "Scores Image";
+			this.scoresImageButton.UseVisualStyleBackColor = true;
+			this.scoresImageButton.Click += new System.EventHandler(this.ScoresImageButtonClick);
 			// 
 			// labelNow
 			// 
 			this.labelNow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
-			this.labelNow.Location = new System.Drawing.Point(12, 152);
+			this.labelNow.Location = new System.Drawing.Point(12, 168);
 			this.labelNow.Name = "labelNow";
 			this.labelNow.Size = new System.Drawing.Size(297, 64);
 			this.labelNow.TabIndex = 1;
@@ -373,7 +383,7 @@ namespace Torn.UI
 			// labelTime
 			// 
 			this.labelTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.labelTime.Location = new System.Drawing.Point(12, 129);
+			this.labelTime.Location = new System.Drawing.Point(12, 145);
 			this.labelTime.Name = "labelTime";
 			this.labelTime.Size = new System.Drawing.Size(100, 23);
 			this.labelTime.TabIndex = 0;
@@ -382,7 +392,7 @@ namespace Torn.UI
 			// numericPort
 			// 
 			this.numericPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.numericPort.Location = new System.Drawing.Point(249, 127);
+			this.numericPort.Location = new System.Drawing.Point(249, 143);
 			this.numericPort.Maximum = new decimal(new int[] {
 									65535,
 									0,
@@ -410,14 +420,14 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.labelLeagueDetails.Location = new System.Drawing.Point(0, 0);
 			this.labelLeagueDetails.Name = "labelLeagueDetails";
-			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 67);
+			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 83);
 			this.labelLeagueDetails.TabIndex = 13;
 			this.labelLeagueDetails.Text = "Select a league and its details will appear here.";
 			// 
 			// progressBar1
 			// 
 			this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.progressBar1.Location = new System.Drawing.Point(3, 249);
+			this.progressBar1.Location = new System.Drawing.Point(3, 265);
 			this.progressBar1.Maximum = 1000;
 			this.progressBar1.Name = "progressBar1";
 			this.progressBar1.Size = new System.Drawing.Size(286, 23);
@@ -429,7 +439,7 @@ namespace Torn.UI
 			// 
 			this.labelStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
-			this.labelStatus.Location = new System.Drawing.Point(3, 225);
+			this.labelStatus.Location = new System.Drawing.Point(3, 241);
 			this.labelStatus.Name = "labelStatus";
 			this.labelStatus.Size = new System.Drawing.Size(306, 21);
 			this.labelStatus.TabIndex = 18;
@@ -493,6 +503,7 @@ namespace Torn.UI
 			this.menuCloseLeague.Name = "menuCloseLeague";
 			this.menuCloseLeague.Size = new System.Drawing.Size(225, 22);
 			this.menuCloseLeague.Text = "&Close League";
+			this.menuCloseLeague.Click += new System.EventHandler(this.ButtonCloseClick);
 			// 
 			// menuEditLeague
 			// 
@@ -508,6 +519,7 @@ namespace Torn.UI
 			// 
 			// menuPyramid
 			// 
+			this.menuPyramid.Enabled = false;
 			this.menuPyramid.Name = "menuPyramid";
 			this.menuPyramid.Size = new System.Drawing.Size(225, 22);
 			this.menuPyramid.Text = "Set up &Pyramid round...";
@@ -521,12 +533,14 @@ namespace Torn.UI
 			// 
 			// menuRememberAllTeams
 			// 
+			this.menuRememberAllTeams.Enabled = false;
 			this.menuRememberAllTeams.Name = "menuRememberAllTeams";
 			this.menuRememberAllTeams.Size = new System.Drawing.Size(225, 22);
 			this.menuRememberAllTeams.Text = "Remember all teams";
 			// 
 			// menuMatch
 			// 
+			this.menuMatch.Enabled = false;
 			this.menuMatch.Name = "menuMatch";
 			this.menuMatch.Size = new System.Drawing.Size(225, 22);
 			this.menuMatch.Text = "Match...";
@@ -572,6 +586,7 @@ namespace Torn.UI
 			// 
 			// menuAdHocReport
 			// 
+			this.menuAdHocReport.Enabled = false;
 			this.menuAdHocReport.Name = "menuAdHocReport";
 			this.menuAdHocReport.Size = new System.Drawing.Size(257, 22);
 			this.menuAdHocReport.Text = "Ad Hoc &Report";
@@ -606,6 +621,7 @@ namespace Torn.UI
 			// 
 			// updateScoreboardToolStripMenuItem
 			// 
+			this.updateScoreboardToolStripMenuItem.Enabled = false;
 			this.updateScoreboardToolStripMenuItem.Name = "updateScoreboardToolStripMenuItem";
 			this.updateScoreboardToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
 			this.updateScoreboardToolStripMenuItem.Text = "&Update Scoreboard";
@@ -769,7 +785,7 @@ namespace Torn.UI
 									this.buttonForget});
 			this.toolStripGame.Location = new System.Drawing.Point(3, 74);
 			this.toolStripGame.Name = "toolStripGame";
-			this.toolStripGame.Size = new System.Drawing.Size(404, 25);
+			this.toolStripGame.Size = new System.Drawing.Size(373, 25);
 			this.toolStripGame.TabIndex = 2;
 			// 
 			// toolStripLabelGames
@@ -895,6 +911,7 @@ namespace Torn.UI
 			this.toolStripGame.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.Button scoresImageButton;
 		private System.Windows.Forms.ToolStripMenuItem menuTsvExport;
 		private System.Windows.Forms.ToolStripMenuItem menuExportFixtures;
 		private System.Windows.Forms.ToolStripButton buttonEdit;
