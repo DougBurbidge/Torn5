@@ -25,28 +25,27 @@ namespace Torn.UI
 			//
 		}
 		
-		public void LoadGame(League league, ServerGame game)
+		public void LoadGame(League league, ServerGame serverGame)
 		{
 			Items.Clear();
 
-			if (game.Players != null && game.Players.Count == 0 && game.Game != null)  // ServerGame is a fake, created from game; but ServerGame.players is not filled in yet, so fill it in.
-				foreach (var player in game.Game.Players)
+			if (serverGame.Players != null && serverGame.Players.Count == 0 && serverGame.Game != null)  // ServerGame is a fake, created from game; but ServerGame.Players is not filled in yet, so fill it in.
+				foreach (var player in serverGame.Game.Players)
 				{
 					var serverPlayer = new ServerPlayer();
+					player.CopyTo(serverPlayer);
+
 					LeaguePlayer leagueplayer = league.LeaguePlayer(player);
 					if (leagueplayer != null)
 						serverPlayer.Alias = leagueplayer.Name;
-					serverPlayer.PlayerId = player.PlayerId;
-					serverPlayer.PandCPlayerTeamId = (int)player.Colour - 1;
-					serverPlayer.Score = player.Score;
 
-					game.Players.Add(serverPlayer);
+					serverGame.Players.Add(serverPlayer);
 				}
 
-			if (game.Players != null)
-				foreach (var player in game.Players)
+			if (serverGame.Players != null)
+				foreach (var player in serverGame.Players)
 				{
-					ListViewItem item = new ListViewItem(player.PackName, player.PandCPlayerTeamId + 1);
+				ListViewItem item = new ListViewItem(player.PackName, (int)player.Colour);
 					item.SubItems.Add(player.Alias);
 					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
 					item.Tag = player;

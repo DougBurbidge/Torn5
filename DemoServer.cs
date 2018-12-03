@@ -41,11 +41,11 @@ namespace Torn
 			for (int i = 0; i < 10; i++)
 			{
 				ServerPlayer player = new ServerPlayer();
-				player.Colour = (Colour)r.Next(1, 8);
-				player.Score = r.Next(-100, 1000) * 10 + r.Next(0,2);
-				player.PackName = "Pack" + r.Next(1, 30).ToString();
-				var x = r.Next(0, 9);
-				var y = r.Next(0, 9);
+				player.Colour = (Colour)r.Next(1, 9);
+				player.Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001;
+				player.PackName = "Pack" + r.Next(1, 30).ToString("D2");
+				var x = r.Next(0, 10);
+				var y = r.Next(0, 10);
 				player.PlayerId = "demo" + (x * 10).ToString() + y.ToString();
 				player.Alias = adjectives[x] + nouns[y];
 				game.Players.Add(player);
