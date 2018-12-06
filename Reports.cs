@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using Zoom;
 
 namespace Torn.Report
@@ -977,7 +978,7 @@ namespace Torn.Report
 								cell = new ZCell("\u2572", Color.Gray);
 							else if (player1 is ServerPlayer && player2 is ServerPlayer)
 							{
-								int count = game.ServerGame.Events.Count(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && x.HitPlayer == ((ServerPlayer)player2).PandCPlayerId);
+								int count = game.ServerGame.Events.Count(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && x.HitPlayer == ((ServerPlayer)player2).PandCPlayerId && x.Event_Type < 14);
 								cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? color : Color.Empty);
 								if (gameTeam != gameTeam2)
 									cell.BarColor = ZReportColors.Darken(color);
@@ -988,9 +989,35 @@ namespace Torn.Report
 							row.Add(cell);
 						}
 
+					var s = new StringBuilder();
+					var lastTime = game.ServerGame.Events.FirstOrDefault().Time;
+					foreach (var eevent in game.ServerGame.Events.Where(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) ||(x.Event_Type >= 37 && x.Event_Type <= 1404))))
+					{
+						s.Append('\u00A0', (int)Math.Truncate(eevent.Time.Subtract(lastTime).TotalMinutes));  // Add some blank spaces -- one for each whole minute since something happened.
+
+						switch (eevent.Event_Type)
+						{
+								case 28: s.Append('\u25af'); break;  // warning: open rectangle
+								case 29: s.Append('\u25ae'); break;  // terminated: filled rectangle
+								case 30: s.Append('\u25cb'); break;  // hit base: open circle
+								case 31: s.Append('\u2b24'); break;  // destroyed base: filled circle
+								case 32: s.Append("\U0001f480"); break;  // eliminated: skull
+								case 33: s.Append('!'); break;  // hit by base
+								case 34: s.Append('!'); break;  // hit by mine
+								case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: s.Append('!'); break;  // player tagged target
+								case 1401: case 1402: s.Append('\u29bb', eevent.ShotsDenied / 2); if (eevent.ShotsDenied == 1) s.Append('\u2300'); break;  // score denial points: circle with cross, circle with slash
+								case 1403: case 1404: s.Append(eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
+								default: s.Append('?'); break;
+						}
+						lastTime = eevent.Time;
+					}
+					row.Add(new ZCell(s.ToString()));
+
 					report.Rows.Add(row);
 				}
 			}
+			
+			report.Columns.Add(new ZColumn("Base hits etc."));
 
 			return report;
 		}

@@ -1225,8 +1225,8 @@ namespace Torn
 		public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
 		public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
 
-// EventType:
-//  0..6:   tagged foe (in various hit locations: chest, back, left shoulder, right shoulder, other, other, laser);
+// EventType (see ng_event_types):
+//  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, other, other, back);
 //  7..13:  tagged ally;
 //  14..20: tagged by foe;
 //  21..27: tagged by ally;
@@ -1240,7 +1240,9 @@ namespace Torn
 //  35: trigger pressed;
 //  36: game state (whatever that means);
 //  37..46: player tagged target (whatever that means);
-//  1402: score denial points.
+//  1401: score denial points, friendly;
+//  1402: score denial points;
+//  1403: lose points for being denied, friendly;
 //  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
 
 		public override string ToString()
