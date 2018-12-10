@@ -82,7 +82,7 @@ namespace Torn
 			if (!Connected)
 				return games;
 
-			string sql = "SELECT S.Game_ID, S.Start_Time, P.Profile_Description AS Description " +
+			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
                          "FROM ng_game_stats S " +
                          "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
                          "ORDER BY Start_Time";
@@ -95,6 +95,7 @@ namespace Torn
 					game.GameId = GetInt(reader, "Game_ID");
 					game.Description = GetString(reader, "Description");
 					game.Time = reader.GetDateTime("Start_Time");
+					game.EndTime = reader.GetDateTime("Finish_Time");
 					game.OnServer = true;
 					games.Add(game);
 				}
@@ -161,8 +162,8 @@ namespace Torn
 					                               (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
 					player.BaseHits = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 30);
 					player.BaseDestroys = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 31);
-					player.BaseDenies = game.Events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 1402).Sum(x => x.ShotsDenied);
-					player.BaseDenied = game.Events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 1404).Sum(x => x.ShotsDenied);
+					player.BaseDenies = game.Events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
+					player.BaseDenied = game.Events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && (x.Event_Type == 1404 || x.Event_Type == 1404)).Sum(x => x.ShotsDenied);
 					player.YellowCards = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 28);
 					player.RedCards = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 29);
 

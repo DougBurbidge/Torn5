@@ -155,7 +155,7 @@ namespace Torn.Report
 
 		static string GameHyper(Game game)
 		{
-			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture);
+			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture);
 		}
 
 		string NowPage()
@@ -169,7 +169,7 @@ namespace Torn.Report
 			{
 				if (MostRecentServerGame == null)
 					sb.Append("<a href=\"" + MostRecentHolder.Key + "/game" +
-					          MostRecentGame.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " +
+					          MostRecentGame.Time.ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " +
 					          MostRecentHolder.League.GameString(MostRecentGame));
 				else
 					sb.Append(MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " +
@@ -214,7 +214,7 @@ namespace Torn.Report
 					return OverviewPage(holder, false, GameHyper);
 				else if (lastPart.StartsWith("game", StringComparison.OrdinalIgnoreCase))
 				{
-					DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 14), "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+					DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 14), "yyyyMMddHHmm", CultureInfo.InvariantCulture);
 					Game game = holder.League.AllGames.Find(x => x.Time == dt);
 					if (game == null)
 						return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid game: <br>{0}</body></html>", request.RawUrl);
@@ -293,11 +293,15 @@ namespace Torn.Report
 					foreach (Game game in league.AllGames)
 						if (game.Time.Date == day)
 						{
-							reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmmss", CultureInfo.InvariantCulture) + "\">"));
+							reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
 							reports.Add(Reports.OneGame(league, game));
 							if (game.ServerGame != null)
 							{
 								reports.Add(Reports.GameHeatMap(league, game));
+								var bitmap = Reports.GameWormSkewed(league, game, true);
+								string fileName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
+								bitmap.Save(Path.Combine(path, key, fileName), System.Drawing.Imaging.ImageFormat.Png);
+								reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));
 								heatMap = true;
 							}
 						}

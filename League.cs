@@ -415,7 +415,9 @@ namespace Torn
 
 		public string LongTitle()
 		{
-			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Time.ToString();
+			string timeFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(":ss", "");
+
+			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Time.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + timeFormat);
 		}
 
 		public int Rank(string playerId)
@@ -1258,6 +1260,7 @@ namespace Torn
 		public int GameId { get; set; }
 		public string Description { get; set; }
 		public DateTime Time { get; set; }
+		public DateTime EndTime { get; set; }
 		public League League { get; set; }
 		public Game Game { get; set; }
 		public List<ServerPlayer> Players { get; set; }
