@@ -298,7 +298,7 @@ namespace Torn.Report
 							if (game.ServerGame != null)
 							{
 								reports.Add(Reports.GameHeatMap(league, game));
-								var bitmap = Reports.GameWormSkewed(league, game, true);
+								var bitmap = Reports.GameWorm(league, game, true);
 								string fileName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
 								bitmap.Save(Path.Combine(path, key, fileName), System.Drawing.Imaging.ImageFormat.Png);
 								reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));

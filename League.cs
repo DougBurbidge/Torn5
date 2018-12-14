@@ -24,6 +24,22 @@ namespace Torn
 			return Colors[(int)colour];
 		}
 
+		public static Color ToSaturatedColor(this Colour colour)
+		{
+			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x50, 0x50), Color.FromArgb(0x60, 0x80, 0xFF), 
+				Color.FromArgb(0x20, 0xFF, 0x20), Color.FromArgb(0xFF, 0xFF, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), 
+				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xFF, 0xFF), Color.FromArgb(0xFF, 0x80, 0x50) };
+			return Colors[(int)colour];
+		}
+
+		public static Color ToDarkColor(this Colour colour)
+		{
+			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x40, 0x40), Color.FromArgb(0x40, 0x50, 0xFF), 
+				Color.FromArgb(0x00, 0xA0, 0x00), Color.FromArgb(0xA0, 0xA0, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), 
+				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xC0, 0xC0), Color.FromArgb(0xFF, 0x60, 0x30) };
+			return Colors[(int)colour];
+		}
+
 		public static Colour ToColour(string s)
 		{
 			if (string.IsNullOrEmpty(s)) 

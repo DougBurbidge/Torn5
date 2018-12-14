@@ -125,7 +125,7 @@ namespace Torn
 					oneEvent.Event_Type = GetInt(reader, "Event_Type");
 					oneEvent.Score = GetInt(reader, "Score");
 					oneEvent.HitPlayer = GetInt(reader, "Result_Data_1");
-					oneEvent.HitTeam = GetInt(reader, "Result_Data_2");
+					oneEvent.HitTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
 					oneEvent.PointsLostByDeniee = GetInt(reader, "Result_Data_3");
 					oneEvent.ShotsDenied = GetInt(reader, "Result_Data_4");
 					game.Events.Add(oneEvent);

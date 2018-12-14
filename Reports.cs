@@ -1060,68 +1060,21 @@ namespace Torn.Report
 			var maxScore = Math.Max(game.Teams.Max(x => x.Score), 0);  // or all are negative (e.g. Lord of the Ring).
 			double duration = game.ServerGame.EndTime.Subtract(game.Time).TotalSeconds;
 			var height = (int)Math.Ceiling(duration * maxScore / maxLeagueScore);
-
-			var bitmap = new Bitmap((int)duration, height);
-			var graphics = Graphics.FromImage(bitmap);
-			graphics.FillRectangle(Brushes.Transparent, 0, 0, bitmap.Width, bitmap.Height);
-
-			var pen = new Pen(Color.Gray);
-			var interval = (float)Math.Pow(10, Math.Floor(Math.Log10(maxScore - minScore)));
-			for (var i = (float)Math.Truncate(minScore / interval) * interval; i <= maxScore; i += interval)
-				graphics.DrawLine(pen, 0, height - Scale(i, height, minScore, maxScore), bitmap.Width, height - Scale(i, height, minScore, maxScore)); // Horizontal gridlines showing score values.
-
-			for (var i = game.Time; i <= game.ServerGame.EndTime; i = i.AddMinutes(1))
-				graphics.DrawLine(pen, Scale(i, duration, game.Time, game.ServerGame.EndTime), 0, Scale(i, duration, game.Time, game.ServerGame.EndTime), height); // Vertical gridlines showing time values.
-			
-			var playerIds = game.ServerGame.Players.Select(p => p.PandCPlayerId).Distinct();
-			var playerTeams = new Dictionary<int, GameTeam>();  // Dictionary to let us quickly find a player's team.
-			foreach (var id in playerIds)
-				playerTeams.Add(id, game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == game.ServerGame.Players.Find(sp => sp.PandCPlayerId == id).PlayerId)));
-
-			var currents = new Dictionary<GameTeam, KeyValuePair<DateTime, int>>();  // Dictionary of gameTeam -> <time, team score>.
-			
-			foreach (var gameTeam in game.Teams)
-				currents.Add(gameTeam, new KeyValuePair<DateTime, int>(game.Time, 0));
-
-			foreach (var oneEvent in game.ServerGame.Events)
-				if (oneEvent.Score != 0)
-				{
-					var serverPlayer = game.ServerGame.Players.Find(sp => sp.PandCPlayerId == oneEvent.PandCPlayerId);
-					var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
-					pen = new Pen(gameTeam.Colour.ToColor(), 3);
-					var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore));
-					currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
-					var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore));
-					graphics.DrawLine(pen, oldPoint, newPoint);
-				}
-
-			return bitmap;
-		}
-
-		public static Bitmap GameWormSkewed(League league, Game game, bool includeSecret)
-		{
-			var maxLeagueScore = league.Games(includeSecret).Max(g => g.Teams.Max(t => t.Score));
-			var minScore = Math.Min(game.Teams.Min(x => x.Score), 0);  // Handle games where all teams scores are positive, some are negative, 
-			var maxScore = Math.Max(game.Teams.Max(x => x.Score), 0);  // or all are negative (e.g. Lord of the Ring).
-			double duration = game.ServerGame.EndTime.Subtract(game.Time).TotalSeconds;
-			var height = (int)Math.Ceiling(duration * maxScore / maxLeagueScore);
-			//var skew = Scale(game.TotalScore() / game.Teams.Count, height, minScore, maxScore) / duration;
-			var skew = Scale(game.ServerGame.Events.Sum(e => e.Event_Type < 28 ? e.Score : 0) / game.Teams.Count, height, minScore, maxScore) / duration;
+			var skew = Scale(game.ServerGame.Events.Sum(e => e.Event_Type < 28 ? e.Score : 0) / game.Teams.Count, height, minScore, maxScore) / duration;  // In points per second, or points per pixel.
 
 			var bitmap = new Bitmap((int)duration, height + (int)(skew * duration));
 			var graphics = Graphics.FromImage(bitmap);
-			graphics.FillRectangle(Brushes.Transparent, 0, 0, bitmap.Width, bitmap.Height);
 
-			var sf = new StringFormat(StringFormatFlags.NoWrap);
-			sf.Alignment = StringAlignment.Near;
-			sf.LineAlignment = StringAlignment.Center;
 			var font = new Font("Arial", 12);
 			graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
+			// Draw "horizontal" gridlines and labels. 
 			var gridPen = new Pen(Color.Gray);
-			gridPen.DashPattern = new float[] { 4F, 8F };
+			var dashLength =  (float)Math.Sqrt(skew * skew + 1) * 4;  // Dashlength is 4 seconds.
+			gridPen.DashPattern = new float[] { dashLength, dashLength * 2 };
+			gridPen.DashOffset = dashLength * 2;
 
-			var interval = Math.Pow(10, Math.Floor(Math.Log10(maxScore - minScore)));  // Interval will be a round number of points like 1000 or 10000. We will draw a "horizontal" line every interval points.
+			var interval = Math.Pow(10, Math.Floor(Math.Log10(maxScore - minScore)));  // Interval will be a round number of points like 100, 1000, 10000, e.
 			for (var i = (Math.Truncate(minScore / interval) - 1) * interval; i <= maxScore; i += interval)
 			{
 				graphics.DrawLine(gridPen, 0, height - Scale(i, height, minScore, maxScore), bitmap.Width, height - Scale(i, height, minScore, maxScore) + (float)(skew * duration)); // "Horizontal" gridlines showing score values.
@@ -1130,11 +1083,22 @@ namespace Torn.Report
 				graphics.DrawString(caption, font, Brushes.Gray, bitmap.Width - graphics.MeasureString(caption, font).Width, height - Scale(i, height, minScore, maxScore) + (float)(skew * duration));
 			}
 
-			for (var i = game.Time; i <= game.ServerGame.EndTime; i = i.AddMinutes(1))
+			// Draw vertical gridlines, once per minute.
+			dashLength = Scale(interval, height, minScore, maxScore) / 30;
+			gridPen.DashPattern = new float[] { dashLength, dashLength * 2 };
+			gridPen.DashOffset = 0;
+			for (var i = game.Time; i < game.ServerGame.EndTime; i = i.AddMinutes(1))
 			{
 				var x = Scale(i, duration, game.Time, game.ServerGame.EndTime);
 				graphics.DrawLine(gridPen, x, 0, x, bitmap.Height); // Vertical gridlines showing time values.
 			}
+			graphics.DrawLine(gridPen, bitmap.Width - 1, 0, bitmap.Width - 1, bitmap.Height); // Last vertical gridline.
+
+			// Write vertical gridline labels.
+			var minutes = (int)Math.Round(duration / 60);
+			int spacing = minutes < 6 ? 1 : minutes % 2 == 0 ? 2 : minutes % 3 == 0 ? 3 : minutes % 5 == 0 ? 5 : 1;
+			for (var i = spacing; i < minutes; i += spacing)
+				graphics.DrawString(i.ToString(), font, Brushes.Gray, Scale(i, bitmap.Width, 0, minutes), height - Scale(0, height, minScore, maxScore) - graphics.MeasureString("0", font).Height);  // Time labels.
 
 			var playerIds = game.ServerGame.Players.Select(p => p.PandCPlayerId).Distinct();
 			var playerTeams = new Dictionary<int, GameTeam>();  // Dictionary to let us quickly find a player's team.
@@ -1154,18 +1118,54 @@ namespace Torn.Report
 				{
 					var serverPlayer = game.ServerGame.Players.Find(sp => sp.PandCPlayerId == oneEvent.PandCPlayerId);
 					var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
-					var pen = new Pen(gameTeam.Colour.ToColor(), 3);
+					var pen = new Pen(gameTeam.Colour.ToSaturatedColor(), 3);
 					var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds));
 					currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
 					float y = height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds);
 					yMin = Math.Min(y, yMin);
 					yMax = Math.Max(y, yMax);
 					var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), y);
-					graphics.DrawLine(pen, oldPoint, newPoint);
+
+					if (oneEvent.Event_Type == 30) // Base hit: show in the base's colour not the player's colour.
+						pen.Color = ((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor();
+					
+					graphics.DrawLine(pen, oldPoint, newPoint);  // Show the hit.
+
+					if (oneEvent.Event_Type == 31) // Base destroyed.
+					{
+						// Show the hit in a dashed line, half player colour, half base colour.
+						var dashPen = new Pen(((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor(), 3);
+						dashPen.DashPattern = new float[] { 1.5F, 3F, 1.5F };
+						graphics.DrawLine(dashPen, oldPoint, newPoint);
+
+						// Show the alias of the player who destroyed the base.
+						var gamePlayer = game.Players.Find(gp => gp.PlayerId  == serverPlayer.PlayerId);
+						var leaguePlayer = league.LeaguePlayer(gamePlayer);
+						var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
+
+						if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
+							graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X - graphics.MeasureString(leaguePlayer.Name, font).Width, newPoint.Y);
+						else
+							graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
+					}
 				}
 
 			yMin = Math.Max(yMin - 1, 0);
-			return bitmap.Clone(new RectangleF(0, yMin, bitmap.Width, Math.Min(yMax + 1, bitmap.Height) - yMin), bitmap.PixelFormat);
+			bitmap =  bitmap.Clone(new RectangleF(0, yMin, bitmap.Width, Math.Min(yMax + 1, bitmap.Height) - yMin), bitmap.PixelFormat);
+			graphics = Graphics.FromImage(bitmap);
+			graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+
+			// Write team names and scores in upper left corner.
+			if (game.Teams.Count <= 10)
+				for (int i = 0; i < game.Teams.Count; i++)
+				{
+					var leagueTeam = league.LeagueTeam(game.Teams[i]);
+					var brush = new SolidBrush(game.Teams[i].Colour.ToDarkColor());
+					graphics.DrawString(leagueTeam.Name + " " + game.Teams[i].Score.ToString("N0", CultureInfo.CurrentCulture), 
+					                    font, brush, 30, graphics.MeasureString("0", font).Height * i);
+				}
+
+			return bitmap;
 		}
 
 		public static ZoomReport OnePlayer(League league, LeaguePlayer player, List<LeagueTeam> teams, GameHyper gameHyper)
@@ -1465,7 +1465,7 @@ namespace Torn.Report
 						hitsOn += player.Played.Sum(x => x.HitsOn);
 						scoreSum += player.Played.Sum(x => x.Score);
 						scoreSum += player.Played.Average(x => x.Score);
-						gameAverageSum += player.Played.Average(x => league.Game(x).TotalScore() / league.Game(x).Players.Count);
+						gameAverageSum += player.Played.Average(x => league.Game(x) == null ? 0 : league.Game(x).TotalScore() / league.Game(x).Players.Count);
 					}
 				}
 				soloLadder.Add(solo, hitsBy == 0 && hitsOn == 0 ? 
