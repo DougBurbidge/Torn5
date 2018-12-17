@@ -917,53 +917,6 @@ namespace Torn.UI
 				            (char)(i + 'A' - 36);
 		}
 
-		void ScoresImageButtonClick(object sender, EventArgs e)
-		{
-			if (listViewGames.SelectedItems.Count != 1)
-				return;
-
-			var path = GetExportFolder();
-			if (path == null)
-				return;
-
-			var league = activeHolder.League;
-			var serverGame = ((ServerGame)listViewGames.SelectedItems[0].Tag);
-			var game = activeHolder.League.Game(serverGame);
-			var maxScore = game.Players.Max(x => x.Score);
-			var rect = new RectangleF(0, 0, 90, 20);
-			var sf = new StringFormat(StringFormatFlags.NoWrap);
-			sf.Alignment = StringAlignment.Near;
-			sf.LineAlignment = StringAlignment.Center;
-			var first = serverGame.Events.First().Time;
-			var last = serverGame.Events.Last().Time;
-			var duration = last.Subtract(first).TotalMilliseconds;
-
-			foreach (var gamePlayer in game.Players)
-			{
-				var serverPlayer = serverGame.Players.Find(x => x.PlayerId == gamePlayer.PlayerId);
-				var bitmap = new Bitmap(90, 20);
-				var graphics = Graphics.FromImage(bitmap);
-				graphics.FillRectangle(Brushes.White, 0, 0, 90, 20);
-				var font = new Font("Arial", 72);
-
-				string name = league.LeaguePlayer(gamePlayer).Name;
-				var size = graphics.MeasureString(name, font, 1000);
-				font = new Font("Arial", Math.Min(72 * 90 / size.Width, 20));
-				graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-				graphics.DrawString(name, font, Brushes.Silver, rect);
-
-				int score = 0;
-				foreach (var oneEvent in serverGame.Events)
-					if (gamePlayer is ServerPlayer && oneEvent.PandCPlayerId == ((ServerPlayer)gamePlayer).PandCPlayerId)
-					{
-						score += oneEvent.Score;
-						graphics.FillRectangle(Brushes.Red, (float)(oneEvent.Time.Subtract(first).TotalMilliseconds / duration * 90), 20f - 20f * score / maxScore, 1, 1);
-					}
-
-				bitmap.Save(Path.Combine(path, "score" + Base62(serverPlayer.PandCPlayerTeamId) + Base62(serverPlayer.PandCPlayerId) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
-			}
-		}
-
 		static string XmlValue(XmlNode node, string name, string defaultValue = null)
 		{
 			var child = node.SelectSingleNode(name);
@@ -981,6 +934,7 @@ namespace Torn.UI
 			Enum.TryParse(XmlValue(root, "GroupPlayersBy", "Colour"), out groupPlayersBy);
 			serverAddress = XmlValue(root, "GameServerAddress", "localhost");
 			numericPort.Value = decimal.Parse(XmlValue(root, "WebServerPort", "8080"));
+			folderBrowserDialog1.SelectedPath = XmlValue(root, "ExportFolder", "");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
 
@@ -1022,6 +976,7 @@ namespace Torn.UI
 			AppendNode(doc, bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
 			AppendNode(doc, bodyNode, "GameServerAddress", serverAddress);
 			AppendNode(doc, bodyNode, "WebServerPort", numericPort.Value.ToString());
+			AppendNode(doc, bodyNode, "ExportFolder", folderBrowserDialog1.SelectedPath);
 
 			XmlNode leaguesNode = doc.CreateElement("leagues");
 			bodyNode.AppendChild(leaguesNode);

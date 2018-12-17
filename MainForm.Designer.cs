@@ -62,7 +62,6 @@ namespace Torn.UI
 			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.forgetGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panelLeague = new System.Windows.Forms.Panel();
-			this.scoresImageButton = new System.Windows.Forms.Button();
 			this.labelNow = new System.Windows.Forms.Label();
 			this.labelTime = new System.Windows.Forms.Label();
 			this.numericPort = new System.Windows.Forms.NumericUpDown();
@@ -347,7 +346,6 @@ namespace Torn.UI
 			// 
 			// panelLeague
 			// 
-			this.panelLeague.Controls.Add(this.scoresImageButton);
 			this.panelLeague.Controls.Add(this.labelNow);
 			this.panelLeague.Controls.Add(this.labelTime);
 			this.panelLeague.Controls.Add(this.numericPort);
@@ -359,16 +357,6 @@ namespace Torn.UI
 			this.panelLeague.Name = "panelLeague";
 			this.panelLeague.Size = new System.Drawing.Size(312, 291);
 			this.panelLeague.TabIndex = 16;
-			// 
-			// scoresImageButton
-			// 
-			this.scoresImageButton.Location = new System.Drawing.Point(19, 96);
-			this.scoresImageButton.Name = "scoresImageButton";
-			this.scoresImageButton.Size = new System.Drawing.Size(82, 23);
-			this.scoresImageButton.TabIndex = 20;
-			this.scoresImageButton.Text = "Scores Image";
-			this.scoresImageButton.UseVisualStyleBackColor = true;
-			this.scoresImageButton.Click += new System.EventHandler(this.ScoresImageButtonClick);
 			// 
 			// labelNow
 			// 
@@ -911,7 +899,6 @@ namespace Torn.UI
 			this.toolStripGame.PerformLayout();
 			this.ResumeLayout(false);
 		}
-		private System.Windows.Forms.Button scoresImageButton;
 		private System.Windows.Forms.ToolStripMenuItem menuTsvExport;
 		private System.Windows.Forms.ToolStripMenuItem menuExportFixtures;
 		private System.Windows.Forms.ToolStripButton buttonEdit;

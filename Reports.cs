@@ -423,7 +423,7 @@ namespace Torn.Report
 			games = games.Where(g => g.Time > (from ?? DateTime.MinValue) && g.Time < (to ?? DateTime.MaxValue)).ToList();
 			games.Sort();
 
-	 		int mostTeams = games.Max(g => g.Teams.Count);
+			int mostTeams = games.Count == 0 ? 0 : games.Max(g => g.Teams.Count);
 
 	 		while (thisgame < games.Count)// && (to == null || games[thisgame].Time < to))  // loop through each game, and create a row for it
 			{
