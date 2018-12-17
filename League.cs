@@ -13,7 +13,7 @@ using System.Xml;
 
 namespace Torn
 {
-	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange };
+	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange, White };
 	public static class ColourExtensions
 	{
 		public static Color ToColor(this Colour colour)
@@ -54,6 +54,23 @@ namespace Torn
 			Colour c;
 			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out c);
 			return c;
+		}
+		
+		public static Colour ToColour(int i) // Converts from a Laserforce colour index number.
+		{
+			switch (i)
+			{
+				case 1: return Colour.Red;
+				case 2: return Colour.Green;
+				case 3: return Colour.Yellow;
+				case 4: return Colour.Blue;
+				case 5: return Colour.Cyan;
+				case 6: return Colour.Purple;
+				case 7: return Colour.White;
+				case 8: return Colour.Orange;
+				case 9: return Colour.Pink;
+				default: return Colour.None;
+			}
 		}
 	}
 

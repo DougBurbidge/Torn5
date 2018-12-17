@@ -105,12 +105,13 @@ namespace Torn
 				while (reader.Read())
 				{
 					ServerPlayer player = new ServerPlayer();
-					//player.PlayerId = reader.GetInt32(3);
-					//player.PlayerTeamId = reader.GetInt32(5);
+					player.Colour = ColourExtensions.ToColour(reader.GetInt32(0));
 					player.Score = reader.GetInt32(1);
 					player.PackName = reader.GetString(2);
-					player.PlayerId = reader.GetString(3);
-					player.Alias = reader.GetString(4);
+					if (!reader.IsDBNull(3))
+						player.PlayerId = reader.GetString(3);
+					if (!reader.IsDBNull(4))
+						player.Alias = reader.GetString(4);
 					game.Players.Add(player);
 				}
 			}
