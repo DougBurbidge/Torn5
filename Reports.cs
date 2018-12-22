@@ -81,28 +81,27 @@ namespace Torn.Report
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladder" : rt.Title, "Rank,Team", "center,left");
 			report.MaxChartByColumn = true;
-			report.Columns[0].ColumnType = ZColumnType.Integer;
 
 	 		var colourTotals = new Dictionary<Colour, List<int>>();
 			if (showColours)
 		 		for (Colour c = Colour.Red; c <= Colour.Orange; c++)
 				{
-					report.Columns.Add(new ZColumn("1st", ZAlignment.Right, ZColumnType.Integer, c.ToString()));
-					report.Columns.Add(new ZColumn("2nd", ZAlignment.Right, ZColumnType.Integer, c.ToString()));
-					report.Columns.Add(new ZColumn("3rd", ZAlignment.Right, ZColumnType.Integer, c.ToString()));
+					report.Columns.Add(new ZColumn("1st", ZAlignment.Integer, c.ToString()));
+					report.Columns.Add(new ZColumn("2nd", ZAlignment.Integer, c.ToString()));
+					report.Columns.Add(new ZColumn("3rd", ZAlignment.Integer, c.ToString()));
 
 					colourTotals.Add(c, new List<int>());
 				}
 
 			if (league.IsPoints())
-				report.Columns.Add(new ZColumn("Points", ZAlignment.Right, ZColumnType.Float));
+				report.Columns.Add(new ZColumn("Points", ZAlignment.Float));
 
 			report.Columns.Add(new ZColumn(ratio ? "Score Ratio" : "Average score", 
-			                               ZAlignment.Right, ZColumnType.Float));
-			report.Columns.Add(new ZColumn("Games", ZAlignment.Right, ZColumnType.Integer));
+			                               ZAlignment.Float));
+			report.Columns.Add(new ZColumn("Games", ZAlignment.Integer));
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
-				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Right, ZColumnType.Integer));
+				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Integer));
 
 			List<Game> games = league.Games(includeSecret);
 
@@ -366,7 +365,7 @@ namespace Torn.Report
 		/// <summary>Build a square tale showing how many times each team has played (and beaten) each other team.</summary>
 		public static ZoomReport TeamsVsTeams(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
 		{
-			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Teams vs Teams" : rt.Title, "Teams", "left");
+			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Teams vs Teams" : rt.Title, "Team", "left");
 			
 			List<LeagueTeam> teams = new List<LeagueTeam>();
 			teams.AddRange(league.Teams);
@@ -545,7 +544,7 @@ namespace Torn.Report
 					game.Time.Date < thisgametime.Date ? 
 					game.Time.ToShortDateString() + " " + game.Time.ToShortTimeString() :
 					game.Time.ToShortTimeString(),
-					ZAlignment.Right, ZColumnType.Integer);
+					ZAlignment.Integer);
 				column.GroupHeading = game.Title;
 				column.Hyper = gameHyper(game);
 				report.Columns.Add(column);
@@ -568,7 +567,7 @@ namespace Torn.Report
 			}
 
 			if (rt.Drops != null && (rt.Drops.DropWorst(100) > 0 || rt.Drops.DropBest(100) > 0))
-				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Right, ZColumnType.Integer));
+				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Integer));
 
 			foreach (LeagueTeam leagueTeam in league.Teams)
 			{
@@ -665,7 +664,7 @@ namespace Torn.Report
 			}
 
 			if (rt.Drops != null && (rt.Drops.DropWorst(100) > 0 || rt.Drops.DropBest(100) > 0))
-				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Right, ZColumnType.Integer));
+				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Integer));
 
 			foreach (LeagueTeam leagueTeam in league.Teams)
 			{
@@ -729,11 +728,11 @@ namespace Torn.Report
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Solo Ladder" : rt.Title,
 			                                   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroyed,Denies,Denied,Yellow Cards,Red Cards,Games",
-			                                   "center,left,left,right,right,right,right,right,right,right,right,right,right,right,right,right,right");
+			                                   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer");
 			report.MaxChartByColumn = true;
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
-				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Right, ZColumnType.Integer));
+				report.Columns.Add(new ZColumn("Dropped", ZAlignment.Integer));
 
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
@@ -855,7 +854,7 @@ namespace Torn.Report
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(),
 			                                   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroys,Denies,Denied,Yellow Cards,Red Cards",
-			                                   "center,left,right,right,right,right,right,right,right,right,right,right,right,right");
+			                                   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
 			report.MaxChartByColumn = true;
 //			for (int i = 8; i < report.Columns.Count; i++)
 //				report.Columns[i].Rotate = true;
@@ -958,8 +957,7 @@ namespace Torn.Report
 					// Add a row and a column for each player on the team.
 					var column = new ZColumn(name);
 					column.GroupHeading = leagueTeam == null ? "Team ??" : leagueTeam.Name;
-					column.Alignment = ZAlignment.Right;
-					column.ColumnType = ZColumnType.Integer;
+					column.Alignment = ZAlignment.Integer;
 					report.Columns.Add(column);
 
 					var row = new ZRow();
@@ -1165,7 +1163,7 @@ namespace Torn.Report
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(player.Name) ? "Player " + player.Id : player.Name,
 			                                   "Time,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroys,Denies,Denied,Yellow Cards,Red Cards",
-			                                   "left,right,right,right,right,right,right,right,right,right,right,right,right");
+			                                   "left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
 
 			report.Title += " \u2014 " + string.Join(", ", teams.Select(t => t.Name));
 			if (teams.Count == 1)
@@ -1239,7 +1237,7 @@ namespace Torn.Report
 		{
 			ZoomReport report = new ZoomReport(team.Name);
 
-			report.Columns.Add(new ZColumn("Game Time", ZAlignment.Left, ZColumnType.String));
+			report.Columns.Add(new ZColumn("Game Time", ZAlignment.Left));
 
 			var averages = new Dictionary<LeaguePlayer, double>();
 			foreach (LeaguePlayer leaguePlayer in team.Players)
@@ -1276,12 +1274,12 @@ namespace Torn.Report
 			// Add a column for each player on this team.
 			foreach (LeaguePlayer leaguePlayer in players)
 			{
-				report.Columns.Add(new ZColumn(leaguePlayer.Name, ZAlignment.Right, ZColumnType.Integer));
+				report.Columns.Add(new ZColumn(leaguePlayer.Name, ZAlignment.Integer));
 				report.Columns.Last().Hyper = "players.html#player" + leaguePlayer.Id;
 			}
-			report.Columns.Add(new ZColumn("Total", ZAlignment.Right, ZColumnType.Integer));
+			report.Columns.Add(new ZColumn("Total", ZAlignment.Integer));
 			if (league.IsPoints())
-				report.Columns.Add(new ZColumn("Pts", ZAlignment.Right, ZColumnType.Float));
+				report.Columns.Add(new ZColumn("Pts", ZAlignment.Float));
 
 			int teamTotalScore = 0;
 			double teamTotalPoints = 0;
@@ -1365,7 +1363,7 @@ namespace Torn.Report
 			int maxTeams = fixture.Games.Count == 0 ? 0 : fixture.Games.Max(x => x.Teams.Count());
 			
 			for (int i = 0; i < maxTeams; i++)
-				report.Columns.Add(new ZColumn("Team", ZAlignment.Left, ZColumnType.String));
+				report.Columns.Add(new ZColumn("Team", ZAlignment.Left));
 
 			foreach (var fg in fixture.Games)
 				if (team == null || fg.Teams.Keys.Contains(team))
@@ -1396,7 +1394,7 @@ namespace Torn.Report
 			FixtureTeam team = teamId == null || teamId == -1 ? null : fixture.Teams.Find(x => x.Id == teamId);
 			string title = team == null ? "Fixtures for " + league.Title : "Fixtures for " + team.Name + " in " + league.Title;
 
-			ZoomReport report = new ZoomReport(title, "Teams", "left");
+			ZoomReport report = new ZoomReport(title, "Team", "left");
 
 			foreach (var ft in fixture.Teams)
 			{
@@ -1474,9 +1472,8 @@ namespace Torn.Report
 			// Now build the pack report.
 			var	report = new ZoomReport((string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Pack Report" : title) + FromTo(games, from, to),
 				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Tag diff,t,p,Count,",
-				                        "center,left,right,right,right,right,right,right,right,right,right,right,right");
+				                        "center,left,integer,float,float,integer,float,float,float,float,float,float,integer");
 			report.MaxChartByColumn = true;
-			report.Columns[2].ColumnType = ZColumnType.Integer;
 
 			var packs = games.SelectMany(game => game.Players.Select(player => player.Pack)).Distinct().ToList();
 
@@ -1677,7 +1674,7 @@ namespace Torn.Report
 		{
 			var	report = new ZoomReport(string.IsNullOrEmpty(title) ? league.Title + " " + "Everything Report" : title + FromTo(league.AllGames, from, to),
 				                        "Player,Pack,Team,Rank,Score,Hits by,Hits On",
-				                        "left,left,left,right,right,right,right");
+				                        "left,left,left,integer,integer,integer,integer");
 			report.MaxChartByColumn = true;
 
 			foreach (var game in league.AllGames.FindAll(x => x.Time.CompareTo(from ?? DateTime.MinValue) >= 0 &&

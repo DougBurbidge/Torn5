@@ -10,9 +10,8 @@ using System.Web;
 
 namespace Zoom
 {
-	public enum ZColumnType { String, Integer, Float };
 	public enum ZNumberStyle { Comma, Plain, Brief };  // Comma: use a thousands separator.  Brief: convert larger numbers to 2k, 3M, etc.
-	public enum ZAlignment { None, Left, Right, Center };
+	public enum ZAlignment { None, Left, Right, Center, Float, Integer };  // Float and Integer are the same as Right, but give a hint as to the type of data contained in cell.Data. "Integer" means that the underlying data is made of integers (e.g. average score, average rank) not that the number displayed in the cell is an integer.
 
 	public static class ZAlignmentExtensions
 	{
@@ -22,9 +21,8 @@ namespace Zoom
 			{
 				case ZAlignment.None:   return "";
 				case ZAlignment.Left:   return " align=\"left\"";
-				case ZAlignment.Right:  return " align=\"right\"";
 				case ZAlignment.Center: return " align=\"center\"";
-				default: return "";
+				default:                return " align=\"right\"";
 			}
 		}
 	}
@@ -36,8 +34,6 @@ namespace Zoom
 		public virtual string Text { get; set; }
 		/// <summary>If this cell or column heading contains text which links to another report, put the URL of that report here.</summary>
 		public virtual string Hyper { get; set; }
-		/// <summary>"Integer" means that the underlying data is made of integers (e.g. average score, average rank) not that the number displayed in the cell is an integer.</summary>
-		public ZColumnType ColumnType { get; set; }
 
 		public override string ToString()
 		{
@@ -66,18 +62,10 @@ namespace Zoom
 			Alignment = alignment;
 		}
 
-		public ZColumn(string text, ZAlignment alignment, ZColumnType columnType)
+		public ZColumn(string text, ZAlignment alignment, string groupHeading)
 		{
 			Text = text;
 			Alignment = alignment;
-			ColumnType = columnType;
-		}
-
-		public ZColumn(string text, ZAlignment alignment, ZColumnType columnType, string groupHeading)
-		{
-			Text = text;
-			Alignment = alignment;
-			ColumnType = columnType;
 			GroupHeading = groupHeading;
 		}
 	}
@@ -648,7 +636,7 @@ namespace Zoom
 
 			switch (alignment)
 			{
-				default: // i.e. Left: 
+				case ZAlignment.Left: 
 					s.AppendFormat("x=\"{0}\" y=\"{1}\" width=\"{2}\" font-size=\"{3}\"",
 					                       x + 1, y + height * 3 / 4, width, height * 3 / 4);
 				break;
@@ -656,7 +644,7 @@ namespace Zoom
 					s.AppendFormat("text-anchor=\"middle\" x=\"{0}\" y=\"{1}\" width=\"{2}\" font-size=\"{3}\"",
 				                       x + width / 2, y + height * 3 / 4, width, height * 3 / 4);
 				break;
-				case ZAlignment.Right:
+			default: // i.e. Right, Float, Integer
 					s.AppendFormat("text-anchor=\"end\" x=\"{0}\" y=\"{1}\" width=\"{2}\" font-size=\"{3}\"", 
 				                       x + width - 1, y + height * 3 / 4, width, height * 3 / 4);
 				break;
@@ -917,7 +905,7 @@ namespace Zoom
 				int bins = (int)Math.Ceiling(2 * Math.Pow(count, 1.0/3));  // number of bars our histogram will have, from Rice's Rule.
 				double binWidth = Math.Round(width / bins + 0.05, 1);  // in "pixels"
 				bins = (int)Math.Round(width / binWidth);
-				if (Columns[column].ColumnType == ZColumnType.Integer)
+				if (Columns[column].Alignment == ZAlignment.Integer)
 				{
 					bins = Math.Min(bins, (int)(chartMax - chartMin + 1));
 					bins = (int)((chartMax - chartMin + 1) / Math.Round((chartMax - chartMin + 1) / bins));
