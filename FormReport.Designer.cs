@@ -63,6 +63,8 @@ namespace Torn.UI
 			this.description = new System.Windows.Forms.CheckBox();
 			this.labelChartType = new System.Windows.Forms.Label();
 			this.chartType = new System.Windows.Forms.ComboBox();
+			this.labelTitle = new System.Windows.Forms.Label();
+			this.title = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
 			this.groupBoxDateRange.SuspendLayout();
@@ -81,7 +83,7 @@ namespace Torn.UI
 			// 
 			// scaleGames
 			// 
-			this.scaleGames.Location = new System.Drawing.Point(12, 143);
+			this.scaleGames.Location = new System.Drawing.Point(12, 173);
 			this.scaleGames.Name = "scaleGames";
 			this.scaleGames.Size = new System.Drawing.Size(250, 24);
 			this.scaleGames.TabIndex = 2;
@@ -91,7 +93,7 @@ namespace Torn.UI
 			// 
 			// dropGames
 			// 
-			this.dropGames.Location = new System.Drawing.Point(12, 173);
+			this.dropGames.Location = new System.Drawing.Point(12, 203);
 			this.dropGames.Name = "dropGames";
 			this.dropGames.Size = new System.Drawing.Size(250, 24);
 			this.dropGames.TabIndex = 3;
@@ -324,7 +326,7 @@ namespace Torn.UI
 			this.groupBoxDrops.Controls.Add(this.labelDropWorst);
 			this.groupBoxDrops.Controls.Add(this.labelDropBest);
 			this.groupBoxDrops.Enabled = false;
-			this.groupBoxDrops.Location = new System.Drawing.Point(24, 203);
+			this.groupBoxDrops.Location = new System.Drawing.Point(24, 233);
 			this.groupBoxDrops.Name = "groupBoxDrops";
 			this.groupBoxDrops.Size = new System.Drawing.Size(262, 73);
 			this.groupBoxDrops.TabIndex = 4;
@@ -440,6 +442,21 @@ namespace Torn.UI
 			this.chartType.Size = new System.Drawing.Size(189, 21);
 			this.chartType.TabIndex = 11;
 			// 
+			// labelTitle
+			// 
+			this.labelTitle.Location = new System.Drawing.Point(12, 150);
+			this.labelTitle.Name = "labelTitle";
+			this.labelTitle.Size = new System.Drawing.Size(100, 23);
+			this.labelTitle.TabIndex = 23;
+			this.labelTitle.Text = "Title:";
+			// 
+			// title
+			// 
+			this.title.Location = new System.Drawing.Point(62, 147);
+			this.title.Name = "title";
+			this.title.Size = new System.Drawing.Size(211, 20);
+			this.title.TabIndex = 24;
+			// 
 			// FormReport
 			// 
 			this.AcceptButton = this.buttonOK;
@@ -447,6 +464,8 @@ namespace Torn.UI
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(298, 694);
+			this.Controls.Add(this.title);
+			this.Controls.Add(this.labelTitle);
 			this.Controls.Add(this.chartType);
 			this.Controls.Add(this.labelChartType);
 			this.Controls.Add(this.description);
@@ -481,7 +500,10 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWorst)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownBest)).EndInit();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 		}
+		private System.Windows.Forms.TextBox title;
+		private System.Windows.Forms.Label labelTitle;
 		private System.Windows.Forms.CheckBox dateFrom;
 		private System.Windows.Forms.CheckBox dateTo;
 		private System.Windows.Forms.ComboBox chartType;

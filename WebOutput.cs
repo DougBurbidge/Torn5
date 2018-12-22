@@ -65,38 +65,38 @@ namespace Torn.Report
 			
 			if (holder.ReportTemplates == null || holder.ReportTemplates.Count == 0)
 			{
-				reports.Add(Reports.TeamLadder(holder.League, includeSecret, null, null, null, ChartType.Bar | ChartType.Rug, false, false, false, true));
-				reports.Add(Reports.GamesList(holder.League, includeSecret, DateTime.MinValue, DateTime.MaxValue, true, gameHyper));
+				var rt = new ReportTemplate(ReportType.None, new string[] { "ChartType=bar with rug", "description" });
+				reports.Add(Reports.TeamLadder(holder.League, includeSecret, rt));
+				reports.Add(Reports.GamesList(holder.League, includeSecret, rt, gameHyper));
+
 				if (!string.IsNullOrEmpty(holder.League.Title) && (holder.League.Title.Contains("Solo") || holder.League.Title.Contains("solo") || holder.League.Title.Contains("oubles") ||
 				                                                   holder.League.Title.Contains("riples") || holder.League.Title.Contains("ripples") || holder.League.Title.Contains("rippples")))
-					reports.Add(Reports.GamesGrid(holder.League, includeSecret, null, null, null, true, GridType.Pyramid, gameHyper));
+					rt.ReportType = ReportType.Pyramid;
 				else
-				{
-					reports.Add(Reports.GamesGrid(holder.League, includeSecret, null, null, null, true, GridType.GameGrid, gameHyper));
-					reports.Add(Reports.GamesGrid(holder.League, includeSecret, null, null, null, true, GridType.Ascension, gameHyper));
-				}
-				reports.Add(Reports.SoloLadder(holder.League, includeSecret, false, DateTime.MinValue, DateTime.MaxValue, null, ChartType.Bar | ChartType.Rug, true));
+					rt.ReportType = ReportType.GameGrid;
+
+				reports.Add(Reports.GamesGrid(holder.League, includeSecret, rt, gameHyper));
+
+				reports.Add(Reports.SoloLadder(holder.League, includeSecret, rt));
 			}
 			else
-				foreach (ReportTemplate r in holder.ReportTemplates)
+				foreach (ReportTemplate rt in holder.ReportTemplates)
 			{
-				bool description = r.Settings.Contains("Description");
-				switch (r.ReportType)
+				bool description = rt.Settings.Contains("Description");
+				switch (rt.ReportType)
 				{
-						case ReportType.TeamLadder: reports.Add(Reports.TeamLadder(holder.League, includeSecret, r.From, r.To, r.Drops, ChartTypeExtensions.ToChartType(r.Setting("ChartType")),
-						                                                           r.Settings.Contains("ScaleGames"), false, r.Settings.Contains("ShowColours"), description)); break;
-						case ReportType.TeamsVsTeams: reports.Add(Reports.TeamsVsTeams(holder.League, includeSecret, r.From, r.To, description, gameHyper)); break;
-						case ReportType.SoloLadder: reports.Add(Reports.SoloLadder(holder.League, includeSecret, r.Settings.Contains("ShowComments"), r.From, r.To, r.Drops, ChartTypeExtensions.ToChartType(r.Setting("ChartType")), description)); break;
-						case ReportType.GameByGame: reports.Add(Reports.GamesList(holder.League, includeSecret, r.From, r.To, description, gameHyper)); break;
-						case ReportType.GameGrid:   reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.GameGrid, gameHyper)); break;
-						case ReportType.Ascension:  reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Ascension, gameHyper)); break;
-						case ReportType.Pyramid:    reports.Add(Reports.GamesGrid(holder.League, includeSecret, r.From, r.To, r.Drops, description, GridType.Pyramid, gameHyper)); break;
+					case ReportType.TeamLadder:   reports.Add(Reports.TeamLadder(holder.League, includeSecret, rt)); break;
+					case ReportType.TeamsVsTeams: reports.Add(Reports.TeamsVsTeams(holder.League, includeSecret, rt, gameHyper)); break;
+					case ReportType.SoloLadder:   reports.Add(Reports.SoloLadder(holder.League, includeSecret, rt)); break;
+					case ReportType.GameByGame:   reports.Add(Reports.GamesList(holder.League, includeSecret, rt, gameHyper)); break;
+					case ReportType.GameGrid: case ReportType.Ascension: case ReportType.Pyramid: 
+						reports.Add(Reports.GamesGrid(holder.League, includeSecret, rt, gameHyper)); break;
 					case ReportType.Packs:
 						var x = new List<League>();
 						x.Add(holder.League);
-						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), r.From, r.To, ChartTypeExtensions.ToChartType(r.Setting("ChartType")), description));
+						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), rt.Title, rt.From, rt.To, ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description));
 						break;
-						case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, r.From, r.To, description)); break;
+					case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, rt.Title, rt.From, rt.To, description)); break;
 				}
 			}
 
@@ -295,7 +295,7 @@ namespace Torn.Report
 						{
 							reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
 							reports.Add(Reports.OneGame(league, game));
-							if (game.ServerGame != null)
+							if (game.ServerGame != null && game.ServerGame.Events.Count > 0)
 							{
 								reports.Add(Reports.GameHeatMap(league, game));
 								var bitmap = Reports.GameWorm(league, game, true);
@@ -431,7 +431,7 @@ namespace Torn.Report
 					                                         g.Title == "Rep 1" || g.Title == "Repechage 1"));
 
 				var reports = new ZoomReports();
-				reports.Add(Reports.PackReport(leagues, soloGames, null, null, ChartType.KernelDensityEstimate | ChartType.Rug, true));
+				reports.Add(Reports.PackReport(leagues, soloGames, null, null, null, ChartType.KernelDensityEstimate | ChartType.Rug, true));
 
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "packreport.html")))
 					sw.Write(reports.ToSvg());

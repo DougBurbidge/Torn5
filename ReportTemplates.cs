@@ -11,12 +11,13 @@ using Torn;
 
 namespace Torn.Report
 {
-	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, Ascension, Pyramid, Packs, Everything };
+	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, Ascension, Pyramid, Packs, Everything, PageBreak };
 
 	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate
 	{
 		public ReportType ReportType { get; set; }
+		public string Title { get; set; }
 		public List<string> Settings { get; private set; }
 		public Drops Drops { get; set; }
 		public DateTime? From { get; set; }
@@ -180,6 +181,7 @@ namespace Torn.Report
 			XmlNode reportTemplateNode = doc.CreateElement("reporttemplate");
 			node.AppendChild(reportTemplateNode);
 			AppendNode(doc, reportTemplateNode, "type", ReportType.ToString());
+			AppendNode(doc, reportTemplateNode, "title", Title);
 
 			foreach (var setting in Settings)
 				AppendSetting(doc, reportTemplateNode, setting);
@@ -220,6 +222,9 @@ namespace Torn.Report
 				{
 					case "type":
 						ReportType = (ReportType)Enum.Parse(typeof(ReportType), x.InnerText);
+						break;
+					case "title":
+						Title = x.InnerText;
 						break;
 					case "drops":
 						Drops = new Drops();

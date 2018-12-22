@@ -37,6 +37,8 @@ namespace Torn.UI
 			{
 				listBoxReportType.SelectedIndex = (int)ReportTemplate.ReportType - 1;
 
+				title.Text = ReportTemplate.Title;
+
 				foreach (Control c in this.Controls)
 					if (c is CheckBox && c.Tag != null)
 						((CheckBox)c).Checked = ReportTemplate.Settings.Contains((string)c.Tag);
@@ -93,6 +95,8 @@ namespace Torn.UI
 					ReportTemplate = new ReportTemplate();
 
 				ReportTemplate.ReportType = (ReportType)(listBoxReportType.SelectedIndex + 1);
+
+				ReportTemplate.Title = title.Text;
 
 				ReportTemplate.Settings.Clear();
 				foreach (Control c in this.Controls)
