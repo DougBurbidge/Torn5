@@ -20,72 +20,75 @@ namespace Torn
 	/// 
 	/// All the work is done on background threads, which will be automatically cleaned up when the program quits.
 	/// </summary>
-    public class WebServer
-    {
-        private readonly HttpListener _listener = new HttpListener();
-        private readonly Func<HttpListenerRequest, string> _responderMethod;
+	public class WebServer
+	{
+		private readonly HttpListener _listener = new HttpListener();
+		private readonly Func<HttpListenerRequest, string> _responderMethod;
 
-        public WebServer(string[] prefixes, Func<HttpListenerRequest, string> method)
-        {
-            if (!HttpListener.IsSupported)
-                throw new NotSupportedException(
-                    "HttpListener not supported on this platform. Needs Windows XP SP2, Server 2003 or later.");
+		public WebServer(string[] prefixes, Func<HttpListenerRequest, string> method)
+		{
+			if (!HttpListener.IsSupported)
+				throw new NotSupportedException(
+					"HttpListener not supported on this platform. Needs Windows XP SP2, Server 2003 or later.");
 
-            // URI prefixes are required, for example 
-            // "http://localhost:8080/index/".
-            if (prefixes == null || prefixes.Length == 0)
-                throw new ArgumentException("URI prefixes are required.");
+			// URI prefixes are required, for example 
+			// "http://localhost:8080/index/".
+			if (prefixes == null || prefixes.Length == 0)
+				throw new ArgumentException("URI prefixes are required.");
 
-            // A responder method is required
-            if (method == null)
-                throw new ArgumentException("Responder method required.");
+			// A responder method is required
+			if (method == null)
+				throw new ArgumentException("Responder method required.");
 
-            foreach (string s in prefixes)
-                _listener.Prefixes.Add(s);
+			foreach (string s in prefixes)
+				_listener.Prefixes.Add(s);
 
-            _responderMethod = method;
-            _listener.Start();
-        }
+			_responderMethod = method;
+			_listener.Start();
+		}
 
-        public WebServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
-            : this(prefixes, method) { }
+		public WebServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
+		    : this(prefixes, method) { }
 
-        public void Run()
-        {
-            ThreadPool.QueueUserWorkItem((o) =>
-            {
-                Console.WriteLine("Webserver running...");
-                try
-                {
-                    while (_listener.IsListening)
-                    {
-                        ThreadPool.QueueUserWorkItem((c) =>
-                        {
-                            var ctx = c as HttpListenerContext;
-                            try
-                            {
-                                string rstr = _responderMethod(ctx.Request);
-                                byte[] buf = Encoding.UTF8.GetBytes(rstr);
-                                ctx.Response.ContentLength64 = buf.Length;
-                                ctx.Response.OutputStream.Write(buf, 0, buf.Length);
-                            }
-                            catch { } // suppress any exceptions
-                            finally
-                            {
-                                // always close the stream
-                                ctx.Response.OutputStream.Close();
-                            }
-                        }, _listener.GetContext());
-                    }
-                }
-                catch { } // suppress any exceptions
-            });
-        }
+		public void Run()
+		{
+			ThreadPool.QueueUserWorkItem((o) =>
+			{
+				Console.WriteLine("Webserver running...");
+				try
+				{
+					while (_listener.IsListening)
+					{
+					    ThreadPool.QueueUserWorkItem((c) =>
+						{
+							var ctx = c as HttpListenerContext;
+							try
+							{
+								string rstr = _responderMethod(ctx.Request);
+								byte[] buf = Encoding.UTF8.GetBytes(rstr);
+								ctx.Response.ContentLength64 = buf.Length;
+								ctx.Response.OutputStream.Write(buf, 0, buf.Length);
+							}
+							catch { } // suppress any exceptions
+							finally
+							{
+								// always close the stream
+								ctx.Response.OutputStream.Close();
+							}
+						}, _listener.GetContext());
+					}
+				}
+				catch { } // suppress any exceptions
+			});
+		}
 
-        public void Stop()
-        {
-            _listener.Stop();
-            _listener.Close();
-        }
-    }
+		public void Stop()
+		{
+			try
+			{
+				_listener.Stop();
+				_listener.Close();
+			} catch {}
+		}
+	}
 }

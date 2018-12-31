@@ -409,7 +409,12 @@ namespace Torn
 	{
 		public string Title { get; set; }
 		public DateTime Time { get; set; }
-		public bool Secret { get; set; }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
+		bool secret;
+		public bool Secret { get { 
+				return secret; 
+			} set { 
+				secret = value; 
+			} }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
 		public List<GameTeam> Teams { get; private set; }
 		public List<GamePlayer> Players { get; private set; }
 		public ServerGame ServerGame {get; set; }
@@ -436,7 +441,7 @@ namespace Torn
 		   return DateTime.Compare(this.Time, g.Time);
 		}
 
-		/// <summary>True if any team in this gamehas victory points.</summary>
+		/// <summary>True if any team in this game has victory points.</summary>
 		public bool IsPoints()
 		{
 			foreach (GameTeam gameTeam in Teams)
@@ -745,24 +750,6 @@ namespace Torn
 			return teams.Count == 0 ? 0 : teams.Max(x => x.Id) + 1;
 		}
 
-		static string XmlValue(XmlNode node, string name)
-		{
-			var child = node.SelectSingleNode(name);
-			return child == null ? null : child.InnerText;
-		}
-
-		static double XmlDouble(XmlNode node, string name)
-		{
-			var child = node.SelectSingleNode(name);
-			return child == null ? 0.0 : double.Parse(child.InnerText, CultureInfo.InvariantCulture);
-		}
-
-		static int XmlInt(XmlNode node, string name)
-		{
-			var child = node.SelectSingleNode(name);
-			return child == null ? 0 : int.Parse(child.InnerText, CultureInfo.InvariantCulture);
-		}
-
 		/// <summary>Load a .Torn file from disk.</summary>
 		public void Load(string fileName)
 		{
@@ -773,27 +760,27 @@ namespace Torn
 
 			var root = doc.DocumentElement;
 
-			Title = XmlValue(root, "Title");
+			Title = root.GetString("Title");
 			if (string.IsNullOrEmpty(Title))
 				Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
 
-			GridHigh = XmlInt(root, "GridHigh");
-			GridWide = XmlInt(root, "GridWide");
-			GridPlayers = XmlInt(root, "GridPlayers");
-			sortMode = XmlInt(root, "SortMode");
-			string s = XmlValue(root, "HandicapStyle");
+			GridHigh = root.GetInt("GridHigh");
+			GridWide = root.GetInt("GridWide");
+			GridPlayers = root.GetInt("GridPlayers");
+			sortMode = root.GetInt("SortMode");
+			string s = root.GetString("HandicapStyle");
 			HandicapStyle = s == "%" ? HandicapStyle.Percent : s == "+" ? HandicapStyle.Plus : HandicapStyle.Minus;
-			sortByRank = XmlInt(root, "SortByRank");
-			autoUpdate = XmlInt(root, "AutoUpdate");
-			updateTeams = XmlInt(root, "UpdateTeams");
-			elimMultiplier = XmlInt(root, "ElimMultiplier");
+			sortByRank = root.GetInt("SortByRank");
+			autoUpdate = root.GetInt("AutoUpdate");
+			updateTeams = root.GetInt("UpdateTeams");
+			elimMultiplier = root.GetInt("ElimMultiplier");
 
 			XmlNodeList points = root.SelectNodes("Points");
 			foreach (XmlNode point in points)
 				victoryPoints.Add(double.Parse(point.InnerText, CultureInfo.InvariantCulture));
 
-			VictoryPointsHighScore = XmlDouble(root, "High");
-			VictoryPointsProportional = XmlDouble(root, "Proportional");
+			VictoryPointsHighScore = root.GetDouble("High");
+			VictoryPointsProportional = root.GetDouble("Proportional");
 
 			XmlNodeList xteams = root.SelectSingleNode("leaguelist").SelectNodes("team");
 
@@ -801,10 +788,10 @@ namespace Torn
 			{
 				LeagueTeam leagueTeam = new LeagueTeam();
 				
-				leagueTeam.Name = XmlValue(xteam, "teamname");
-				leagueTeam.Id = XmlInt(xteam, "teamid");
-				leagueTeam.Handicap = Handicap.Parse(XmlValue(xteam, "handicap"));
-				leagueTeam.Comment = XmlValue(xteam, "comment");
+				leagueTeam.Name = xteam.GetString("teamname");
+				leagueTeam.Id = xteam.GetInt("teamid");
+				leagueTeam.Handicap = Handicap.Parse(xteam.GetString("handicap"));
+				leagueTeam.Comment = xteam.GetString("comment");
 				
 				var teamPlayers = xteam.SelectSingleNode("players");
 				if (teamPlayers != null)
@@ -814,7 +801,7 @@ namespace Torn
 					foreach (XmlNode xplayer in xplayers)
 					{
 						LeaguePlayer leaguePlayer;
-						string id = XmlValue(xplayer, "buttonid");;
+						string id = xplayer.GetString("buttonid");;
 						
 						leaguePlayer = players.Find(x => x.Id == id);
 						if (leaguePlayer == null)
@@ -824,9 +811,9 @@ namespace Torn
 							leaguePlayer.Id = id;
 						}
 
-						leaguePlayer.Name = XmlValue(xplayer, "name");
-						leaguePlayer.Handicap = Handicap.Parse(XmlValue(xteam, "handicap"));
-						leaguePlayer.Comment = XmlValue(xplayer, "comment");
+						leaguePlayer.Name = xplayer.GetString("name");
+						leaguePlayer.Handicap = Handicap.Parse(xteam.GetString("handicap"));
+						leaguePlayer.Comment = xplayer.GetString("comment");
 
 						if (!leagueTeam.Players.Exists(x => x.Id == id))
 							leagueTeam.Players.Add(leaguePlayer);
@@ -842,12 +829,12 @@ namespace Torn
 			{
 				Game game = new Game();
 
-				game.Title = XmlValue(xgame, "title");
-				game.Secret = XmlValue(xgame, "secret") == "true";
+				game.Title = xgame.GetString("title");
+				game.Secret = xgame.GetString("secret") == "true";
 
 				var child = xgame.SelectSingleNode("ansigametime");
 				if (child == null)
-					game.Time = new DateTime(1899, 12, 30).AddDays(double.Parse(XmlValue(xgame, "gametime"), CultureInfo.InvariantCulture));
+					game.Time = new DateTime(1899, 12, 30).AddDays(double.Parse(xgame.GetString("gametime"), CultureInfo.InvariantCulture));
 				else
 					game.Time = DateTime.Parse(child.InnerText, CultureInfo.InvariantCulture);
 				//game.Hits = XmlInt(xgame, "hits");
@@ -858,12 +845,12 @@ namespace Torn
 				{
 					GameTeam gameTeam = new GameTeam();
 
-					gameTeam.TeamId = XmlInt(xteam, "teamid");
-					gameTeam.Colour = ColourExtensions.ToColour(XmlValue(xteam, "colour"));
-					gameTeam.Score = XmlInt(xteam, "score");
-					gameTeam.Points = XmlInt(xteam, "points");
-					gameTeam.Adjustment = XmlInt(xteam, "adjustment");
-					gameTeam.PointsAdjustment = XmlInt(xteam, "victorypointsadjustment");
+					gameTeam.TeamId = xteam.GetInt("teamid");
+					gameTeam.Colour = ColourExtensions.ToColour(xteam.GetString("colour"));
+					gameTeam.Score = xteam.GetInt("score");
+					gameTeam.Points = xteam.GetInt("points");
+					gameTeam.Adjustment = xteam.GetInt("adjustment");
+					gameTeam.PointsAdjustment = xteam.GetInt("victorypointsadjustment");
 
 					game.Teams.Add(gameTeam);
 				}
@@ -875,22 +862,22 @@ namespace Torn
 				{
 					GamePlayer gamePlayer = new GamePlayer();
 
-					gamePlayer.PlayerId = XmlValue(xplayer, "playerid");
-					gamePlayer.GameTeamId = XmlInt(xplayer, "teamid");
-					gamePlayer.Pack = XmlValue(xplayer, "pack");
-					gamePlayer.Score = XmlInt(xplayer, "score");
-					gamePlayer.Rank = (uint)XmlInt(xplayer, "rank");
-					gamePlayer.HitsBy = XmlInt(xplayer, "hitsby");
-					gamePlayer.HitsOn = XmlInt(xplayer, "hitson");
-					gamePlayer.BaseHits = XmlInt(xplayer, "basehits");
-					gamePlayer.BaseDestroys = XmlInt(xplayer, "basedestroys");
-					gamePlayer.BaseDenies = XmlInt(xplayer, "basedenies");
-					gamePlayer.BaseDenied = XmlInt(xplayer, "basedenied");
-					gamePlayer.YellowCards = XmlInt(xplayer, "yellowcards");
-					gamePlayer.RedCards = XmlInt(xplayer, "redcards");
+					gamePlayer.PlayerId = xplayer.GetString("playerid");
+					gamePlayer.GameTeamId = xplayer.GetInt("teamid");
+					gamePlayer.Pack = xplayer.GetString("pack");
+					gamePlayer.Score = xplayer.GetInt("score");
+					gamePlayer.Rank = (uint)xplayer.GetInt("rank");
+					gamePlayer.HitsBy = xplayer.GetInt("hitsby");
+					gamePlayer.HitsOn = xplayer.GetInt("hitson");
+					gamePlayer.BaseHits = xplayer.GetInt("basehits");
+					gamePlayer.BaseDestroys = xplayer.GetInt("basedestroys");
+					gamePlayer.BaseDenies = xplayer.GetInt("basedenies");
+					gamePlayer.BaseDenied = xplayer.GetInt("basedenied");
+					gamePlayer.YellowCards = xplayer.GetInt("yellowcards");
+					gamePlayer.RedCards = xplayer.GetInt("redcards");
 
 					if (xplayer.SelectSingleNode("colour") != null)
-						gamePlayer.Colour = (Colour)(XmlInt(xplayer, "colour"));
+						gamePlayer.Colour = (Colour)(xplayer.GetInt("colour"));
 
 					game.Players.Add(gamePlayer);
 				}
@@ -946,27 +933,6 @@ namespace Torn
 			}
 		}
 
-		void AppendNode(XmlDocument doc, XmlNode parent, string name, string value)
-		{
-			if (!string.IsNullOrEmpty(value))
-			{
-				XmlNode node = doc.CreateElement(name);
-				node.AppendChild(doc.CreateTextNode(value));
-				parent.AppendChild(node);
-			}
-		}
-
-		void AppendNode(XmlDocument doc, XmlNode parent, string name, int value)
-		{
-			AppendNode(doc, parent, name, value.ToString());
-		}
-
-		void AppendNonZero(XmlDocument doc, XmlNode parent, string name, double value)
-		{
-			if (value != 0)
-				AppendNode(doc, parent, name, value.ToString());
-		}
-
 		/// <summary>Save a .Torn file to disk.</summary>
 		public void Save(string fileName = "")
 		{
@@ -980,22 +946,22 @@ namespace Torn
 			XmlNode bodyNode = doc.CreateElement("body");
 			doc.AppendChild(bodyNode);
 
-			AppendNode(doc, bodyNode, "Title", Title);
-			AppendNode(doc, bodyNode, "GridHigh", GridHigh);
-			AppendNode(doc, bodyNode, "GridWide", GridWide);
-			AppendNode(doc, bodyNode, "GridPlayers", GridPlayers);
-			AppendNode(doc, bodyNode, "SortMode", sortMode);
-			AppendNode(doc, bodyNode, "HandicapStyle", HandicapStyle.ToString());
-			AppendNonZero(doc, bodyNode, "SortByRank", sortByRank);
-			AppendNode(doc, bodyNode, "AutoUpdate", autoUpdate);
-			AppendNode(doc, bodyNode, "UpdateTeams", updateTeams);
-			AppendNonZero(doc, bodyNode, "ElimMultiplier", elimMultiplier);
+			doc.AppendNode(bodyNode, "Title", Title);
+			doc.AppendNode(bodyNode, "GridHigh", GridHigh);
+			doc.AppendNode(bodyNode, "GridWide", GridWide);
+			doc.AppendNode(bodyNode, "GridPlayers", GridPlayers);
+			doc.AppendNode(bodyNode, "SortMode", sortMode);
+			doc.AppendNode(bodyNode, "HandicapStyle", HandicapStyle.ToString());
+			doc.AppendNonZero(bodyNode, "SortByRank", sortByRank);
+			doc.AppendNode(bodyNode, "AutoUpdate", autoUpdate);
+			doc.AppendNode(bodyNode, "UpdateTeams", updateTeams);
+			doc.AppendNonZero(bodyNode, "ElimMultiplier", elimMultiplier);
 
 			foreach (double point in victoryPoints)
-				AppendNode(doc, bodyNode, "Points", point.ToString());
+				doc.AppendNode(bodyNode, "Points", point.ToString());
 
-			if (VictoryPointsHighScore != 0) AppendNode(doc, bodyNode, "High", VictoryPointsHighScore.ToString());
-			if (VictoryPointsProportional != 0) AppendNode(doc, bodyNode, "Proportional", VictoryPointsProportional.ToString());
+			if (VictoryPointsHighScore != 0) doc.AppendNode(bodyNode, "High", VictoryPointsHighScore.ToString());
+			if (VictoryPointsProportional != 0) doc.AppendNode(bodyNode, "Proportional", VictoryPointsProportional.ToString());
 
 			XmlNode leagueTeamsNode = doc.CreateElement("leaguelist");
 			bodyNode.AppendChild(leagueTeamsNode);
@@ -1005,11 +971,11 @@ namespace Torn
 				XmlNode teamNode = doc.CreateElement("team");
 				leagueTeamsNode.AppendChild(teamNode);
 
-				AppendNode(doc, teamNode, "teamname", team.Name);
-				AppendNode(doc, teamNode, "teamid", team.Id);
+				doc.AppendNode(teamNode, "teamname", team.Name);
+				doc.AppendNode(teamNode, "teamid", team.Id);
 				if (team.Handicap != null && !team.Handicap.IsZero())
-					AppendNode(doc, teamNode, "handicap", team.Handicap.ToString());
-				if (!string.IsNullOrEmpty(team.Comment)) AppendNode(doc, teamNode, "comment", team.Comment);
+					doc.AppendNode(teamNode, "handicap", team.Handicap.ToString());
+				if (!string.IsNullOrEmpty(team.Comment)) doc.AppendNode(teamNode, "comment", team.Comment);
 
 				XmlNode playersNode = doc.CreateElement("players");
 				teamNode.AppendChild(playersNode);
@@ -1019,11 +985,11 @@ namespace Torn
 					XmlNode playerNode = doc.CreateElement("player");
 					playersNode.AppendChild(playerNode);
 
-					AppendNode(doc, playerNode, "name", player.Name);
-					AppendNode(doc, playerNode, "buttonid", player.Id);
+					doc.AppendNode(playerNode, "name", player.Name);
+					doc.AppendNode(playerNode, "buttonid", player.Id);
 					if (player.Handicap != null && !player.Handicap.IsZero())
-						AppendNode(doc, playerNode, "handicap", player.Handicap.ToString());
-					if (!string.IsNullOrEmpty(player.Comment)) AppendNode(doc, playerNode, "comment", player.Comment);
+						doc.AppendNode(playerNode, "handicap", player.Handicap.ToString());
+					if (!string.IsNullOrEmpty(player.Comment)) doc.AppendNode(playerNode, "comment", player.Comment);
 				}
 			}
 
@@ -1035,11 +1001,11 @@ namespace Torn
 				XmlNode gameNode = doc.CreateElement("game");
 				gamesNode.AppendChild(gameNode);
 
-				AppendNode(doc, gameNode, "title", game.Title);
-				AppendNode(doc, gameNode, "ansigametime", game.Time.ToString("yyyy/MM/dd HH:mm:ss"));
-				AppendNode(doc, gameNode, "hits", game.Hits);
+				doc.AppendNode(gameNode, "title", game.Title);
+				doc.AppendNode(gameNode, "ansigametime", game.Time.ToString("yyyy/MM/dd HH:mm:ss"));
+				doc.AppendNode(gameNode, "hits", game.Hits);
 				if (game.Secret)
-					AppendNode(doc, gameNode, "secret", "y");
+					doc.AppendNode(gameNode, "secret", "y");
 
 				XmlNode teamsNode = doc.CreateElement("teams");
 				gameNode.AppendChild(teamsNode);
@@ -1049,12 +1015,12 @@ namespace Torn
 					XmlNode teamNode = doc.CreateElement("team");
 					teamsNode.AppendChild(teamNode);
 
-					AppendNode(doc, teamNode, "teamid", team.TeamId ?? -1);
-					AppendNode(doc, teamNode, "colour", team.Colour.ToString());
-					AppendNode(doc, teamNode, "score", team.Score);
-					AppendNonZero(doc, teamNode, "points", team.Points);
-					AppendNonZero(doc, teamNode, "adjustment", team.Adjustment);
-					AppendNonZero(doc, teamNode, "victorypointsadjustment", team.PointsAdjustment);
+					doc.AppendNode(teamNode, "teamid", team.TeamId ?? -1);
+					doc.AppendNode(teamNode, "colour", team.Colour.ToString());
+					doc.AppendNode(teamNode, "score", team.Score);
+					doc.AppendNonZero(teamNode, "points", team.Points);
+					doc.AppendNonZero(teamNode, "adjustment", team.Adjustment);
+					doc.AppendNonZero(teamNode, "victorypointsadjustment", team.PointsAdjustment);
 				}
 
 				XmlNode playersNode = doc.CreateElement("players");
@@ -1065,26 +1031,27 @@ namespace Torn
 					XmlNode playerNode = doc.CreateElement("player");
 					playersNode.AppendChild(playerNode);
 
-					AppendNode(doc, playerNode, "teamid", player.GameTeamId);
-					AppendNode(doc, playerNode, "playerid", player.PlayerId);
-					AppendNode(doc, playerNode, "pack", player.Pack);
-					AppendNode(doc, playerNode, "score", player.Score);
-					AppendNode(doc, playerNode, "rank", (int)player.Rank);
-					AppendNonZero(doc, playerNode, "hitsby", player.HitsBy);
-					AppendNonZero(doc, playerNode, "hitson", player.HitsOn);
-					AppendNonZero(doc, playerNode, "basehits", player.BaseHits);
-					AppendNonZero(doc, playerNode, "basedestroys", player.BaseDestroys);
-					AppendNonZero(doc, playerNode, "basedenies", player.BaseDenies);
-					AppendNonZero(doc, playerNode, "basedenied", player.BaseDenied);
-					AppendNonZero(doc, playerNode, "yellowcards", player.YellowCards);
-					AppendNonZero(doc, playerNode, "redcards", player.RedCards);
+					doc.AppendNode(playerNode, "teamid", player.GameTeamId);
+					doc.AppendNode(playerNode, "playerid", player.PlayerId);
+					doc.AppendNode(playerNode, "pack", player.Pack);
+					doc.AppendNode(playerNode, "score", player.Score);
+					doc.AppendNode(playerNode, "rank", (int)player.Rank);
+					doc.AppendNonZero(playerNode, "hitsby", player.HitsBy);
+					doc.AppendNonZero(playerNode, "hitson", player.HitsOn);
+					doc.AppendNonZero(playerNode, "basehits", player.BaseHits);
+					doc.AppendNonZero(playerNode, "basedestroys", player.BaseDestroys);
+					doc.AppendNonZero(playerNode, "basedenies", player.BaseDenies);
+					doc.AppendNonZero(playerNode, "basedenied", player.BaseDenied);
+					doc.AppendNonZero(playerNode, "yellowcards", player.YellowCards);
+					doc.AppendNonZero(playerNode, "redcards", player.RedCards);
 
-					AppendNode(doc, playerNode, "colour", (int)player.Colour);
+					doc.AppendNode(playerNode, "colour", (int)player.Colour);
 				}
 			}
 			if (File.Exists(file + "5Backup"))
 				File.Delete(file + "5Backup");  // Delete old backup file, if any.
-			File.Move(file, file + "5Backup");  // Rename the old league file before we save over it, by changing its extension to ".Torn5Backup".
+			if (File.Exists(file))
+				File.Move(file, file + "5Backup");  // Rename the old league file before we save over it, by changing its extension to ".Torn5Backup".
 			doc.Save(file);
 //			doc.Save(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "5") + Path.GetExtension(file));
 		}

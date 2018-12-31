@@ -37,6 +37,7 @@ namespace Torn.UI
 			this.buttonUp = new System.Windows.Forms.Button();
 			this.buttonDown = new System.Windows.Forms.Button();
 			this.buttonEdit = new System.Windows.Forms.Button();
+			this.colTitle = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			// 
 			// listViewReports
@@ -46,6 +47,7 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.listViewReports.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 									this.colReport,
+									this.colTitle,
 									this.colOptions});
 			this.listViewReports.FullRowSelect = true;
 			this.listViewReports.HideSelection = false;
@@ -65,7 +67,7 @@ namespace Torn.UI
 			// colOptions
 			// 
 			this.colOptions.Text = "Options";
-			this.colOptions.Width = 500;
+			this.colOptions.Width = 440;
 			// 
 			// buttonAdd
 			// 
@@ -121,6 +123,10 @@ namespace Torn.UI
 			this.buttonEdit.UseVisualStyleBackColor = true;
 			this.buttonEdit.Click += new System.EventHandler(this.ButtonEditClick);
 			// 
+			// colTitle
+			// 
+			this.colTitle.Text = "Title";
+			// 
 			// FormReports
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -137,6 +143,7 @@ namespace Torn.UI
 			this.Shown += new System.EventHandler(this.FormReportsShown);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ColumnHeader colTitle;
 		private System.Windows.Forms.ColumnHeader colOptions;
 		private System.Windows.Forms.ColumnHeader colReport;
 		private System.Windows.Forms.Button buttonEdit;

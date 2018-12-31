@@ -50,6 +50,23 @@ namespace Torn.UI
 			this.label4 = new System.Windows.Forms.Label();
 			this.radioColour = new System.Windows.Forms.RadioButton();
 			this.radioAlias = new System.Windows.Forms.RadioButton();
+			this.tabPageUpload = new System.Windows.Forms.TabPage();
+			this.textBoxSite = new System.Windows.Forms.TextBox();
+			this.labelSite = new System.Windows.Forms.Label();
+			this.textBoxPassword = new System.Windows.Forms.TextBox();
+			this.textBoxUsername = new System.Windows.Forms.TextBox();
+			this.labelPassword = new System.Windows.Forms.Label();
+			this.labelUsername = new System.Windows.Forms.Label();
+			this.panel3 = new System.Windows.Forms.Panel();
+			this.radioHttps = new System.Windows.Forms.RadioButton();
+			this.radioHttp = new System.Windows.Forms.RadioButton();
+			this.label2 = new System.Windows.Forms.Label();
+			this.radioSftp = new System.Windows.Forms.RadioButton();
+			this.radioFtp = new System.Windows.Forms.RadioButton();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.labelPort = new System.Windows.Forms.Label();
+			this.numericPort = new System.Windows.Forms.NumericUpDown();
+			this.checkBoxWebServer = new System.Windows.Forms.CheckBox();
 			this.panelBottom = new System.Windows.Forms.Panel();
 			this.buttonCancel = new System.Windows.Forms.Button();
 			this.buttonOK = new System.Windows.Forms.Button();
@@ -60,6 +77,10 @@ namespace Torn.UI
 			this.tabPageConfiguration.SuspendLayout();
 			this.panel4.SuspendLayout();
 			this.panel2.SuspendLayout();
+			this.tabPageUpload.SuspendLayout();
+			this.panel3.SuspendLayout();
+			this.tabPage1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPort)).BeginInit();
 			this.panelBottom.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -67,11 +88,13 @@ namespace Torn.UI
 			// 
 			this.tabControl1.Controls.Add(this.tabPageSystem);
 			this.tabControl1.Controls.Add(this.tabPageConfiguration);
+			this.tabControl1.Controls.Add(this.tabPageUpload);
+			this.tabControl1.Controls.Add(this.tabPage1);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(364, 250);
+			this.tabControl1.Size = new System.Drawing.Size(364, 292);
 			this.tabControl1.TabIndex = 0;
 			// 
 			// tabPageSystem
@@ -81,13 +104,15 @@ namespace Torn.UI
 			this.tabPageSystem.Location = new System.Drawing.Point(4, 22);
 			this.tabPageSystem.Name = "tabPageSystem";
 			this.tabPageSystem.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageSystem.Size = new System.Drawing.Size(356, 224);
+			this.tabPageSystem.Size = new System.Drawing.Size(356, 266);
 			this.tabPageSystem.TabIndex = 0;
 			this.tabPageSystem.Text = "System";
 			this.tabPageSystem.UseVisualStyleBackColor = true;
 			// 
 			// panel1
 			// 
+			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.panel1.Controls.Add(this.textBoxServerAddress);
 			this.panel1.Controls.Add(this.label3);
 			this.panel1.Location = new System.Drawing.Point(8, 127);
@@ -97,9 +122,11 @@ namespace Torn.UI
 			// 
 			// textBoxServerAddress
 			// 
+			this.textBoxServerAddress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxServerAddress.Location = new System.Drawing.Point(150, 8);
 			this.textBoxServerAddress.Name = "textBoxServerAddress";
-			this.textBoxServerAddress.Size = new System.Drawing.Size(100, 20);
+			this.textBoxServerAddress.Size = new System.Drawing.Size(187, 20);
 			this.textBoxServerAddress.TabIndex = 3;
 			// 
 			// label3
@@ -113,6 +140,8 @@ namespace Torn.UI
 			// 
 			// panelSystemType
 			// 
+			this.panelSystemType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.panelSystemType.Controls.Add(this.radioDemo);
 			this.panelSystemType.Controls.Add(this.radioLaserforce);
 			this.panelSystemType.Controls.Add(this.label1);
@@ -183,13 +212,15 @@ namespace Torn.UI
 			this.tabPageConfiguration.Location = new System.Drawing.Point(4, 22);
 			this.tabPageConfiguration.Name = "tabPageConfiguration";
 			this.tabPageConfiguration.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageConfiguration.Size = new System.Drawing.Size(356, 224);
+			this.tabPageConfiguration.Size = new System.Drawing.Size(356, 266);
 			this.tabPageConfiguration.TabIndex = 1;
 			this.tabPageConfiguration.Text = "Configuration";
 			this.tabPageConfiguration.UseVisualStyleBackColor = true;
 			// 
 			// panel4
 			// 
+			this.panel4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.panel4.Controls.Add(this.checkBoxAutoUpdateTeams);
 			this.panel4.Controls.Add(this.checkBoxAutoUpdateScoreboard);
 			this.panel4.Controls.Add(this.label6);
@@ -229,6 +260,8 @@ namespace Torn.UI
 			// 
 			// panel2
 			// 
+			this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
 			this.panel2.Controls.Add(this.radioLotr);
 			this.panel2.Controls.Add(this.label4);
 			this.panel2.Controls.Add(this.radioColour);
@@ -280,12 +313,200 @@ namespace Torn.UI
 			this.radioAlias.Text = "by alias";
 			this.radioAlias.UseVisualStyleBackColor = true;
 			// 
+			// tabPageUpload
+			// 
+			this.tabPageUpload.Controls.Add(this.textBoxSite);
+			this.tabPageUpload.Controls.Add(this.labelSite);
+			this.tabPageUpload.Controls.Add(this.textBoxPassword);
+			this.tabPageUpload.Controls.Add(this.textBoxUsername);
+			this.tabPageUpload.Controls.Add(this.labelPassword);
+			this.tabPageUpload.Controls.Add(this.labelUsername);
+			this.tabPageUpload.Controls.Add(this.panel3);
+			this.tabPageUpload.Location = new System.Drawing.Point(4, 22);
+			this.tabPageUpload.Name = "tabPageUpload";
+			this.tabPageUpload.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageUpload.Size = new System.Drawing.Size(356, 266);
+			this.tabPageUpload.TabIndex = 2;
+			this.tabPageUpload.Text = "Upload";
+			this.tabPageUpload.UseVisualStyleBackColor = true;
+			// 
+			// textBoxSite
+			// 
+			this.textBoxSite.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxSite.Location = new System.Drawing.Point(80, 124);
+			this.textBoxSite.Name = "textBoxSite";
+			this.textBoxSite.Size = new System.Drawing.Size(268, 20);
+			this.textBoxSite.TabIndex = 8;
+			// 
+			// labelSite
+			// 
+			this.labelSite.Location = new System.Drawing.Point(6, 127);
+			this.labelSite.Name = "labelSite";
+			this.labelSite.Size = new System.Drawing.Size(68, 23);
+			this.labelSite.TabIndex = 7;
+			this.labelSite.Text = "Site:";
+			// 
+			// textBoxPassword
+			// 
+			this.textBoxPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxPassword.Location = new System.Drawing.Point(80, 176);
+			this.textBoxPassword.Name = "textBoxPassword";
+			this.textBoxPassword.Size = new System.Drawing.Size(268, 20);
+			this.textBoxPassword.TabIndex = 6;
+			// 
+			// textBoxUsername
+			// 
+			this.textBoxUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxUsername.Location = new System.Drawing.Point(80, 150);
+			this.textBoxUsername.Name = "textBoxUsername";
+			this.textBoxUsername.Size = new System.Drawing.Size(268, 20);
+			this.textBoxUsername.TabIndex = 5;
+			// 
+			// labelPassword
+			// 
+			this.labelPassword.Location = new System.Drawing.Point(6, 179);
+			this.labelPassword.Name = "labelPassword";
+			this.labelPassword.Size = new System.Drawing.Size(68, 23);
+			this.labelPassword.TabIndex = 4;
+			this.labelPassword.Text = "Password:";
+			// 
+			// labelUsername
+			// 
+			this.labelUsername.Location = new System.Drawing.Point(6, 153);
+			this.labelUsername.Name = "labelUsername";
+			this.labelUsername.Size = new System.Drawing.Size(68, 23);
+			this.labelUsername.TabIndex = 3;
+			this.labelUsername.Text = "Username:";
+			// 
+			// panel3
+			// 
+			this.panel3.Controls.Add(this.radioHttps);
+			this.panel3.Controls.Add(this.radioHttp);
+			this.panel3.Controls.Add(this.label2);
+			this.panel3.Controls.Add(this.radioSftp);
+			this.panel3.Controls.Add(this.radioFtp);
+			this.panel3.Location = new System.Drawing.Point(6, 6);
+			this.panel3.Name = "panel3";
+			this.panel3.Size = new System.Drawing.Size(93, 112);
+			this.panel3.TabIndex = 2;
+			// 
+			// radioHttps
+			// 
+			this.radioHttps.AutoSize = true;
+			this.radioHttps.Location = new System.Drawing.Point(3, 85);
+			this.radioHttps.Name = "radioHttps";
+			this.radioHttps.Size = new System.Drawing.Size(48, 17);
+			this.radioHttps.TabIndex = 4;
+			this.radioHttps.TabStop = true;
+			this.radioHttps.Tag = "https";
+			this.radioHttps.Text = "https";
+			this.radioHttps.UseVisualStyleBackColor = true;
+			// 
+			// radioHttp
+			// 
+			this.radioHttp.AutoSize = true;
+			this.radioHttp.Location = new System.Drawing.Point(3, 62);
+			this.radioHttp.Name = "radioHttp";
+			this.radioHttp.Size = new System.Drawing.Size(43, 17);
+			this.radioHttp.TabIndex = 3;
+			this.radioHttp.TabStop = true;
+			this.radioHttp.Tag = "http";
+			this.radioHttp.Text = "http";
+			this.radioHttp.UseVisualStyleBackColor = true;
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(3, 0);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(79, 13);
+			this.label2.TabIndex = 2;
+			this.label2.Text = "Upload method";
+			// 
+			// radioSftp
+			// 
+			this.radioSftp.AutoSize = true;
+			this.radioSftp.Enabled = false;
+			this.radioSftp.Location = new System.Drawing.Point(3, 39);
+			this.radioSftp.Name = "radioSftp";
+			this.radioSftp.Size = new System.Drawing.Size(42, 17);
+			this.radioSftp.TabIndex = 1;
+			this.radioSftp.TabStop = true;
+			this.radioSftp.Tag = "sftp";
+			this.radioSftp.Text = "sftp";
+			this.radioSftp.UseVisualStyleBackColor = true;
+			// 
+			// radioFtp
+			// 
+			this.radioFtp.AutoSize = true;
+			this.radioFtp.Location = new System.Drawing.Point(3, 16);
+			this.radioFtp.Name = "radioFtp";
+			this.radioFtp.Size = new System.Drawing.Size(37, 17);
+			this.radioFtp.TabIndex = 0;
+			this.radioFtp.TabStop = true;
+			this.radioFtp.Tag = "ftp";
+			this.radioFtp.Text = "ftp";
+			this.radioFtp.UseVisualStyleBackColor = true;
+			// 
+			// tabPage1
+			// 
+			this.tabPage1.Controls.Add(this.labelPort);
+			this.tabPage1.Controls.Add(this.numericPort);
+			this.tabPage1.Controls.Add(this.checkBoxWebServer);
+			this.tabPage1.Location = new System.Drawing.Point(4, 22);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage1.Size = new System.Drawing.Size(356, 266);
+			this.tabPage1.TabIndex = 3;
+			this.tabPage1.Text = "Web Server";
+			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// labelPort
+			// 
+			this.labelPort.Enabled = false;
+			this.labelPort.Location = new System.Drawing.Point(8, 38);
+			this.labelPort.Name = "labelPort";
+			this.labelPort.Size = new System.Drawing.Size(100, 23);
+			this.labelPort.TabIndex = 2;
+			this.labelPort.Text = "Web server port:";
+			// 
+			// numericPort
+			// 
+			this.numericPort.Enabled = false;
+			this.numericPort.Location = new System.Drawing.Point(114, 36);
+			this.numericPort.Maximum = new decimal(new int[] {
+									65536,
+									0,
+									0,
+									0});
+			this.numericPort.Name = "numericPort";
+			this.numericPort.Size = new System.Drawing.Size(69, 20);
+			this.numericPort.TabIndex = 1;
+			this.numericPort.Value = new decimal(new int[] {
+									8080,
+									0,
+									0,
+									0});
+			// 
+			// checkBoxWebServer
+			// 
+			this.checkBoxWebServer.Location = new System.Drawing.Point(8, 6);
+			this.checkBoxWebServer.Name = "checkBoxWebServer";
+			this.checkBoxWebServer.Size = new System.Drawing.Size(185, 24);
+			this.checkBoxWebServer.TabIndex = 0;
+			this.checkBoxWebServer.Text = "Enable internal web server";
+			this.checkBoxWebServer.UseVisualStyleBackColor = true;
+			this.checkBoxWebServer.CheckedChanged += new System.EventHandler(this.CheckBoxWebServerCheckedChanged);
+			// 
 			// panelBottom
 			// 
 			this.panelBottom.Controls.Add(this.buttonCancel);
 			this.panelBottom.Controls.Add(this.buttonOK);
 			this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panelBottom.Location = new System.Drawing.Point(0, 212);
+			this.panelBottom.Location = new System.Drawing.Point(0, 254);
 			this.panelBottom.Name = "panelBottom";
 			this.panelBottom.Size = new System.Drawing.Size(364, 38);
 			this.panelBottom.TabIndex = 1;
@@ -318,7 +539,7 @@ namespace Torn.UI
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(364, 250);
+			this.ClientSize = new System.Drawing.Size(364, 292);
 			this.Controls.Add(this.panelBottom);
 			this.Controls.Add(this.tabControl1);
 			this.Name = "FormPreferences";
@@ -335,9 +556,32 @@ namespace Torn.UI
 			this.panel4.PerformLayout();
 			this.panel2.ResumeLayout(false);
 			this.panel2.PerformLayout();
+			this.tabPageUpload.ResumeLayout(false);
+			this.tabPageUpload.PerformLayout();
+			this.panel3.ResumeLayout(false);
+			this.panel3.PerformLayout();
+			this.tabPage1.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.numericPort)).EndInit();
 			this.panelBottom.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.CheckBox checkBoxWebServer;
+		private System.Windows.Forms.NumericUpDown numericPort;
+		private System.Windows.Forms.Label labelPort;
+		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.Label labelSite;
+		private System.Windows.Forms.TextBox textBoxSite;
+		private System.Windows.Forms.RadioButton radioFtp;
+		private System.Windows.Forms.RadioButton radioSftp;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.RadioButton radioHttp;
+		private System.Windows.Forms.RadioButton radioHttps;
+		private System.Windows.Forms.Panel panel3;
+		private System.Windows.Forms.Label labelUsername;
+		private System.Windows.Forms.Label labelPassword;
+		private System.Windows.Forms.TextBox textBoxUsername;
+		private System.Windows.Forms.TextBox textBoxPassword;
+		private System.Windows.Forms.TabPage tabPageUpload;
 		private System.Windows.Forms.CheckBox checkBoxAutoUpdateTeams;
 		private System.Windows.Forms.Button buttonOK;
 		private System.Windows.Forms.Button buttonCancel;

@@ -14,6 +14,8 @@ using Zoom;
 
 namespace Torn.Report
 {
+	public delegate void Progress (double progress);
+
 	/// <summary>
 	/// Serve web pages on demand. Also generates web pages to file for export or upload.
 	/// </summary>
@@ -29,13 +31,17 @@ namespace Torn.Report
 
 		public WebOutput(int port = 8080)
 		{
-			ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
-			ws.Run();
+			if (port != 0)
+			{
+				ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
+				ws.Run();
+			}
 		}
 
 		public void Dispose()
 		{
-			ws.Stop();
+			if (ws != null)
+				ws.Stop();
 		}
 
 		static string RootPage(List<Holder> leagues)
@@ -164,6 +170,9 @@ namespace Torn.Report
 			sb.Append("<html><body style=\"background-color: #EEF\"><p>");
 
 			if (MostRecentGame == null)
+				Update();
+
+			if (MostRecentGame == null)
 				sb.Append("No game found.");
 			else
 			{
@@ -214,8 +223,8 @@ namespace Torn.Report
 					return OverviewPage(holder, false, GameHyper);
 				else if (lastPart.StartsWith("game", StringComparison.OrdinalIgnoreCase))
 				{
-					DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 14), "yyyyMMddHHmm", CultureInfo.InvariantCulture);
-					Game game = holder.League.AllGames.Find(x => x.Time == dt);
+					DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 12), "yyyyMMddHHmm", CultureInfo.InvariantCulture);
+					Game game = holder.League.AllGames.Find(x => x.Time.Subtract(dt).TotalSeconds < 60);
 					if (game == null)
 						return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid game: <br>{0}</body></html>", request.RawUrl);
 					else
@@ -251,14 +260,22 @@ namespace Torn.Report
 			}
 		}
 
+		void DummyProgress(double progress) {}
+
 		/// <summary>Generate reports for the selected leagues, and write them to disk.</summary>
-		public void ExportReports(string path, bool includeSecret, List<Holder> selected)
+		public void ExportReports(string path, bool includeSecret, List<Holder> selected, Progress progress = null)
 		{
 			if (path != null)
 			{
+				int denominator = selected.Count * 4 + 1;
+				double numerator = 0.0;
+				if (progress == null)
+					progress = DummyProgress;
+
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "index.html")))
 					sw.Write(RootPage(selected));
-				
+				progress(++numerator / denominator);
+
 				foreach (Holder holder in selected)
 				{
 					League league = holder.League;
@@ -267,14 +284,18 @@ namespace Torn.Report
 
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index.html")))
 						sw.Write(OverviewPage(holder, includeSecret, GameHyper));
+					progress(++numerator / denominator);
 
 					ExportGames(league, path, holder.Key);
+					progress(++numerator / denominator);
 
 					ExportPlayers(league, path, holder.Key);
+					progress(++numerator / denominator);
 
 					foreach (LeagueTeam leagueTeam in league.Teams)
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
 							sw.Write(TeamPage(league, includeSecret, leagueTeam, GameHyper));
+					progress(++numerator / denominator);
 				}
 			}
 		}
@@ -368,42 +389,49 @@ namespace Torn.Report
 			}
 		}
 
-		void UploadFile(WebClient client, string to, string from, string file, double progress)
+		void UploadFile(WebClient client, string to, string from, string file)
 		{
-			//labelStatus.Text = file;
-			//progressBar1.Value = (int)(progress * progressBar1.Maximum);
 			Application.DoEvents();
 			client.UploadFile(to + file, Path.Combine(from, file));
 		}
 
 		/// <summary>Upload files from the named path via FTP to the internet.</summary>
-		public void UploadFiles(string path, bool includeSecret, List<Holder> selected)
+		public void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, bool includeSecret, List<Holder> selected, Progress progress = null)
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			//progressBar1.Visible = true;
 			try
 			{
 				using (WebClient client = new WebClient())
 				{
-					client.Credentials = new NetworkCredential("doug@dougburbidge.com".Normalize(), "swordfish".Normalize());
+					client.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
 
-					UploadFile(client, "ftp://dougburbidge.com/", path, "index.html", 0);
+					string url = uploadMethod + "://" + uploadSite + "/";
+					if (url.Last() != '/')
+						url += '/';
 
-					foreach (Holder holder in selected)
+					if (progress == null)
+						progress = DummyProgress;
+
+					UploadFile(client, url, localPath, "index.html");
+
+					for (int h = 0; h < selected.Count; h++)
 					{
-						string key = holder.Key;
+						string key = selected[h].Key;
 
-						DirectoryInfo di = new DirectoryInfo(Path.Combine(path, key));
+						DirectoryInfo di = new DirectoryInfo(Path.Combine(localPath, key));
 
 						// Create a directory on FTP site:
-//					    WebRequest wr = WebRequest.Create("ftp://dougburbidge.com/" + key);
+//					    WebRequest wr = WebRequest.Create(url + key);
 //						wr.Method = WebRequestMethods.Ftp.MakeDirectory;
 //						wr.Credentials = client.Credentials;
 //						wr.GetResponse();
 
 						FileInfo[] files = di.GetFiles("*.html");
 						for (int i = 0; i < files.Count(); i++)
-							UploadFile(client, "ftp://dougburbidge.com/" + key + "/", Path.Combine(path, key), files[i].Name, 1.0 * i / files.Count());
+						{
+							UploadFile(client, url, Path.Combine(localPath, key), files[i].Name);
+							progress((1.0 * i / files.Count() + h) / selected.Count);
+						}
 					}
 				}
 			}
@@ -414,13 +442,11 @@ namespace Torn.Report
 			finally
 			{
 				Cursor.Current = Cursors.Default;
-				//labelStatus.Text = "";
-				//progressBar1.Visible = false;
 			}
 			
 		}
 
-		/// <summary>Write a single pack report incorporating data from al the selected leagues.</summary>
+		/// <summary>Write a single pack report incorporating data from all the selected leagues.</summary>
 		public void PackReport(string path, List<League> leagues)
 		{
 			if (path != null)
@@ -441,9 +467,15 @@ namespace Torn.Report
 		/// <summary>Restart the web server, listening on a new port number.</summary>
 		public void Restart(int port)
 		{
-			ws.Stop();
-			ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
-			ws.Run();
+			if (ws != null)
+			{
+				ws.Stop();
+				if (port != 0)
+				{
+					ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
+					ws.Run();
+				}
+			}
 		}
 
 		/// <summary>Call this when we have switched from playing to idle or vice versa.</summary>

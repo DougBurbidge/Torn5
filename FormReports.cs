@@ -54,6 +54,7 @@ namespace Torn.UI
 			foreach(ReportTemplate reportTemplate in Holder.ReportTemplates)
 			{
 				ListViewItem item = new ListViewItem(reportTemplate.ReportType.ToString());
+				item.SubItems.Add(reportTemplate.Title);
 				item.SubItems.Add(reportTemplate.ToString());
 				item.Tag = reportTemplate;
 				listViewReports.Items.Add(item);

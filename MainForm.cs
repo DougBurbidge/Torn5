@@ -23,6 +23,7 @@ right-click remember team, identify team, identify player, handicap team
 edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Cancel
 better save format
 read from demo "server"
+read from laserforce server
 
 TODO for BOTH:
 output to screen and printer
@@ -30,9 +31,9 @@ send to scoreboard (web browser)
 on commit auto-update scoreboard and teams
 right-click handicap player, merge player
 adjust team score/victory points
+remember all teams
 
 TODO for LEAGUE:
-read from laserforce server
 handicap, on commit auto-update team handicaps
 set up fixtures
 
@@ -51,7 +52,8 @@ check latest version via REST
 reports and uploads in worker thread
 sanity check report. Add new check: are there odd games out with no victory points?
 option to zero eliminated players.
-
+If we don't find a settings file in the user folder, check for one in the exe folder.
+Move global settings to Program.cs
 */
 
 namespace Torn.UI
@@ -66,10 +68,17 @@ namespace Torn.UI
 		SystemType systemType;
 		string serverAddress = "localhost";
 
+		int webPort;
 		WebOutput webOutput;
 		LaserGameServer laserGameServer;
 		static Holders leagues;
 		Holder activeHolder;  // This is the league selected in the listView.
+		string selectedNode; // Only used in MainFormShown() and LoadSettings().
+
+		string uploadMethod;
+		string uploadSite;
+		string username;
+		string password;
 
 		PlayersBox playersBox;
 		
@@ -86,14 +95,16 @@ namespace Torn.UI
 		void MainFormShown(object sender, EventArgs e)
 		{
 			leagues = new Holders();
+			webPort = 8080;
 
 			LoadSettings();
 
-			toolStripTeams.Location = new Point(3, 24);
-			toolStripGame.Location = new Point(2, 24);
-			toolStripLeague.Location = new Point(1, 24);
+			toolStripReports.Location = new Point(0, 1);
+			toolStripTeams.Location = new Point(0, 1);
+			toolStripGame.Location = new Point(0, 1);
+			toolStripLeague.Location = new Point(0, 1);
 
-			webOutput = new WebOutput((int)numericPort.Value);
+			webOutput = new WebOutput(webPort);
 			webOutput.Leagues = leagues;
 
 	        playersBox = new PlayersBox();
@@ -110,7 +121,14 @@ namespace Torn.UI
 			AddTeamBoxes();
 
 			listViewLeagues.Focus();
-			if (listViewLeagues.Items.Count > 0)
+
+			foreach (ListViewItem item in listViewLeagues.Items)
+				if (item.Text == selectedNode)
+					item.Selected = true;
+
+			if (listViewLeagues.Items.Count == 0)
+				ListViewLeaguesItemSelectionChanged(null, null);
+			else if (listViewLeagues.SelectedIndices.Count == 0)
 				listViewLeagues.SelectedIndices.Add(0);
 		}
 
@@ -331,6 +349,12 @@ namespace Torn.UI
 
 			return (folderBrowserDialog1.ShowDialog() == DialogResult.OK) ? folderBrowserDialog1.SelectedPath : null;
 		}
+		
+		void MenuSetExportFolderClick(object sender, EventArgs e)
+		{
+			folderBrowserDialog1.Description = "Select a root folder for bulk export of league reports.";
+			folderBrowserDialog1.ShowDialog();
+		}
 
 		bool IncludeSecret()
 		{
@@ -349,13 +373,19 @@ namespace Torn.UI
 			return selected;
 		}
 
+		void ProgressBar(double progress)
+		{
+			progressBar1.Value = (int)(progress * 1000);
+		}
+
 		void ButtonExportClick(object sender, EventArgs e)
 		{
-			bool includeSecret = IncludeSecret(); // This call has to be before the GetExportFolder() call -- it queries the keyboard state.
-
-			string path = GetExportFolder();
-			if (path != null)
-				webOutput.ExportReports(path, includeSecret, SelectedLeagues());
+			progressBar1.Value  = 0;
+			progressBar1.Visible = true;
+			try {
+				webOutput.ExportReports(folderBrowserDialog1.SelectedPath, IncludeSecret(), SelectedLeagues(), ProgressBar);
+			}
+			finally { progressBar1.Visible = false; }
 		}
 
 		void ButtonTsvExportClick(object sender, EventArgs e)
@@ -386,7 +416,18 @@ namespace Torn.UI
 
 		void ButtonUploadClick(object sender, EventArgs e)
 		{
-			webOutput.UploadFiles(folderBrowserDialog1.SelectedPath, IncludeSecret(), SelectedLeagues());
+			if (string.IsNullOrEmpty(uploadMethod) || string.IsNullOrEmpty(uploadSite) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+			{
+				MessageBox.Show("Please fill in details under Leagues > Preferences > Upload.", "Upload Details Required");
+				return;
+			}
+
+			progressBar1.Value = 0;
+			progressBar1.Visible = true;
+			try {
+				webOutput.UploadFiles(uploadMethod, uploadSite, username, password, folderBrowserDialog1.SelectedPath, IncludeSecret(), SelectedLeagues());
+			}
+			finally { progressBar1.Visible = false; }
 		}
 
 		void ButtonCloseClick(object sender, EventArgs e)
@@ -514,16 +555,26 @@ namespace Torn.UI
 			form.AutoUpdateTeams = autoUpdateTeams;
 			form.SystemType = systemType;
 			form.ServerAddress = serverAddress;
+			form.WebPort = webPort;
 			if (form.ShowDialog() == DialogResult.OK)
 			{
 				groupPlayersBy = form.GroupPlayersBy;
 				autoUpdateScoreboard = form.AutoUpdateScoreboard;
 				autoUpdateTeams = form.AutoUpdateTeams;
+				uploadMethod = form.UploadMethod;
+				uploadSite = form.UploadSite;
+				username = form.Username;
+				password = form.Password;
+
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
 				ConnectLaserGameServer();
 				timeToNextCheck = TimeSpan.FromSeconds(1);
 				ButtonLatestGameClick(null,null);
+
+				webPort = form.WebPort;
+				if (webOutput != null)
+					webOutput.Restart(webPort);
 			}
 		}
 
@@ -644,18 +695,13 @@ namespace Torn.UI
 			Boolean b = listViewLeagues.SelectedItems.Count > 0;
 			string s = listViewLeagues.SelectedItems.Count > 1 ? "s" : "";
 
-			menuCloseLeague.Text = "&Close League" + s;
-			menuSaveLeague.Text = "&Save League" + s;
-			
 			buttonClose.Enabled = b;
-			menuCloseLeague.Enabled = b;
 			buttonSave.Enabled = b;
-			menuSaveLeague.Enabled = b;
-			menuExportReports.Enabled = b;
-			menuTsvExport.Enabled = b;
-			menuBulkUploadReports.Enabled = b;
-			menuPackReport.Enabled = b;
-			menuConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
+			buttonExportReports.Enabled = b;
+			buttonTsvExport.Enabled = b;
+			buttonUploadReports.Enabled = b;
+			buttonPackReport.Enabled = b;
+			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
 			if (listViewLeagues.SelectedItems.Count == 1)
 			{
@@ -683,7 +729,7 @@ namespace Torn.UI
 					((TeamBox)c).League = activeHolder == null ? null : activeHolder.League;
 		}
 
-		TimeSpan timeToNextCheck = TimeSpan.FromMinutes(1);
+		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
 		TimeSpan timeElapsed = TimeSpan.Zero;
 		bool gameInProgress = false;
 
@@ -693,7 +739,8 @@ namespace Torn.UI
 			{
 				timeElapsed = laserGameServer.GameTimeElapsed();  // This queries the database server.
 				webOutput.MostRecentHolder = leagues.MostRecent();
-				webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.Last();
+				if (webOutput.MostRecentHolder != null)
+					webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.Last();
 				webOutput.MostRecentServerGame = MostRecent();  // This also queries the database server.
 
 				if (timeElapsed > TimeSpan.FromSeconds(1))
@@ -731,7 +778,7 @@ namespace Torn.UI
 		void NumericPortValueChanged(object sender, EventArgs e)
 		{
 			if (webOutput != null)
-				webOutput.Restart((int)numericPort.Value);
+				webOutput.Restart(webPort);
 		}
 
 		void RankTeamBoxes()
@@ -763,16 +810,6 @@ namespace Torn.UI
 
 			foreach(var team in teams)
 				tableLayoutPanel1.Controls.Add(team);
-		}
-
-		string FriendlyDate(DateTime date)
-		{
-			int daysAgo = (int)DateTime.Now.Date.Subtract(date.Date).TotalDays;
-
-			if (daysAgo == 0) return "today";
-			if (daysAgo == 1) return "yesterday";
-			if (daysAgo > 0 && daysAgo < 7) return date.DayOfWeek.ToString();
-			return date.ToShortDateString();
 		}
 
 		ServerGame MostRecent()
@@ -835,7 +872,7 @@ namespace Torn.UI
 				foreach (var serverGame in games)
 				{
 					ListViewItem item = new ListViewItem();
-					item.Text = FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm");
+					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
 
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
 					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
@@ -910,37 +947,32 @@ namespace Torn.UI
 			}
 		}
 
-		char Base62(int i)
-		{
-			return i < 10 ? (char)(i + '0') :
-				   i < 36 ? (char)(i + 'a' - 10) :
-				            (char)(i + 'A' - 36);
-		}
-
-		static string XmlValue(XmlNode node, string name, string defaultValue = null)
-		{
-			var child = node.SelectSingleNode(name);
-			return child == null ? defaultValue : child.InnerText;
-		}
-
 		public void LoadSettings()
 		{
 			var doc = new XmlDocument();
-			doc.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn", "Torn5.Settings"));
+			string filename = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn", "Torn5.Settings");
+			if (!File.Exists(filename))
+			{
+				filename = Path.Combine(Environment.CurrentDirectory, "Torn5.Settings");
+				if (!File.Exists(filename))
+					return;
+			}
+			doc.Load(filename);
 
 			var root = doc.DocumentElement;
 
-			Enum.TryParse(XmlValue(root, "SystemType", "Acacia"), out systemType);
-			Enum.TryParse(XmlValue(root, "GroupPlayersBy", "Colour"), out groupPlayersBy);
-			serverAddress = XmlValue(root, "GameServerAddress", "localhost");
-			numericPort.Value = decimal.Parse(XmlValue(root, "WebServerPort", "8080"));
-			folderBrowserDialog1.SelectedPath = XmlValue(root, "ExportFolder", "");
+			Enum.TryParse(root.GetString("SystemType", "Acacia"), out systemType);
+			Enum.TryParse(root.GetString("GroupPlayersBy", "Colour"), out groupPlayersBy);
+			serverAddress = root.GetString("GameServerAddress", "localhost");
+			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
+			folderBrowserDialog1.SelectedPath = root.GetString("ExportFolder", "");
+			selectedNode = root.GetString("Selected", "");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
 
 			foreach (XmlNode xleague in xleagues)
 			{
-				Holder holder = AddLeague(XmlValue(xleague, "filename"), XmlValue(xleague, "key"));
+				Holder holder = AddLeague(xleague.GetString("filename"), xleague.GetString("key"));
 
 				var xtemplates = xleague.SelectSingleNode("reporttemplates");
 				if (xtemplates != null)
@@ -953,16 +985,6 @@ namespace Torn.UI
 			}
 		}
 
-		void AppendNode(XmlDocument doc, XmlNode parent, string name, string value)
-		{
-			if (!string.IsNullOrEmpty(value))
-			{
-				XmlNode node = doc.CreateElement(name);
-				node.AppendChild(doc.CreateTextNode(value));
-				parent.AppendChild(node);
-			}
-		}
-
 		public void SaveSettings()
 		{
 			XmlDocument doc = new XmlDocument();
@@ -972,11 +994,17 @@ namespace Torn.UI
 			XmlNode bodyNode = doc.CreateElement("body");
 			doc.AppendChild(bodyNode);
 
-			AppendNode(doc, bodyNode, "SystemType", systemType.ToString());
-			AppendNode(doc, bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
-			AppendNode(doc, bodyNode, "GameServerAddress", serverAddress);
-			AppendNode(doc, bodyNode, "WebServerPort", numericPort.Value.ToString());
-			AppendNode(doc, bodyNode, "ExportFolder", folderBrowserDialog1.SelectedPath);
+			doc.AppendNode(bodyNode, "SystemType", systemType.ToString());
+			doc.AppendNode(bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
+			doc.AppendNode(bodyNode, "GameServerAddress", serverAddress);
+			doc.AppendNode(bodyNode, "WebServerPort", webPort.ToString());
+			doc.AppendNode(bodyNode, "ExportFolder", folderBrowserDialog1.SelectedPath);
+			if (listViewLeagues.SelectedItems.Count > 0)
+				doc.AppendNode(bodyNode, "Selected", listViewLeagues.SelectedItems[0].Text);
+			doc.AppendNode(bodyNode, "UploadMethod", uploadMethod);
+			doc.AppendNode(bodyNode, "UploadSite", uploadSite);
+			doc.AppendNode(bodyNode, "Username", username);
+			doc.AppendNode(bodyNode, "Password", password);
 
 			XmlNode leaguesNode = doc.CreateElement("leagues");
 			bodyNode.AppendChild(leaguesNode);
@@ -986,14 +1014,14 @@ namespace Torn.UI
 				XmlNode holderNode = doc.CreateElement("holder");
 				leaguesNode.AppendChild(holderNode);
 
-				AppendNode(doc, holderNode, "key", holder.Key);
-				AppendNode(doc, holderNode, "filename", holder.FileName);
+				doc.AppendNode(holderNode, "key", holder.Key);
+				doc.AppendNode(holderNode, "filename", holder.FileName);
 
 				if (holder.ReportTemplates.Count > 0 || holder.Fixture.Games.Count() > 0)
 					holder.ReportTemplates.ToXml(doc, holderNode);
 
 				if (holder.Fixture.Games.Count() > 0)
-					AppendNode(doc, holderNode, "fixtures", holder.Fixture.Games.ToString());  // TODO: change to .ToXml(doc, holderNode);
+					doc.AppendNode(holderNode, "fixtures", holder.Fixture.Games.ToString());  // TODO: change to .ToXml(doc, holderNode);
 			}
 
 			doc.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn", "Torn5.Settings"));

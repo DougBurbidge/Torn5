@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Utility.cs" />
     <Compile Include="DemoServer.cs" />
     <Compile Include="FormPlayer.cs" />
     <Compile Include="FormPlayer.Designer.cs">
