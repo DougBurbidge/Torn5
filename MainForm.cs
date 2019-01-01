@@ -755,7 +755,9 @@ namespace Torn.UI
 				timeToNextCheck = timeToNextCheck.Subtract(TimeSpan.FromMilliseconds(timerGame.Interval));
 			}
 
-			if (timeElapsed == TimeSpan.Zero)
+			if (timeElapsed == TimeSpan.MinValue)
+				labelTime.Text = "";
+			else if (timeElapsed == TimeSpan.Zero)
 				labelTime.Text = "Idle";
 			else if (timeElapsed.TotalHours < 1)
 				labelTime.Text = "+" + timeElapsed.ToString("m\\:ss");
