@@ -108,6 +108,7 @@ namespace Torn.UI
 			this.imageListPacks = new System.Windows.Forms.ImageList(this.components);
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+			this.buttonHelp = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
@@ -410,7 +411,7 @@ namespace Torn.UI
 									this.buttonEdit});
 			this.toolStripLeague.Location = new System.Drawing.Point(3, 0);
 			this.toolStripLeague.Name = "toolStripLeague";
-			this.toolStripLeague.Size = new System.Drawing.Size(355, 25);
+			this.toolStripLeague.Size = new System.Drawing.Size(386, 25);
 			this.toolStripLeague.TabIndex = 0;
 			// 
 			// toolStripDropDownLeagues
@@ -421,6 +422,7 @@ namespace Torn.UI
 									this.buttonPyramid,
 									this.buttonFixtures,
 									this.buttonMatch,
+									this.buttonHelp,
 									this.buttonAbout});
 			this.toolStripDropDownLeagues.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripDropDownLeagues.Name = "toolStripDropDownLeagues";
@@ -460,7 +462,7 @@ namespace Torn.UI
 			this.buttonAbout.Name = "buttonAbout";
 			this.buttonAbout.Size = new System.Drawing.Size(225, 22);
 			this.buttonAbout.Text = "About...";
-			this.buttonAbout.Click += new System.EventHandler(this.AboutToolStripMenuItemClick);
+			this.buttonAbout.Click += new System.EventHandler(this.ButtonAboutClick);
 			// 
 			// buttonNew
 			// 
@@ -505,7 +507,7 @@ namespace Torn.UI
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.Size = new System.Drawing.Size(49, 22);
 			this.buttonEdit.Text = "&Edit";
-			this.buttonEdit.Click += new System.EventHandler(this.MenuEditLeagueClick);
+			this.buttonEdit.Click += new System.EventHandler(this.ButtonEditLeagueClick);
 			// 
 			// toolStripGame
 			// 
@@ -666,7 +668,7 @@ namespace Torn.UI
 									this.buttonConfigureReports});
 			this.toolStripReports.Location = new System.Drawing.Point(3, 75);
 			this.toolStripReports.Name = "toolStripReports";
-			this.toolStripReports.Size = new System.Drawing.Size(390, 25);
+			this.toolStripReports.Size = new System.Drawing.Size(392, 25);
 			this.toolStripReports.TabIndex = 4;
 			// 
 			// toolStripDropDownReports
@@ -725,15 +727,15 @@ namespace Torn.UI
 			this.buttonSetFolder.Name = "buttonSetFolder";
 			this.buttonSetFolder.Size = new System.Drawing.Size(87, 22);
 			this.buttonSetFolder.Text = "Set &Folder";
-			this.buttonSetFolder.Click += new System.EventHandler(this.MenuSetExportFolderClick);
+			this.buttonSetFolder.Click += new System.EventHandler(this.ButtonSetExportFolderClick);
 			// 
 			// buttonExportReports
 			// 
 			this.buttonExportReports.Image = ((System.Drawing.Image)(resources.GetObject("buttonExportReports.Image")));
 			this.buttonExportReports.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.buttonExportReports.Name = "buttonExportReports";
-			this.buttonExportReports.Size = new System.Drawing.Size(64, 22);
-			this.buttonExportReports.Text = "E&xport";
+			this.buttonExportReports.Size = new System.Drawing.Size(66, 22);
+			this.buttonExportReports.Text = "&Report";
 			this.buttonExportReports.Click += new System.EventHandler(this.ButtonExportClick);
 			// 
 			// buttonUploadReports
@@ -778,6 +780,13 @@ namespace Torn.UI
 			// 
 			this.saveFileDialog1.Filter = "Torn files|*.Torn|All files|*.*";
 			// 
+			// buttonHelp
+			// 
+			this.buttonHelp.Name = "buttonHelp";
+			this.buttonHelp.Size = new System.Drawing.Size(225, 22);
+			this.buttonHelp.Text = "Help...";
+			this.buttonHelp.Click += new System.EventHandler(this.ButtonHelpClick);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -789,7 +798,7 @@ namespace Torn.UI
 			this.MinimumSize = new System.Drawing.Size(620, 380);
 			this.Name = "MainForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Torn5";
+			this.Text = "Torn 5";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.Shown += new System.EventHandler(this.MainFormShown);
 			this.toolStripContainer1.ContentPanel.ResumeLayout(false);
@@ -811,6 +820,7 @@ namespace Torn.UI
 			this.toolStripReports.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ToolStripMenuItem buttonHelp;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownGames;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
 		private System.Windows.Forms.ToolStripMenuItem buttonTsvExport;

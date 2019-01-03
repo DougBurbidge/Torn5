@@ -98,6 +98,7 @@ namespace Torn.UI
 			// 
 			// buttonCopyFromLeague
 			// 
+			this.buttonCopyFromLeague.Enabled = false;
 			this.buttonCopyFromLeague.Location = new System.Drawing.Point(6, 48);
 			this.buttonCopyFromLeague.Name = "buttonCopyFromLeague";
 			this.buttonCopyFromLeague.Size = new System.Drawing.Size(75, 23);

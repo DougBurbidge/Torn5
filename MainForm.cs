@@ -74,6 +74,7 @@ namespace Torn.UI
 		static Holders leagues;
 		Holder activeHolder;  // This is the league selected in the listView.
 		string selectedNode; // Only used in MainFormShown() and LoadSettings().
+		string exportFolder;
 
 		string uploadMethod;
 		string uploadSite;
@@ -115,6 +116,7 @@ namespace Torn.UI
 			playersBox.Dock = DockStyle.Fill;
 			
 			formPlayer = new FormPlayer();
+			formPlayer.Icon = (Icon)Icon.Clone();
 	        ConnectLaserGameServer();
 
 	        RefreshGamesList();
@@ -219,7 +221,7 @@ namespace Torn.UI
 			EnableRemoveRowColumnButtons();
 		}
 
-		void AboutToolStripMenuItemClick(object sender, EventArgs e)
+		void ButtonAboutClick(object sender, EventArgs e)
 		{
 			MessageBox.Show("A tournament scores editor by Doug Burbidge.\nhttp://www.dougburbidge.com/Apps/", "Torn 5");
 		}
@@ -273,163 +275,6 @@ namespace Torn.UI
 			}
 		}
 
-		void SetRowColumnCount(int rows, int columns)
-		{
-			for (int i = rows * columns + 3; i < tableLayoutPanel1.Controls.Count; )
-				tableLayoutPanel1.Controls.RemoveAt(tableLayoutPanel1.Controls.Count - 1);
-
-			if (rows < tableLayoutPanel1.RowCount)
-				SetRowSpans(rows - tableLayoutPanel1.RowCount);
-
-			tableLayoutPanel1.RowCount = Math.Max(rows, 2);
-			tableLayoutPanel1.ColumnCount = Math.Max(columns + 3, 4);
-			
-			SetRowSpans(0);
- 
-			while (tableLayoutPanel1.RowStyles.Count < rows)
-				tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent));
-			foreach (RowStyle rowStyle in tableLayoutPanel1.RowStyles)
-				rowStyle.Height = 100 / tableLayoutPanel1.RowCount;
-
-			while (tableLayoutPanel1.ColumnStyles.Count < columns + 3)
-				tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent));
-			foreach (ColumnStyle columnStyle in tableLayoutPanel1.ColumnStyles)
-				columnStyle.Width = 100 / tableLayoutPanel1.ColumnCount;
-
-			AddTeamBoxes();
-			EnableRemoveRowColumnButtons();
-		}
-
-		void ButtonEditReportsClick(object sender, EventArgs e)
-		{
-			if (listViewLeagues.SelectedItems.Count > 0)
-			{
-				var item = listViewLeagues.SelectedItems[0];
-				using (var r = new FormReports((Holder)item.Tag))
-					r.ShowDialog();
-			}
-		}
-
-		void ButtonForceClick(object sender, EventArgs e) {}
-
-		void ButtonLoadClick(object sender, EventArgs e)
-		{
-			if (openFileDialog1.ShowDialog() == DialogResult.OK)
-			{
-				foreach (string fileName in openFileDialog1.FileNames)
-					AddLeague(fileName);
-
-				RefreshGamesList();
-			}
-		}
-
-		void ButtonSaveClick(object sender, EventArgs e)
-		{
-			foreach (ListViewItem item in listViewLeagues.SelectedItems)
-				((Holder)item.Tag).League.Save();
-		}
-
-		void ButtonNewClick(object sender, EventArgs e)
-		{
-			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-			{
-				foreach (string fileName in saveFileDialog1.FileNames)
-					AddLeague(fileName, "", true);
-
-				RefreshGamesList();
-			}			
-		}
-
-		string GetExportFolder()
-		{
-			if (listViewLeagues.SelectedItems.Count == 1)
-				folderBrowserDialog1.Description = "Select a root folder for bulk export of " + listViewLeagues.SelectedItems[0].SubItems[1].Text;
-			else
-				folderBrowserDialog1.Description = "Select a root folder for bulk export of the " + listViewLeagues.SelectedItems.Count.ToString(CultureInfo.CurrentCulture) + " selected leagues.";
-
-			return (folderBrowserDialog1.ShowDialog() == DialogResult.OK) ? folderBrowserDialog1.SelectedPath : null;
-		}
-		
-		void MenuSetExportFolderClick(object sender, EventArgs e)
-		{
-			folderBrowserDialog1.Description = "Select a root folder for bulk export of league reports.";
-			folderBrowserDialog1.ShowDialog();
-		}
-
-		bool IncludeSecret()
-		{
-			return (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift)) ||
-				(ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Alt)) ||
-				(ModifierKeys.HasFlag(Keys.Shift) && ModifierKeys.HasFlag(Keys.Alt));
-		}
-
-		List<Holder> SelectedLeagues()
-		{
-			List<Holder> selected = new List<Holder>();
-
-			foreach (ListViewItem item in listViewLeagues.SelectedItems)
-				selected.Add((Holder)item.Tag);
-
-			return selected;
-		}
-
-		void ProgressBar(double progress)
-		{
-			progressBar1.Value = (int)(progress * 1000);
-		}
-
-		void ButtonExportClick(object sender, EventArgs e)
-		{
-			progressBar1.Value  = 0;
-			progressBar1.Visible = true;
-			try {
-				webOutput.ExportReports(folderBrowserDialog1.SelectedPath, IncludeSecret(), SelectedLeagues(), ProgressBar);
-			}
-			finally { progressBar1.Visible = false; }
-		}
-
-		void ButtonTsvExportClick(object sender, EventArgs e)
-		{
-			bool includeSecret = IncludeSecret();
-
-			string path = GetExportFolder();
-			if (path != null)
-				webOutput.ExportReportsAsTsv(path, includeSecret, SelectedLeagues());
-		}
-
-		void ButtonFixtureClick(object sender, EventArgs e)
-		{
-			if (listViewLeagues.SelectedItems.Count == 1)
-			{
-				var item = listViewLeagues.SelectedItems[0];
-				using (var f = new FormFixture(((Holder)item.Tag).Fixture, ((Holder)item.Tag).League))
-					f.ShowDialog();
-			}
-		}
-
-		void ButtonExportFixturesClick(object sender, EventArgs e)
-		{
-			string path = GetExportFolder();
-			if (path != null)
-				webOutput.ExportFixtures(path, SelectedLeagues());
-		}
-
-		void ButtonUploadClick(object sender, EventArgs e)
-		{
-			if (string.IsNullOrEmpty(uploadMethod) || string.IsNullOrEmpty(uploadSite) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-			{
-				MessageBox.Show("Please fill in details under Leagues > Preferences > Upload.", "Upload Details Required");
-				return;
-			}
-
-			progressBar1.Value = 0;
-			progressBar1.Visible = true;
-			try {
-				webOutput.UploadFiles(uploadMethod, uploadSite, username, password, folderBrowserDialog1.SelectedPath, IncludeSecret(), SelectedLeagues());
-			}
-			finally { progressBar1.Visible = false; }
-		}
-
 		void ButtonCloseClick(object sender, EventArgs e)
 		{
 			foreach (ListViewItem item in listViewLeagues.SelectedItems)
@@ -481,6 +326,66 @@ namespace Torn.UI
 			}
 		}
 
+		void ButtonEditLeagueClick(object sender, EventArgs e)
+		{
+			var form = new FormLeague();
+			form.Icon = (Icon)Icon.Clone();
+			form.League = activeHolder.League.Clone();
+			form.FormPlayer = formPlayer;
+			if (form.ShowDialog() == DialogResult.OK)
+			{
+				activeHolder.League = form.League;
+				activeHolder.League.Save();
+			}
+		}
+
+		void ButtonEditReportsClick(object sender, EventArgs e)
+		{
+			if (listViewLeagues.SelectedItems.Count > 0)
+			{
+				var item = listViewLeagues.SelectedItems[0];
+				using (var form = new FormReports((Holder)item.Tag))
+				{
+					form.Icon = (Icon)Icon.Clone();
+					form.ShowDialog();
+				}
+			}
+		}
+
+		void ButtonExportClick(object sender, EventArgs e)
+		{
+			if (GetExportFolder() != null)
+			{
+				progressBar1.Value  = 0;
+				progressBar1.Visible = true;
+				try {
+					webOutput.ExportReports(exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
+				}
+				finally { progressBar1.Visible = false; }
+			}
+		}
+
+		void ButtonExportFixturesClick(object sender, EventArgs e)
+		{
+			if (GetExportFolder() != null)
+				webOutput.ExportFixtures(exportFolder, SelectedLeagues());
+		}
+
+		void ButtonFixtureClick(object sender, EventArgs e)
+		{
+			if (listViewLeagues.SelectedItems.Count == 1)
+			{
+				var item = listViewLeagues.SelectedItems[0];
+				using (var form = new FormFixture(((Holder)item.Tag).Fixture, ((Holder)item.Tag).League))
+				{
+					form.Icon = (Icon)Icon.Clone();
+					form.ShowDialog();
+				}
+			}
+		}
+
+		void ButtonForceClick(object sender, EventArgs e) {}
+
 		void ButtonForgetClick(object sender, EventArgs e)
 		{
 			if (listViewGames.SelectedItems.Count == 0)
@@ -502,6 +407,11 @@ namespace Torn.UI
 			playersBox.Clear();
 		}
 
+		void ButtonHelpClick(object sender, EventArgs e)
+		{
+			System.Diagnostics.Process.Start("https://github.com/DougBurbidge/Torn5/blob/master/help.html");
+		}
+
 		void ButtonLatestGameClick(object sender, EventArgs e)
 		{
 			RefreshGamesList();
@@ -516,40 +426,34 @@ namespace Torn.UI
 			}
 		}
 
+		void ButtonLoadClick(object sender, EventArgs e)
+		{
+			if (openFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				foreach (string fileName in openFileDialog1.FileNames)
+					AddLeague(fileName);
+
+				RefreshGamesList();
+			}
+		}
+
 		void ButtonPackReportClick(object sender, EventArgs e)
 		{
-			string path = GetExportFolder();
-			if (path != null)
+			if (GetExportFolder() != null)
 			{
 				var leagues = new List<League>();
 
 				foreach (ListViewItem item in listViewLeagues.SelectedItems)
 					leagues.Add(((Holder)item.Tag).League);
 
-				webOutput.PackReport(path, leagues);
+				webOutput.PackReport(exportFolder, leagues);
 			}
-		}
-
-		void ButtonSetDescriptionClick(object sender, EventArgs e)
-		{
-			if (listViewGames.SelectedItems.Count == 0)
-				return;
-
-			var id = new InputDialog("Description: ", "Set a description", listViewGames.SelectedItems[0].SubItems[2].Text);
-			if (id.ShowDialog() == DialogResult.OK)
-				foreach (ListViewItem item in listViewGames.SelectedItems)
-					if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
-					{
-						((ServerGame)item.Tag).Game.Title = id.Response;
-						while (item.SubItems.Count <= 2)
-							item.SubItems.Add("");
-						item.SubItems[2].Text = id.Response;
-					}
 		}
 
 		void ButtonPreferencesClick(object sender, EventArgs e)
 		{
 			var form = new FormPreferences();
+			form.Icon = (Icon)Icon.Clone();
 			form.GroupPlayersBy = groupPlayersBy;
 			form.AutoUpdateScoreboard = autoUpdateScoreboard;
 			form.AutoUpdateTeams = autoUpdateTeams;
@@ -576,6 +480,141 @@ namespace Torn.UI
 				if (webOutput != null)
 					webOutput.Restart(webPort);
 			}
+		}
+
+		void ButtonNewClick(object sender, EventArgs e)
+		{
+			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				foreach (string fileName in saveFileDialog1.FileNames)
+					AddLeague(fileName, "", true);
+
+				RefreshGamesList();
+			}			
+		}
+
+		void ButtonSaveClick(object sender, EventArgs e)
+		{
+			foreach (ListViewItem item in listViewLeagues.SelectedItems)
+				((Holder)item.Tag).League.Save();
+		}
+
+		void ButtonSetDescriptionClick(object sender, EventArgs e)
+		{
+			if (listViewGames.SelectedItems.Count == 0)
+				return;
+
+			var id = new InputDialog("Description: ", "Set a description", listViewGames.SelectedItems[0].SubItems[2].Text);
+			if (id.ShowDialog() == DialogResult.OK)
+				foreach (ListViewItem item in listViewGames.SelectedItems)
+					if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
+					{
+						((ServerGame)item.Tag).Game.Title = id.Response;
+						while (item.SubItems.Count <= 2)
+							item.SubItems.Add("");
+						item.SubItems[2].Text = id.Response;
+					}
+		}
+
+		void ButtonSetExportFolderClick(object sender, EventArgs e)
+		{
+			GetExportFolder("Select a root folder for bulk export of league reports.", true);
+		}
+
+		void ButtonTsvExportClick(object sender, EventArgs e)
+		{
+			bool includeSecret = IncludeSecret();
+
+			if (GetExportFolder() != null)
+				webOutput.ExportReportsAsTsv(exportFolder, includeSecret, SelectedLeagues());
+		}
+
+		void ButtonUploadClick(object sender, EventArgs e)
+		{
+			if (string.IsNullOrEmpty(uploadMethod) || string.IsNullOrEmpty(uploadSite) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+			{
+				MessageBox.Show("Please fill in details under Leagues > Preferences > Upload.", "Upload Details Required");
+				return;
+			}
+
+			if (GetExportFolder() != null)
+			{
+				progressBar1.Value = 0;
+				progressBar1.Visible = true;
+				try {
+					webOutput.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues());
+				}
+				finally { progressBar1.Visible = false; }
+			}
+		}
+
+		string GetExportFolder(string message = "", bool showDialog = false)
+		{
+			if (!showDialog && !string.IsNullOrEmpty(exportFolder))
+				return exportFolder;
+
+			if (!string.IsNullOrEmpty(message))
+				folderBrowserDialog1.Description = message;
+			else if (listViewLeagues.SelectedItems.Count == 1)
+				folderBrowserDialog1.Description = "Select a root folder for bulk export of " + listViewLeagues.SelectedItems[0].SubItems[1].Text;
+			else
+				folderBrowserDialog1.Description = "Select a root folder for bulk export of the " + listViewLeagues.SelectedItems.Count.ToString(CultureInfo.CurrentCulture) + " selected leagues.";
+
+			folderBrowserDialog1.SelectedPath = exportFolder;
+
+			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+				return exportFolder = folderBrowserDialog1.SelectedPath;
+			else
+				return null;
+		}
+		
+		void SetRowColumnCount(int rows, int columns)
+		{
+			for (int i = rows * columns + 3; i < tableLayoutPanel1.Controls.Count; )
+				tableLayoutPanel1.Controls.RemoveAt(tableLayoutPanel1.Controls.Count - 1);
+
+			if (rows < tableLayoutPanel1.RowCount)
+				SetRowSpans(rows - tableLayoutPanel1.RowCount);
+
+			tableLayoutPanel1.RowCount = Math.Max(rows, 2);
+			tableLayoutPanel1.ColumnCount = Math.Max(columns + 3, 4);
+			
+			SetRowSpans(0);
+ 
+			while (tableLayoutPanel1.RowStyles.Count < rows)
+				tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent));
+			foreach (RowStyle rowStyle in tableLayoutPanel1.RowStyles)
+				rowStyle.Height = 100 / tableLayoutPanel1.RowCount;
+
+			while (tableLayoutPanel1.ColumnStyles.Count < columns + 3)
+				tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent));
+			foreach (ColumnStyle columnStyle in tableLayoutPanel1.ColumnStyles)
+				columnStyle.Width = 100 / tableLayoutPanel1.ColumnCount;
+
+			AddTeamBoxes();
+			EnableRemoveRowColumnButtons();
+		}
+
+		bool IncludeSecret()
+		{
+			return (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift)) ||
+				(ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Alt)) ||
+				(ModifierKeys.HasFlag(Keys.Shift) && ModifierKeys.HasFlag(Keys.Alt));
+		}
+
+		List<Holder> SelectedLeagues()
+		{
+			List<Holder> selected = new List<Holder>();
+
+			foreach (ListViewItem item in listViewLeagues.SelectedItems)
+				selected.Add((Holder)item.Tag);
+
+			return selected;
+		}
+
+		void ProgressBar(double progress)
+		{
+			progressBar1.Value = (int)(progress * 1000);
 		}
 
 		TeamBox FindEmptyTeamBox()
@@ -937,18 +976,6 @@ namespace Torn.UI
 			e.DrawText(flags);
 		}
 
-		void MenuEditLeagueClick(object sender, EventArgs e)
-		{
-			var form = new FormLeague();
-			form.League = activeHolder.League.Clone();
-			form.FormPlayer = formPlayer;
-			if (form.ShowDialog() == DialogResult.OK)
-			{
-				activeHolder.League = form.League;
-				activeHolder.League.Save();
-			}
-		}
-
 		public void LoadSettings()
 		{
 			var doc = new XmlDocument();
@@ -967,7 +994,7 @@ namespace Torn.UI
 			Enum.TryParse(root.GetString("GroupPlayersBy", "Colour"), out groupPlayersBy);
 			serverAddress = root.GetString("GameServerAddress", "localhost");
 			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
-			folderBrowserDialog1.SelectedPath = root.GetString("ExportFolder", "");
+			exportFolder = root.GetString("ExportFolder", "");
 			selectedNode = root.GetString("Selected", "");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
@@ -1000,7 +1027,7 @@ namespace Torn.UI
 			doc.AppendNode(bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
 			doc.AppendNode(bodyNode, "GameServerAddress", serverAddress);
 			doc.AppendNode(bodyNode, "WebServerPort", webPort.ToString());
-			doc.AppendNode(bodyNode, "ExportFolder", folderBrowserDialog1.SelectedPath);
+			doc.AppendNode(bodyNode, "ExportFolder", exportFolder);
 			if (listViewLeagues.SelectedItems.Count > 0)
 				doc.AppendNode(bodyNode, "Selected", listViewLeagues.SelectedItems[0].Text);
 			doc.AppendNode(bodyNode, "UploadMethod", uploadMethod);
