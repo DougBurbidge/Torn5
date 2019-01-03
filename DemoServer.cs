@@ -43,7 +43,7 @@ namespace Torn
 				ServerPlayer player = new ServerPlayer();
 				player.Colour = (Colour)r.Next(1, 9);
 				player.Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001;
-				player.PackName = "Pack" + r.Next(1, 30).ToString("D2");
+				player.Pack = "Pack" + r.Next(1, 30).ToString("D2");
 				var x = r.Next(0, 10);
 				var y = r.Next(0, 10);
 				player.PlayerId = "demo" + (x * 10).ToString() + y.ToString();

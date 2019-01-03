@@ -45,7 +45,7 @@ namespace Torn.UI
 			if (serverGame.Players != null)
 				foreach (var player in serverGame.Players)
 				{
-				ListViewItem item = new ListViewItem(player.PackName, (int)player.Colour);
+				ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
 					item.SubItems.Add(player.Alias);
 					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
 					item.Tag = player;

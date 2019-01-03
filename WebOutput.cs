@@ -455,6 +455,10 @@ namespace Torn.Report
 				foreach (var league in leagues)
 					soloGames.AddRange(league.AllGames.Where(g => g.Title == "Round Robin" || g.Title == "Round 1" ||
 					                                         g.Title == "Rep 1" || g.Title == "Repechage 1"));
+				
+				if (soloGames.Count == 0)
+					foreach (var league in leagues)
+						soloGames.AddRange(league.AllGames);
 
 				var reports = new ZoomReports();
 				reports.Add(Reports.PackReport(leagues, soloGames, null, null, null, ChartType.KernelDensityEstimate | ChartType.Rug, true));

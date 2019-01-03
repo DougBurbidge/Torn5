@@ -107,7 +107,7 @@ namespace Torn
 					ServerPlayer player = new ServerPlayer();
 					player.Colour = ColourExtensions.ToColour(reader.GetInt32(0));
 					player.Score = reader.GetInt32(1);
-					player.PackName = reader.GetString(2);
+					player.Pack = reader.GetString(2);
 					if (!reader.IsDBNull(3))
 						player.PlayerId = reader.GetString(3);
 					if (!reader.IsDBNull(4))

@@ -152,7 +152,7 @@ namespace Torn
 					player.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
 					player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
 					player.Score = GetInt(reader, "Score");
-					player.PackName = GetString(reader, "Pack_Name");
+					player.Pack = GetString(reader, "Pack_Name");
 					player.PlayerId = GetString(reader, "Button_ID");
 					player.Alias = GetString(reader, "Alias");
 

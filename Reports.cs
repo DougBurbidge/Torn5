@@ -1014,7 +1014,7 @@ namespace Torn.Report
 				}
 			}
 			
-			report.Columns.Add(new ZColumn("Base hits etc."));
+			report.Columns.Add(new ZColumn("Base hits etc.", ZAlignment.Left));
 
 			return report;
 		}
@@ -1617,7 +1617,7 @@ namespace Torn.Report
 				row.Add(new ZCell(tagRatios.Count, ChartType.None, "F0"));  // Total games used for tag ratio statistics.
 			}  // foreach pack
 
-			report.Rows = report.Rows.OrderByDescending(x => x[8].Number).ThenByDescending(x => x[7].Number).ThenByDescending(x => x[3].Number).ToList();
+			report.Rows = report.Rows.OrderByDescending(x => x[7].Number).ThenByDescending(x => x[3].Number).ToList();
 
 			// Assign ranks.
 			for (int i = 0; i < report.Rows.Count; i++)

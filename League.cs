@@ -1284,7 +1284,6 @@ namespace Torn
 	{
 		public int PandCPlayerId { get; set; }  // This is the under-the-hood PAndC table ID field.
 		public int PandCPlayerTeamId { get; set; }  // Ditto. These two are only used by systems with in-game data available.
-		public string PackName { get; set; }
 		public string Alias { get; set; }
 		/// <summary>If this object is linked from a ListViewItem's Tag, list that ListViewItem here.</summary>
 		public ListViewItem Item { get; set; }
