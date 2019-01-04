@@ -873,13 +873,13 @@ namespace Torn.UI
 		void RefreshGamesList()
 		{
 			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
-			var games = laserGameServer.GetGames();
+			var serverGames = laserGameServer.GetGames();
 
-			if (games.Count > 0)
-				games.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
+			if (serverGames.Count > 0)
+				serverGames.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
 
 			// Link server games to league games, where a matching league game exists.
-			foreach (var serverGame in games)
+			foreach (var serverGame in serverGames)
 				foreach (Holder holder in leagues)
 				{
 					Game leagueGame = holder.League.AllGames.Find(x => x.Time == serverGame.Time);
@@ -887,22 +887,28 @@ namespace Torn.UI
 					{
 						serverGame.League = holder.League;
 						serverGame.Game = leagueGame;
+						leagueGame.ServerGame = serverGame;
+						if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
+						{
+							laserGameServer.PopulateGame(serverGame);
+							Application.DoEvents();
+						}
 					}
 				}
 
 			// Create fake "server" games to represent league games, where a server game doesn't already exist (because Acacia has forgotten it).
 			foreach (Holder holder in leagues)
 				foreach (Game leagueGame in holder.League.AllGames)
-					if (games.Find(x => x.Time == leagueGame.Time) == null)
+					if (serverGames.Find(x => x.Time == leagueGame.Time) == null)
 					{
 						ServerGame game = new ServerGame();
 						game.League = holder.League;
 						game.Game = leagueGame;
 						game.Time = leagueGame.Time;
-						games.Add(game);
+						serverGames.Add(game);
 					}
 
-			games.Sort();
+			serverGames.Sort();
 
 			listViewGames.BeginUpdate();
 			try
@@ -910,7 +916,7 @@ namespace Torn.UI
 				listViewGames.Items.Clear();
 
 				// Create items in the list view, one for each server game.
-				foreach (var serverGame in games)
+				foreach (var serverGame in serverGames)
 				{
 					ListViewItem item = new ListViewItem();
 					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
