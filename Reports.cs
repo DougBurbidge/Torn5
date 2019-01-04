@@ -130,7 +130,8 @@ namespace Torn.Report
 				ZCell scoreCell;
 				foreach (GameTeam gameTeam in league.Played(team, includeSecret))  // Roll through this team's games.
 				{
-					if ((rt.From == null || league.Game(gameTeam).Time >= rt.From) && (rt.To == null || league.Game(gameTeam).Time <= rt.To))
+					Game game = league.Game(gameTeam);
+					if ((rt.From == null || game.Time >= rt.From) && (rt.To == null || game.Time <= rt.To))
 					{
 						if (ratio)
 						{
@@ -850,6 +851,32 @@ namespace Torn.Report
 			row.Add(BlankZero(gamePlayer.RedCards, ChartType.Bar, color));
 		}
 
+		public static void FillAverages(ZoomReport report, ZRow averageRow)
+		{
+			for (int col = averageRow.Count; col < report.Columns.Count; col++)
+			{
+				double total = 0.0;
+				int count = 0;
+				string format = "N0";
+				foreach (var row in report.Rows)
+				{
+					if (col < row.Count && row[col].Number != null)
+					{
+						total += (double)row[col].Number;
+						count++;
+						if (!string.IsNullOrEmpty(row[col].NumberFormat))
+							format = row[col].NumberFormat;
+					}
+				}
+				if (count == 0)
+					averageRow.Add(new ZCell(""));
+				else if (format == "N0" && total / count < 100)
+					averageRow.Add(new ZCell(total / count, ChartType.Bar, "N1"));
+				else
+					averageRow.Add(new ZCell(total / count, ChartType.Bar, format));
+			}
+		}
+
 		public static ZoomReport OneGame(League league, Game game)
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(),
@@ -985,28 +1012,28 @@ namespace Torn.Report
 					var s = new StringBuilder();
 					var startTime = game.ServerGame.Events.FirstOrDefault().Time;
 					int minutes = 0;  // How many whole minutes into the game are we?
-
-					foreach (var eevent in game.ServerGame.Events.Where(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) ||(x.Event_Type >= 37 && x.Event_Type <= 1404))))
-					{
-						int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
-						s.Append('\u00B7', now - minutes);  // Add one dot for each whole minute of the game.
-						minutes = now;
-
-						switch (eevent.Event_Type)
+					if (player1 is ServerPlayer)
+						foreach (var eevent in game.ServerGame.Events.Where(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) ||(x.Event_Type >= 37 && x.Event_Type <= 1404))))
 						{
-								case 28: s.Append('\u25af'); break;  // warning: open rectangle
-								case 29: s.Append('\u25ae'); break;  // terminated: filled rectangle
-								case 30: s.Append('\u25cb'); break;  // hit base: open circle
-								case 31: s.Append('\u2b24'); break;  // destroyed base: filled circle
-								case 32: s.Append("\U0001f480"); break;  // eliminated: skull
-								case 33: s.Append('!'); break;  // hit by base
-								case 34: s.Append('!'); break;  // hit by mine
-								case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: s.Append('!'); break;  // player tagged target
-								case 1401: case 1402: s.Append('\u29bb', eevent.ShotsDenied / 2); if (eevent.ShotsDenied == 1) s.Append('\u2300'); break;  // score denial points: circle with cross, circle with slash
-								case 1403: case 1404: s.Append(eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
-								default: s.Append('?'); break;
+							int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
+							s.Append('\u00B7', now - minutes);  // Add one dot for each whole minute of the game.
+							minutes = now;
+	
+							switch (eevent.Event_Type)
+							{
+									case 28: s.Append('\u25af'); break;  // warning: open rectangle
+									case 29: s.Append('\u25ae'); break;  // terminated: filled rectangle
+									case 30: s.Append('\u25cb'); break;  // hit base: open circle
+									case 31: s.Append('\u2b24'); break;  // destroyed base: filled circle
+									case 32: s.Append("\U0001f480"); break;  // eliminated: skull
+									case 33: s.Append('!'); break;  // hit by base
+									case 34: s.Append('!'); break;  // hit by mine
+									case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: s.Append('!'); break;  // player tagged target
+									case 1401: case 1402: s.Append('\u29bb', eevent.ShotsDenied / 2); if (eevent.ShotsDenied == 1) s.Append('\u2300'); break;  // score denial points: circle with cross, circle with slash
+									case 1403: case 1404: s.Append(eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
+									default: s.Append('?'); break;
+							}
 						}
-					}
 					s.Append('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes);  // Add one dot for each whole minute of the game.
 					row.Add(new ZCell(s.ToString()));
 
@@ -1281,10 +1308,11 @@ namespace Torn.Report
 			if (league.IsPoints())
 				report.Columns.Add(new ZColumn("Pts", ZAlignment.Float));
 
-			int teamTotalScore = 0;
-			double teamTotalPoints = 0;
-			int teamGames = 0;
-			int pointsGames = 0; // Number of games that had victory points not null.
+			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroyed,Denies,Denied,Yellow Cards,Red Cards", 
+			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
+
+			// TODO: add columns for total points for/against, total team tags for/against, total team denials for/against (from game.ServerGame.Events?)
+
 			DateTime previousGameDate = DateTime.MinValue;
 			// Add a row for each of this team's games. Fill in values for team score and player scores.
 			foreach (GameTeam gameTeam in league.Played(team, includeSecret))
@@ -1307,7 +1335,7 @@ namespace Torn.Report
 					// Add player scores to player columns.
 					foreach (LeaguePlayer leaguePlayer in players)
 					{
-						GamePlayer gamePlayer = gameTeam.Players.Find(x => league.LeaguePlayer(x) == leaguePlayer);
+						GamePlayer gamePlayer = gameTeam.Players.Find(x => league.LeaguePlayer(x).Id == leaguePlayer.Id);
 						if (gamePlayer == null)
 							gameRow.Add(new ZCell(""));
 						else
@@ -1316,40 +1344,35 @@ namespace Torn.Report
 
 					gameRow.Add(new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor()));
 	
-					teamTotalScore += gameTeam.Score;
-					teamGames++;
 					if (league.IsPoints())
 					{
 						if (game.IsPoints())
-						{
 							gameRow.Add(new ZCell(gameTeam.Points, ChartType.None, "N0", gameTeam.Colour.ToColor()));
-							teamTotalPoints += gameTeam.Points;
-							pointsGames++;
-						}
 						else
 							gameRow.Add(new ZCell(""));
 					}
+
+					var teamTotal = new GamePlayer();
+					foreach (GamePlayer gamePlayer in gameTeam.Players)
+						teamTotal.Add(gamePlayer);
+					FillDetails(gameRow, teamTotal, gameTeam.Colour.ToColor(), game.TotalScore() / game.Teams.Count);
+
 					previousGameDate = game.Time.Date;
-				}  // if from..to; for GameList
+				}  // if from..to; for Played
 
 			ZRow averageRow = new ZRow();
-			report.Rows.Add(averageRow);
 			averageRow.Add(new ZCell("Average"));
-			foreach (var x in averagesList)
-				averageRow.Add(new ZCell(x.Value, ChartType.Bar, "N0"));
+			FillAverages(report, averageRow);
+			report.Rows.Add(averageRow);
 
-			if (teamGames > 0)
-			{
-				averageRow.Add(new ZCell(teamTotalScore / teamGames, ChartType.Bar, "N0"));
-				if (league.IsPoints() && pointsGames > 0)
-					averageRow.Add(new ZCell(teamTotalPoints / pointsGames, ChartType.None, "N1"));
-			}
 			report.MaxChartByColumn = true;
 //			TODO: replace the above line with report.OnCalcBar = KombiReportCalcBar; TeamLadderCalcBar;
 
 			if (description)
 				report.Description = "This report shows the team " + team.Name +" and its players.  Each row is one game.";
-			
+
+			report.RemoveColumn(report.Columns.IndexOf(report.Columns.Find(c => c.Text == "Score again")));
+			report.RemoveZeroColumns();
 			return report;
 		}  // OneTeam
 
@@ -1707,11 +1730,16 @@ namespace Torn.Report
 
 			return report;
 		}  // EverythingReport
-		
+
+		/// <summary>If i is 0, return a cell which has "" as its text (but still 0 as its number). Otherwise return a cell with this number.</summary>
 		static ZCell BlankZero(int i, ChartType chartType, Color color)
 		{
 			if (i == 0)
-				return new ZCell("", color);
+			{
+				var cell = new ZCell("", color);
+				cell.Number = 0;
+				return cell;
+			}
 			else
 				return new ZCell(i, chartType, null, color);
 		}

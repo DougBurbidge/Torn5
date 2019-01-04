@@ -97,7 +97,7 @@ namespace Zoom
 		{
 			get 
 			{
-				if (string.IsNullOrEmpty(text))
+				if (text == null)
 				{
 					if (string.IsNullOrEmpty(NumberFormat))
 						return Number.ToString();
@@ -299,6 +299,13 @@ namespace Zoom
 
 			Title = title;
 
+			AddColumns(headings, alignments);
+
+			Bars = true;
+		}
+
+		public void AddColumns(string headings, string alignments = "")
+		{
 			if (!string.IsNullOrEmpty(headings))
 				foreach (string heading in headings.Split(','))
 					Columns.Add(new ZColumn(heading));
@@ -309,11 +316,7 @@ namespace Zoom
 				for (int i = 0; i < Columns.Count && i < alignmentList.Length; i++)
 					Columns[i].Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
 			}
-
-			Bars = true;
 		}
-
-		//procedure SaveAsCsv(var F: TextFile; separator: char = ',');
 
 		static void AppendStrings(StringBuilder builder, params string[] strings)
 		{
