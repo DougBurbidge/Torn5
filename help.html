@@ -2,6 +2,17 @@
 <h1>Torn 5</h1>
 <p>
 Torn 5 is a ground-up rewrite of Torn 4. It is a tournament scores manager, and can read data from Nexus, Helios and Laserforce systems. It requires .NET Framework 4.0. Note that Torn 5 is currently in a Beta state -- it mostly works, but not all features are complete, and there may be bugs. If you are using it to open Torn 4 files, I recommend keeping a safe backup of those .Torn files elsewhere, just in case.
+<h2>Changes from Torn 4</h2>
+<p>
+If you're familiar with Torn 4, here's the very quick guide:
+<ul><li>Torn 4 and Torn 5 can read each others' .Torn files.</li>
+<li>Torn 5 can have several leagues (i.e. .Torn files) open at once.</li>
+<li>The Games drop-down "combo box" is now an always-visible Games list.</li>
+<li>Reports are different.</li>
+<li>There are no menus -- everything is on toolbar buttons for improved visibility. Occasional and advanced functions are on drop-down "menu" buttons.</li>
+<li>Torn 5 acts as a web server so that players can get up-to-the-minute reports without you having to click anything other than Commit.</li></ul>
+</p>
+<h2>Quick Start</h2>
 </p><p>
 Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. For P&amp;C systems, this is jsut the name or IP address of the databsae server machine. For Laserforce, this is something like \\lfmain\lf6. If you don't have a lasergame system, just leave it at Demo.
 </p><p>
@@ -14,6 +25,7 @@ If you like, you can open more league files. This is a difference between Torn 4
 Click a game to see its packs/players. Now you can do all the usual Torn things -- right-click on a team box and Remember that team, Commit the game, Edit the league, etc.
 </p><p>
 Because the games listing is now an always-visible list instead of being a drop-down "combo box", you can now select multiple games. Some features work on all selected games -- e.g. Forget will remove all the selected games from whatever league they had been committed to. Set Description lets you title committed games or groups of games: "Round 1", "Repechage 3", "Cascade 1", "Finals", etc. These titles will be shown in reports.
+Games present in the game server are shown in white. Games only present in Torn files are shown slightly greyed.
 </p><p>
 Reporting is different in Torn 5 -- click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired.
 </p><p>
@@ -24,4 +36,28 @@ If you have enabled the web server under Preferences, any web browser that can s
 For P&amp;C systems, for games that have been committed during this run of Torn 5, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so if you exit Torn 5 and restart, a fresh report will <em>not</em> contain this additional detail.
 </p><p>
 Things not yet implemented: fixture generation, pushing scores to a scoreboard, LotR mode, setting up pyramid rounds, and a variety of other bits and bobs.
+</p>
+<h2>Pack Report</h2>
+<p>
+The pack report endeavours to tell you how "good" or "bad" packs are. It does this via <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Student's t-test</a>.
+</p><p>
+Select one or more leagues (hold down the ctrl key to select additional leagues), then click Reports &#x25b8 Pack Report. The report will be generated and saved to the folder you set under Set Destination, as packreport.html.
+</p><p>
+View the report in your favourite web browser. You'll see several sets of columns, and you should ignore all but one. 
+</p><p>
+If Torn 5 has hit data, it will fill in columns for tag ratios and tag differences. 
+Here's how those are calculated: first we generate a solo ladder showing how "good" each player is. Then, for each pack in each game, we scale the number of tags that pack scored against other players by the "goodness" of the player waering it: if the pack scored 50 hits in a game but was being worn by a player who was 125% as good as the average player, we scale that to 50 / 1.25 = 40 hits. Then we take the ratio of that to the number of tags the pack received during the game.
+For tag difference we do the same thing, but we subtract the two numbers instead of dividing them. Differences are theoretically better than ratios because differences should be normally distributed, whereas ratios are not. But ratios are probably still better for our use case.
+</p><p>
+If Torn 5 does <em>not</em> have hit data (because this is Laserforce data, or because this is a Torn 4 file), you'll have to look at the score ratio instead. This is calculated in exactly the same way as tag ratio. Score ratio isn't as good as tag ratio, because we're interested here in how good the pack is at tagging other packs versus how good it is at gettign tagged, but if you don't have tag data it's a reasonable proxy.
+</p><p>
+You'll see t values and p values. The t value is how many standard deviations this pack is from the mean. Look at the p value -- when this is very small, there's a high chance that this pack is "good" or "bad".
+Any p value greater than 0.01 can be ignored -- it's likely due to change, or to that pack being a favourite of particular players, etc.
+</p><p>
+Very small p values will be highlighted in red. These packs are of concern -- a "good" pack might have some faulty sensors; a "bad" pack might have weak IR, etc.
+</p><p>
+If pack hardware has been re-arranged (e.g. you've swapped guns between packs) or renumbered midway through data collection (e.g. you re-ID'ed packs to prevent players from picking favourites), these things will of course limit data quality.
+</p><p>
+You can try different chart options, set date ranges, etc. -- on the Reports toolbar click Customise, add a Pack Report, and choose options.
+</p><p>
 </body>
