@@ -51,6 +51,7 @@ spark lines
 check latest version via REST
 reports and uploads in worker thread
 sanity check report. Add new check: are there odd games out with no victory points?
+tech report: hit totals for all sensors on all packs, plus games where a sensor takes 0 hits
 option to zero eliminated players.
 If we don't find a settings file in the user folder, check for one in the exe folder.
 Move global settings to Program.cs
@@ -119,7 +120,6 @@ namespace Torn.UI
 			formPlayer.Icon = (Icon)Icon.Clone();
 	        ConnectLaserGameServer();
 
-	        RefreshGamesList();
 			AddTeamBoxes();
 
 			listViewLeagues.Focus();
@@ -361,7 +361,7 @@ namespace Torn.UI
 				try {
 					webOutput.ExportReports(exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
-				finally { progressBar1.Visible = false; }
+				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
 			}
 		}
 
@@ -542,9 +542,9 @@ namespace Torn.UI
 				progressBar1.Value = 0;
 				progressBar1.Visible = true;
 				try {
-					webOutput.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues());
+					webOutput.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
-				finally { progressBar1.Visible = false; }
+				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
 			}
 		}
 
@@ -612,9 +612,11 @@ namespace Torn.UI
 			return selected;
 		}
 
-		void ProgressBar(double progress)
+		void ProgressBar(double progress, string status = "")
 		{
 			progressBar1.Value = (int)(progress * 1000);
+			labelStatus.Text = status;
+			Application.DoEvents();
 		}
 
 		TeamBox FindEmptyTeamBox()
@@ -878,73 +880,86 @@ namespace Torn.UI
 			if (serverGames.Count > 0)
 				serverGames.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
 
-			// Link server games to league games, where a matching league game exists.
-			foreach (var serverGame in serverGames)
-				foreach (Holder holder in leagues)
-				{
-					Game leagueGame = holder.League.AllGames.Find(x => x.Time == serverGame.Time);
-					if (leagueGame != null)
-					{
-						serverGame.League = holder.League;
-						serverGame.Game = leagueGame;
-						leagueGame.ServerGame = serverGame;
-						if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
-						{
-							laserGameServer.PopulateGame(serverGame);
-							Application.DoEvents();
-						}
-					}
-				}
-
-			// Create fake "server" games to represent league games, where a server game doesn't already exist (because Acacia has forgotten it).
-			foreach (Holder holder in leagues)
-				foreach (Game leagueGame in holder.League.AllGames)
-					if (serverGames.Find(x => x.Time == leagueGame.Time) == null)
-					{
-						ServerGame game = new ServerGame();
-						game.League = holder.League;
-						game.Game = leagueGame;
-						game.Time = leagueGame.Time;
-						serverGames.Add(game);
-					}
-
-			serverGames.Sort();
-
-			listViewGames.BeginUpdate();
+			Cursor.Current = Cursors.WaitCursor;
 			try
 			{
-				listViewGames.Items.Clear();
-
-				// Create items in the list view, one for each server game.
+				// Link server games to league games, where a matching league game exists.
 				foreach (var serverGame in serverGames)
-				{
-					ListViewItem item = new ListViewItem();
-					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
+					foreach (Holder holder in leagues)
+					{
+						Game leagueGame = holder.League.AllGames.Find(x => x.Time == serverGame.Time);
+						if (leagueGame != null)
+						{
+							serverGame.League = holder.League;
+							serverGame.Game = leagueGame;
+							leagueGame.ServerGame = serverGame;
+							if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
+							{
+								progressBar1.Value  = 0;
+								progressBar1.Visible = true;
+								try {
+									laserGameServer.PopulateGame(serverGame);
+									ProgressBar(0, "Populated " + leagueGame.LongTitle());
+								}
+								finally { progressBar1.Visible = false; labelStatus.Text = ""; }
+							}
+						}
+					}
 
-					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
-					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
-					item.Tag = serverGame;
-					if (!serverGame.OnServer)
-						item.BackColor = SystemColors.ControlLight;
-					listViewGames.Items.Add(item);
+				// Create fake "server" games to represent league games, where a server game doesn't already exist (because Acacia has forgotten it).
+				foreach (Holder holder in leagues)
+					foreach (Game leagueGame in holder.League.AllGames)
+						if (serverGames.Find(x => x.Time == leagueGame.Time) == null)
+						{
+							ServerGame game = new ServerGame();
+							game.League = holder.League;
+							game.Game = leagueGame;
+							game.Time = leagueGame.Time;
+							serverGames.Add(game);
+						}
+
+				serverGames.Sort();
+
+				listViewGames.BeginUpdate();
+				try
+				{
+					listViewGames.Items.Clear();
+
+					// Create items in the list view, one for each server game.
+					foreach (var serverGame in serverGames)
+					{
+						ListViewItem item = new ListViewItem();
+						item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
+
+						item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
+						                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
+						item.Tag = serverGame;
+						if (!serverGame.OnServer)
+							item.BackColor = SystemColors.ControlLight;
+						listViewGames.Items.Add(item);
+					}
+				}
+				finally
+				{
+					listViewGames.EndUpdate();
+				}
+
+				// Restore focus to the same item it was on before we started.
+				if (focused != null && focused.Tag is ServerGame)
+				{
+					var old = ((ServerGame)focused.Tag).Time;
+					foreach (ListViewItem item in listViewGames.Items)
+						if (((ServerGame)item.Tag).Time == old)
+						{
+							listViewGames.FocusedItem = item;
+							listViewGames.SelectedIndices.Add(item.Index);
+							listViewGames.EnsureVisible(item.Index);
+						}
 				}
 			}
 			finally
 			{
-				listViewGames.EndUpdate();
-			}
-			
-			// Restore focus to the same item it was on before we started.
-			if (focused != null && focused.Tag is ServerGame)
-			{
-				var old = ((ServerGame)focused.Tag).Time;
-				foreach (ListViewItem item in listViewGames.Items)
-					if (((ServerGame)item.Tag).Time == old)
-					{
-						listViewGames.FocusedItem = item;
-						listViewGames.SelectedIndices.Add(item.Index);
-						listViewGames.EnsureVisible(item.Index);
-					}
+				Cursor.Current = Cursors.Default;
 			}
 		}
 

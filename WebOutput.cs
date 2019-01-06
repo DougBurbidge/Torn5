@@ -14,7 +14,7 @@ using Zoom;
 
 namespace Torn.Report
 {
-	public delegate void Progress (double progress);
+	public delegate void Progress (double progress, string status = "");
 
 	/// <summary>
 	/// Serve web pages on demand. Also generates web pages to file for export or upload.
@@ -260,7 +260,7 @@ namespace Torn.Report
 			}
 		}
 
-		void DummyProgress(double progress) {}
+		void DummyProgress(double progress, string status = "") {}
 
 		/// <summary>Generate reports for the selected leagues, and write them to disk.</summary>
 		public void ExportReports(string path, bool includeSecret, List<Holder> selected, Progress progress = null)
@@ -274,7 +274,7 @@ namespace Torn.Report
 
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "index.html")))
 					sw.Write(RootPage(selected));
-				progress(++numerator / denominator);
+				progress(++numerator / denominator, "Root page exported.");
 
 				foreach (Holder holder in selected)
 				{
@@ -284,18 +284,18 @@ namespace Torn.Report
 
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index.html")))
 						sw.Write(OverviewPage(holder, includeSecret, GameHyper));
-					progress(++numerator / denominator);
+					progress(++numerator / denominator, "Overview page exported.");
 
 					ExportGames(league, path, holder.Key);
-					progress(++numerator / denominator);
+					progress(++numerator / denominator, "Games pages exported.");
 
 					ExportPlayers(league, path, holder.Key);
-					progress(++numerator / denominator);
+					progress(++numerator / denominator, "Players pages exported.");
 
 					foreach (LeagueTeam leagueTeam in league.Teams)
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
 							sw.Write(TeamPage(league, includeSecret, leagueTeam, GameHyper));
-					progress(++numerator / denominator);
+					progress(++numerator / denominator, "Team pages exported.");
 				}
 			}
 		}
@@ -430,7 +430,7 @@ namespace Torn.Report
 						for (int i = 0; i < files.Count(); i++)
 						{
 							UploadFile(client, url, Path.Combine(localPath, key), files[i].Name);
-							progress((1.0 * i / files.Count() + h) / selected.Count);
+							progress((1.0 * i / files.Count() + h) / selected.Count, "Uploaded " + files[i].Name);
 						}
 					}
 				}
