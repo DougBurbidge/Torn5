@@ -409,12 +409,7 @@ namespace Torn
 	{
 		public string Title { get; set; }
 		public DateTime Time { get; set; }
-		bool secret;
-		public bool Secret { get { 
-				return secret; 
-			} set { 
-				secret = value; 
-			} }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
+		public bool Secret { get; set; }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
 		public List<GameTeam> Teams { get; private set; }
 		public List<GamePlayer> Players { get; private set; }
 		public ServerGame ServerGame {get; set; }
@@ -1267,9 +1262,10 @@ namespace Torn
 		public bool InProgress { get; set; }
 		public bool OnServer { get; set; }
 		public List<Event> Events { get; set; }
-		
+
 		public ServerGame()
 		{
+			Players = new List<ServerPlayer>();
 			Events = new List<Event>();
 		}
 

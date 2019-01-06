@@ -382,5 +382,10 @@ namespace Torn.Report
 		{
 			League.Load(fileName);
 		}
+
+		public override string ToString()
+		{
+			return Key + " : " + League == null ? "holder" : League.Title;
+		}
 	}
 }

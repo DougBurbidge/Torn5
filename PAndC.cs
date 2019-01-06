@@ -132,7 +132,7 @@ namespace Torn
 				}
 			}
 
-			game.Players = new List<ServerPlayer>();
+			game.Players.Clear();
 
 			sql = "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
                 "FROM ng_player_event_log EL " +

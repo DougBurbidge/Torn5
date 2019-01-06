@@ -72,6 +72,7 @@ namespace Torn.UI
 		int webPort;
 		WebOutput webOutput;
 		LaserGameServer laserGameServer;
+		List<ServerGame> serverGames;
 		static Holders leagues;
 		Holder activeHolder;  // This is the league selected in the listView.
 		string selectedNode; // Only used in MainFormShown() and LoadSettings().
@@ -875,16 +876,21 @@ namespace Torn.UI
 		void RefreshGamesList()
 		{
 			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
-			var serverGames = laserGameServer.GetGames();
+			var oldGames = serverGames;
+			serverGames = laserGameServer.GetGames();
 
 			if (serverGames.Count > 0)
 				serverGames.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
 
 			Cursor.Current = Cursors.WaitCursor;
+			progressBar1.Value  = 0;
+			progressBar1.Visible = true;
 			try
 			{
 				// Link server games to league games, where a matching league game exists.
-				foreach (var serverGame in serverGames)
+				for (int i = 0; i < serverGames.Count; i++)
+				{
+					var serverGame = serverGames[i];
 					foreach (Holder holder in leagues)
 					{
 						Game leagueGame = holder.League.AllGames.Find(x => x.Time == serverGame.Time);
@@ -893,73 +899,74 @@ namespace Torn.UI
 							serverGame.League = holder.League;
 							serverGame.Game = leagueGame;
 							leagueGame.ServerGame = serverGame;
-							if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
+							var oldGame = oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time);
+							if (oldGame != null && !oldGame.InProgress && oldGame.Events.Count > 0)
+								serverGame.Events = oldGame.Events;
+							else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
 							{
-								progressBar1.Value  = 0;
-								progressBar1.Visible = true;
-								try {
-									laserGameServer.PopulateGame(serverGame);
-									ProgressBar(0, "Populated " + leagueGame.LongTitle());
-								}
-								finally { progressBar1.Visible = false; labelStatus.Text = ""; }
+								laserGameServer.PopulateGame(serverGame);
+								ProgressBar(1.0 * i / serverGames.Count, "Populated " + leagueGame.LongTitle());
 							}
 						}
 					}
-
-				// Create fake "server" games to represent league games, where a server game doesn't already exist (because Acacia has forgotten it).
-				foreach (Holder holder in leagues)
-					foreach (Game leagueGame in holder.League.AllGames)
-						if (serverGames.Find(x => x.Time == leagueGame.Time) == null)
-						{
-							ServerGame game = new ServerGame();
-							game.League = holder.League;
-							game.Game = leagueGame;
-							game.Time = leagueGame.Time;
-							serverGames.Add(game);
-						}
-
-				serverGames.Sort();
-
-				listViewGames.BeginUpdate();
-				try
-				{
-					listViewGames.Items.Clear();
-
-					// Create items in the list view, one for each server game.
-					foreach (var serverGame in serverGames)
-					{
-						ListViewItem item = new ListViewItem();
-						item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
-
-						item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
-						                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
-						item.Tag = serverGame;
-						if (!serverGame.OnServer)
-							item.BackColor = SystemColors.ControlLight;
-						listViewGames.Items.Add(item);
-					}
-				}
-				finally
-				{
-					listViewGames.EndUpdate();
-				}
-
-				// Restore focus to the same item it was on before we started.
-				if (focused != null && focused.Tag is ServerGame)
-				{
-					var old = ((ServerGame)focused.Tag).Time;
-					foreach (ListViewItem item in listViewGames.Items)
-						if (((ServerGame)item.Tag).Time == old)
-						{
-							listViewGames.FocusedItem = item;
-							listViewGames.SelectedIndices.Add(item.Index);
-							listViewGames.EnsureVisible(item.Index);
-						}
 				}
 			}
 			finally
 			{
+				progressBar1.Visible = false;
+				labelStatus.Text = "";
 				Cursor.Current = Cursors.Default;
+			}
+
+			// Create fake "server" games to represent league games, where a server game doesn't already exist (because Acacia has forgotten it).
+			foreach (Holder holder in leagues)
+				foreach (Game leagueGame in holder.League.AllGames)
+					if (serverGames.Find(x => x.Time == leagueGame.Time) == null)
+					{
+						ServerGame game = new ServerGame();
+						game.League = holder.League;
+						game.Game = leagueGame;
+						game.Time = leagueGame.Time;
+						serverGames.Add(game);
+					}
+
+			serverGames.Sort();
+
+			listViewGames.BeginUpdate();
+			try
+			{
+				listViewGames.Items.Clear();
+
+				// Create items in the list view, one for each server game.
+				foreach (var serverGame in serverGames)
+				{
+					ListViewItem item = new ListViewItem();
+					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
+
+					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
+					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
+					item.Tag = serverGame;
+					if (!serverGame.OnServer)
+						item.BackColor = SystemColors.ControlLight;
+					listViewGames.Items.Add(item);
+				}
+			}
+			finally
+			{
+				listViewGames.EndUpdate();
+			}
+
+			// Restore focus to the same item it was on before we started.
+			if (focused != null && focused.Tag is ServerGame)
+			{
+				var old = ((ServerGame)focused.Tag).Time;
+				foreach (ListViewItem item in listViewGames.Items)
+					if (((ServerGame)item.Tag).Time == old)
+					{
+						listViewGames.FocusedItem = item;
+						listViewGames.SelectedIndices.Add(item.Index);
+						listViewGames.EnsureVisible(item.Index);
+					}
 			}
 		}
 
