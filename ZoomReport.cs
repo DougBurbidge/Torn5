@@ -304,8 +304,10 @@ namespace Zoom
 			Bars = true;
 		}
 
-		public void AddColumns(string headings, string alignments = "")
+		public void AddColumns(string headings, string alignments = "", string groupHeadings = "")
 		{
+			int firstAdded = Columns.Count();
+
 			if (!string.IsNullOrEmpty(headings))
 				foreach (string heading in headings.Split(','))
 					Columns.Add(new ZColumn(heading));
@@ -313,8 +315,15 @@ namespace Zoom
 			if (!string.IsNullOrEmpty(alignments))
 			{
 				string[] alignmentList = alignments.Split(',');
-				for (int i = 0; i < Columns.Count && i < alignmentList.Length; i++)
-					Columns[i].Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
+				for (int i = 0; firstAdded + i < Columns.Count && i < alignmentList.Length; i++)
+					Columns[firstAdded + i].Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
+			}
+
+			if (!string.IsNullOrEmpty(groupHeadings))
+			{
+				string[] groupList = groupHeadings.Split(',');
+				for (int i = 0; firstAdded + i < Columns.Count && i < groupList.Length; i++)
+					Columns[firstAdded + i].GroupHeading = groupList[i];
 			}
 		}
 

@@ -286,9 +286,6 @@ namespace Torn.Report
 						sw.Write(OverviewPage(holder, includeSecret, GameHyper));
 					progress(++numerator / denominator, "Overview page exported.");
 
-					ExportGames(league, path, holder.Key);
-					progress(++numerator / denominator, "Games pages exported.");
-
 					ExportPlayers(league, path, holder.Key);
 					progress(++numerator / denominator, "Players pages exported.");
 
@@ -296,6 +293,9 @@ namespace Torn.Report
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
 							sw.Write(TeamPage(league, includeSecret, leagueTeam, GameHyper));
 					progress(++numerator / denominator, "Team pages exported.");
+
+					ExportGames(league, path, holder.Key);
+					progress(++numerator / denominator, "Games pages exported.");
 				}
 			}
 		}

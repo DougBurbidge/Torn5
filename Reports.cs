@@ -1153,7 +1153,9 @@ namespace Torn.Report
 					{
 						// Show the hit in a dashed line, half player colour, half base colour.
 						var dashPen = new Pen(((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor(), 3);
-						dashPen.DashPattern = new float[] { 1.5F, 3F, 1.5F };
+						float baseHeight = Math.Abs(oldPoint.Y - newPoint.Y);
+						dashPen.DashPattern = new float[] { baseHeight * 0.11F, baseHeight * 0.22F };
+						dashPen.DashOffset = baseHeight * -0.11F;
 						graphics.DrawLine(dashPen, oldPoint, newPoint);
 
 						// Show the alias of the player who destroyed the base.
@@ -1264,7 +1266,7 @@ namespace Torn.Report
 		{
 			ZoomReport report = new ZoomReport(team.Name);
 
-			report.Columns.Add(new ZColumn("Game Time", ZAlignment.Left));
+			report.Columns.Add(new ZColumn("Game", ZAlignment.Left));
 
 			var averages = new Dictionary<LeaguePlayer, double>();
 			foreach (LeaguePlayer leaguePlayer in team.Players)
@@ -1301,15 +1303,16 @@ namespace Torn.Report
 			// Add a column for each player on this team.
 			foreach (LeaguePlayer leaguePlayer in players)
 			{
-				report.Columns.Add(new ZColumn(leaguePlayer.Name, ZAlignment.Integer));
+				report.Columns.Add(new ZColumn(leaguePlayer.Name, ZAlignment.Integer, "Players"));
 				report.Columns.Last().Hyper = "players.html#player" + leaguePlayer.Id;
 			}
-			report.Columns.Add(new ZColumn("Total", ZAlignment.Integer));
+			report.Columns.Add(new ZColumn("Total", ZAlignment.Integer, "Score"));
 			if (league.IsPoints())
-				report.Columns.Add(new ZColumn("Pts", ZAlignment.Float));
+				report.Columns.Add(new ZColumn("Pts", ZAlignment.Float, "Score"));
 
-			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroyed,Denies,Denied,Yellow Cards,Red Cards", 
-			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
+			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroyed,Ratio,Denies,Denied,Yellow Cards,Red Cards", 
+			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
+			                  ",Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Base,Base,Penalties,Penalties");
 
 			// TODO: add columns for total points for/against, total team tags for/against, total team denials for/against (from game.ServerGame.Events?)
 
@@ -1343,7 +1346,7 @@ namespace Torn.Report
 					}
 
 					gameRow.Add(new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor()));
-	
+
 					if (league.IsPoints())
 					{
 						if (game.IsPoints())
@@ -1355,7 +1358,23 @@ namespace Torn.Report
 					var teamTotal = new GamePlayer();
 					foreach (GamePlayer gamePlayer in gameTeam.Players)
 						teamTotal.Add(gamePlayer);
-					FillDetails(gameRow, teamTotal, gameTeam.Colour.ToColor(), game.TotalScore() / game.Teams.Count);
+					FillDetails(gameRow, teamTotal, Color.Empty, game.TotalScore() / game.Teams.Count);
+
+					// Base Ratio: bases destroyed / bases conceded
+					ZCell baseRatio;
+					if (game.ServerGame.Events == null)
+						baseRatio = new ZCell("");
+					else
+					{
+						var basesTotal = game.Teams.Sum(t => t.Players.Sum(p => p.BaseDestroys));
+						var thisDestroyed = game.ServerGame.Events.Count(e => e.Event_Type == 31 && e.HitTeam == (int)gameTeam.Colour - 1);
+						var basesThisTeam = gameTeam.Players.Sum(p => p.BaseDestroys);
+						if (thisDestroyed == 0)
+							baseRatio = new ZCell("\u221E");  // infinity
+						else
+							baseRatio = new ZCell(1.0 * basesThisTeam / thisDestroyed, ChartType.Bar, "P0");
+					}
+					gameRow.Insert(gameRow.Count - 4, baseRatio);
 
 					previousGameDate = game.Time.Date;
 				}  // if from..to; for Played
