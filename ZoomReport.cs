@@ -292,14 +292,14 @@ namespace Zoom
 		//OnCalcBar: TCalcBar;
 		//OnPaintBar: TPaintBar;
 
-		public ZoomReport(string title, string headings = "", string alignments = "")
+		public ZoomReport(string title, string headings = "", string alignments = "", string groupHeadings = "")
 		{
 			Columns = new List<ZColumn>();
 			Rows = new List<ZRow>();
 
 			Title = title;
 
-			AddColumns(headings, alignments);
+			AddColumns(headings, alignments, groupHeadings);
 
 			Bars = true;
 		}

@@ -728,8 +728,9 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Solo Ladder" : rt.Title,
-			                                   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroyed,Denies,Denied,Yellow Cards,Red Cards,Games",
-			                                   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer");
+			                                   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games",
+			                                   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer",
+			                                   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,");
 			report.MaxChartByColumn = true;
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
@@ -843,7 +844,6 @@ namespace Torn.Report
 			else
 			    row.Add(new ZCell((double)gamePlayer.HitsBy / gamePlayer.HitsOn * gamePlayer.Score / averageScore, ChartType.Bar, "P0", color));
 
-			row.Add(BlankZero(gamePlayer.BaseHits, ChartType.Bar, color));
 			row.Add(BlankZero(gamePlayer.BaseDestroys, ChartType.Bar, color));
 			row.Add(BlankZero(gamePlayer.BaseDenies, ChartType.Bar, color));
 			row.Add(BlankZero(gamePlayer.BaseDenied, ChartType.Bar, color));
@@ -880,8 +880,9 @@ namespace Torn.Report
 		public static ZoomReport OneGame(League league, Game game)
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(),
-			                                   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroys,Denies,Denied,Yellow Cards,Red Cards",
-			                                   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
+			                                   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
+			                                   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
+			                                   ",,,Tags,Tags,Ratio,Ratio,Ratio,,Base,Base,Base,Penalties,Penalties");
 			report.MaxChartByColumn = true;
 //			for (int i = 8; i < report.Columns.Count; i++)
 //				report.Columns[i].Rotate = true;
@@ -1191,7 +1192,7 @@ namespace Torn.Report
 		public static ZoomReport OnePlayer(League league, LeaguePlayer player, List<LeagueTeam> teams, GameHyper gameHyper)
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(player.Name) ? "Player " + player.Id : player.Name,
-			                                   "Time,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroys,Denies,Denied,Yellow Cards,Red Cards",
+			                                   "Time,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Destroys,Denies,Denied,Yellow,Red",
 			                                   "left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
 
 			report.Title += " \u2014 " + string.Join(", ", teams.Select(t => t.Name));
@@ -1310,7 +1311,7 @@ namespace Torn.Report
 			if (league.IsPoints())
 				report.Columns.Add(new ZColumn("Pts", ZAlignment.Float, "Score"));
 
-			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Hits,Destroyed,Ratio,Denies,Denied,Yellow Cards,Red Cards", 
+			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Conceded,Ratio,Denies,Denied,Yellow,Red", 
 			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
 			                  ",Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Base,Base,Penalties,Penalties");
 
@@ -1361,19 +1362,25 @@ namespace Torn.Report
 					FillDetails(gameRow, teamTotal, Color.Empty, game.TotalScore() / game.Teams.Count);
 
 					// Base Ratio: bases destroyed / bases conceded
+					ZCell basesConceded;
 					ZCell baseRatio;
 					if (game.ServerGame.Events == null)
+					{
+						basesConceded = new ZCell("");
 						baseRatio = new ZCell("");
+					}
 					else
 					{
 						var basesTotal = game.Teams.Sum(t => t.Players.Sum(p => p.BaseDestroys));
 						var thisDestroyed = game.ServerGame.Events.Count(e => e.Event_Type == 31 && e.HitTeam == (int)gameTeam.Colour - 1);
 						var basesThisTeam = gameTeam.Players.Sum(p => p.BaseDestroys);
+						basesConceded = new ZCell(thisDestroyed, ChartType.Bar, "N0");
 						if (thisDestroyed == 0)
 							baseRatio = new ZCell("\u221E");  // infinity
 						else
 							baseRatio = new ZCell(1.0 * basesThisTeam / thisDestroyed, ChartType.Bar, "P0");
 					}
+					gameRow.Insert(gameRow.Count - 4, basesConceded);
 					gameRow.Insert(gameRow.Count - 4, baseRatio);
 
 					previousGameDate = game.Time.Date;
