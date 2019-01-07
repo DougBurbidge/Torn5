@@ -144,13 +144,6 @@ namespace TornWeb {
 			}
 		}
 		
-		internal static System.Drawing.Bitmap buttonSave_Image {
-			get {
-				object obj = ResourceManager.GetObject("buttonSave.Image", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-		
 		internal static System.Drawing.Bitmap buttonSetFolder_Image {
 			get {
 				object obj = ResourceManager.GetObject("buttonSetFolder.Image", resourceCulture);

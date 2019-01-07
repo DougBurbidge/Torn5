@@ -208,22 +208,25 @@ namespace Torn.UI
 		{
 			if (LeagueTeam == null || MessageBox.Show("This box already has a team (" + LeagueTeam.Name + "). Create a new team anyway?",
 													  "Create new team", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+				RememberTeam();
+		}
+
+		public void RememberTeam()
+		{
+			LeagueTeam = new LeagueTeam();
+			foreach (var serverPlayer in Players())
 			{
-				LeagueTeam = new LeagueTeam();
-				foreach (var serverPlayer in Players())
+				var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
+				if (leaguePlayer == null)
 				{
-					var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
-					if (leaguePlayer == null)
-					{
-						leaguePlayer = new LeaguePlayer();
-						leaguePlayer.Name = serverPlayer.Alias;
-						leaguePlayer.Id = serverPlayer.PlayerId;
-						League.Players.Add(leaguePlayer);
-					}
-					LeagueTeam.Players.Add(leaguePlayer);
+					leaguePlayer = new LeaguePlayer();
+					leaguePlayer.Name = serverPlayer.Alias;
+					leaguePlayer.Id = serverPlayer.PlayerId;
+					League.Players.Add(leaguePlayer);
 				}
-				League.Teams.Add(LeagueTeam);
+				LeagueTeam.Players.Add(leaguePlayer);
 			}
+			League.Teams.Add(LeagueTeam);
 		}
 
 		void MenuSortTeamsClick(object sender, EventArgs e)

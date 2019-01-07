@@ -30,8 +30,6 @@ output to screen and printer
 send to scoreboard (web browser)
 on commit auto-update scoreboard and teams
 right-click handicap player, merge player
-adjust team score/victory points
-remember all teams
 
 TODO for LEAGUE:
 handicap, on commit auto-update team handicaps
@@ -44,7 +42,6 @@ recalculate scores on Helios
 
 OTHER:
 league copy from
-upload to http, https, sftp
 Space Marines match play
 read from Ozone server
 spark lines
@@ -53,8 +50,13 @@ reports and uploads in worker thread
 sanity check report. Add new check: are there odd games out with no victory points?
 tech report: hit totals for all sensors on all packs, plus games where a sensor takes 0 hits
 option to zero eliminated players.
-If we don't find a settings file in the user folder, check for one in the exe folder.
 Move global settings to Program.cs
+
+NEEDS TESTING:
+adjust team score/victory points
+remember all teams
+upload to http, https, ftp
+If we don't find a settings file in the user folder, check for one in the exe folder.
 */
 
 namespace Torn.UI
@@ -186,6 +188,9 @@ namespace Torn.UI
 			item.SubItems.AddRange(new string[] { league.Title, fileName, league.AllGames.Count.ToString(CultureInfo.CurrentCulture), league.Teams.Count.ToString(CultureInfo.CurrentCulture)});
 			listViewLeagues.Items.Add(item);
 			listViewLeagues.FocusedItem = item;
+
+			if (neww)
+				league.Save();
 
 			return holder;
 		}
@@ -392,6 +397,8 @@ namespace Torn.UI
 			if (listViewGames.SelectedItems.Count == 0)
 				return;
 
+			var changed = new List<League>();
+
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 				if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
 				{
@@ -401,9 +408,14 @@ namespace Torn.UI
 					{
 						holder.League.AllGames.Remove(game);
 						item.SubItems[1].Text = null;
+						if (!changed.Contains(holder.League))
+						    changed.Add(holder.League);
 					}
 					((ServerGame)item.Tag).Game = null;
 				}
+
+			foreach (var league in changed)
+				league.Save();
 
 			playersBox.Clear();
 		}
@@ -494,6 +506,13 @@ namespace Torn.UI
 			}			
 		}
 
+		void ButtonRememberAllTeamsClick(object sender, EventArgs e)
+		{
+			foreach (var teamBox in TeamBoxes())
+				if (teamBox.LeagueTeam == null)
+					teamBox.RememberTeam();
+		}
+
 		void ButtonSaveClick(object sender, EventArgs e)
 		{
 			foreach (ListViewItem item in listViewLeagues.SelectedItems)
@@ -505,16 +524,24 @@ namespace Torn.UI
 			if (listViewGames.SelectedItems.Count == 0)
 				return;
 
+			var changed = new List<League>();
+
 			var id = new InputDialog("Description: ", "Set a description", listViewGames.SelectedItems[0].SubItems[2].Text);
 			if (id.ShowDialog() == DialogResult.OK)
 				foreach (ListViewItem item in listViewGames.SelectedItems)
 					if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
 					{
-						((ServerGame)item.Tag).Game.Title = id.Response;
+						var serverGame = (ServerGame)item.Tag;
+						serverGame.Game.Title = id.Response;
 						while (item.SubItems.Count <= 2)
 							item.SubItems.Add("");
 						item.SubItems[2].Text = id.Response;
+						if (!changed.Contains(serverGame.League))
+						    changed.Add(serverGame.League);
 					}
+
+			foreach (var league in changed)
+				league.Save();
 		}
 
 		void ButtonSetExportFolderClick(object sender, EventArgs e)
@@ -875,6 +902,7 @@ namespace Torn.UI
 
 		void RefreshGamesList()
 		{
+			var topItem = listViewGames.TopItem;
 			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
 			var oldGames = serverGames;
 			serverGames = laserGameServer.GetGames();
@@ -905,6 +933,22 @@ namespace Torn.UI
 							else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
 							{
 								laserGameServer.PopulateGame(serverGame);
+
+								// Attempt to replace each GamePlayer with a Serverplayer. This gives us under-the-hood data used by e.g. GameHeatMap.
+								foreach (var gameTeam in leagueGame.Teams)
+									for (int p = 0; p < gameTeam.Players.Count; p++)
+										if (!(gameTeam.Players[p] is ServerPlayer))
+										{
+											var playerId = gameTeam.Players[p].PlayerId;
+											var serverPlayer = serverGame.Players.Find(x => x.PlayerId == playerId);
+											gameTeam.Players[p].CopyTo(serverPlayer);
+											gameTeam.Players[p] = serverPlayer;
+											
+											int lp = leagueGame.Players.FindIndex(x => x.PlayerId == playerId);
+											if (lp > -1)
+												leagueGame.Players[lp] = serverPlayer;
+										}
+										
 								ProgressBar(1.0 * i / serverGames.Count, "Populated " + leagueGame.LongTitle());
 							}
 						}
@@ -956,6 +1000,15 @@ namespace Torn.UI
 				listViewGames.EndUpdate();
 			}
 
+			// Restore scroll position to where it was.
+			if (focused != null && focused.Tag is ServerGame)
+			{
+				var old = ((ServerGame)topItem.Tag).Time;
+				foreach (ListViewItem item in listViewGames.Items)
+					if (((ServerGame)item.Tag).Time == old)
+						listViewGames.TopItem = item;
+			}
+
 			// Restore focus to the same item it was on before we started.
 			if (focused != null && focused.Tag is ServerGame)
 			{
@@ -965,7 +1018,8 @@ namespace Torn.UI
 					{
 						listViewGames.FocusedItem = item;
 						listViewGames.SelectedIndices.Add(item.Index);
-						listViewGames.EnsureVisible(item.Index);
+						if (!listViewGames.Items[item.Index].Bounds.IntersectsWith(listViewGames.ClientRectangle))  // if item is not visible
+							listViewGames.EnsureVisible(item.Index);
 					}
 			}
 		}

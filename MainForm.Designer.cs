@@ -73,10 +73,10 @@ namespace Torn.UI
 			this.buttonPyramid = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonFixtures = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonMatch = new System.Windows.Forms.ToolStripMenuItem();
+			this.buttonHelp = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonAbout = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonNew = new System.Windows.Forms.ToolStripButton();
 			this.buttonOpen = new System.Windows.Forms.ToolStripButton();
-			this.buttonSave = new System.Windows.Forms.ToolStripButton();
 			this.buttonClose = new System.Windows.Forms.ToolStripButton();
 			this.buttonEdit = new System.Windows.Forms.ToolStripButton();
 			this.toolStripGame = new System.Windows.Forms.ToolStrip();
@@ -108,7 +108,8 @@ namespace Torn.UI
 			this.imageListPacks = new System.Windows.Forms.ImageList(this.components);
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-			this.buttonHelp = new System.Windows.Forms.ToolStripMenuItem();
+			this.buttonSave = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
@@ -406,12 +407,11 @@ namespace Torn.UI
 									this.toolStripDropDownLeagues,
 									this.buttonNew,
 									this.buttonOpen,
-									this.buttonSave,
 									this.buttonClose,
 									this.buttonEdit});
 			this.toolStripLeague.Location = new System.Drawing.Point(3, 0);
 			this.toolStripLeague.Name = "toolStripLeague";
-			this.toolStripLeague.Size = new System.Drawing.Size(386, 25);
+			this.toolStripLeague.Size = new System.Drawing.Size(299, 25);
 			this.toolStripLeague.TabIndex = 0;
 			// 
 			// toolStripDropDownLeagues
@@ -419,9 +419,11 @@ namespace Torn.UI
 			this.toolStripDropDownLeagues.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.toolStripDropDownLeagues.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.buttonPreferences,
+									this.buttonSave,
 									this.buttonPyramid,
 									this.buttonFixtures,
 									this.buttonMatch,
+									this.toolStripMenuItem1,
 									this.buttonHelp,
 									this.buttonAbout});
 			this.toolStripDropDownLeagues.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -457,6 +459,13 @@ namespace Torn.UI
 			this.buttonMatch.Size = new System.Drawing.Size(225, 22);
 			this.buttonMatch.Text = "Match...";
 			// 
+			// buttonHelp
+			// 
+			this.buttonHelp.Name = "buttonHelp";
+			this.buttonHelp.Size = new System.Drawing.Size(225, 22);
+			this.buttonHelp.Text = "Help...";
+			this.buttonHelp.Click += new System.EventHandler(this.ButtonHelpClick);
+			// 
 			// buttonAbout
 			// 
 			this.buttonAbout.Name = "buttonAbout";
@@ -481,15 +490,6 @@ namespace Torn.UI
 			this.buttonOpen.Size = new System.Drawing.Size(58, 22);
 			this.buttonOpen.Text = "&Open";
 			this.buttonOpen.Click += new System.EventHandler(this.ButtonLoadClick);
-			// 
-			// buttonSave
-			// 
-			this.buttonSave.Image = ((System.Drawing.Image)(resources.GetObject("buttonSave.Image")));
-			this.buttonSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.Size = new System.Drawing.Size(56, 22);
-			this.buttonSave.Text = "&Save";
-			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
 			// 
 			// buttonClose
 			// 
@@ -610,6 +610,7 @@ namespace Torn.UI
 			this.buttonRememberAllTeams.Name = "buttonRememberAllTeams";
 			this.buttonRememberAllTeams.Size = new System.Drawing.Size(213, 22);
 			this.buttonRememberAllTeams.Text = "Remember All Teams";
+			this.buttonRememberAllTeams.Click += new System.EventHandler(this.ButtonRememberAllTeamsClick);
 			// 
 			// buttonAddRow
 			// 
@@ -780,12 +781,17 @@ namespace Torn.UI
 			// 
 			this.saveFileDialog1.Filter = "Torn files|*.Torn|All files|*.*";
 			// 
-			// buttonHelp
+			// buttonSave
 			// 
-			this.buttonHelp.Name = "buttonHelp";
-			this.buttonHelp.Size = new System.Drawing.Size(225, 22);
-			this.buttonHelp.Text = "Help...";
-			this.buttonHelp.Click += new System.EventHandler(this.ButtonHelpClick);
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.Size = new System.Drawing.Size(225, 22);
+			this.buttonSave.Text = "Save League(s)";
+			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
+			// 
+			// toolStripMenuItem1
+			// 
+			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(222, 6);
 			// 
 			// MainForm
 			// 
@@ -820,6 +826,8 @@ namespace Torn.UI
 			this.toolStripReports.PerformLayout();
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem buttonSave;
 		private System.Windows.Forms.ToolStripMenuItem buttonHelp;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownGames;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
@@ -856,7 +864,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripButton buttonLatestGame;
 		private System.Windows.Forms.ToolStrip toolStripGame;
 		private System.Windows.Forms.ToolStripButton buttonClose;
-		private System.Windows.Forms.ToolStripButton buttonSave;
 		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
 		private System.Windows.Forms.ToolStripButton buttonNew;
 		private System.Windows.Forms.Button buttonCommit2;
