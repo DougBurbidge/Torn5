@@ -101,6 +101,7 @@ namespace Torn.UI
 		{
 			leagues = new Holders();
 			webPort = 8080;
+			systemType = SystemType.Demo;
 
 			LoadSettings();
 
@@ -142,20 +143,29 @@ namespace Torn.UI
 			if (laserGameServer != null)
 				laserGameServer.Dispose();
 
-			switch (systemType) {
-				case SystemType.Laserforce: laserGameServer = new Laserforce(serverAddress);  break;
-				case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
-				case SystemType.Demo: laserGameServer = new DemoServer();  break;
+			try
+			{
+				switch (systemType) {
+					case SystemType.Laserforce: laserGameServer = new Laserforce(serverAddress);  break;
+					case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
+					case SystemType.Demo: laserGameServer = new DemoServer();  break;
+				}
+
+				formPlayer.LaserGameServer = laserGameServer;
+			} 
+			catch (Exception ex)
+			{
+				MessageBox.Show("Error while connecting to lasergame database server. Please check your settings.\n\n" + ex.ToString());
 			}
 
-			formPlayer.LaserGameServer = laserGameServer;
 			RefreshGamesList();
 		}
 
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			webOutput.Dispose();
-			laserGameServer.Dispose();
+			if (laserGameServer != null)
+				laserGameServer.Dispose();
 
 			SaveSettings();
 		}
@@ -727,7 +737,8 @@ namespace Torn.UI
 			{
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
-				laserGameServer.PopulateGame(game);
+				if (laserGameServer != null)
+					laserGameServer.PopulateGame(game);
 				if (activeHolder != null && activeHolder.League != null)
 					playersBox.LoadGame(activeHolder.League, game);
 
@@ -806,7 +817,7 @@ namespace Torn.UI
 		{
 			if (timeToNextCheck <= TimeSpan.Zero)
 			{
-				timeElapsed = laserGameServer.GameTimeElapsed();  // This queries the database server.
+				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the database server.
 				webOutput.MostRecentHolder = leagues.MostRecent();
 				if (webOutput.MostRecentHolder != null)
 					webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.Last();
@@ -885,7 +896,7 @@ namespace Torn.UI
 
 		ServerGame MostRecent()
 		{
-			if (timeElapsed == TimeSpan.Zero)
+			if (timeElapsed == TimeSpan.Zero || laserGameServer == null)
 				return null;
 
 			var serverGames = laserGameServer.GetGames();
@@ -905,7 +916,7 @@ namespace Torn.UI
 			var topItem = listViewGames.TopItem;
 			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
 			var oldGames = serverGames;
-			serverGames = laserGameServer.GetGames();
+			serverGames = laserGameServer == null ? new List<ServerGame>() : laserGameServer.GetGames();
 
 			if (serverGames.Count > 0)
 				serverGames.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
@@ -930,7 +941,7 @@ namespace Torn.UI
 							var oldGame = oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time);
 							if (oldGame != null && !oldGame.InProgress && oldGame.Events.Count > 0)
 								serverGame.Events = oldGame.Events;
-							else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
+							else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0 && laserGameServer != null) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
 							{
 								laserGameServer.PopulateGame(serverGame);
 
