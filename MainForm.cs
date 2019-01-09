@@ -163,11 +163,19 @@ namespace Torn.UI
 
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
-			webOutput.Dispose();
-			if (laserGameServer != null)
-				laserGameServer.Dispose();
+			try
+			{
+				webOutput.Dispose();
+				if (laserGameServer != null)
+					laserGameServer.Dispose();
+	
+				SaveSettings();
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Error while exiting application.\n\n" + ex.ToString());
+			}
 
-			SaveSettings();
 		}
 
 		Holder AddLeague(string fileName, string key = "", bool neww = false)
@@ -1146,7 +1154,9 @@ namespace Torn.UI
 					doc.AppendNode(holderNode, "fixtures", holder.Fixture.Games.ToString());  // TODO: change to .ToXml(doc, holderNode);
 			}
 
-			doc.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn", "Torn5.Settings"));
+			string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn");
+			Directory.CreateDirectory(path);
+			doc.Save(Path.Combine(path, "Torn5.Settings"));
 		}
 	}
 }
