@@ -68,7 +68,12 @@ namespace Torn.UI
 		//SortTeamsBy sortTeamsBy;
 		bool autoUpdateScoreboard = true;
 		bool autoUpdateTeams = true;
+
 		SystemType systemType;
+		bool windowsAuth;
+		string sqlUserId;
+		string sqlPassword;
+
 		string serverAddress = "localhost";
 
 		int webPort;
@@ -146,7 +151,13 @@ namespace Torn.UI
 			try
 			{
 				switch (systemType) {
-					case SystemType.Laserforce: laserGameServer = new Laserforce(serverAddress);  break;
+					case SystemType.Laserforce:
+						laserGameServer = new Laserforce();
+						if (windowsAuth)
+							((Laserforce)laserGameServer).Connect(serverAddress);
+						else
+							((Laserforce)laserGameServer).Connect(serverAddress, sqlUserId, sqlPassword);
+					break;
 					case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
 				}
@@ -155,7 +166,8 @@ namespace Torn.UI
 			} 
 			catch (Exception ex)
 			{
-				MessageBox.Show("Error while connecting to lasergame database server. Please check your settings.\n\n" + ex.ToString());
+				string s = ex.ToString();
+				MessageBox.Show("Error while connecting to lasergame database server. Please check your settings.\n\n" + s.Substring(0, s.IndexOf('\n')));
 			}
 
 			RefreshGamesList();
@@ -173,9 +185,9 @@ namespace Torn.UI
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show("Error while exiting application.\n\n" + ex.ToString());
+				string s = ex.ToString();
+				MessageBox.Show("Error while exiting application.\n\n" + s.Substring(0, s.IndexOf('\n')));
 			}
-
 		}
 
 		Holder AddLeague(string fileName, string key = "", bool neww = false)
@@ -490,6 +502,9 @@ namespace Torn.UI
 			form.AutoUpdateTeams = autoUpdateTeams;
 			form.SystemType = systemType;
 			form.ServerAddress = serverAddress;
+			form.WindowsAuth = windowsAuth;
+			form.Sqluser = sqlUserId;
+			form.Password = sqlPassword;
 			form.WebPort = webPort;
 			if (form.ShowDialog() == DialogResult.OK)
 			{
@@ -503,6 +518,9 @@ namespace Torn.UI
 
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
+				windowsAuth = form.WindowsAuth;
+				sqlUserId = form.Sqluser;
+				sqlPassword = form.SqlPassword;
 				ConnectLaserGameServer();
 				timeToNextCheck = TimeSpan.FromSeconds(1);
 				ButtonLatestGameClick(null,null);
@@ -613,7 +631,7 @@ namespace Torn.UI
 			else
 				return null;
 		}
-		
+
 		void SetRowColumnCount(int rows, int columns)
 		{
 			for (int i = rows * columns + 3; i < tableLayoutPanel1.Controls.Count; )
@@ -1094,6 +1112,9 @@ namespace Torn.UI
 			Enum.TryParse(root.GetString("SystemType", "Acacia"), out systemType);
 			Enum.TryParse(root.GetString("GroupPlayersBy", "Colour"), out groupPlayersBy);
 			serverAddress = root.GetString("GameServerAddress", "localhost");
+			windowsAuth = root.GetString("Auth", "") == "windows";
+			sqlUserId = root.GetString("SqlUserId");
+			sqlPassword = root.GetString("SqlPassword");
 			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
 			exportFolder = root.GetString("ExportFolder", "");
 			selectedNode = root.GetString("Selected", "");
@@ -1125,6 +1146,12 @@ namespace Torn.UI
 			doc.AppendChild(bodyNode);
 
 			doc.AppendNode(bodyNode, "SystemType", systemType.ToString());
+			if (systemType == SystemType.Laserforce)
+			{
+				doc.AppendNode(bodyNode, "Auth", windowsAuth ? "windows" : "sql");
+				doc.AppendNode(bodyNode, "SqlUserId", sqlUserId);
+				doc.AppendNode(bodyNode, "SqlPassword", sqlPassword);
+			}
 			doc.AppendNode(bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
 			doc.AppendNode(bodyNode, "GameServerAddress", serverAddress);
 			doc.AppendNode(bodyNode, "WebServerPort", webPort.ToString());

@@ -32,6 +32,12 @@ namespace Torn.UI
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPageSystem = new System.Windows.Forms.TabPage();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.textBoxSqlPassword = new System.Windows.Forms.TextBox();
+			this.textBoxSqlUser = new System.Windows.Forms.TextBox();
+			this.labelSqlPassword = new System.Windows.Forms.Label();
+			this.labelSqlUser = new System.Windows.Forms.Label();
+			this.radioSqlAuth = new System.Windows.Forms.RadioButton();
+			this.radioWindowsAuth = new System.Windows.Forms.RadioButton();
 			this.textBoxServerAddress = new System.Windows.Forms.TextBox();
 			this.label3 = new System.Windows.Forms.Label();
 			this.panelSystemType = new System.Windows.Forms.Panel();
@@ -94,7 +100,7 @@ namespace Torn.UI
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(364, 292);
+			this.tabControl1.Size = new System.Drawing.Size(364, 329);
 			this.tabControl1.TabIndex = 0;
 			// 
 			// tabPageSystem
@@ -104,7 +110,7 @@ namespace Torn.UI
 			this.tabPageSystem.Location = new System.Drawing.Point(4, 22);
 			this.tabPageSystem.Name = "tabPageSystem";
 			this.tabPageSystem.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageSystem.Size = new System.Drawing.Size(356, 266);
+			this.tabPageSystem.Size = new System.Drawing.Size(356, 303);
 			this.tabPageSystem.TabIndex = 0;
 			this.tabPageSystem.Text = "System";
 			this.tabPageSystem.UseVisualStyleBackColor = true;
@@ -113,12 +119,75 @@ namespace Torn.UI
 			// 
 			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
 									| System.Windows.Forms.AnchorStyles.Right)));
+			this.panel1.Controls.Add(this.textBoxSqlPassword);
+			this.panel1.Controls.Add(this.textBoxSqlUser);
+			this.panel1.Controls.Add(this.labelSqlPassword);
+			this.panel1.Controls.Add(this.labelSqlUser);
+			this.panel1.Controls.Add(this.radioSqlAuth);
+			this.panel1.Controls.Add(this.radioWindowsAuth);
 			this.panel1.Controls.Add(this.textBoxServerAddress);
 			this.panel1.Controls.Add(this.label3);
 			this.panel1.Location = new System.Drawing.Point(8, 127);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(340, 60);
+			this.panel1.Size = new System.Drawing.Size(340, 133);
 			this.panel1.TabIndex = 1;
+			// 
+			// textBoxSqlPassword
+			// 
+			this.textBoxSqlPassword.Enabled = false;
+			this.textBoxSqlPassword.Location = new System.Drawing.Point(150, 104);
+			this.textBoxSqlPassword.Name = "textBoxSqlPassword";
+			this.textBoxSqlPassword.Size = new System.Drawing.Size(100, 20);
+			this.textBoxSqlPassword.TabIndex = 9;
+			// 
+			// textBoxSqlUser
+			// 
+			this.textBoxSqlUser.Enabled = false;
+			this.textBoxSqlUser.Location = new System.Drawing.Point(150, 78);
+			this.textBoxSqlUser.Name = "textBoxSqlUser";
+			this.textBoxSqlUser.Size = new System.Drawing.Size(100, 20);
+			this.textBoxSqlUser.TabIndex = 8;
+			// 
+			// labelSqlPassword
+			// 
+			this.labelSqlPassword.Enabled = false;
+			this.labelSqlPassword.Location = new System.Drawing.Point(35, 107);
+			this.labelSqlPassword.Name = "labelSqlPassword";
+			this.labelSqlPassword.Size = new System.Drawing.Size(109, 23);
+			this.labelSqlPassword.TabIndex = 7;
+			this.labelSqlPassword.Text = "Password:";
+			// 
+			// labelSqlUser
+			// 
+			this.labelSqlUser.Enabled = false;
+			this.labelSqlUser.Location = new System.Drawing.Point(35, 81);
+			this.labelSqlUser.Name = "labelSqlUser";
+			this.labelSqlUser.Size = new System.Drawing.Size(109, 23);
+			this.labelSqlUser.TabIndex = 6;
+			this.labelSqlUser.Text = "User ID:";
+			// 
+			// radioSqlAuth
+			// 
+			this.radioSqlAuth.Enabled = false;
+			this.radioSqlAuth.Location = new System.Drawing.Point(21, 54);
+			this.radioSqlAuth.Name = "radioSqlAuth";
+			this.radioSqlAuth.Size = new System.Drawing.Size(141, 24);
+			this.radioSqlAuth.TabIndex = 5;
+			this.radioSqlAuth.Text = "SQL authentication";
+			this.radioSqlAuth.UseVisualStyleBackColor = true;
+			this.radioSqlAuth.CheckedChanged += new System.EventHandler(this.RadioSqlAuthCheckedChanged);
+			// 
+			// radioWindowsAuth
+			// 
+			this.radioWindowsAuth.Checked = true;
+			this.radioWindowsAuth.Enabled = false;
+			this.radioWindowsAuth.Location = new System.Drawing.Point(21, 31);
+			this.radioWindowsAuth.Name = "radioWindowsAuth";
+			this.radioWindowsAuth.Size = new System.Drawing.Size(141, 24);
+			this.radioWindowsAuth.TabIndex = 4;
+			this.radioWindowsAuth.TabStop = true;
+			this.radioWindowsAuth.Text = "Windows authentication";
+			this.radioWindowsAuth.UseVisualStyleBackColor = true;
 			// 
 			// textBoxServerAddress
 			// 
@@ -173,6 +242,7 @@ namespace Torn.UI
 			this.radioLaserforce.TabStop = true;
 			this.radioLaserforce.Text = "Laserforce";
 			this.radioLaserforce.UseVisualStyleBackColor = true;
+			this.radioLaserforce.CheckedChanged += new System.EventHandler(this.RadioLaserforceCheckedChanged);
 			// 
 			// label1
 			// 
@@ -212,7 +282,7 @@ namespace Torn.UI
 			this.tabPageConfiguration.Location = new System.Drawing.Point(4, 22);
 			this.tabPageConfiguration.Name = "tabPageConfiguration";
 			this.tabPageConfiguration.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageConfiguration.Size = new System.Drawing.Size(356, 266);
+			this.tabPageConfiguration.Size = new System.Drawing.Size(356, 303);
 			this.tabPageConfiguration.TabIndex = 1;
 			this.tabPageConfiguration.Text = "Configuration";
 			this.tabPageConfiguration.UseVisualStyleBackColor = true;
@@ -325,7 +395,7 @@ namespace Torn.UI
 			this.tabPageUpload.Location = new System.Drawing.Point(4, 22);
 			this.tabPageUpload.Name = "tabPageUpload";
 			this.tabPageUpload.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageUpload.Size = new System.Drawing.Size(356, 266);
+			this.tabPageUpload.Size = new System.Drawing.Size(356, 303);
 			this.tabPageUpload.TabIndex = 2;
 			this.tabPageUpload.Text = "Upload";
 			this.tabPageUpload.UseVisualStyleBackColor = true;
@@ -459,7 +529,7 @@ namespace Torn.UI
 			this.tabPage1.Location = new System.Drawing.Point(4, 22);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(356, 266);
+			this.tabPage1.Size = new System.Drawing.Size(356, 303);
 			this.tabPage1.TabIndex = 3;
 			this.tabPage1.Text = "Web Server";
 			this.tabPage1.UseVisualStyleBackColor = true;
@@ -506,7 +576,7 @@ namespace Torn.UI
 			this.panelBottom.Controls.Add(this.buttonCancel);
 			this.panelBottom.Controls.Add(this.buttonOK);
 			this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panelBottom.Location = new System.Drawing.Point(0, 254);
+			this.panelBottom.Location = new System.Drawing.Point(0, 291);
 			this.panelBottom.Name = "panelBottom";
 			this.panelBottom.Size = new System.Drawing.Size(364, 38);
 			this.panelBottom.TabIndex = 1;
@@ -539,7 +609,7 @@ namespace Torn.UI
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(364, 292);
+			this.ClientSize = new System.Drawing.Size(364, 329);
 			this.Controls.Add(this.panelBottom);
 			this.Controls.Add(this.tabControl1);
 			this.Name = "FormPreferences";
@@ -565,6 +635,12 @@ namespace Torn.UI
 			this.panelBottom.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.RadioButton radioWindowsAuth;
+		private System.Windows.Forms.RadioButton radioSqlAuth;
+		private System.Windows.Forms.Label labelSqlUser;
+		private System.Windows.Forms.Label labelSqlPassword;
+		private System.Windows.Forms.TextBox textBoxSqlUser;
+		private System.Windows.Forms.TextBox textBoxSqlPassword;
 		private System.Windows.Forms.CheckBox checkBoxWebServer;
 		private System.Windows.Forms.NumericUpDown numericPort;
 		private System.Windows.Forms.Label labelPort;

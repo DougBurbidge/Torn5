@@ -102,10 +102,41 @@ namespace Torn.UI
 			}
 		}
 
+		public bool WindowsAuth { get { return radioWindowsAuth.Checked; }
+		                          set { radioWindowsAuth.Checked = value; radioSqlAuth.Checked = !value; } }
+		
+		public string Sqluser { get { return textBoxSqlUser.Text; }
+		                        set { textBoxSqlUser.Text = value; } }
+
+		public string SqlPassword { get { return textBoxSqlPassword.Text; }
+		                            set { textBoxSqlPassword.Text = value; } }
+
 		void CheckBoxWebServerCheckedChanged(object sender, EventArgs e)
 		{
 			labelPort.Enabled = checkBoxWebServer.Checked;
 			numericPort.Enabled = checkBoxWebServer.Checked;
+		}
+
+		void RadioLaserforceCheckedChanged(object sender, EventArgs e)
+		{
+			if (radioLaserforce.Checked && string.IsNullOrEmpty(textBoxServerAddress.Text))
+				textBoxServerAddress.Text = "lf-main\\lf6";
+
+			radioWindowsAuth.Enabled = radioLaserforce.Checked;
+			radioSqlAuth.Enabled = radioLaserforce.Checked;
+
+			RadioSqlAuthCheckedChanged(sender, e);			
+		}
+
+		void RadioSqlAuthCheckedChanged(object sender, EventArgs e)
+		{
+			labelSqlUser.Enabled = radioLaserforce.Checked && radioSqlAuth.Checked;
+			labelSqlPassword.Enabled = radioLaserforce.Checked && radioSqlAuth.Checked;
+			textBoxSqlUser.Enabled = radioLaserforce.Checked && radioSqlAuth.Checked;
+			textBoxSqlPassword.Enabled = radioLaserforce.Checked && radioSqlAuth.Checked;	
+
+			if (textBoxSqlUser.Enabled && string.IsNullOrEmpty(textBoxSqlUser.Text))
+				textBoxSqlUser.Text = "sa";
 		}
 	}
 }

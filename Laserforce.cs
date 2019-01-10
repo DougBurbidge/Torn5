@@ -18,12 +18,30 @@ namespace Torn
 		public Laserforce(string server = "")
 		{
 			GamesLimit = 1000;
-			
+		}
+
+		public void Connect(string server = "")
+		{
 			if (string.IsNullOrEmpty(server))
 				server = "lf-main\\lf6";
 			try
 			{
 				connection = new SqlConnection("Data Source=" + server + ";Database=Laserforce;Trusted_Connection=True");
+				connection.Open();
+				Connected = true;
+			}
+			catch
+			{
+				Connected = false;
+				throw;
+			}
+		}
+
+		public void Connect(string server, string sqlUserId, string sqlPassword)
+		{
+			try
+			{
+				connection = new SqlConnection("Data Source=" + server + ";Database=Laserforce;User Id=" + sqlUserId + ";Password=" + sqlPassword);
 				connection.Open();
 				Connected = true;
 			}
