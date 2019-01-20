@@ -20,7 +20,7 @@ namespace Torn
 		{
 			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0xA0, 0xA0), Color.FromArgb(0xA0, 0xD0, 0xFF), 
 				Color.FromArgb(0xA0, 0xFF, 0xA0), Color.FromArgb(0xFF, 0xFF, 0x90), Color.FromArgb(0xC0, 0xA0, 0xFF), 
-				Color.FromArgb(0xFF, 0xA0, 0xF0), Color.FromArgb(0xA0, 0xFF, 0xFF), Color.FromArgb(0xFF, 0xD0, 0xA0) };
+				Color.FromArgb(0xFF, 0xA0, 0xF0), Color.FromArgb(0xA0, 0xFF, 0xFF), Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xFF, 0xFF, 0xFF) };
 			return Colors[(int)colour];
 		}
 
@@ -28,7 +28,7 @@ namespace Torn
 		{
 			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x50, 0x50), Color.FromArgb(0x60, 0x80, 0xFF), 
 				Color.FromArgb(0x20, 0xFF, 0x20), Color.FromArgb(0xFF, 0xFF, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), 
-				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xFF, 0xFF), Color.FromArgb(0xFF, 0x80, 0x50) };
+				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xFF, 0xFF), Color.FromArgb(0xFF, 0x80, 0x50), Color.FromArgb(0xEE, 0xEE, 0xEE) };
 			return Colors[(int)colour];
 		}
 
@@ -36,7 +36,7 @@ namespace Torn
 		{
 			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x40, 0x40), Color.FromArgb(0x40, 0x50, 0xFF), 
 				Color.FromArgb(0x00, 0xA0, 0x00), Color.FromArgb(0xA0, 0xA0, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), 
-				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xC0, 0xC0), Color.FromArgb(0xFF, 0x60, 0x30) };
+				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xC0, 0xC0), Color.FromArgb(0xFF, 0x60, 0x30), Color.FromArgb(0xDD, 0xDD, 0xDD) };
 			return Colors[(int)colour];
 		}
 
@@ -47,7 +47,7 @@ namespace Torn
 
 			var dict = new Dictionary<string, Colour> { 
 				{ "red", Colour.Red }, { "blue", Colour.Blue }, { "green", Colour.Green }, { "yellow", Colour.Yellow },
-				{ "purple", Colour.Purple }, { "pink", Colour.Pink }, { "cyan", Colour.Cyan }, { "orange", Colour.Orange },
+				{ "purple", Colour.Purple }, { "pink", Colour.Pink }, { "cyan", Colour.Cyan }, { "orange", Colour.Orange }, { "white", Colour.White },
 				{ "blu", Colour.Blue }, { "grn", Colour.Green }, { "yel", Colour.Yellow } 
 			};
 
@@ -55,7 +55,24 @@ namespace Torn
 			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out c);
 			return c;
 		}
-		
+
+		public static Colour ToColour(char ch)
+		{
+			var dict = new Dictionary<char, Colour> { 
+				{ 'r', Colour.Red }, { 'b', Colour.Blue }, { 'g', Colour.Green }, { 'y', Colour.Yellow },
+				{ 'p', Colour.Purple }, { 'i', Colour.Pink }, { 'c', Colour.Cyan }, { 'o', Colour.Orange }, { 'w', Colour.White }
+			};
+
+			Colour c;
+			dict.TryGetValue(char.ToLower(ch, CultureInfo.InvariantCulture), out c);
+			return c;
+		}
+
+		public static char ToChar(this Colour c)
+		{
+			return "xRBGYPICOW"[(int)c];
+		}
+
 		public static Colour ToColour(int i) // Converts from a Laserforce colour index number.
 		{
 			switch (i)

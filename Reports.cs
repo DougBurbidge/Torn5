@@ -1421,12 +1421,16 @@ namespace Torn.Report
 
 					row.Add(new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm")));
 
-					foreach (var ft in fg.Teams)
+					for (var i = Colour.Red; i <= Colour.White; i++)
 					{
-						ZCell teamCell = new ZCell(ft.Key.Name, ft.Value.ToColor());
-		        		teamCell.Hyper = "fixture" + ft.Key.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html";
-						row.Add(teamCell);
-						
+						FixtureTeam ft = fg.Teams.FirstOrDefault(x => x.Value == i).Key;
+						if (ft != null)
+						{
+							ZCell teamCell = new ZCell(ft.Name, i.ToColor());
+			        		teamCell.Hyper = "fixture" + ft.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+							row.Add(teamCell);
+							
+						}
 					}
 
 					report.Rows.Add(row);

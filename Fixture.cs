@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Torn;
 
@@ -78,6 +79,11 @@ namespace Torn
 		string name;
 		public string Name { get { return LeagueTeam == null ? name : LeagueTeam.Name; } set { name = value; } }
 		public int Id { get; set; }
+
+		public override string ToString()
+		{
+			return "FixtureTeam " + Name ?? Id.ToString();
+		}
 	}
 
 	public class FixtureGames: List<FixtureGame>
@@ -115,6 +121,7 @@ namespace Torn
 			}
 		}
 
+		// Import past games from a league.
 		public void Parse(League league, FixtureTeams teams)
 		{
 			foreach (Game lg in league.Games(false))
@@ -134,6 +141,48 @@ namespace Torn
 			}
 		}
 
+		// This parses a grid. Each game will be a column; each team will be a row. Each character in the grid is a letter
+		// representing that team's colour in that game, or is a non-colour character if that team does not play in that game.
+		public string[] Parse(string[] lines, FixtureTeams teams, DateTime? firstGame, TimeSpan? duration)
+		{
+			int minLength = int.MaxValue;
+
+			for (int row = 0; row < lines.Length && row < teams.Count; row++)
+			{
+				int pos = lines[row].LastIndexOf('\t');
+				while (pos > -1)
+				{
+					lines[row] = lines[row].Remove(pos, 1);
+					pos = lines[row].LastIndexOf('\t');
+				}
+				minLength = Math.Min(minLength, lines[row].Length);
+			}
+
+			for (int col = 0; col < minLength; col ++)
+			{
+				var game = new FixtureGame();
+				for (int row = 0; row < lines.Length && row < teams.Count; row++)
+				{
+					if (lines[row][col] == 'x')
+						game.Teams.Add(teams[col], Colour.None);
+					else 
+					{
+						Colour c = ColourExtensions.ToColour(lines[row][col]);
+						if (c != Colour.None)
+							game.Teams.Add(teams[row], c);
+					}
+				}
+				if (firstGame != null)
+				{
+					game.Time = (DateTime)firstGame;
+					firstGame += duration ?? TimeSpan.Zero;
+				}
+				Add(game);
+			}
+
+			return lines;
+		}
+
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
@@ -142,10 +191,14 @@ namespace Torn
 				sb.Append(fg.Time);
 				sb.Append('\t');
 
-				foreach (FixtureTeam ft in fg.Teams.Keys)
+				for (var i = Colour.Red; i <= Colour.White; i++)
 				{
-					sb.Append(ft.Id);
-					sb.Append('\t');
+					var ft = fg.Teams.FirstOrDefault(x => x.Value == i).Key;
+					if (ft != null)
+					{
+						sb.Append(ft.Id);
+						sb.Append('\t');
+					}
 				}
 
 				sb.Remove(sb.Length - 1, 1);
@@ -153,6 +206,28 @@ namespace Torn
 			}
 			
 			return sb.ToString();
+		}
+
+		public string[] ToGrid(FixtureTeams teams)
+		{
+			int teamsCount = Math.Max(teams.Count, (int)this.Max(fg => fg.Teams.Max(ft => (int?)ft.Key.Id)));
+			var lines = new string[teamsCount];
+
+			for (int col = 0; col < Count; col++)
+			{
+				var fg = this[col];
+				for (int row = 0; row < teamsCount; row++)
+				{
+					if (lines[row] == null) 
+						lines[row] = "";
+
+					if (row < teams.Count && fg.Teams.ContainsKey(teams[row]))
+					    lines[row] += fg.Teams[teams[row]].ToChar();
+					else
+						lines[row] += '.';
+				}
+			}
+			return lines;
 		}
 	}
 

@@ -38,6 +38,34 @@ namespace TornWeb
 
 			return league;			
 		}
+		
+		void AddGame(League league)
+		{
+			var serverGame = new ServerGame();
+			serverGame.League = league;
+			serverGame.Time = new DateTime(2018, 1, 1, 12, 0, 0);
+			
+			var teamDatas = new System.Collections.Generic.List<GameTeamData>();
+
+			var teamData = new GameTeamData();
+			teamData.GameTeam = new GameTeam();
+			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "001" } );
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "002" } );
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "003" } );
+			teamDatas.Add(teamData);
+			
+			teamData = new GameTeamData();
+			teamData.GameTeam = new GameTeam();
+			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "004" } );
+			teamData.Players.Add(new ServerPlayer() { PlayerId = "nonexistent" } );
+			teamDatas.Add(teamData);
+			
+			league.CommitGame(serverGame, teamDatas);
+			league.AllGames[0].Teams[0].Colour = Colour.Red;
+			league.AllGames[0].Teams[1].Colour = Colour.Green;
+		}
 
 		[Test]
 		public void TestLeagueSaveLoad()
@@ -85,36 +113,15 @@ namespace TornWeb
 		public void TestLeagueCommit()
 		{
 			var league = CreateLeague();
-			
-			var serverGame = new ServerGame();
-			serverGame.League = league;
-			serverGame.Time = new DateTime(2018, 1, 1, 12, 0, 0);
-			
-			var teamDatas = new System.Collections.Generic.List<GameTeamData>();
 
-			var teamData = new GameTeamData();
-			teamData.GameTeam = new GameTeam();
-			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
-			teamData.Players.Add(new ServerPlayer() { PlayerId = "001" } );
-			teamData.Players.Add(new ServerPlayer() { PlayerId = "002" } );
-			teamData.Players.Add(new ServerPlayer() { PlayerId = "003" } );
-			teamDatas.Add(teamData);
-			
-			teamData = new GameTeamData();
-			teamData.GameTeam = new GameTeam();
-			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
-			teamData.Players.Add(new ServerPlayer() { PlayerId = "004" } );
-			teamData.Players.Add(new ServerPlayer() { PlayerId = "nonexistent" } );
-			teamDatas.Add(teamData);
-			
-			league.CommitGame(serverGame, teamDatas);
-			
+			AddGame(league);
+
 			Assert.AreEqual(1, league.AllGames.Count, "game count");
 			Assert.AreEqual(1, league.Teams[0].AllPlayed.Count, "team 0 game count");
 			Assert.AreEqual(1, league.Teams[1].AllPlayed.Count, "team 1 game count");
 			Assert.AreEqual(0, league.Teams[2].AllPlayed.Count, "team 2 game count");
 		}
-		
+
 		[Test]
 		public void TestReportTemplates()
 		{
@@ -158,7 +165,7 @@ namespace TornWeb
 			Assert.That(reportTemplates2[1].Drops.PercentBest == 10.0, "XML best 10%");
 			Assert.That(reportTemplates2[1].Drops.CountWorst == 0, "XML worst 0");
 		}
-		
+
 		[Test]
 		public void TestHandicap()
 		{
@@ -175,6 +182,45 @@ namespace TornWeb
 
 			h = Handicap.Parse("0");
 			Assert.AreEqual(0, h.Value, "handicap is still 0");
+		}
+
+		[Test]
+		public void TestFixtureParse()
+		{
+			var league = CreateLeague();
+			var fixture = new Fixture();
+			fixture.Teams.Parse(league);
+
+			Assert.AreEqual(3, fixture.Teams.Count, "fixture teams = 3");
+			Assert.AreEqual("Team B", fixture.Teams[1].Name, "fixture Team B");
+
+			AddGame(league);
+			fixture.Games.Parse(league, fixture.Teams);
+
+			Assert.AreEqual(1, fixture.Games.Count, "fixture games = 1");
+			Assert.AreEqual(new DateTime(2018, 1, 1, 12, 0, 0), fixture.Games[0].Time, "fixture game time");
+			Assert.AreEqual(2, fixture.Games[0].Teams.Count, "fixture game team count");
+			Assert.AreEqual(Colour.Green, fixture.Games[0].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.AreEqual(Colour.Red, fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
+			
+			fixture.Games.Clear();
+			
+			var lines = new string[] { "row", "b..", "y.p" };
+			fixture.Games.Parse(lines, fixture.Teams, null, null);
+
+			Assert.AreEqual(3, fixture.Games.Count, "fixture games = 3");
+			Assert.AreEqual(Colour.Red, fixture.Games[0].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.AreEqual(Colour.Blue, fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
+			Assert.AreEqual(Colour.Yellow, fixture.Games[0].Teams[fixture.Teams[2]], "fixture game team colour");
+			Assert.AreEqual(Colour.Orange, fixture.Games[1].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.AreEqual(Colour.White, fixture.Games[2].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.AreEqual(Colour.Purple, fixture.Games[2].Teams[fixture.Teams[2]], "fixture game team colour");
+			
+			var grid = fixture.Games.ToGrid(fixture.Teams);
+			Assert.AreEqual(3, grid.Length);
+			Assert.AreEqual("ROW", grid[0]);
+			Assert.AreEqual("B..", grid[1]);
+			Assert.AreEqual("Y.P", grid[2]);
 		}
 	}
 }

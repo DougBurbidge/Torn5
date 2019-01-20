@@ -301,6 +301,7 @@ namespace Torn.UI
 			this.timePickerTo.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
 			this.timePickerTo.Location = new System.Drawing.Point(159, 45);
 			this.timePickerTo.Name = "timePickerTo";
+			this.timePickerTo.ShowUpDown = true;
 			this.timePickerTo.Size = new System.Drawing.Size(91, 20);
 			this.timePickerTo.TabIndex = 5;
 			this.timePickerTo.Value = new System.DateTime(2001, 1, 1, 23, 59, 59, 0);
@@ -312,6 +313,7 @@ namespace Torn.UI
 			this.timePickerFrom.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
 			this.timePickerFrom.Location = new System.Drawing.Point(159, 19);
 			this.timePickerFrom.Name = "timePickerFrom";
+			this.timePickerFrom.ShowUpDown = true;
 			this.timePickerFrom.Size = new System.Drawing.Size(91, 20);
 			this.timePickerFrom.TabIndex = 2;
 			this.timePickerFrom.Value = new System.DateTime(2001, 1, 1, 0, 0, 0, 0);
