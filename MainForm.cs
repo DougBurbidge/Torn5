@@ -368,6 +368,17 @@ namespace Torn.UI
 			form.Icon = (Icon)Icon.Clone();
 			form.League = activeHolder.League.Clone();
 			form.FormPlayer = formPlayer;
+
+			if (form.League.Teams.Count == 0)
+				foreach (var ft in activeHolder.Fixture.Teams)
+				{
+					var lt = new LeagueTeam();
+					lt.Id = ft.Id;
+					lt.Name = ft.Name;
+					ft.LeagueTeam = lt;
+					form.League.Teams.Add(lt);
+				}
+
 			if (form.ShowDialog() == DialogResult.OK)
 			{
 				activeHolder.League = form.League;

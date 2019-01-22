@@ -48,15 +48,16 @@ namespace Torn
 		public void Parse(League league)
 		{
 			foreach (LeagueTeam lt in league.Teams)
-			{
-				FixtureTeam ft = new FixtureTeam();
-
-				ft.Name = lt.Name;
-				ft.Id = lt.Id;
-				ft.LeagueTeam = lt;
-
-				Add(ft);
-			}
+				if (!Exists(ft => ft.Id == lt.Id))
+				{
+					FixtureTeam ft = new FixtureTeam();
+	
+					ft.Name = lt.Name;
+					ft.Id = lt.Id;
+					ft.LeagueTeam = lt;
+	
+					Add(ft);
+				}
 		}
 
 		public override string ToString()
@@ -68,7 +69,7 @@ namespace Torn
 				sb.Append("\r\n");
 			}
 			if (sb.Length > 0)
-				sb.Remove(sb.Length - 1, 1);
+				sb.Remove(sb.Length - 2, 2);
 			return sb.ToString();
 		}
 	}
