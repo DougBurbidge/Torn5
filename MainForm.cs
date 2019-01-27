@@ -324,7 +324,7 @@ namespace Torn.UI
 		{
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 			{
-				ServerGame serverGame = ((ServerGame)item.Tag);
+				ServerGame serverGame = item.Tag is ServerGame ? ((ServerGame)item.Tag) : null;
 
 				var teamDatas = new List<GameTeamData>();
 				var teamBoxes = TeamBoxes();
@@ -344,7 +344,7 @@ namespace Torn.UI
 
 					foreach (TeamBox teamBox in teamBoxes)
 					{
-						var teamData = teamDatas.Find(x => x.GameTeam.TeamId == teamBox.GameTeam.TeamId);
+						var teamData = teamDatas.Find(x => x.GameTeam != null && x.GameTeam.TeamId == teamBox.GameTeam.TeamId);
 						if (teamData != null)
 							teamBox.GameTeam = teamData.GameTeam;
 
@@ -757,6 +757,9 @@ namespace Torn.UI
 
 		bool EnableCommit()
 		{
+			if (listViewLeagues.SelectedItems.Count != 1)
+				return false;
+
 			if (listViewGames.SelectedItems.Count != 1)
 				return false;
 

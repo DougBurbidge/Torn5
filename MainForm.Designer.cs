@@ -70,9 +70,11 @@ namespace Torn.UI
 			this.toolStripLeague = new System.Windows.Forms.ToolStrip();
 			this.toolStripDropDownLeagues = new System.Windows.Forms.ToolStripDropDownButton();
 			this.buttonPreferences = new System.Windows.Forms.ToolStripMenuItem();
+			this.buttonSave = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonPyramid = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonFixtures = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonMatch = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.buttonHelp = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonAbout = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonNew = new System.Windows.Forms.ToolStripButton();
@@ -108,8 +110,6 @@ namespace Torn.UI
 			this.imageListPacks = new System.Windows.Forms.ImageList(this.components);
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-			this.buttonSave = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
@@ -197,6 +197,7 @@ namespace Torn.UI
 			this.listViewLeagues.View = System.Windows.Forms.View.Details;
 			this.listViewLeagues.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ListViewLeaguesAfterLabelEdit);
 			this.listViewLeagues.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListViewLeaguesItemSelectionChanged);
+			this.listViewLeagues.SelectedIndexChanged += new System.EventHandler(this.ListViewGamesSelectedIndexChanged);
 			// 
 			// colTag
 			// 
@@ -438,6 +439,13 @@ namespace Torn.UI
 			this.buttonPreferences.Text = "Preferences...";
 			this.buttonPreferences.Click += new System.EventHandler(this.ButtonPreferencesClick);
 			// 
+			// buttonSave
+			// 
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.Size = new System.Drawing.Size(225, 22);
+			this.buttonSave.Text = "Save League(s)";
+			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
+			// 
 			// buttonPyramid
 			// 
 			this.buttonPyramid.Enabled = false;
@@ -458,6 +466,11 @@ namespace Torn.UI
 			this.buttonMatch.Name = "buttonMatch";
 			this.buttonMatch.Size = new System.Drawing.Size(225, 22);
 			this.buttonMatch.Text = "Match...";
+			// 
+			// toolStripMenuItem1
+			// 
+			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(222, 6);
 			// 
 			// buttonHelp
 			// 
@@ -780,18 +793,6 @@ namespace Torn.UI
 			// saveFileDialog1
 			// 
 			this.saveFileDialog1.Filter = "Torn files|*.Torn|All files|*.*";
-			// 
-			// buttonSave
-			// 
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.Size = new System.Drawing.Size(225, 22);
-			this.buttonSave.Text = "Save League(s)";
-			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
-			// 
-			// toolStripMenuItem1
-			// 
-			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-			this.toolStripMenuItem1.Size = new System.Drawing.Size(222, 6);
 			// 
 			// MainForm
 			// 
