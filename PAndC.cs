@@ -151,7 +151,12 @@ namespace Torn
 
 					player.PandCPlayerId = GetInt(reader, "Player_ID");
 					player.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
-					player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
+
+					if (0 <= player.PandCPlayerTeamId && player.PandCPlayerTeamId < 8)
+						player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
+					else
+						player.Colour = Colour.None;
+
 					player.Score = GetInt(reader, "Score");
 					player.Pack = GetString(reader, "Pack_Name");
 					player.PlayerId = GetString(reader, "Button_ID");

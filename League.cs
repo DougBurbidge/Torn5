@@ -283,7 +283,8 @@ namespace Torn
 				{
 					var counts = new int[Enum.GetValues(typeof(Colour)).Cast<int>().Max() + 1];
 					foreach (var player in players)
-						counts[(int)player.Colour]++;
+						if (0 <= (int)player.Colour && (int)player.Colour < counts.Length)
+							counts[(int)player.Colour]++;
 
 					colour = (Colour)counts.ToList().IndexOf(counts.Max());
 				}
