@@ -989,12 +989,15 @@ namespace Torn.UI
 										{
 											var playerId = gameTeam.Players[p].PlayerId;
 											var serverPlayer = serverGame.Players.Find(x => x.PlayerId == playerId);
-											gameTeam.Players[p].CopyTo(serverPlayer);
-											gameTeam.Players[p] = serverPlayer;
-											
-											int lp = leagueGame.Players.FindIndex(x => x.PlayerId == playerId);
-											if (lp > -1)
-												leagueGame.Players[lp] = serverPlayer;
+											if (serverPlayer != null)
+											{
+												gameTeam.Players[p].CopyTo(serverPlayer);
+												gameTeam.Players[p] = serverPlayer;
+	
+												int lp = leagueGame.Players.FindIndex(x => x.PlayerId == playerId);
+												if (lp > -1)
+													leagueGame.Players[lp] = serverPlayer;
+											}
 										}
 										
 								ProgressBar(1.0 * i / serverGames.Count, "Populated " + leagueGame.LongTitle());
