@@ -316,7 +316,7 @@ namespace Torn.Report
 						{
 							reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
 							reports.Add(Reports.OneGame(league, game));
-							if (game.ServerGame != null && game.ServerGame.Events.Count > 0)
+							if (game.ServerGame != null && game.ServerGame.Events.Count > 0 && !game.ServerGame.InProgress)
 							{
 								reports.Add(Reports.GameHeatMap(league, game));
 								var bitmap = Reports.GameWorm(league, game, true);

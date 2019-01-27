@@ -857,7 +857,7 @@ namespace Torn.UI
 				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the database server.
 				webOutput.MostRecentHolder = leagues.MostRecent();
 				if (webOutput.MostRecentHolder != null)
-					webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.Last();
+					webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.LastOrDefault();
 				webOutput.MostRecentServerGame = MostRecent();  // This also queries the database server.
 
 				if (timeElapsed > TimeSpan.FromSeconds(1))

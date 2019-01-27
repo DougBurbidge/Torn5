@@ -21,7 +21,7 @@ namespace Torn
 		{
 			try
 			{
-				connection = new MySqlConnection("server=" + server + ";user=root;database=ng_system;port=3306;password=password");
+				connection = new MySqlConnection("server=" + server + ";user=root;database=ng_system;port=3306;password=password;Convert Zero Datetime=True");
 				connection.Open();
 				Connected = true;
 
@@ -54,14 +54,14 @@ namespace Torn
 				return TimeSpan.Zero;
 			try
 			{
-				string sql = "SELECT Event_Type, Time_Logged, CURRENT_TIMESTAMP FROM ng_game_log ORDER BY Time_Logged DESC";
+				string sql = "SELECT Event_Type, Time_Logged, CURRENT_TIMESTAMP FROM ng_game_log ORDER BY Time_Logged DESC LIMIT 1";
 				MySqlCommand cmd = new MySqlCommand(sql, connection);
 				using (var reader = cmd.ExecuteReader())
 				{
 					if (reader.Read())
 					{
 						if (reader.GetUInt32("Event_Type") == 0)  // 0 is 'Game Started'.
-							return reader.GetDateTime("CURRENT_TIMESTAMP") - reader.GetDateTime("Time_Logged");
+							return GetDateTime(reader, "CURRENT_TIMESTAMP") - GetDateTime(reader, "Time_Logged");
 						else
 							return TimeSpan.Zero;
 					}
@@ -94,8 +94,9 @@ namespace Torn
 					ServerGame game = new ServerGame();
 					game.GameId = GetInt(reader, "Game_ID");
 					game.Description = GetString(reader, "Description");
-					game.Time = reader.GetDateTime("Start_Time");
-					game.EndTime = reader.GetDateTime("Finish_Time");
+					game.Time = GetDateTime(reader, "Start_Time");
+					game.EndTime = GetDateTime(reader, "Finish_Time");
+					game.InProgress = game.EndTime == default(DateTime);
 					game.OnServer = true;
 					games.Add(game);
 				}
@@ -203,8 +204,12 @@ namespace Torn
 
 		DateTime GetDateTime(MySqlDataReader reader, string column)
 		{
-			int i = reader.GetOrdinal(column);
-			return reader.IsDBNull(i) ? default(DateTime) : reader.GetDateTime(i);
+			try {
+				int i = reader.GetOrdinal(column);
+				return reader.IsDBNull(i) ? default(DateTime) : reader.GetDateTime(i);
+			} catch (Exception) {
+				return default(DateTime);
+			}
 		}
 
 		int GetInt(MySqlDataReader reader, string column)
