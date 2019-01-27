@@ -281,7 +281,7 @@ namespace Torn
 			{
 				if (colour == Colour.None)
 				{
-					var counts = new int[9];
+					var counts = new int[Enum.GetValues(typeof(Colour)).Cast<int>().Max() + 1];
 					foreach (var player in players)
 						counts[(int)player.Colour]++;
 
