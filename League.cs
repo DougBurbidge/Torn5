@@ -1066,7 +1066,6 @@ namespace Torn
 			if (File.Exists(file))
 				File.Move(file, file + "5Backup");  // Rename the old league file before we save over it, by changing its extension to ".Torn5Backup".
 			doc.Save(file);
-//			doc.Save(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "5") + Path.GetExtension(file));
 		}
 
 		public override string ToString()

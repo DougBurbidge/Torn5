@@ -348,11 +348,30 @@ namespace Torn.UI
 						if (teamData != null)
 							teamBox.GameTeam = teamData.GameTeam;
 
-						if (autoUpdateTeams &&
-						    activeHolder.League.LeagueTeam(teamBox.GameTeam) != null && teamBox.Players().Count > 0)
-							activeHolder.League.LeagueTeam(teamBox.GameTeam).Handicap = teamBox.Handicap;
+//						if (autoUpdateTeams &&
+//						    activeHolder.League.LeagueTeam(teamBox.GameTeam) != null && teamBox.Players().Count > 0)
+//							activeHolder.League.LeagueTeam(teamBox.GameTeam).Handicap = teamBox.Handicap;
+
+						if (autoUpdateTeams)
+						{
+							var gt = teamBox.GameTeam;
+							
+							var lt = activeHolder.League.LeagueTeam(gt);
+
+							if (lt != null)
+							{
+								var p = teamBox.Players();
+
+								if (p.Count > 0)
+							    {
+							    	var h = teamBox.Handicap;
+							    	
+									lt.Handicap = h;
+								}
+							}
+						}
 					}
-				
+
 					RefreshGamesList();
 					RankTeams();
 
@@ -823,7 +842,7 @@ namespace Torn.UI
 			buttonPackReport.Enabled = b;
 			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
-			if (listViewLeagues.SelectedItems.Count == 1)
+			if (listViewLeagues.SelectedItems.Count == 1 && e != null)
 			{
 				activeHolder = (Holder)e.Item.Tag;
 				labelLeagueDetails.Text = "Title: " + activeHolder.League.Title + "\nKey: " + activeHolder.Key + 
