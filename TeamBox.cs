@@ -182,13 +182,13 @@ namespace Torn.UI
 
 		void MenuAdjustVictoryPointsClick(object sender, EventArgs e)
 		{
-			GameTeam.PointsAdjustment = InputDialog.GetDouble("Victory Points Adjustment", "Set team victory points adjustment", GameTeam.PointsAdjustment);
+			GameTeam.PointsAdjustment = (double)InputDialog.GetDouble("Victory Points Adjustment", "Set team victory points adjustment", GameTeam.PointsAdjustment);
 			Recalculate(false);
 		}
 
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , (double)Handicap.Value);
+			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , Handicap.Value);
 			Recalculate(false);
 		}
 

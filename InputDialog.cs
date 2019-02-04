@@ -67,13 +67,13 @@ namespace Torn.UI
 			return id.ShowDialog() == DialogResult.OK ? (int)id.numericUpDown1.Value : defaultResponse;
 		}
 
-		public static double GetDouble(string title, string message, double defaultResponse = 0)
+		public static double? GetDouble(string title, string message, double? defaultResponse = 0)
 		{
 			var id = new InputDialog(title, message);
 			id.textBox1.Visible = false;
 			id.numericUpDown1.Visible = true;
 			id.numericUpDown1.Focus();
-			id.numericUpDown1.Value = (decimal)defaultResponse;
+			id.numericUpDown1.Value = defaultResponse == null ? 0 : (decimal)defaultResponse;
 			return id.ShowDialog() == DialogResult.OK ? (double)id.numericUpDown1.Value : defaultResponse;
 		}
 	}
