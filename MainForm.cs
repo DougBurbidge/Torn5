@@ -989,12 +989,13 @@ namespace Torn.UI
 				for (int i = 0; i < serverGames.Count; i++)
 				{
 					var serverGame = serverGames[i];
-					foreach (Holder holder in leagues)
+					var leaguelist = leagues.Select(h => h.League);  // Grab the leagues out, because the below loop takes a long time, during which the user may add/remove leagues, modifying the "leagues" list.
+					foreach (var league in leaguelist)
 					{
-						Game leagueGame = holder.League.AllGames.Find(x => x.Time == serverGame.Time);
+						Game leagueGame = league.AllGames.Find(x => x.Time == serverGame.Time);
 						if (leagueGame != null)
 						{
-							serverGame.League = holder.League;
+							serverGame.League = league;
 							serverGame.Game = leagueGame;
 							leagueGame.ServerGame = serverGame;
 							var oldGame = oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time);
