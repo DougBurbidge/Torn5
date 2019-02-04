@@ -17,6 +17,7 @@ namespace Torn.UI
 		
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
+		bool resizing;
 
 		public FormFixture()
 		{
@@ -29,7 +30,10 @@ namespace Torn.UI
 			leftButton = Colour.Red;
 			middleButton = Colour.Blue;
 			rightButton = Colour.Green;
+			xButton1 = Colour.Yellow;
+			xButton2 = Colour.Purple;
 			point = new Point(-1, -1);
+			resizing = false;
 		}
 
 		public FormFixture(Fixture fixture, League league): this()
@@ -172,7 +176,7 @@ namespace Torn.UI
 				g.FillRectangle(new SolidBrush(Color.FromArgb(0xF8, 0xF8, 0xF8)), left + x * size, x * size, size, size);
 
 				// Colour squares for selected team and game.
-				if (point.X > -1)
+				if (point.X > -1 && point.X < Fixture.Games.Count)
 				{
 				var game = Fixture.Games[point.X];
 				var team = Fixture.Teams[point.Y];
@@ -204,18 +208,34 @@ namespace Torn.UI
 					}
 		}
 
+		void PaintBorder(int size, int rows)
+		{
+			var g = panelGraphic.CreateGraphics();
+			Pen pen = new Pen(Color.Gray);
+
+			g.DrawLine(pen, 0, 0, Math.Min(Fixture.Games.Count * size, panelGraphic.DisplayRectangle.Right), 0);
+			g.DrawLine(pen, 0, rows * size, Math.Min(Fixture.Games.Count * size, panelGraphic.DisplayRectangle.Right), rows * size);
+
+			g.DrawLine(pen, 0, 0, 0, Math.Min(rows * size, panelGraphic.DisplayRectangle.Bottom));
+			g.DrawLine(pen, Fixture.Games.Count * size, 0, Fixture.Games.Count * size, Math.Min(rows * size, panelGraphic.DisplayRectangle.Bottom));
+		}
+
 		void PaintGrid(int size, int rows)
 		{
 			var g = panelGraphic.CreateGraphics();
 			Pen pen = new Pen(Color.Gray);
 
-			for (int col = 0; col < Fixture.Games.Count; col++)
-				for (int row = 0; row <= rows; row++)
-					g.DrawLine(pen, 0, row * size, Math.Min(Fixture.Games.Count * size, panelGraphic.DisplayRectangle.Right), row * size);
-
 			for (int row = 0; row <= rows; row++)
-				for (int col = 0; col <= Fixture.Games.Count; col++)
-					g.DrawLine(pen, col * size, 0, col * size, Math.Min(rows * size, panelGraphic.DisplayRectangle.Bottom));
+				g.DrawLine(pen, 0, row * size, Math.Min(Fixture.Games.Count * size, panelGraphic.DisplayRectangle.Right), row * size);
+
+			for (int col = 0; col <= Fixture.Games.Count; col++)
+				g.DrawLine(pen, col * size, 0, col * size, Math.Min(rows * size, panelGraphic.DisplayRectangle.Bottom));
+
+//			// Paint a light gray bar on the row and column of the clicked team. Not in use because we'd have to rebuild grid every PanelGraphicMouseClick.
+//			for (int x = 0; x < Fixture.Games.Count; x++)
+//				for (int y = 0; y < Fixture.Teams.Count; y++)
+//					if (point != null && (point.Y == x || point.Y == y))
+//						FillCell(x, y, size, Color.LightGray);
 		}
 
 		// Paint coloured cells onto grid to show teams in games.
@@ -240,14 +260,13 @@ namespace Torn.UI
 			int size = (int)numericSize.Value;
 			int rows = Fixture.Teams.Count;
 
+			if (resizing)
+			{
+				PaintBorder(size, rows);
+				return;
+			}
+
 			PaintGrid(size, rows);
-
-//			// Paint a light gray bar on the row and column of the clicked team. Not in use because we'd have to rebuild grid every PanelGraphicMouseClick.
-//			for (int x = 0; x < Fixture.Games.Count; x++)
-//				for (int y = 0; y < Fixture.Teams.Count; y++)
-//					if (point != null && (point.Y == x || point.Y == y))
-//						FillCell(x, y, size, Color.LightGray);
-
 			PaintCells(size);
 			PaintNumbers(size, rows);
 			PaintWhoPlaysWho(size, rows);
@@ -310,6 +329,17 @@ namespace Torn.UI
 
 				point = new Point(-1, -1);
 			}
+		}
+		
+		void FormFixtureResizeBegin(object sender, EventArgs e)
+		{
+			resizing = true;
+		}
+
+		void FormFixtureResizeEnd(object sender, EventArgs e)
+		{
+			resizing = false;
+			panelGraphic.Invalidate();
 		}
 	}
 }

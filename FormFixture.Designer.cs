@@ -410,6 +410,8 @@ namespace Torn.UI
 			this.Name = "FormFixture";
 			this.Text = "Fixtures";
 			this.Shown += new System.EventHandler(this.FormFixtureShown);
+			this.ResizeBegin += new System.EventHandler(this.FormFixtureResizeBegin);
+			this.ResizeEnd += new System.EventHandler(this.FormFixtureResizeEnd);
 			this.tabControl1.ResumeLayout(false);
 			this.tabTeams.ResumeLayout(false);
 			this.tabTeams.PerformLayout();
