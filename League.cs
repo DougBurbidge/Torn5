@@ -104,6 +104,16 @@ namespace Torn
 			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out h);
 			return h;
 		}
+		
+		public static string ToString(this HandicapStyle handicapStyle)
+		{
+			switch (handicapStyle) {
+				case HandicapStyle.Percent: return "%";
+				case HandicapStyle.Plus: return "+";
+				case HandicapStyle.Minus: return "-";
+			}
+			return "";
+		}
 	}
 
 	public class Handicap
