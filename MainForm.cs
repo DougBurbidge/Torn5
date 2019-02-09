@@ -482,7 +482,7 @@ namespace Torn.UI
 
 		void ButtonHelpClick(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("https://github.com/DougBurbidge/Torn5/blob/master/help.html");
+			System.Diagnostics.Process.Start("http://dougburbidge.com/Apps/help.html");
 		}
 
 		void ButtonLatestGameClick(object sender, EventArgs e)

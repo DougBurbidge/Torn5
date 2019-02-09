@@ -396,7 +396,7 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.panelGraphic.Location = new System.Drawing.Point(6, 6);
 			this.panelGraphic.Name = "panelGraphic";
-			this.panelGraphic.Size = new System.Drawing.Size(748, 594);
+			this.panelGraphic.Size = new System.Drawing.Size(754, 626);
 			this.panelGraphic.TabIndex = 0;
 			this.panelGraphic.Paint += new System.Windows.Forms.PaintEventHandler(this.PanelGraphicPaint);
 			this.panelGraphic.MouseClick += new System.Windows.Forms.MouseEventHandler(this.PanelGraphicMouseClick);

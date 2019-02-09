@@ -68,6 +68,20 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 </p><p>
 <strong>Leagues &#x25b8 Set up Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
 </p><p>
+The Fixtures dialog has four tabs: Teams, Games as a list, Games as a gri, and Graphic. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has league teams, they will appear here. If not, type or paste a list here, one team per row, and click Import.
+</p><p>
+The Games as a list page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
+</p><p>
+The Games as a grid page is similar. Each row is a team; each column is a game.
+</p><p>
+The Graphics page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
+</p><p>
+At the bottom of the grid is a number showing how many teams are in each ame. At the right are numbers showing how many games each team plays. To the right of that is a difficulty number, calculated by averaging the difficulty of all the teams this team plays against, plus a graph plotting those difficulties. To the right of that is the who-plays-who grid. When you click a square in the main grid, the who-plays-who grid highlights the selected team in silver, and the teams this team plays against in this game in the relevant colours.
+</p><p>
+At bottom right is a control for the size of the grid: set this larger to make grid squares larger.
+</p><p>
+At the moment the Graphics page assumes that teams are contiguously numbered &mdash; if you have deleted teams, thus leaving gaps in the numbering, this display may get a little out of whack.
+</p><p>
 <strong>Leagues &#x25b8 Match</strong>: not yet implemented. This is intended for things like Laserforce Space Marines, where two games form a match.
 </p><p>
 <strong>Leagues &#x25b8 Help</strong>: this document.
@@ -124,7 +138,7 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 <strong>Reports &#x25b8 Export TSV</strong>: exports your configured set of reports (or the default "overview" reports) as tab-separated values, suitable for import into e.g. Excel.
 </p><p>
 </p>
-<h2>Pack Report</h2>
+<h3>Pack Report</h3>
 <p>
 The pack report endeavours to tell you how "good" or "bad" packs are. It does this via <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Student's t-test</a>.
 </p><p>
