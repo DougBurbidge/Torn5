@@ -77,5 +77,17 @@ namespace Torn
 				AppendNode(doc, parent, name, value.ToString());
 		}
 
+		/// <summary>Convert to an ordinal: 1 to 1st, 2 to 2nd, etc.</summary>
+		public static string Ordinate(this int i)
+		{
+			var s = i.ToString();
+			if (i % 10 == 1 && i % 100 != 11)
+				return s + "st";
+			if (i % 10 == 2 && i % 100 != 12)
+				return s + "nd";
+			if (i % 10 == 3 && i % 100 != 13)
+				return s + "rd";
+			return s + "th";
+		}
 	}
 }

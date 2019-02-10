@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Torn;
 
@@ -12,11 +14,15 @@ namespace Torn.UI
 	{
 		public League League { get; set; }
 		public FormPlayer FormPlayer { get; set; }
+		
+		List<NumericUpDown> victory;  // A list of victory points boxes.
 
 		public FormLeague()
 		{
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			InitializeComponent();
+			
+			victory = new List<NumericUpDown>();
 		}
 
 		void FormLeagueShown(object sender, EventArgs e)
@@ -38,12 +44,9 @@ namespace Torn.UI
 
 			totalScore.Checked = League.VictoryPoints.Count == 0;
 			victoryPoints.Checked = League.VictoryPoints.Count > 0;
-			if (League.VictoryPoints.Count > 0)
-				numeric1st.Value = (decimal)League.VictoryPoints[0];
-			if (League.VictoryPoints.Count > 1)
-				numeric2nd.Value = (decimal)League.VictoryPoints[1];
-			if (League.VictoryPoints.Count > 2)
-				numeric3rd.Value = (decimal)League.VictoryPoints[2];
+
+			for (int i = 0; i < League.VictoryPoints.Count; i++)
+				SetVictoryBox(i, League.VictoryPoints[i]);
 
 			RankCheckedChanged(null, null);
 		}
@@ -184,35 +187,70 @@ namespace Torn.UI
 
 		void RankCheckedChanged(object sender, EventArgs e)
 		{
-			label1st.Enabled = victoryPoints.Checked;
-			label2nd.Enabled = victoryPoints.Checked;
-			label3rd.Enabled = victoryPoints.Checked;
-			numeric1st.Enabled = victoryPoints.Checked;
-			numeric2nd.Enabled = victoryPoints.Checked;
-			numeric3rd.Enabled = victoryPoints.Checked;
+			foreach (var c in leaguePage.Controls)
+				if (c is Label && ((Label)c).Text.StartsWith("Points for "))
+					((Control)c).Enabled = victoryPoints.Checked;
+
+			foreach (var v in victory)
+				v.Enabled = victoryPoints.Checked;
 			
 			if (totalScore.Checked)
 				League.VictoryPoints.Clear();
 
 			if (victoryPoints.Checked)
+				for (int i = 0; i < victory.Count; i++)
+					Force(i, (double)victory[i].Value);
+			
+			if (victory.Count > 0 && victory.Last().Value > 0)
+				SetVictoryBox(victory.Count);
+		}
+
+		/// <summary>Ensure that there is an i'th victory points box, and set its value.</summary>
+		void SetVictoryBox(int i, double value = 0)
+		{
+			while (victory.Count <= i)
 			{
-				Force(0, (double)numeric1st.Value);
-				Force(1, (double)numeric2nd.Value);
-				Force(2, (double)numeric3rd.Value);
+				var label = new Label();
+				label.Text = "Points for " + (victory.Count + 1).Ordinate();
+				label.Left = 32;
+				label.Top = 72 + victory.Count * 26;
+				label.Width = 79;
+				label.Parent = leaguePage;
+
+				var victoryBox = new NumericUpDown();
+				victoryBox.Left = 112;
+				victoryBox.Top = 70 + victory.Count * 26;
+				victoryBox.Width = 60;
+				victoryBox.Parent = leaguePage;
+				victoryBox.Tag = i;
+				victoryBox.Value = 0;
+				victoryBox.ValueChanged += victoryPointsChanged;
+				victory.Add(victoryBox);
 			}
+			victory.Last().Value = (decimal)value;
 		}
 
 		void victoryPointsChanged(object sender, EventArgs e)
 		{
 			NumericUpDown c = (NumericUpDown)sender;
-			Force(int.Parse((string)c.Tag), (double)c.Value);
+			if (c.Tag is int)
+				Force((int)c.Tag, (double)c.Value);
+			else
+				Force(int.Parse((string)c.Tag), (double)c.Value);
+			
+			if (victory.Count > 0 && victory.Last().Value > 0)
+				SetVictoryBox(victory.Count);
 		}
 
 		void Force(int index, double value)
 		{
 			while (League.VictoryPoints.Count <= index)
 				League.VictoryPoints.Add(0);
+
 			League.VictoryPoints[index] = value;
+
+			while (League.VictoryPoints.Count > 0 && League.VictoryPoints.Last() == 0)
+				League.VictoryPoints.RemoveAt(League.VictoryPoints.Count - 1);
 		}
 	}
 }

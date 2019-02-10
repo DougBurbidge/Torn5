@@ -44,12 +44,6 @@ namespace Torn.UI
 			this.panelRight = new System.Windows.Forms.Panel();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.leaguePage = new System.Windows.Forms.TabPage();
-			this.numeric3rd = new System.Windows.Forms.NumericUpDown();
-			this.label3rd = new System.Windows.Forms.Label();
-			this.numeric2nd = new System.Windows.Forms.NumericUpDown();
-			this.label2nd = new System.Windows.Forms.Label();
-			this.numeric1st = new System.Windows.Forms.NumericUpDown();
-			this.label1st = new System.Windows.Forms.Label();
 			this.victoryPoints = new System.Windows.Forms.RadioButton();
 			this.totalScore = new System.Windows.Forms.RadioButton();
 			this.label1 = new System.Windows.Forms.Label();
@@ -66,9 +60,6 @@ namespace Torn.UI
 			this.panelRight.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.leaguePage.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.numeric3rd)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.numeric2nd)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.numeric1st)).BeginInit();
 			this.scoresPage.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -226,12 +217,6 @@ namespace Torn.UI
 			// 
 			// leaguePage
 			// 
-			this.leaguePage.Controls.Add(this.numeric3rd);
-			this.leaguePage.Controls.Add(this.label3rd);
-			this.leaguePage.Controls.Add(this.numeric2nd);
-			this.leaguePage.Controls.Add(this.label2nd);
-			this.leaguePage.Controls.Add(this.numeric1st);
-			this.leaguePage.Controls.Add(this.label1st);
 			this.leaguePage.Controls.Add(this.victoryPoints);
 			this.leaguePage.Controls.Add(this.totalScore);
 			this.leaguePage.Controls.Add(this.label1);
@@ -242,60 +227,6 @@ namespace Torn.UI
 			this.leaguePage.TabIndex = 0;
 			this.leaguePage.Text = "League";
 			this.leaguePage.UseVisualStyleBackColor = true;
-			// 
-			// numeric3rd
-			// 
-			this.numeric3rd.Location = new System.Drawing.Point(112, 122);
-			this.numeric3rd.Name = "numeric3rd";
-			this.numeric3rd.Size = new System.Drawing.Size(60, 20);
-			this.numeric3rd.TabIndex = 11;
-			this.numeric3rd.Tag = "2";
-			this.numeric3rd.ValueChanged += new System.EventHandler(this.victoryPointsChanged);
-			// 
-			// label3rd
-			// 
-			this.label3rd.AutoSize = true;
-			this.label3rd.Location = new System.Drawing.Point(32, 124);
-			this.label3rd.Name = "label3rd";
-			this.label3rd.Size = new System.Drawing.Size(69, 13);
-			this.label3rd.TabIndex = 10;
-			this.label3rd.Text = "Points for 3rd";
-			// 
-			// numeric2nd
-			// 
-			this.numeric2nd.Location = new System.Drawing.Point(112, 96);
-			this.numeric2nd.Name = "numeric2nd";
-			this.numeric2nd.Size = new System.Drawing.Size(60, 20);
-			this.numeric2nd.TabIndex = 9;
-			this.numeric2nd.Tag = "1";
-			this.numeric2nd.ValueChanged += new System.EventHandler(this.victoryPointsChanged);
-			// 
-			// label2nd
-			// 
-			this.label2nd.AutoSize = true;
-			this.label2nd.Location = new System.Drawing.Point(32, 98);
-			this.label2nd.Name = "label2nd";
-			this.label2nd.Size = new System.Drawing.Size(72, 13);
-			this.label2nd.TabIndex = 8;
-			this.label2nd.Text = "Points for 2nd";
-			// 
-			// numeric1st
-			// 
-			this.numeric1st.Location = new System.Drawing.Point(112, 70);
-			this.numeric1st.Name = "numeric1st";
-			this.numeric1st.Size = new System.Drawing.Size(60, 20);
-			this.numeric1st.TabIndex = 7;
-			this.numeric1st.Tag = "0";
-			this.numeric1st.ValueChanged += new System.EventHandler(this.victoryPointsChanged);
-			// 
-			// label1st
-			// 
-			this.label1st.AutoSize = true;
-			this.label1st.Location = new System.Drawing.Point(32, 72);
-			this.label1st.Name = "label1st";
-			this.label1st.Size = new System.Drawing.Size(68, 13);
-			this.label1st.TabIndex = 3;
-			this.label1st.Text = "Points for 1st";
 			// 
 			// victoryPoints
 			// 
@@ -417,21 +348,12 @@ namespace Torn.UI
 			this.tabControl1.ResumeLayout(false);
 			this.leaguePage.ResumeLayout(false);
 			this.leaguePage.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.numeric3rd)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.numeric2nd)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.numeric1st)).EndInit();
 			this.scoresPage.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.RadioButton totalScore;
 		private System.Windows.Forms.RadioButton victoryPoints;
-		private System.Windows.Forms.Label label1st;
-		private System.Windows.Forms.NumericUpDown numeric1st;
-		private System.Windows.Forms.Label label2nd;
-		private System.Windows.Forms.NumericUpDown numeric2nd;
-		private System.Windows.Forms.Label label3rd;
-		private System.Windows.Forms.NumericUpDown numeric3rd;
 		private System.Windows.Forms.TabPage scoresPage;
 		private System.Windows.Forms.TabPage leaguePage;
 		private System.Windows.Forms.TabControl tabControl1;
