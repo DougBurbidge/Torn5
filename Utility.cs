@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml;
@@ -88,6 +89,11 @@ namespace Torn
 			if (i % 10 == 3 && i % 100 != 13)
 				return s + "rd";
 			return s + "th";
+		}
+
+		public static bool Valid<T>(this IList<T> list, int i)
+		{
+			return 0 <= i && i < list.Count;
 		}
 	}
 }

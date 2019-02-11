@@ -62,7 +62,7 @@ namespace TornWeb
 			teamData.Players.Add(new ServerPlayer() { PlayerId = "nonexistent" } );
 			teamDatas.Add(teamData);
 			
-			league.CommitGame(serverGame, teamDatas);
+			league.CommitGame(serverGame, teamDatas, GroupPlayersBy.Alias);
 			league.AllGames[0].Teams[0].Colour = Colour.Red;
 			league.AllGames[0].Teams[1].Colour = Colour.Green;
 		}

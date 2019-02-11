@@ -116,6 +116,8 @@ namespace Torn
 		}
 	}
 
+	public enum GroupPlayersBy { Alias, Colour, Lotr };
+
 	public class Handicap
 	{
 		public double? Value { get; set; }
@@ -663,7 +665,7 @@ namespace Torn
 				leaguePlayer.Played.Add(gamePlayer);
 		}
 
-		public void CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas)
+		public void CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
 		{
 			if (serverGame.Game == null)
 			{
@@ -699,7 +701,7 @@ namespace Torn
 			serverGame.League = this;
 
 			foreach (var teamData in teamDatas)
-				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam);
+				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam, groupPlayersBy);
 
 			Save();
 		}
@@ -1217,13 +1219,15 @@ namespace Torn
 			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
 		}
 
-		public double CalculatePoints(GameTeam gameTeam)
+		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy)
 		{
 			var game = Game(gameTeam);
 			if (game != null)
 			{
-				int index = game.Teams.IndexOf(gameTeam);
-				if (index > -1 && index < victoryPoints.Count)
+				List<GameTeam> relevantTeams = groupPlayersBy == GroupPlayersBy.Lotr ? game.Teams.Where(t => t.Colour == gameTeam.Colour).ToList() : game.Teams;
+
+				int index = relevantTeams.IndexOf(gameTeam);
+				if (victoryPoints.Valid(index))
 					return victoryPoints[index] + gameTeam.PointsAdjustment;
 			}
 

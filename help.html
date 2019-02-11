@@ -35,7 +35,7 @@ If you have enabled the web server under Preferences, any web browser that can s
 </p><p>
 For P&amp;C systems, for games that have been committed during this run of Torn 5, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
 </p><p>
-Things not yet implemented: fixture generation, pushing scores to a scoreboard, LotR mode, setting up pyramid rounds, and a variety of other bits and bobs.
+Things not yet implemented: fixture generation, pushing scores to a scoreboard, setting up pyramid rounds, and a variety of other bits and bobs.
 </p>
 <h2>The Main Window</h2>
 <p>
@@ -68,7 +68,7 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 </p><p>
 <strong>Leagues &#x25b8 Set up Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
 </p><p>
-The Fixtures dialog has four tabs: Teams, Games as a list, Games as a gri, and Graphic. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has league teams, they will appear here. If not, type or paste a list here, one team per row, and click Import.
+The Fixtures dialog has four tabs: Teams, Games as a list, Games as a gri, and Graphic. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
 </p><p>
 The Games as a list page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
 </p><p>

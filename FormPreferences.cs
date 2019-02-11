@@ -5,7 +5,6 @@ using System.Windows.Forms;
 namespace Torn.UI
 {
 	public enum SystemType { Acacia, Zeon, Laserforce, Demo };
-	public enum GroupPlayersBy { Alias, Colour, Lotr };
 
 	/// <summary>Prefs Form.</summary>
 	public partial class FormPreferences : Form

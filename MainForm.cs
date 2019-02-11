@@ -36,7 +36,6 @@ handicap, on commit auto-update team handicaps
 set up fixtures
 
 TODO for ZLTAC:
-group players by LotR
 set up pyramid round
 recalculate scores on Helios
 
@@ -57,6 +56,7 @@ adjust team score/victory points
 remember all teams
 upload to http, https, ftp
 If we don't find a settings file in the user folder, check for one in the exe folder.
+group players by LotR
 */
 
 namespace Torn.UI
@@ -340,7 +340,7 @@ namespace Torn.UI
 
 				if (teamDatas.Count > 0)
 				{
-					activeHolder.League.CommitGame(serverGame, teamDatas);
+					activeHolder.League.CommitGame(serverGame, teamDatas, groupPlayersBy);
 
 					foreach (TeamBox teamBox in teamBoxes)
 					{
@@ -402,6 +402,8 @@ namespace Torn.UI
 			{
 				activeHolder.League = form.League;
 				activeHolder.League.Save();
+				foreach (TeamBox teamBox in TeamBoxes())
+					teamBox.League = activeHolder.League;
 			}
 		}
 

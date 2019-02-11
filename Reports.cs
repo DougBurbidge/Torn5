@@ -1136,43 +1136,46 @@ namespace Torn.Report
 				if (oneEvent.Score != 0)
 				{
 					var serverPlayer = game.ServerGame.Players.Find(sp => sp.PandCPlayerId == oneEvent.PandCPlayerId);
-					var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
-					var pen = new Pen(gameTeam.Colour.ToSaturatedColor(), 3);
-					var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds));
-					currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
-					float y = height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds);
-					yMin = Math.Min(y, yMin);
-					yMax = Math.Max(y, yMax);
-					var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), y);
-
-					if (oneEvent.Event_Type == 30) // Base hit: show in the base's colour not the player's colour.
-						pen.Color = ((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor();
-					
-					graphics.DrawLine(pen, oldPoint, newPoint);  // Show the hit.
-
-					if (oneEvent.Event_Type == 31) // Base destroyed.
+					if (serverPlayer != null)
 					{
-						// Show the hit in a dashed line, half player colour, half base colour.
-						var dashPen = new Pen(((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor(), 3);
-						float baseHeight = Math.Abs(oldPoint.Y - newPoint.Y);
-						dashPen.DashPattern = new float[] { baseHeight * 0.11F, baseHeight * 0.22F };
-						dashPen.DashOffset = baseHeight * -0.11F;
-						graphics.DrawLine(dashPen, oldPoint, newPoint);
+						var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
+						var pen = new Pen(gameTeam.Colour.ToSaturatedColor(), 3);
+						var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds));
+						currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
+						float y = height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds);
+						yMin = Math.Min(y, yMin);
+						yMax = Math.Max(y, yMax);
+						var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), y);
 
-						// Show the alias of the player who destroyed the base.
-						var gamePlayer = game.Players.Find(gp => gp.PlayerId  == serverPlayer.PlayerId);
-						var leaguePlayer = league.LeaguePlayer(gamePlayer);
-						var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
+						if (oneEvent.Event_Type == 30) // Base hit: show in the base's colour not the player's colour.
+							pen.Color = ((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor();
 
-						if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
-							graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X - graphics.MeasureString(leaguePlayer.Name, font).Width, newPoint.Y);
-						else
-							graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
+						graphics.DrawLine(pen, oldPoint, newPoint);  // Show the hit.
+
+						if (oneEvent.Event_Type == 31) // Base destroyed.
+						{
+							// Show the hit in a dashed line, half player colour, half base colour.
+							var dashPen = new Pen(((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor(), 3);
+							float baseHeight = Math.Abs(oldPoint.Y - newPoint.Y);
+							dashPen.DashPattern = new float[] { baseHeight * 0.11F, baseHeight * 0.22F };
+							dashPen.DashOffset = baseHeight * -0.11F;
+							graphics.DrawLine(dashPen, oldPoint, newPoint);
+
+							// Show the alias of the player who destroyed the base.
+							var gamePlayer = game.Players.Find(gp => gp.PlayerId  == serverPlayer.PlayerId);
+							var leaguePlayer = league.LeaguePlayer(gamePlayer);
+							var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
+
+							if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
+								graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X - graphics.MeasureString(leaguePlayer.Name, font).Width, newPoint.Y);
+							else
+								graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
+						}
 					}
 				}
 
 			yMin = Math.Max(yMin - 1, 0);
-			bitmap =  bitmap.Clone(new RectangleF(0, yMin, bitmap.Width, Math.Min(yMax + 1, bitmap.Height) - yMin), bitmap.PixelFormat);
+			bitmap =  bitmap.Clone(new RectangleF(0, yMin, bitmap.Width, Math.Max(Math.Min(yMax + 1, bitmap.Height) - yMin, 1)), bitmap.PixelFormat);
 			graphics = Graphics.FromImage(bitmap);
 			graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
@@ -1181,9 +1184,12 @@ namespace Torn.Report
 				for (int i = 0; i < game.Teams.Count; i++)
 				{
 					var leagueTeam = league.LeagueTeam(game.Teams[i]);
-					var brush = new SolidBrush(game.Teams[i].Colour.ToDarkColor());
-					graphics.DrawString(leagueTeam.Name + " " + game.Teams[i].Score.ToString("N0", CultureInfo.CurrentCulture), 
-					                    font, brush, 30, graphics.MeasureString("0", font).Height * i);
+					if (leagueTeam != null)
+					{
+						var brush = new SolidBrush(game.Teams[i].Colour.ToDarkColor());
+						graphics.DrawString(leagueTeam.Name + " " + game.Teams[i].Score.ToString("N0", CultureInfo.CurrentCulture), 
+						                    font, brush, 30, graphics.MeasureString("0", font).Height * i);
+					}
 				}
 
 			return bitmap;
