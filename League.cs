@@ -237,6 +237,8 @@ namespace Torn
 						name = "Team " + Id.ToString(CultureInfo.InvariantCulture);
 					else if (Players.Count == 2)
 						name = Players[0].Name + " and " + Players[1].Name;
+					else if (Players.Count == 1)
+						name = Players[0].Name;
 					else
 						name = Players[0].Name + "'s team";
 				}
