@@ -392,7 +392,6 @@ namespace Torn.UI
 				foreach (var ft in activeHolder.Fixture.Teams)
 				{
 					var lt = new LeagueTeam();
-					lt.Id = ft.Id;
 					lt.Name = ft.Name;
 					ft.LeagueTeam = lt;
 					form.League.Teams.Add(lt);

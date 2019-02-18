@@ -1408,9 +1408,9 @@ namespace Torn.Report
 			return report;
 		}  // OneTeam
 
-		public static ZoomReport FixtureList(Fixture fixture, League league, int? teamId = null)
+		/// <summary>Each row is a game.</summary>
+		public static ZoomReport FixtureList(Fixture fixture, League league, FixtureTeam team = null)
 		{
-			FixtureTeam team = teamId == null || teamId == -1 ? null : fixture.Teams.Find(x => x.Id == teamId);
 			string title = team == null ? "Fixtures for " + league.Title : "Fixtures for " + team.Name + " in " + league.Title;
 
 			ZoomReport report = new ZoomReport(title, "Time", "left");
@@ -1433,24 +1433,30 @@ namespace Torn.Report
 						if (ft != null)
 						{
 							ZCell teamCell = new ZCell(ft.Name, i.ToColor());
-			        		teamCell.Hyper = "fixture" + ft.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+							teamCell.Hyper = "fixture" + ft.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html";
 							row.Add(teamCell);
-							
 						}
 					}
+
+						foreach (var kv in fg.Teams.Where(t => t.Value == Colour.None).OrderBy(t => t.Key.Name))
+						{
+							ZCell teamCell = new ZCell(kv.Key.Name);
+							teamCell.Hyper = "fixture" + kv.Key.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html";
+							row.Add(teamCell);
+						}
 
 					report.Rows.Add(row);
 				}
 
 			if (team != null && team.LeagueTeam != null)
-				report.Description = "This is a list of fixtures for " + team.Name + ". Their results are <a href=\"team" + team.LeagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html\">here</a>."; 
+				report.Description = "This is a list of fixtures for " + team.Name + ". Their results are <a href=\"team" + team.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html\">here</a>."; 
 
 			return report;
 		}
 
-		public static ZoomReport FixtureGrid(Fixture fixture, League league, int? teamId = null)
+		/// <summary>Each row is a team. Eavh column is a game.</summary>
+		public static ZoomReport FixtureGrid(Fixture fixture, League league, FixtureTeam team = null)
 		{
-			FixtureTeam team = teamId == null || teamId == -1 ? null : fixture.Teams.Find(x => x.Id == teamId);
 			string title = team == null ? "Fixtures for " + league.Title : "Fixtures for " + team.Name + " in " + league.Title;
 
 			ZoomReport report = new ZoomReport(title, "Team", "left");
@@ -1459,7 +1465,7 @@ namespace Torn.Report
 			{
 				var row = new ZRow();
 				var teamCell = new ZCell(ft.Name);
-				teamCell.Hyper = "fixture" + ft.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+				teamCell.Hyper = "fixture" + ft.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html";
 				row.Add(teamCell);
 				report.Rows.Add(row);
 			}
@@ -1472,7 +1478,7 @@ namespace Torn.Report
 					var found = fg.Teams.ContainsKey(fixture.Teams[i]);
 					if (found)
 						report.Rows[i].Add(new ZCell(fg.Teams[fixture.Teams[i]].ToString()[0].ToString(), fg.Teams[fixture.Teams[i]].ToColor()));
-					else if (teamId != null && teamId > -1 && (i == (int)teamId - 1 || fg.Teams.ContainsKey(fixture.Teams[(int)teamId - 1])))
+					else if (team != null && (fixture.Teams[i] == team || fg.Teams.ContainsKey(team)))
 						report.Rows[i].Add(new ZCell("", Color.Gainsboro));
 					else
 						report.Rows[i].Add(new ZCell(""));

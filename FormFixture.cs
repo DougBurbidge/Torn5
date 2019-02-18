@@ -93,7 +93,7 @@ namespace Torn.UI
 					{
 						var ft = new FixtureTeam();
 						ft.LeagueTeam = lt;
-						ft.Id = lt.Id;
+						ft.Name = lt.Name;
 						Fixture.Teams.Add(ft);
 					}
 
@@ -128,8 +128,8 @@ namespace Torn.UI
 			foreach (var fg in Fixture.Games)
 				foreach (var ft in fg.Teams)
 				{
-					difficulties[ft.Key.Id - 1] += (fg.Teams.Sum(x => x.Key.Id) - ft.Key.Id) / (fg.Teams.Count - 1F);
-					counts[ft.Key.Id - 1]++;
+					difficulties[ft.Key.Id() - 1] += (fg.Teams.Sum(x => x.Key.Id()) - ft.Key.Id()) / (fg.Teams.Count - 1F);
+					counts[ft.Key.Id() - 1]++;
 				}
 			
 			for (int row = 0; row < rows; row++)
@@ -192,8 +192,8 @@ namespace Torn.UI
 				// Colour cells that represent teams that the selected team plays against in this game.
 				foreach (var kv in game.Teams)
 				{
-					g.FillRectangle(new SolidBrush(kv.Value.ToColor()), left + (kv.Key.Id - 1) * size, (team.Id - 1) * size, size, size);
-					g.FillRectangle(new SolidBrush(kv.Value.ToColor()), left + (team.Id - 1) * size, (kv.Key.Id - 1) * size, size, size);
+					g.FillRectangle(new SolidBrush(kv.Value.ToColor()), left + (kv.Key.Id() - 1) * size, (team.Id() - 1) * size, size, size);
+					g.FillRectangle(new SolidBrush(kv.Value.ToColor()), left + (team.Id() - 1) * size, (kv.Key.Id() - 1) * size, size, size);
 				}
 			}
 
@@ -250,7 +250,12 @@ namespace Torn.UI
 				{
 					var row = Fixture.Teams.IndexOf(x.Key);
 					if (row != -1)
-						FillCell(row, col, size, x.Value.ToSaturatedColor());
+					{
+						if (x.Value == Colour.None)
+							FillCell(row, col, size, Color.Black);
+						else
+							FillCell(row, col, size, x.Value.ToSaturatedColor());
+					}
 				}
 			}
 		}

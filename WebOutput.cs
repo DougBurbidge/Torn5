@@ -143,18 +143,23 @@ namespace Torn.Report
 				s = s.Remove(s.Length - 5, 5);
 
 			int id;
-			if (!int.TryParse(s, out id))
-				id = -1;
-
-			return FixturePage(fixture, league, id);
+			if (int.TryParse(s, out id))
+			{
+				if (fixture.Teams.Exists(ft => ft.Id() == id))
+					return FixturePage(fixture, league, fixture.Teams.Find(ft => ft.Id() == id));
+				else
+					return FixturePage(fixture, league, (FixtureTeam)null);
+			}
+			else
+				return FixturePage(fixture, league, (FixtureTeam)null);
 		}
 
-		static string FixturePage(Fixture fixture, League league, int teamId)
+		static string FixturePage(Fixture fixture, League league, FixtureTeam team)
 		{
 			ZoomReports reports = new ZoomReports();
 			//if (teamId == -1) reports.Add(Reports.FixtureGrid(fixture, league));
-			reports.Add(Reports.FixtureList(fixture, league, teamId));
-			reports.Add(Reports.FixtureGrid(fixture, league, teamId));
+			reports.Add(Reports.FixtureList(fixture, league, team));
+			reports.Add(Reports.FixtureGrid(fixture, league, team));
 			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a> <a href=\"fixture.html\">Fixture</a><div>"));
 			return reports.ToHtml();
 		}
@@ -384,8 +389,8 @@ namespace Torn.Report
 					sw.Write(FixturePage(holder.Fixture, holder.League));
 
 				foreach (var ft in holder.Fixture.Teams)
-					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture" + ft.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
-						sw.Write(FixturePage(holder.Fixture, holder.League, ft.Id));
+					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture" + ft.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html")))
+						sw.Write(FixturePage(holder.Fixture, holder.League, ft));
 			}
 		}
 

@@ -29,6 +29,7 @@ namespace Torn
 
 	public class FixtureTeams: List<FixtureTeam>
 	{
+		/// <summary>This Parse is used to read team names from an input form.</summary>
 		public void Parse(string s, League league)
 		{
 			string[] lines = s.Split(new string[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
@@ -37,7 +38,6 @@ namespace Torn
 				FixtureTeam ft = new FixtureTeam();
 
 				ft.Name = lines[i];
-				ft.Id = i + 1;
 				if (league != null)
 					ft.LeagueTeam = league.Teams.Find(x => x.Name == ft.Name);
 
@@ -45,15 +45,15 @@ namespace Torn
 			}
 		}
 
+		/// <summary>This Parse is used during app load and restore.</summary>
 		public void Parse(League league)
 		{
 			foreach (LeagueTeam lt in league.Teams)
-				if (!Exists(ft => ft.Id == lt.Id))
+				if (!Exists(ft => ft.Name == lt.Name))
 				{
 					FixtureTeam ft = new FixtureTeam();
 	
 					ft.Name = lt.Name;
-					ft.Id = lt.Id;
 					ft.LeagueTeam = lt;
 	
 					Add(ft);
@@ -79,11 +79,15 @@ namespace Torn
 		public LeagueTeam LeagueTeam { get; set; }
 		string name;
 		public string Name { get { return LeagueTeam == null ? name : LeagueTeam.Name; } set { name = value; } }
-		public int Id { get; set; }
+
+		public int Id() 
+		{
+			return LeagueTeam == null ? -1 : LeagueTeam.Id;
+		}
 
 		public override string ToString()
 		{
-			return "FixtureTeam " + Name ?? Id.ToString();
+			return "FixtureTeam " + Name;
 		}
 	}
 
@@ -105,11 +109,10 @@ namespace Torn
 					if (!string.IsNullOrEmpty(fields[i]))
 					{
 						int teamnum = int.Parse(fields[i]);
-						FixtureTeam ft = teams.Find(x => x.Id == teamnum);
+						FixtureTeam ft = teams.Find(x => x.Id() == teamnum);
 						if (ft == null)
 						{
 							ft = new FixtureTeam();
-							ft.Id = teamnum;
 							ft.Name = "Team " + fields[i];
 						}
 						if (fields.Length <= 4)  // If there are four or less teams per game,
@@ -197,9 +200,20 @@ namespace Torn
 					var ft = fg.Teams.FirstOrDefault(x => x.Value == i).Key;
 					if (ft != null)
 					{
-						sb.Append(ft.Id);
+						if (ft.LeagueTeam == null)
+							sb.Append(ft.Name);
+						else
+							sb.Append(ft.Id());
 						sb.Append('\t');
 					}
+				}
+				foreach (var kv in fg.Teams.Where(t => t.Value == Colour.None))
+				{
+					if (kv.Key.LeagueTeam == null)
+						sb.Append(kv.Key.Name);
+					else
+						sb.Append(kv.Key.Id());
+					sb.Append('\t');
 				}
 
 				sb.Remove(sb.Length - 1, 1);
@@ -211,7 +225,7 @@ namespace Torn
 
 		public string[] ToGrid(FixtureTeams teams)
 		{
-			int teamsCount = Math.Max(teams.Count, (int)this.Max(fg => fg.Teams.Max(ft => (int?)ft.Key.Id)));
+			int teamsCount = Math.Max(teams.Count, (int)this.Max(fg => fg.Teams.Count == 0 ? 0 : fg.Teams.Max(ft => ft.Key.Id())));
 			var lines = new string[teamsCount];
 
 			for (int col = 0; col < Count; col++)

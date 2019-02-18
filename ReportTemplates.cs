@@ -370,11 +370,11 @@ namespace Torn.Report
 			League = league;
 
 			foreach (LeagueTeam lt in League.Teams)
-				if (!Fixture.Teams.Exists(ft => ft.Id == lt.Id))
+				if (!Fixture.Teams.Exists(ft => ft.LeagueTeam == lt))
 				{
 					FixtureTeam ft = new FixtureTeam();
-					ft.Id = Fixture.Teams.Count + 1;
 					ft.LeagueTeam = lt;
+					ft.Name = lt.Name;
 					Fixture.Teams.Add(ft);
 				}
 		}
