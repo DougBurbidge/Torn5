@@ -587,15 +587,15 @@ namespace Torn
 			clone.GridHigh = GridHigh;
 			clone.GridWide = GridWide;
 			clone.GridPlayers = GridPlayers;
-			
+
 			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone()).ToList();
 			clone.players = Players.Select(item => (LeaguePlayer)item.Clone()).ToList();
 			clone.AllGames.AddRange(AllGames);
-			
+
 			clone.victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList());
 			clone.VictoryPointsHighScore = VictoryPointsHighScore;
 			clone.VictoryPointsProportional = VictoryPointsProportional;
-			
+
 			clone.LinkThings();
 
 			return clone;
@@ -1226,11 +1226,20 @@ namespace Torn
 			var game = Game(gameTeam);
 			if (game != null)
 			{
-				List<GameTeam> relevantTeams = groupPlayersBy == GroupPlayersBy.Lotr ? game.Teams.Where(t => t.Colour == gameTeam.Colour).ToList() : game.Teams;
+				var relevantTeams = (groupPlayersBy == GroupPlayersBy.Lotr ?  // For Lord of the Ring we want just "teams" of this colour. For other modes, we want all teams. 
+				                     game.Teams.Where(t => t.Colour == gameTeam.Colour) : game.Teams).OrderBy(x => -x.Score).ToList();
 
-				int index = relevantTeams.IndexOf(gameTeam);
-				if (victoryPoints.Valid(index))
-					return victoryPoints[index] + gameTeam.PointsAdjustment;
+				var ties = relevantTeams.Where(t => t.Score == gameTeam.Score);  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
+
+				double totalPoints = 0;
+				foreach (var team in ties)
+				{
+					int index = relevantTeams.IndexOf(team);
+
+					if (victoryPoints.Valid(index))
+						totalPoints += victoryPoints[index];
+				}
+				return totalPoints / ties.Count() + gameTeam.PointsAdjustment;  // If there are ties, average the victory points for all teams involved in the tie.
 			}
 
 			return 0;

@@ -38,13 +38,13 @@ namespace TornWeb
 
 			return league;			
 		}
-		
+
 		void AddGame(League league)
 		{
 			var serverGame = new ServerGame();
 			serverGame.League = league;
 			serverGame.Time = new DateTime(2018, 1, 1, 12, 0, 0);
-			
+
 			var teamDatas = new System.Collections.Generic.List<GameTeamData>();
 
 			var teamData = new GameTeamData();
@@ -54,7 +54,7 @@ namespace TornWeb
 			teamData.Players.Add(new ServerPlayer() { PlayerId = "002" } );
 			teamData.Players.Add(new ServerPlayer() { PlayerId = "003" } );
 			teamDatas.Add(teamData);
-			
+
 			teamData = new GameTeamData();
 			teamData.GameTeam = new GameTeam();
 			teamData.Players = new System.Collections.Generic.List<ServerPlayer>();
@@ -65,6 +65,14 @@ namespace TornWeb
 			league.CommitGame(serverGame, teamDatas, GroupPlayersBy.Alias);
 			league.AllGames[0].Teams[0].Colour = Colour.Red;
 			league.AllGames[0].Teams[1].Colour = Colour.Green;
+		}
+
+		void AddTeam(Game game)
+		{
+			var gameTeam = new GameTeam();
+			gameTeam.Players.Add(new GamePlayer() { PlayerId = "005", Score = 1000, Colour = Colour.Blue } );
+			gameTeam.Score = 1000;
+			game.Teams.Add(gameTeam);
 		}
 
 		[Test]
@@ -113,7 +121,6 @@ namespace TornWeb
 		public void TestLeagueCommit()
 		{
 			var league = CreateLeague();
-
 			AddGame(league);
 
 			Assert.AreEqual(1, league.AllGames.Count, "game count");
@@ -221,6 +228,34 @@ namespace TornWeb
 			Assert.AreEqual("ROW", grid[0]);
 			Assert.AreEqual("B..", grid[1]);
 			Assert.AreEqual("Y.P", grid[2]);
+		}
+
+		[Test]
+		public void TestVictoryPoints()
+		{
+			var league = CreateLeague();
+			league.VictoryPoints.Add(6.0);
+			league.VictoryPoints.Add(4.0);
+			league.VictoryPoints.Add(2.0);
+
+			AddGame(league);
+			AddTeam(league.AllGames[0]);
+			AddTeam(league.AllGames[0]);
+			AddTeam(league.AllGames[0]);
+
+			league.AllGames[0].Teams[0].Score = 2000;
+			
+			Assert.AreEqual(6.0, league.CalculatePoints(league.AllGames[0].Teams[0], GroupPlayersBy.Alias), "2000 - 1st");
+			Assert.AreEqual(0.0, league.CalculatePoints(league.AllGames[0].Teams[1], GroupPlayersBy.Alias), "0 - 5th");
+			Assert.AreEqual(2.0, league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th A");
+			Assert.AreEqual(2.0, league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th B");
+			Assert.AreEqual(2.0, league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th C");
+
+			Assert.AreEqual(6.0, league.CalculatePoints(league.AllGames[0].Teams[0], GroupPlayersBy.Lotr), "2000 - 1st");
+			Assert.AreEqual(6.0, league.CalculatePoints(league.AllGames[0].Teams[1], GroupPlayersBy.Lotr), "0 - 1st");
+			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd A");
+			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd B");
+			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd C");
 		}
 	}
 }
