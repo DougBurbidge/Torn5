@@ -13,8 +13,8 @@ namespace Torn
 		{
 			int daysAgo = (int)DateTime.Now.Date.Subtract(date.Date).TotalDays;
 
-			if (daysAgo == 0) return "today";
-			if (daysAgo == 1) return "yesterday";
+			if (daysAgo == 0) return "Today";
+			if (daysAgo == 1) return "Yesterday";
 			if (daysAgo > 0 && daysAgo < 7) return date.DayOfWeek.ToString();
 			return date.ToShortDateString();
 		}

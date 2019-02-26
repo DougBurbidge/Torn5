@@ -28,7 +28,7 @@ read from laserforce server
 TODO for BOTH:
 output to screen and printer
 send to scoreboard (web browser)
-on commit auto-update scoreboard and teams
+on commit auto-update scoreboard
 right-click handicap player, merge player
 
 TODO for LEAGUE:
@@ -57,6 +57,7 @@ remember all teams
 upload to http, https, ftp
 If we don't find a settings file in the user folder, check for one in the exe folder.
 group players by LotR
+on commit auto-update teams
 */
 
 namespace Torn.UI
@@ -777,13 +778,9 @@ namespace Torn.UI
 
 		bool EnableCommit()
 		{
-			if (listViewLeagues.SelectedItems.Count != 1)
-				return false;
-
-			if (listViewGames.SelectedItems.Count != 1)
-				return false;
-
-			return !((ServerGame)listViewGames.SelectedItems[0].Tag).InProgress;
+			return listViewLeagues.SelectedItems.Count == 1 &&
+				listViewGames.SelectedItems.Count == 1 &&
+				!((ServerGame)listViewGames.SelectedItems[0].Tag).InProgress;
 		}
 
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
@@ -912,6 +909,7 @@ namespace Torn.UI
 			if (timeElapsed == TimeSpan.Zero && gameInProgress)
 			{
 				webOutput.Update();
+				RefreshInProgressGame();
 				gameInProgress = false;
 			}
 			labelNow.Text = webOutput.NowText();
@@ -1060,7 +1058,8 @@ namespace Torn.UI
 				foreach (var serverGame in serverGames)
 				{
 					ListViewItem item = new ListViewItem();
-					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
+					item.Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDate()) + 
+						serverGame.Time.ToString(" HH:mm");
 
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
 					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
@@ -1097,6 +1096,20 @@ namespace Torn.UI
 							listViewGames.EnsureVisible(item.Index);
 					}
 			}
+		}
+
+		void RefreshInProgressGame()
+		{
+			foreach(ListViewItem item in listViewGames.Items)
+				if (((ServerGame)item.Tag).InProgress)
+				{
+					var serverGame = (ServerGame)item.Tag;
+					laserGameServer.PopulateGame(serverGame);
+					item.SubItems.Clear();
+					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
+					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
+					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
+				}
 		}
 
 		void ListViewGamesDrawItem(object sender, DrawListViewItemEventArgs e)

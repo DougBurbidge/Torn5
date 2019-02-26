@@ -16,14 +16,14 @@ namespace Torn
 	{
 		MySqlConnection connection;
 		int heliosType;  // This is the database schema version.
+		string _server;
 
 		public PAndC(string server)
 		{
 			try
 			{
-				connection = new MySqlConnection("server=" + server + ";user=root;database=ng_system;port=3306;password=password;Convert Zero Datetime=True");
-				connection.Open();
-				Connected = true;
+				_server = server;
+				Connect();
 
 				var cmd = new MySqlCommand("SELECT Int_Data_1 FROM ng_registry WHERE Registry_ID = 0", connection);
 				using (var reader = cmd.ExecuteReader())
@@ -34,23 +34,25 @@ namespace Torn
 			}
 			catch
 			{
-				Connected = false;
+				connected = false;
 				throw;
 			}
 		}
 
+		protected override bool GetConnected() { return connected && connection != null && connection.State == ConnectionState.Open; }
+
 		public override void Dispose()
 		{
-			if (Connected)
+			if (connected)
 			{
 				connection.Close();
-				Connected = false;
+				connected = false;
 			}
 		}
 
 		public override TimeSpan GameTimeElapsed()
 		{
-			if (!Connected)
+			if (!EnsureConnected())
 				return TimeSpan.Zero;
 			try
 			{
@@ -79,7 +81,7 @@ namespace Torn
 		{
 			List<ServerGame> games = new List<ServerGame>();
 
-			if (!Connected)
+			if (!EnsureConnected())
 				return games;
 
 			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
@@ -107,14 +109,28 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
-			if (!Connected)
+			if (!EnsureConnected())
 				return;
 
+			string sql = "SELECT S.Finish_Time " +
+                         "FROM ng_game_stats S " +
+                         "WHERE S.Start_Time = \"" + game.Time.ToString("yyyy-MM-dd HH:mm:ss") + "\"";
+			MySqlCommand cmd = new MySqlCommand(sql, connection);
+			using (var reader = cmd.ExecuteReader())
+			{
+				if (reader.Read())
+				{
+					game.EndTime = GetDateTime(reader, "Finish_Time");
+					game.InProgress = game.EndTime == default(DateTime);
+					game.OnServer = true;
+				}
+			}
+
 			game.Events.Clear();
-			string sql = "SELECT Time_Logged, Player_ID, Player_Team_ID, Event_Type, Score, Result_Data_1, Result_Data_2, Result_Data_3, Result_Data_4 " +
+			sql = "SELECT Time_Logged, Player_ID, Player_Team_ID, Event_Type, Score, Result_Data_1, Result_Data_2, Result_Data_3, Result_Data_4 " +
 				"FROM ng_player_event_log " +
 				"WHERE Game_ID = " + game.GameId.ToString();
-			MySqlCommand cmd = new MySqlCommand(sql, connection);
+			cmd = new MySqlCommand(sql, connection);
 			using (var reader = cmd.ExecuteReader())
 			{
 				while (reader.Read())
@@ -180,6 +196,9 @@ namespace Torn
 
 		public override DbDataReader GetPlayers(string mask)
 		{
+			if (!EnsureConnected())
+				return null;
+
 //			Acacia: "SELECT Player_Alias AS Alias, First_Name + ' ' + Last_Name AS Name, User_ID FROM MEMBERS WHERE User_ID <> ''"
 //			Nexus: "SELECT Alias AS Alias, '' AS Name, Button_ID AS User_ID FROM members"
 
@@ -205,6 +224,23 @@ namespace Torn
 		public override bool HasNames() 
 		{
 			return heliosType < 47;
+		}
+
+		void Connect()
+		{
+			if (connection != null)
+				connection.Close();
+
+			connection = new MySqlConnection("server=" + _server + ";user=root;database=ng_system;port=3306;password=password;Convert Zero Datetime=True");
+			connection.Open();
+			connected = true;			
+		}
+		
+		bool EnsureConnected()
+		{
+			if (!Connected)
+				Connect();
+			return Connected;
 		}
 
 		DateTime GetDateTime(MySqlDataReader reader, string column)
