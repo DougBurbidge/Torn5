@@ -23,7 +23,16 @@ namespace Torn
 
 		public FixtureGame BestMatch(Game game)
 		{
-			return null;
+			if (Games.Count == 0)
+				return null;
+
+			var games = Games.OrderBy(fg => Math.Abs(fg.Time.Subtract(game.Time).TotalSeconds));
+
+			foreach (var fg in games)
+				if (fg.Teams.Keys.All(ft => game.Teams.Exists(gt => gt.TeamId == ft.Id())))
+					return fg;
+
+			return games.First();
 		}
 	}
 
@@ -108,8 +117,13 @@ namespace Torn
 				for (int i = 1; i < fields.Length; i++)
 					if (!string.IsNullOrEmpty(fields[i]))
 					{
-						int teamnum = int.Parse(fields[i]);
-						FixtureTeam ft = teams.Find(x => x.Id() == teamnum);
+						FixtureTeam ft;
+						int teamnum;
+						if (int.TryParse(fields[i], out teamnum))
+							ft = teams.Find(x => x.Id() == teamnum);
+						else
+							ft = teams.Find(x => x.LeagueTeam != null && x.LeagueTeam.Name == fields[i]);
+
 						if (ft == null)
 						{
 							ft = new FixtureTeam();

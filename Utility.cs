@@ -19,6 +19,14 @@ namespace Torn
 			return date.ToShortDateString();
 		}
 
+		public static string JustPlayed(this DateTime date)
+		{
+			int hoursAgo = (int)DateTime.Now.Date.Subtract(date.Date).TotalHours;
+
+			if (hoursAgo == 0) return "Just played";
+			return "Played " + hoursAgo.ToString() + " ago";
+		}
+
 		static string Rot13(string s)
 		{
 			var sb = new StringBuilder();

@@ -186,7 +186,7 @@ namespace Torn.Report
 					          MostRecentGame.Time.ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " +
 					          MostRecentHolder.League.GameString(MostRecentGame));
 				else
-					sb.Append(MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " +
+					sb.Append((MostRecentServerGame.InProgress ? "Now Playing: " : Utility.JustPlayed(MostRecentServerGame.EndTime) + ": " ) +
 					          MostRecentHolder.League.GameString(MostRecentServerGame));
 			}
 
@@ -332,7 +332,7 @@ namespace Torn.Report
 							}
 						}
 					if (heatMap)
-						reports.Add(new ZoomHtmlInclusion("</div><p>\u25cb and \u2b24 are hit and destroyed bases.<br/>\u2300 and \u29bb are one- and two-shot denies;<br/>\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>\u25af and \u25ae are warning and termination.</p><div>"));
+						reports.Add(new ZoomHtmlInclusion("</div><p>\u25cb and \u2b24 are hit and destroyed bases.<br/>\u2300 and &olcross; are one- and two-shot denies;<br/>\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>\u25af and \u25ae are warning and termination.</p><div>"));
 
 					reports.Add(new ZoomHtmlInclusion("</div><a href=\"index.html\">Index</a><div>"));
 					if (reports.Count > 1)  // There were games this day.
@@ -520,19 +520,15 @@ namespace Torn.Report
 					nowText = "Just Played: " + MostRecentHolder.League.GameString(MostRecentGame);
 			}
 			else if (MostRecentHolder != null)
-				nowText = MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: " +
+				nowText = (MostRecentServerGame.InProgress ? "Now Playing: " : "Just Played: ") +
 					MostRecentHolder.League.GameString(MostRecentServerGame);
 
-			FixtureGame fg = MostRecentHolder == null ? null : MostRecentHolder.Fixture.BestMatch(MostRecentGame);
-			if (fg != null && NextGame != null)
+			if (NextGame != null)
 			{
 				nowText += "\nUp Next:";
-				foreach (var ft in fg.Teams)
+				foreach (var ft in NextGame.Teams)
 					nowText += ft.Key.LeagueTeam + "; ";
 			}
-
-			if (fg != null)
-				nowText += fg.ToString();
 
 			return nowText;
 		}
