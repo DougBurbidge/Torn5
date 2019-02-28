@@ -198,11 +198,13 @@ namespace Torn.UI
 				League.VictoryPoints.Clear();
 
 			if (victoryPoints.Checked)
+			{
 				for (int i = 0; i < victory.Count; i++)
 					Force(i, (double)victory[i].Value);
 			
-			if (victory.Count > 0 && victory.Last().Value > 0)
-				SetVictoryBox(victory.Count);
+			if (victory.Count == 0)
+				SetVictoryBox(0);
+			}
 		}
 
 		/// <summary>Ensure that there is an i'th victory points box, and set its value.</summary>

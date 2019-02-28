@@ -236,6 +236,7 @@ namespace Torn.UI
 			this.victoryPoints.TabIndex = 2;
 			this.victoryPoints.Text = "victory points";
 			this.victoryPoints.UseVisualStyleBackColor = true;
+			this.victoryPoints.CheckedChanged += new System.EventHandler(this.RankCheckedChanged);
 			// 
 			// totalScore
 			// 
