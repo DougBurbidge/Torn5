@@ -532,12 +532,18 @@ namespace Torn.UI
 			form.GroupPlayersBy = groupPlayersBy;
 			form.AutoUpdateScoreboard = autoUpdateScoreboard;
 			form.AutoUpdateTeams = autoUpdateTeams;
+			form.UploadMethod = uploadMethod;
+			form.UploadSite = uploadSite;
+			form.Username = username;
+			form.Password = password;
+
 			form.SystemType = systemType;
 			form.ServerAddress = serverAddress;
 			form.WindowsAuth = windowsAuth;
 			form.Sqluser = sqlUserId;
 			form.Password = sqlPassword;
 			form.WebPort = webPort;
+
 			if (form.ShowDialog() == DialogResult.OK)
 			{
 				groupPlayersBy = form.GroupPlayersBy;
@@ -867,7 +873,7 @@ namespace Torn.UI
 		}
 
 		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
-		TimeSpan timeElapsed = TimeSpan.Zero;
+		TimeSpan timeElapsed = TimeSpan.FromMilliseconds(-1);
 		bool gameInProgress = false;
 
 		void TimerGameTick(object sender, EventArgs e)
@@ -933,7 +939,7 @@ namespace Torn.UI
 				if (c is TeamBox)
 					teams.Add((TeamBox)c);
 
-			teams.Sort((x, y) => y.Score - x.Score);
+			teams.Sort((x, y) => (y.Score - x.Score) * 100 + (x.GameTeam == null || y.GameTeam == null ? 0 : (int)(x.GameTeam.Colour - y.GameTeam.Colour)));
 
 			for (int i = 0; i < teams.Count; i++)
 				teams[i].Rank = i + 1;
@@ -977,7 +983,7 @@ namespace Torn.UI
 			serverGames = laserGameServer == null ? new List<ServerGame>() : laserGameServer.GetGames();
 
 			if (serverGames.Count > 0)
-				serverGames.LastOrDefault(x => x.InProgress == false).InProgress = timeElapsed > TimeSpan.Zero;
+				serverGames.Last().InProgress = timeElapsed > TimeSpan.Zero;
 
 			Cursor.Current = Cursors.WaitCursor;
 			progressBar1.Value  = 0;
@@ -1004,7 +1010,7 @@ namespace Torn.UI
 							{
 								laserGameServer.PopulateGame(serverGame);
 
-								// Attempt to replace each GamePlayer with a Serverplayer. This gives us under-the-hood data used by e.g. GameHeatMap.
+								// Attempt to replace each GamePlayer with a ServerPlayer. This gives us under-the-hood data used by e.g. GameHeatMap.
 								foreach (var gameTeam in leagueGame.Teams)
 									for (int p = 0; p < gameTeam.Players.Count; p++)
 										if (!(gameTeam.Players[p] is ServerPlayer))

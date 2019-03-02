@@ -56,11 +56,6 @@ namespace Torn.UI
 			this.colGame = new System.Windows.Forms.ColumnHeader();
 			this.colLeague = new System.Windows.Forms.ColumnHeader();
 			this.colDescription = new System.Windows.Forms.ColumnHeader();
-			this.contextMenuStripGames = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.latestGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.commitGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.forgetGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panelLeague = new System.Windows.Forms.Panel();
 			this.labelNow = new System.Windows.Forms.Label();
 			this.labelTime = new System.Windows.Forms.Label();
@@ -115,7 +110,6 @@ namespace Torn.UI
 			this.toolStripContainer1.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.panelGames.SuspendLayout();
-			this.contextMenuStripGames.SuspendLayout();
 			this.panelLeague.SuspendLayout();
 			this.toolStripLeague.SuspendLayout();
 			this.toolStripGame.SuspendLayout();
@@ -272,7 +266,6 @@ namespace Torn.UI
 									this.colGame,
 									this.colLeague,
 									this.colDescription});
-			this.listViewGames.ContextMenuStrip = this.contextMenuStripGames;
 			this.listViewGames.FullRowSelect = true;
 			this.listViewGames.HideSelection = false;
 			this.listViewGames.Location = new System.Drawing.Point(3, 3);
@@ -298,44 +291,6 @@ namespace Torn.UI
 			// 
 			this.colDescription.Text = "Description";
 			this.colDescription.Width = 70;
-			// 
-			// contextMenuStripGames
-			// 
-			this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.latestGameToolStripMenuItem,
-									this.commitGameToolStripMenuItem,
-									this.setDescriptionToolStripMenuItem,
-									this.forgetGameToolStripMenuItem});
-			this.contextMenuStripGames.Name = "contextMenuStripGames";
-			this.contextMenuStripGames.Size = new System.Drawing.Size(176, 92);
-			// 
-			// latestGameToolStripMenuItem
-			// 
-			this.latestGameToolStripMenuItem.Name = "latestGameToolStripMenuItem";
-			this.latestGameToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-			this.latestGameToolStripMenuItem.Text = "&Latest Game";
-			this.latestGameToolStripMenuItem.Click += new System.EventHandler(this.ButtonLatestGameClick);
-			// 
-			// commitGameToolStripMenuItem
-			// 
-			this.commitGameToolStripMenuItem.Name = "commitGameToolStripMenuItem";
-			this.commitGameToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-			this.commitGameToolStripMenuItem.Text = "&Commit Game";
-			this.commitGameToolStripMenuItem.Click += new System.EventHandler(this.ButtonCommitClick);
-			// 
-			// setDescriptionToolStripMenuItem
-			// 
-			this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
-			this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-			this.setDescriptionToolStripMenuItem.Text = "Set Description";
-			this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
-			// 
-			// forgetGameToolStripMenuItem
-			// 
-			this.forgetGameToolStripMenuItem.Name = "forgetGameToolStripMenuItem";
-			this.forgetGameToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-			this.forgetGameToolStripMenuItem.Text = "Forget Game";
-			this.forgetGameToolStripMenuItem.Click += new System.EventHandler(this.ButtonForgetClick);
 			// 
 			// panelLeague
 			// 
@@ -815,7 +770,6 @@ namespace Torn.UI
 			this.toolStripContainer1.PerformLayout();
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.panelGames.ResumeLayout(false);
-			this.contextMenuStripGames.ResumeLayout(false);
 			this.panelLeague.ResumeLayout(false);
 			this.toolStripLeague.ResumeLayout(false);
 			this.toolStripLeague.PerformLayout();
@@ -853,11 +807,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripButton buttonEdit;
 		private System.Windows.Forms.ToolStripMenuItem buttonEditGame;
 		private System.Windows.Forms.ToolStripMenuItem buttonCreateGame;
-		private System.Windows.Forms.ToolStripMenuItem forgetGameToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem commitGameToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem setDescriptionToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem latestGameToolStripMenuItem;
-		private System.Windows.Forms.ContextMenuStrip contextMenuStripGames;
 		private System.Windows.Forms.ToolStrip toolStripTeams;
 		private System.Windows.Forms.ToolStripMenuItem buttonForget;
 		private System.Windows.Forms.ToolStripButton buttonCommit;
