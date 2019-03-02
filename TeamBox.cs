@@ -97,10 +97,9 @@ namespace Torn.UI
 			var tempTeam = GameTeam.Clone();
 			tempTeam.Players.Clear();
 			tempTeam.Players.AddRange(Players());
-			score = League.CalculateScore(tempTeam);
+			score = League == null ? 0 : League.CalculateScore(tempTeam);
 			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
 				(GameTeam.Adjustment == 0 ? "" : "*");
-				
 
 			var ids = new List<string>();
 			foreach (var listPlayer in Players())
@@ -111,7 +110,7 @@ namespace Torn.UI
 
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
 		}
-		
+
 		LeaguePlayer LeaguePlayer(ListViewItem item)
 		{
 			return item.Tag is ServerPlayer && League.LeaguePlayer((ServerPlayer)item.Tag) != null ? League.LeaguePlayer((ServerPlayer)item.Tag) : null;
@@ -176,7 +175,9 @@ namespace Torn.UI
 
 		void MenuAdjustTeamScoreClick(object sender, EventArgs e)
 		{
-			GameTeam.Adjustment = InputDialog.GetInteger("Adjustment", "Set team score adjustment", GameTeam.Adjustment);
+			int a = GameTeam.Adjustment == 0 ? -1000 : GameTeam.Adjustment;
+			if (InputDialog.GetInteger("Adjustment", "Set team score adjustment", ref a))
+				GameTeam.Adjustment = a;
 			Recalculate(false);
 		}
 

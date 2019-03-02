@@ -60,21 +60,34 @@ namespace Torn.UI
 		public static int GetInteger(string title, string message, int defaultResponse = 0)
 		{
 			var id = new InputDialog(title, message);
-			id.textBox1.Visible = false;
-			id.numericUpDown1.Visible = true;
-			id.numericUpDown1.Focus();
-			id.numericUpDown1.Value = defaultResponse;
+			id.SetNumeric(defaultResponse);
 			return id.ShowDialog() == DialogResult.OK ? (int)id.numericUpDown1.Value : defaultResponse;
+		}
+
+		public static bool GetInteger(string title, string message, ref int response)
+		{
+			var id = new InputDialog(title, message);
+			id.SetNumeric(response);
+			Boolean b = (id.ShowDialog() == DialogResult.OK);
+			
+			if (b)
+				response = (int)id.numericUpDown1.Value;
+			return b;
 		}
 
 		public static double? GetDouble(string title, string message, double? defaultResponse = 0)
 		{
 			var id = new InputDialog(title, message);
-			id.textBox1.Visible = false;
-			id.numericUpDown1.Visible = true;
-			id.numericUpDown1.Focus();
-			id.numericUpDown1.Value = defaultResponse == null ? 0 : (decimal)defaultResponse;
+			id.SetNumeric(defaultResponse == null ? 0 : (decimal)defaultResponse);
 			return id.ShowDialog() == DialogResult.OK ? (double)id.numericUpDown1.Value : defaultResponse;
+		}
+
+		void SetNumeric(decimal value)
+		{
+			textBox1.Visible = false;
+			numericUpDown1.Visible = true;
+			numericUpDown1.Focus();
+			numericUpDown1.Value = value;
 		}
 	}
 }
