@@ -84,7 +84,7 @@ namespace Torn.Report
 
 	 		var colourTotals = new Dictionary<Colour, List<int>>();
 			if (showColours)
-		 		for (Colour c = Colour.Red; c <= Colour.Orange; c++)
+		 		for (Colour c = Colour.Red; c <= Colour.White; c++)
 				{
 					report.Columns.Add(new ZColumn("1st", ZAlignment.Integer, c.ToString()));
 					report.Columns.Add(new ZColumn("2nd", ZAlignment.Integer, c.ToString()));
@@ -115,7 +115,7 @@ namespace Torn.Report
 			{
 				ZRow row = new ZRow();
 
-				row.Add(new ZCell(""));  // put in a temporary Rank
+				row.Add(new ZCell(0));  // put in a temporary Rank
 
 				row.Add(TeamCell(team));
 
@@ -301,7 +301,7 @@ namespace Torn.Report
 				row.Add(new ZCell("", Color.Gray));  // Blank rank.
 				row.Add(new ZCell("Totals", Color.Gray));  // "Team" name.
 
-		 		for (Colour c = Colour.Red; c <= Colour.Orange; c++)
+		 		for (Colour c = Colour.Red; c <= Colour.White; c++)
 		 			for (int rank = 0; rank < 3; rank++)
 		 			{
 		 			Color dark = Color.FromArgb((c.ToColor().R + Color.Gray.R) / 2, (c.ToColor().G + Color.Gray.G) / 2, (c.ToColor().B + Color.Gray.B) / 2);
@@ -333,9 +333,10 @@ namespace Torn.Report
 						report.RemoveColumn(i);
 					}
 
-//			report.OnCalcBar = TeamLadderColourCalcBar;
 			}
-			//report.Rows.PurgeBlankRows;
+
+			for (int i = 0; i < report.Rows.Count; i++)
+				report.Rows[i][0].Number = i + 1;
 
 			if (rt.Settings.Contains("Description"))
 			{
@@ -778,7 +779,7 @@ namespace Torn.Report
 					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P1"));  // Score ratio
 					row.Add(DataCell(srxTrs, rt.Drops, chartType, "P1"));  // SR x TR
 
-					row.Add(DataCell(player.Played.Select(x => (double)x.BaseHits).ToList(), rt.Drops, ChartType.Bar, "N1"));
+//					row.Add(DataCell(player.Played.Select(x => (double)x.BaseHits).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(player.Played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(player.Played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(player.Played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
@@ -1041,7 +1042,7 @@ namespace Torn.Report
 					report.Rows.Add(row);
 				}
 			}
-			
+
 			report.Columns.Add(new ZColumn("Base hits etc.", ZAlignment.Left));
 
 			return report;
@@ -1139,6 +1140,9 @@ namespace Torn.Report
 					if (serverPlayer != null)
 					{
 						var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
+						if (gameTeam == null)
+							continue;
+
 						var pen = new Pen(gameTeam.Colour.ToSaturatedColor(), 3);
 						var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds));
 						currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
@@ -1164,12 +1168,15 @@ namespace Torn.Report
 							// Show the alias of the player who destroyed the base.
 							var gamePlayer = game.Players.Find(gp => gp.PlayerId  == serverPlayer.PlayerId);
 							var leaguePlayer = league.LeaguePlayer(gamePlayer);
-							var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
-
-							if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
-								graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X - graphics.MeasureString(leaguePlayer.Name, font).Width, newPoint.Y);
-							else
-								graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
+							if (leaguePlayer != null)
+							{
+								var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
+	
+								if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
+									graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X - graphics.MeasureString(leaguePlayer.Name, font).Width, newPoint.Y);
+								else
+									graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
+							}
 						}
 					}
 				}
@@ -1198,8 +1205,9 @@ namespace Torn.Report
 		public static ZoomReport OnePlayer(League league, LeaguePlayer player, List<LeagueTeam> teams, GameHyper gameHyper)
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(player.Name) ? "Player " + player.Id : player.Name,
-			                                   "Time,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Base Destroys,Denies,Denied,Yellow,Red",
-			                                   "left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer");
+			                                   "Time,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
+			                                   "left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
+			                                   ",,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,");
 
 			report.Title += " \u2014 " + string.Join(", ", teams.Select(t => t.Name));
 			if (teams.Count == 1)
@@ -1345,7 +1353,7 @@ namespace Torn.Report
 					// Add player scores to player columns.
 					foreach (LeaguePlayer leaguePlayer in players)
 					{
-						GamePlayer gamePlayer = gameTeam.Players.Find(x => league.LeaguePlayer(x).Id == leaguePlayer.Id);
+						GamePlayer gamePlayer = gameTeam.Players.Find(x => league.LeaguePlayer(x) != null && league.LeaguePlayer(x).Id == leaguePlayer.Id);
 						if (gamePlayer == null)
 							gameRow.Add(new ZCell(""));
 						else
@@ -1370,7 +1378,7 @@ namespace Torn.Report
 					// Base Ratio: bases destroyed / bases conceded
 					ZCell basesConceded;
 					ZCell baseRatio;
-					if (game.ServerGame.Events == null)
+					if (game.ServerGame == null || game.ServerGame.Events == null)
 					{
 						basesConceded = new ZCell("");
 						baseRatio = new ZCell("");
@@ -1427,23 +1435,12 @@ namespace Torn.Report
 
 					row.Add(new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm")));
 
-					for (var i = Colour.Red; i <= Colour.White; i++)
+					foreach (var kv in fg.Teams.OrderBy(t => t.Value).ThenBy(t => t.Key.Name))
 					{
-						FixtureTeam ft = fg.Teams.FirstOrDefault(x => x.Value == i).Key;
-						if (ft != null)
-						{
-							ZCell teamCell = new ZCell(ft.Name, i.ToColor());
-							teamCell.Hyper = "fixture" + ft.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html";
-							row.Add(teamCell);
-						}
+						ZCell teamCell = new ZCell(kv.Key.Name, kv.Value.ToColor());
+						teamCell.Hyper = "fixture" + kv.Key.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html";
+						row.Add(teamCell);
 					}
-
-						foreach (var kv in fg.Teams.Where(t => t.Value == Colour.None).OrderBy(t => t.Key.Name))
-						{
-							ZCell teamCell = new ZCell(kv.Key.Name);
-							teamCell.Hyper = "fixture" + kv.Key.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html";
-							row.Add(teamCell);
-						}
 
 					report.Rows.Add(row);
 				}
@@ -1454,7 +1451,7 @@ namespace Torn.Report
 			return report;
 		}
 
-		/// <summary>Each row is a team. Eavh column is a game.</summary>
+		/// <summary>Each row is a team. Each column is a game.</summary>
 		public static ZoomReport FixtureGrid(Fixture fixture, League league, FixtureTeam team = null)
 		{
 			string title = team == null ? "Fixtures for " + league.Title : "Fixtures for " + team.Name + " in " + league.Title;
