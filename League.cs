@@ -58,9 +58,11 @@ namespace Torn
 
 		public static Colour ToColour(char ch)
 		{
-			var dict = new Dictionary<char, Colour> { 
+			var dict = new Dictionary<char, Colour> {
 				{ 'r', Colour.Red }, { 'b', Colour.Blue }, { 'g', Colour.Green }, { 'y', Colour.Yellow },
-				{ 'p', Colour.Purple }, { 'i', Colour.Pink }, { 'c', Colour.Cyan }, { 'o', Colour.Orange }, { 'w', Colour.White }
+				{ 'p', Colour.Purple }, { 'i', Colour.Pink }, { 'c', Colour.Cyan }, { 'o', Colour.Orange }, { 'w', Colour.White },
+				{ '1', Colour.Red }, { '2', Colour.Blue }, { '3', Colour.Green }, { '4', Colour.Yellow },
+				{ '5', Colour.Purple }, { '6', Colour.Pink }, { '7', Colour.Cyan }, { '8', Colour.Orange }, { '9', Colour.White }
 			};
 
 			Colour c;
@@ -1089,7 +1091,7 @@ namespace Torn
 
 		public Game Game(GamePlayer gamePlayer)
 		{
-			return AllGames.Find(g => g.Players.Contains(gamePlayer));
+			return AllGames.Find(g => g.Players.Exists(p => gamePlayer.PlayerId == p.PlayerId));
 		}
 
 		public Game Game(GameTeam gameTeam)
@@ -1171,7 +1173,7 @@ namespace Torn
 				}
 				entry.Value.Add(tpc.LeagueTeam);
 			}
-			return playerTeamList.OrderBy(pt => pt.Value[0].Name).ThenBy(pt => pt.Key.Name).ToList();
+			return playerTeamList.Distinct().OrderBy(pt => pt.Value[0].Name).ThenBy(pt => pt.Key.Name).ToList();
 		}
 
 		int Plays(LeagueTeam leagueTeam, LeaguePlayer leaguePlayer)
@@ -1205,7 +1207,8 @@ namespace Torn
 
 		public double AveragePoints(LeagueTeam leagueTeam, bool includeSecret)
 		{
-			return Played(leagueTeam, includeSecret).Average(x => x.Points);
+			var p = Played(leagueTeam, includeSecret);
+			return p.Count == 0 ? 0  : p.Average(x => x.Points);
 		}
 
 		public double CalculateScore(GameTeam gameTeam)
