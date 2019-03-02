@@ -332,7 +332,7 @@ namespace Torn.Report
 							}
 						}
 					if (heatMap)
-						reports.Add(new ZoomHtmlInclusion("</div><p>\u25cb and \u2b24 are hit and destroyed bases.<br/>\u2300 and &olcross; are one- and two-shot denies;<br/>\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>\u25af and \u25ae are warning and termination.</p><div>"));
+						reports.Add(new ZoomHtmlInclusion("</div><p>\u25cb and \u2b24 are hit and destroyed bases.<br/>\u2300 and &olcross; are one- and two-shot denies;<br/>\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>\u25af and \u25ae are warning and termination.<br/>Tags+ includes shots on bases and teammates.</p><div>"));
 
 					reports.Add(new ZoomHtmlInclusion("</div><a href=\"index.html\">Index</a><div>"));
 					if (reports.Count > 1)  // There were games this day.
@@ -410,7 +410,7 @@ namespace Torn.Report
 				{
 					client.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
 
-					string url = uploadMethod + "://" + uploadSite + "/";
+					string url = uploadMethod + "://" + uploadSite;
 					if (url.Last() != '/')
 						url += '/';
 

@@ -127,10 +127,11 @@ namespace Torn.UI
 
 			foreach (var fg in Fixture.Games)
 				foreach (var ft in fg.Teams)
-				{
-					difficulties[ft.Key.Id() - 1] += (fg.Teams.Sum(x => x.Key.Id()) - ft.Key.Id()) / (fg.Teams.Count - 1F);
-					counts[ft.Key.Id() - 1]++;
-				}
+					if (0 < ft.Key.Id() && ft.Key.Id() < difficulties.Length)
+					{
+						difficulties[ft.Key.Id() - 1] += (fg.Teams.Sum(x => x.Key.Id()) - ft.Key.Id()) / (fg.Teams.Count - 1F);
+						counts[ft.Key.Id() - 1]++;
+					}
 			
 			for (int row = 0; row < rows; row++)
 				if (counts[row] > 0)
