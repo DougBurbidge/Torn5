@@ -116,6 +116,7 @@ namespace Torn.UI
 			this.MaximumSize = new System.Drawing.Size(2000, 140);
 			this.MinimumSize = new System.Drawing.Size(200, 140);
 			this.Name = "InputDialog";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Form1";
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
 			this.ResumeLayout(false);

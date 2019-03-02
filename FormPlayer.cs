@@ -29,6 +29,7 @@ namespace Torn.UI
 		{
 			buttonOK.Enabled = listViewPlayers.SelectedItems.Count == 1;
 			search = null;
+			textSearch.Focus();
 		}
 
 		void ListViewPlayersDoubleClick(object sender, EventArgs e)
@@ -78,7 +79,7 @@ namespace Torn.UI
 			{
 				textSearch.Text = listViewPlayers.SelectedItems[0].Text;
 
-				if (listViewPlayers.SelectedItems[0].Text.StartsWith(search, true, CultureInfo.CurrentCulture))
+				if (search != null && listViewPlayers.SelectedItems[0].Text.StartsWith(search, true, CultureInfo.CurrentCulture))
 				{
 					textSearch.SelectionStart = search.Length;
 					textSearch.SelectionLength = textSearch.Text.Length - textSearch.SelectionStart;
