@@ -164,13 +164,15 @@ namespace Torn.UI
 				}
 
 				formPlayer.LaserGameServer = laserGameServer;
-			} 
+			}
 			catch (Exception ex)
 			{
 				string s = ex.ToString();
 				MessageBox.Show("Error while connecting to lasergame database server. Please check your settings.\n\n" + s.Substring(0, s.IndexOf('\n')));
 			}
 
+			timeToNextCheck = TimeSpan.FromSeconds(0);
+			TimerGameTick(null, null);
 			RefreshGamesList();
 		}
 
