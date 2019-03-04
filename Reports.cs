@@ -1079,7 +1079,7 @@ namespace Torn.Report
 			var minScore = Math.Min(game.Teams.Min(x => x.Score), 0);  // Handle games where all teams scores are positive, some are negative, 
 			var maxScore = Math.Max(game.Teams.Max(x => x.Score), 0);  // or all are negative (e.g. Lord of the Ring).
 			double duration = game.ServerGame.EndTime.Subtract(game.Time).TotalSeconds;
-			var height = (int)Math.Ceiling(duration * maxScore / maxLeagueScore);
+			var height = Math.Max((int)Math.Ceiling(duration * (maxScore - minScore) / maxLeagueScore), 1);
 			var skew = Scale(game.ServerGame.Events.Sum(e => e.Event_Type < 28 ? e.Score : 0) / game.Teams.Count, height, minScore, maxScore) / duration;  // In points per second, or points per pixel.
 
 			var bitmap = new Bitmap((int)duration, height + (int)(skew * duration));
@@ -1887,7 +1887,7 @@ namespace Torn.Report
 			DropScores(pointsList, drops);
 			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, "N0"));  // average game score
 			if (league.IsPoints())
-				row.Add(new ZCell(pointsList.Average(), ChartType.None, "N0"));  // average points
+				row.Add(new ZCell(pointsList.Sum(), ChartType.None, "N0"));  // total points
 
 			if (scoresList.Count < count)
 				row.Add(new ZCell(count - scoresList.Count, ChartType.None, "N0"));  // games dropped

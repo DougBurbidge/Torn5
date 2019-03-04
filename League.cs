@@ -636,6 +636,7 @@ namespace Torn
 
 			leagueTeam.AllPlayed.RemoveAll(x => Game(x) != null && Game(x).Time == game.Time);
 			leagueTeam.AllPlayed.Add(gameTeam);
+			leagueTeam.AllPlayed.Sort();
 			
 			gameTeam.Players.Clear();
 			gameTeam.Players.AddRange(teamData.Players);
