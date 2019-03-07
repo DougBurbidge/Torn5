@@ -377,7 +377,7 @@ namespace Torn.UI
 
 					RefreshGamesList();
 					RankTeams();
-
+					listViewGames.Focus();
 //					if (autoUpdateScoreboard)
 //						UpdateScoreboard();
 				}
@@ -500,6 +500,7 @@ namespace Torn.UI
 					index--;
 				listViewGames.SelectedIndices.Add(index);
 				listViewGames.FocusedItem = listViewGames.Items[index];
+				listViewGames.TopItem = listViewGames.Items[index];
 			}
 		}
 
@@ -900,8 +901,10 @@ namespace Torn.UI
 				timeToNextCheck = timeToNextCheck.Subtract(TimeSpan.FromMilliseconds(timerGame.Interval));
 			}
 
-			if (timeElapsed == TimeSpan.MinValue)
-				labelTime.Text = "";
+			if (laserGameServer == null)
+				labelTime.Text = "No lasergame server";
+			else if (!laserGameServer.Connected)
+				labelTime.Text = "Not connected";
 			else if (timeElapsed == TimeSpan.Zero)
 				labelTime.Text = "Idle";
 			else if (timeElapsed.TotalHours < 1)
@@ -998,42 +1001,8 @@ namespace Torn.UI
 					var serverGame = serverGames[i];
 					var leaguelist = leagues.Select(h => h.League);  // Grab the leagues out, because the below loop takes a long time, during which the user may add/remove leagues, modifying the "leagues" list.
 					foreach (var league in leaguelist)
-					{
-						Game leagueGame = league.AllGames.Find(x => x.Time == serverGame.Time);
-						if (leagueGame != null)
-						{
-							serverGame.League = league;
-							serverGame.Game = leagueGame;
-							leagueGame.ServerGame = serverGame;
-							var oldGame = oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time);
-							if (oldGame != null && !oldGame.InProgress && oldGame.Events.Count > 0)
-								serverGame.Events = oldGame.Events;
-							else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0 && laserGameServer != null) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
-							{
-								laserGameServer.PopulateGame(serverGame);
-
-								// Attempt to replace each GamePlayer with a ServerPlayer. This gives us under-the-hood data used by e.g. GameHeatMap.
-								foreach (var gameTeam in leagueGame.Teams)
-									for (int p = 0; p < gameTeam.Players.Count; p++)
-										if (!(gameTeam.Players[p] is ServerPlayer))
-										{
-											var playerId = gameTeam.Players[p].PlayerId;
-											var serverPlayer = serverGame.Players.Find(x => x.PlayerId == playerId);
-											if (serverPlayer != null)
-											{
-												gameTeam.Players[p].CopyTo(serverPlayer);
-												gameTeam.Players[p] = serverPlayer;
-	
-												int lp = leagueGame.Players.FindIndex(x => x.PlayerId == playerId);
-												if (lp > -1)
-													leagueGame.Players[lp] = serverPlayer;
-											}
-										}
-										
-								ProgressBar(1.0 * i / serverGames.Count, "Populated " + leagueGame.LongTitle());
-							}
-						}
-					}
+						if (PopulateGameIfIdle(league, serverGame, oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time)))
+							ProgressBar(1.0 * i / serverGames.Count, "Populated " + Utility.FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm"));
 				}
 			}
 			finally
@@ -1106,6 +1075,44 @@ namespace Torn.UI
 			}
 		}
 
+		bool PopulateGameIfIdle(League league, ServerGame serverGame, ServerGame oldGame)
+		{
+			Game leagueGame = league.AllGames.Find(x => x.Time == serverGame.Time);
+			if (leagueGame == null)
+				return false;
+
+			serverGame.League = league;
+			serverGame.Game = leagueGame;
+			leagueGame.ServerGame = serverGame;
+			if (oldGame != null && !oldGame.InProgress && oldGame.Events.Count > 0) {
+				serverGame.Events = oldGame.Events;
+				serverGame.Players.AddRange(oldGame.Players.Where(p => !serverGame.Players.Exists(p2 => p2.PandCPlayerId == p.PandCPlayerId)));
+			}
+			else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0 && laserGameServer != null) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
+			{
+				laserGameServer.PopulateGame(serverGame);
+
+				// Attempt to replace each GamePlayer with a ServerPlayer. This gives us under-the-hood data used by e.g. GameHeatMap.
+				foreach (var gameTeam in leagueGame.Teams)
+					for (int p = 0; p < gameTeam.Players.Count; p++)
+						if (!(gameTeam.Players[p] is ServerPlayer))
+						{
+							var playerId = gameTeam.Players[p].PlayerId;
+							var serverPlayer = serverGame.Players.Find(x => x.PlayerId == playerId);
+							if (serverPlayer != null)
+							{
+								gameTeam.Players[p].CopyTo(serverPlayer);
+								gameTeam.Players[p] = serverPlayer;
+
+								int lp = leagueGame.Players.FindIndex(x => x.PlayerId == playerId);
+								if (lp > -1)
+									leagueGame.Players[lp] = serverPlayer;
+							}
+						}
+			}
+			return true;
+		}
+		
 		void RefreshInProgressGame()
 		{
 			foreach(ListViewItem item in listViewGames.Items)
