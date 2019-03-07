@@ -325,8 +325,9 @@ namespace Torn.Report
 							{
 								reports.Add(Reports.GameHeatMap(league, game));
 								var bitmap = Reports.GameWorm(league, game, true);
-								string fileName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
-								bitmap.Save(Path.Combine(path, key, fileName), System.Drawing.Imaging.ImageFormat.Png);
+								string fileName = Path.Combine(path, key, "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png");
+								if (bitmap.Height > 1 || !File.Exists(fileName))
+									bitmap.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
 								reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));
 								heatMap = true;
 							}
