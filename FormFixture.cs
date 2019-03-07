@@ -139,7 +139,7 @@ namespace Torn.UI
 				else
 					averages[row] = float.NaN;
 			
-			float max = averages.Max();
+			float max = averages.Count() == 0 ? 1 : averages.Max();
 
 			var g = panelGraphic.CreateGraphics();
 			var font = new Font("Arial", size - 2);

@@ -198,6 +198,7 @@ namespace Torn
 				Add(game);
 			}
 
+			Sort();
 			return lines;
 		}
 
@@ -260,7 +261,7 @@ namespace Torn
 		}
 	}
 
-	public class FixtureGame
+	public class FixtureGame: IComparable
 	{
 		public DateTime Time { get; set; }
 		public Dictionary<FixtureTeam, Colour> Teams { get; set; }
@@ -268,6 +269,11 @@ namespace Torn
 		public FixtureGame()
 		{
 			Teams = new Dictionary<FixtureTeam, Colour>();
+		}
+
+		int IComparable.CompareTo(object obj)
+		{
+			return DateTime.Compare(this.Time, ((FixtureGame)obj).Time);
 		}
 	}
 }
