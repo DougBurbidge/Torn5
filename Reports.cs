@@ -415,7 +415,7 @@ namespace Torn.Report
 			}
 
 			if (rt.Settings.Contains("Description"))
-				report.Description = "This report shows how may times each team has played and beaten each other team." + FromTo(games, rt.From, rt.To); 
+				report.Description = "This report shows how may times each team has played and beaten each other team, " + FromTo(games, rt.From, rt.To) + "."; 
 			return report;
 		}  // TeamsVsTeams
 
@@ -609,7 +609,7 @@ namespace Torn.Report
 				}
 			}  // foreach leagueTeam
 
-			SortGridReport(league, report, rt.ReportType, games, averageCol, pointsCol, false);
+			SortGridReport(league, report, rt, games, averageCol, pointsCol, false);
 
 			if (rt.Settings.Contains("Description"))
 				report.Description = "This is a grid of games. Each row in the table is one team. Each column is one game.";
@@ -716,7 +716,7 @@ namespace Torn.Report
 				}
 			}  // foreach leagueTeam
 
-			SortGridReport(league, report, rt.ReportType, games, averageCol, pointsCol, !league.IsPoints());
+			SortGridReport(league, report, rt, games, averageCol, pointsCol, !league.IsPoints());
 			if (rt.Settings.Contains("Description"))
 				report.Description = "This is a grid of games. Each row in the table is one team.";
 			FinishReport(league, report, games, rt);
@@ -1181,6 +1181,7 @@ namespace Torn.Report
 					}
 				}
 
+			// Crop unused space off top and/or bottom of bitmap.
 			yMin = Math.Max(yMin - 1, 0);
 			bitmap =  bitmap.Clone(new RectangleF(0, yMin, bitmap.Width, Math.Max(Math.Min(yMax + 1, bitmap.Height) - yMin, 1)), bitmap.PixelFormat);
 			graphics = Graphics.FromImage(bitmap);
@@ -1333,7 +1334,7 @@ namespace Torn.Report
 
 			DateTime previousGameDate = DateTime.MinValue;
 			// Add a row for each of this team's games. Fill in values for team score and player scores.
-			foreach (GameTeam gameTeam in league.Played(team, includeSecret))
+			foreach (GameTeam gameTeam in league.Played(team, includeSecret).OrderBy(gt => league.Game(gt).Time))
 				if (from < league.Game(gameTeam).Time && league.Game(gameTeam).Time < to)
 				{
 					var game = league.Game(gameTeam); 
@@ -1895,9 +1896,11 @@ namespace Torn.Report
 				row.Add(new ZCell(""));  // games dropped
 		}
 		
-		static void SortGridReport(League league, ZoomReport report, ReportType reportType, List<Game> games, int averageCol, int pointsCol, bool reversed)
+		static void SortGridReport(League league, ZoomReport report, ReportTemplate rt, List<Game> games, int averageCol, int pointsCol, bool reversed)
 		{
-			if (reportType == ReportType.GameGrid) {
+			switch (rt.ReportType)
+			{
+				case ReportType.GameGrid:
 				report.Rows.Sort(delegate(ZRow x, ZRow y)
 			                 {
 			                 	double? result = 0;
@@ -1922,52 +1925,55 @@ namespace Torn.Report
 			                 	return Math.Sign(result ?? 0);
 			                 }
 			                );
-			}
-			else if (reportType == ReportType.Ascension)
-			{
-				report.Columns.Add(new ZColumn("Last game index"));
-				foreach (ZRow row in report.Rows)
-				{
-					for (int col = Math.Min(averageCol, row.Count()) - 1; col >= 0; col--)
-						if (col >= 0 && row[col].Number != null)
-						{
-							row.Add(new ZCell(col, ChartType.None, "N0"));
-							break;
-						}
-				}
+					break;
+				case ReportType.Ascension:
+					report.Columns.Add(new ZColumn("Last game index"));
+					foreach (ZRow row in report.Rows)
+					{
+						for (int col = Math.Min(averageCol, row.Count()) - 1; col >= 0; col--)
+							if (col >= 0 && row[col].Number != null)
+							{
+								row.Add(new ZCell(col, ChartType.None, "N0"));
+								break;
+							}
+					}
 
-				report.Rows.Sort(delegate(ZRow x, ZRow y)
-			                 {
-			                 	int result = 0;
-		                 		result = Math.Sign((double)y[y.Count - 1].Number - (double)x[x.Count - 1].Number);
-			                 	if (result == 0)
-			                 		result = Math.Sign((double)y[(int)y[y.Count - 1].Number].Number - (double)x[(int)x[x.Count - 1].Number].Number);
-			                 	return result;
-			                 }
-			                );
+					report.Rows.Sort(delegate(ZRow x, ZRow y)
+				                 {
+				                 	int result = 0;
+			                 		result = Math.Sign((double)y[y.Count - 1].Number - (double)x[x.Count - 1].Number);
+				                 	if (result == 0)
+				                 		result = Math.Sign((double)y[(int)y[y.Count - 1].Number].Number - (double)x[(int)x[x.Count - 1].Number].Number);
+				                 	return result;
+				                 }
+				                );
 
-				report.RemoveColumn(report.Columns.Count - 1);  // Last game index
-				report.RemoveColumn(report.Columns.Count - 1);  // Average
-				if (league.IsPoints(games))
-					report.RemoveColumn(report.Columns.Count - 1);  // Pts
-			} 
-			else if (reportType == ReportType.Pyramid)
-			{
-				PyramidComparer pc = new PyramidComparer();
-				pc.Columns = report.Columns;
-				pc.Reversed = reversed;
-				report.Rows.Sort(pc);
-				pc.DoColor(league, report);
+					report.RemoveColumn(report.Columns.Count - 1);  // Last game index
+					report.RemoveColumn(report.Columns.Count - 1);  // Average
+					if (league.IsPoints(games))
+						report.RemoveColumn(report.Columns.Count - 1);  // Pts
+					break;
+				
+				case ReportType.Pyramid:
+					PyramidComparer pc = new PyramidComparer();
+					pc.Columns = report.Columns;
+					pc.Reversed = reversed;
+					report.Rows.Sort(pc);
+					pc.DoColor(league, report);
 
-				report.RemoveColumn(report.Columns.Count - 1);
-				if (league.IsPoints(games))
 					report.RemoveColumn(report.Columns.Count - 1);
+					if (league.IsPoints(games))
+						report.RemoveColumn(report.Columns.Count - 1);
+					break;
 			}
-			
+
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
 
-			report.Title = league.Title + (reportType == ReportType.Ascension ? " Ascension" : reportType == ReportType.Pyramid ? " Pyramid" : " Games");  // TODO: respect report title here.
+			report.Title = string.IsNullOrEmpty(rt.Title) ?
+				league.Title + (rt.ReportType == ReportType.Ascension ? " Ascension" : 
+			                    rt.ReportType == ReportType.Pyramid   ? " Pyramid" : 
+			                                                            " Games") : rt.Title;
 		}
 
 		static void FinishReport(League league, ZoomReport report, List<Game> games, ReportTemplate rt)
@@ -2040,7 +2046,7 @@ namespace Torn.Report
 			{
 				int last = LastGame(row);
 
-				while (Columns[last].GroupHeading == Columns[last + 1].GroupHeading && last < row.Count - 1)
+				while (last < Columns.Count - 1 && last < row.Count - 1 && Columns[last].GroupHeading == Columns[last + 1].GroupHeading)
 					last++;  // Move last out to the end of this round (or repechage).
 
 				bool even = false;
@@ -2055,7 +2061,7 @@ namespace Torn.Report
 //							row[col + 1].Color = Color.FromArgb(0xF0, 0xF0, 0xFF);
 					}
 
-					if (Columns[col].GroupHeading != Columns[col + 1].GroupHeading)
+					if (col < Columns.Count - 1 && Columns[col].GroupHeading != Columns[col + 1].GroupHeading)
 					{
 						even = !even;
 						col ++;//= step;  // Move col out to the end of this round (or repechage).
