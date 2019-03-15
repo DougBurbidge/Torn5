@@ -122,7 +122,7 @@ namespace Torn.Report
 				double points = 0;
 
 				var colourCounts = new Dictionary<Colour, List<int>>();
-				for (Colour c = Colour.Red; c <= Colour.Orange; c++)
+				for (Colour c = Colour.Red; c <= Colour.White; c++)
 					colourCounts.Add(c, new List<int>());
 
 				List<double> scoreList = new List<double>();  // Holds either scores or score ratios.
@@ -160,7 +160,7 @@ namespace Torn.Report
 				}
 
 				if (showColours)
-					for (Colour c = Colour.Red; c <= Colour.Orange; c++)
+					for (Colour c = Colour.Red; c <= Colour.White; c++)
 						for (int rank = 0; rank < 3; rank++)
 							if (colourCounts[c].Count > rank && colourCounts[c][rank] > 0)
 							row.Add(new ZCell(colourCounts[c][rank], ChartType.Bar, "N0", c.ToColor()));
@@ -638,7 +638,8 @@ namespace Torn.Report
 				foreach (var team in league.Teams)
 					maxCount = Math.Max(maxCount, games.FindAll(x => x.Title == gameTitle && x.Teams.Exists(y => league.LeagueTeam(y) == team)).Count);
 
-				titleCount.Add(gameTitle, maxCount);
+				if (gameTitle != null)
+					titleCount.Add(gameTitle, maxCount);
 			}
 
 			// Create columns.
@@ -1847,10 +1848,15 @@ namespace Torn.Report
 				return " from " + (from == null ? "(none)" : ((DateTime)from).ToShortDateString()) +
 				       " to " + (to == null ? "(none)" : ((DateTime)to).ToShortDateString());
 
-			if (games.First().Time.Date == games.Last().Time.Date)  // this report is for games on a single day
-				return " for " + games.First().Time.Date.ToShortDateString();
+			DateTime first = from == null ? DateTime.MinValue : (DateTime)from;
+			first = games.First().Time > first ? games.First().Time : first;
+			DateTime last = to == null ? DateTime.MaxValue : (DateTime)to;
+			last = games.Last().Time < last ? games.Last().Time : last;
 
-			return " from " + games.First().Time.ToShortDateString() + " to " + games.Last().Time.ToShortDateString();  // this report is for games over multiple days
+			if (first.Date == last.Date)  // This report is for games on a single day.
+				return " for " + first.Date.ToShortDateString();
+
+			return " from " + first.ToShortDateString() + " to " + last.ToShortDateString();  // This report is for games over multiple days.
 		}
 
 		static List<T> DropScores<T>(List<T> scores, Drops drops)
@@ -1896,11 +1902,16 @@ namespace Torn.Report
 				row.Add(new ZCell(""));  // games dropped
 		}
 		
+		static double? TopScore(ZoomReport report, int col)
+		{
+			return report.Rows.Max(r => r.Count <= col ? null : r[col].Number);
+		}
+
 		static void SortGridReport(League league, ZoomReport report, ReportTemplate rt, List<Game> games, int averageCol, int pointsCol, bool reversed)
 		{
 			switch (rt.ReportType)
 			{
-				case ReportType.GameGrid:
+				case ReportType.GameGrid: case ReportType.GameGridCondensed:
 				report.Rows.Sort(delegate(ZRow x, ZRow y)
 			                 {
 			                 	double? result = 0;
@@ -1938,15 +1949,43 @@ namespace Torn.Report
 							}
 					}
 
-					report.Rows.Sort(delegate(ZRow x, ZRow y)
-				                 {
-				                 	int result = 0;
-			                 		result = Math.Sign((double)y[y.Count - 1].Number - (double)x[x.Count - 1].Number);
-				                 	if (result == 0)
-				                 		result = Math.Sign((double)y[(int)y[y.Count - 1].Number].Number - (double)x[(int)x[x.Count - 1].Number].Number);
-				                 	return result;
-				                 }
-				                );
+					try
+					{  // Sort by comparing teams' score in the last game they played each other.
+						report.Rows.Sort(delegate(ZRow x, ZRow y)
+									 {
+										int lastx = (int)x.Last().Number;
+										int lasty = (int)y.Last().Number;
+
+										int result = 0;
+
+										if (x[lastx].Number == TopScore(report, lastx) && y[lasty].Number == TopScore(report, lasty))
+											result = Math.Sign(lastx - lasty);
+										else if (x[lastx].Number == TopScore(report, lastx))  // x won its last game.
+											result = -1;
+										else if (y[lasty].Number == TopScore(report, lasty))  // y won its last game.
+											result = +1;
+
+										int last = Math.Max(lastx, lasty);
+										if (x[last].Number.HasValue && y[last].Number.HasValue)  // x and y play each other in the last game for both of them.
+											result = Math.Sign((double)y[last].Number - (double)x[last].Number);
+
+										int notlast = Math.Min(lastx, lasty);
+										if (result == 0 && x[notlast].Number.HasValue && y[notlast].Number.HasValue)  // x and y play each other in the last game for one of them.
+											result = Math.Sign((double)y[notlast].Number - (double)x[notlast].Number);
+
+										return result == 0 ? Math.Sign(lasty - lastx) : result;  // Just use who played last.
+									 }
+									);
+					}
+					catch
+					{  // If the above produces an ambiguous result, sort teams by whichever one played last.
+						report.Rows.Sort(delegate(ZRow x, ZRow y)
+									 {
+										int result = Math.Sign((double)y.Last().Number - (double)x.Last().Number);
+										return result == 0 ? Math.Sign((double)y[(int)y.Last().Number].Number - (double)x[(int)x.Last().Number].Number) : result;
+									 }
+									);
+					}
 
 					report.RemoveColumn(report.Columns.Count - 1);  // Last game index
 					report.RemoveColumn(report.Columns.Count - 1);  // Average
@@ -1954,7 +1993,7 @@ namespace Torn.Report
 						report.RemoveColumn(report.Columns.Count - 1);  // Pts
 					break;
 				
-				case ReportType.Pyramid:
+				case ReportType.Pyramid: case ReportType.PyramidCondensed:
 					PyramidComparer pc = new PyramidComparer();
 					pc.Columns = report.Columns;
 					pc.Reversed = reversed;
