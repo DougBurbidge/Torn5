@@ -11,7 +11,7 @@ using Torn;
 
 namespace Torn.Report
 {
-	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, Ascension, Pyramid, Packs, Everything, PageBreak };
+	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, Ascension, Pyramid, PyramidCondensed, Packs, Everything, PageBreak };
 
 	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate

@@ -13,6 +13,7 @@ using System.Xml;
 
 namespace Torn
 {
+	//                      0        1     2      3       4       5     6     7       8      9
 	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange, White };
 	public static class ColourExtensions
 	{
@@ -446,7 +447,8 @@ namespace Torn
 		public bool Secret { get; set; }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
 		public List<GameTeam> Teams { get; private set; }
 		public List<GamePlayer> Players { get; private set; }
-		public ServerGame ServerGame {get; set; }
+		public ServerGame ServerGame { get; set; }
+		public bool Reported { get; set; }  // Use Reported to decide whether to emit various report pages. TODO: persist this.
 
 		int? hits = null;
 		public int Hits { get 
@@ -672,37 +674,40 @@ namespace Torn
 
 		public void CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
 		{
+			Game game;
 			if (serverGame.Game == null)
 			{
 				serverGame.Game = new Game();
 				serverGame.Game.Time = serverGame.Time;
 				serverGame.Game.ServerGame = serverGame;
 			}
+			game = serverGame.Game;
 
-			serverGame.Game.Teams.Clear();
+			game.Teams.Clear();
 			foreach (var teamData in teamDatas)
 			{
 				LinkTeamToGame(teamData, serverGame);
 
 				foreach (var player in teamData.Players)
-					LinkPlayerToGame(serverGame.Game.Players.Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
+					LinkPlayerToGame(game.Players.Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
 					                 teamData.GameTeam, serverGame);
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
 			}
 
-			serverGame.Game.Players.Sort();
-			for (int i = 0; i < serverGame.Game.Players.Count; i++)
-				serverGame.Game.Players[i].Rank = (uint)i + 1;
+			game.Players.Sort();
+			for (int i = 0; i < game.Players.Count; i++)
+				game.Players[i].Rank = (uint)i + 1;
 
-			if (!AllGames.Contains(serverGame.Game))
+			if (!AllGames.Contains(game))
 			{
-				AllGames.Add(serverGame.Game);
+				AllGames.Add(game);
 				AllGames.Sort();
 			}
 
-			serverGame.Game.Teams.Sort();
+			game.Teams.Sort();
+			game.Reported = false;
 			serverGame.League = this;
 
 			foreach (var teamData in teamDatas)
@@ -860,7 +865,8 @@ namespace Torn
 				Game game = new Game();
 
 				game.Title = xgame.GetString("title");
-				game.Secret = xgame.GetString("secret") == "true";
+				game.Secret = xgame.GetString("secret") == "y";
+				game.Reported = xgame.GetString("reported") == "y";
 
 				var child = xgame.SelectSingleNode("ansigametime");
 				if (child == null)
@@ -907,7 +913,7 @@ namespace Torn
 					gamePlayer.RedCards = xplayer.GetInt("redcards");
 
 					if (xplayer.SelectSingleNode("colour") != null)
-						gamePlayer.Colour = (Colour)(xplayer.GetInt("colour"));
+						gamePlayer.Colour = (Colour)(xplayer.GetInt("colour") + 1);
 
 					game.Players.Add(gamePlayer);
 				}
@@ -1036,6 +1042,8 @@ namespace Torn
 				doc.AppendNode(gameNode, "hits", game.Hits);
 				if (game.Secret)
 					doc.AppendNode(gameNode, "secret", "y");
+				if (game.Reported)
+					doc.AppendNode(gameNode, "reported", "y");
 
 				XmlNode teamsNode = doc.CreateElement("teams");
 				gameNode.AppendChild(teamsNode);
@@ -1075,7 +1083,7 @@ namespace Torn
 					doc.AppendNonZero(playerNode, "yellowcards", player.YellowCards);
 					doc.AppendNonZero(playerNode, "redcards", player.RedCards);
 
-					doc.AppendNode(playerNode, "colour", (int)player.Colour);
+					doc.AppendNode(playerNode, "colour", ((int)player.Colour) - 1);
 				}
 			}
 			if (File.Exists(file + "5Backup"))

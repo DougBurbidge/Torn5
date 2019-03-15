@@ -97,6 +97,8 @@ namespace Torn.Report
 					case ReportType.GameByGame:   reports.Add(Reports.GamesList(holder.League, includeSecret, rt, gameHyper)); break;
 					case ReportType.GameGrid: case ReportType.Ascension: case ReportType.Pyramid: 
 						reports.Add(Reports.GamesGrid(holder.League, includeSecret, rt, gameHyper)); break;
+					case ReportType.GameGridCondensed: case ReportType.PyramidCondensed: 
+						reports.Add(Reports.GamesGridCondensed(holder.League, includeSecret, rt, gameHyper)); break;
 					case ReportType.Packs:
 						var x = new List<League>();
 						x.Add(holder.League);
@@ -307,39 +309,47 @@ namespace Torn.Report
 
 		void ExportGames(League league, string path, string key)
 		{
-			if (league.AllGames.Count > 0)
-				for (DateTime day = league.AllGames[0].Time.Date; day <= league.AllGames[league.AllGames.Count - 1].Time.Date; day = day.AddDays(1)) 
+			var dates = league.AllGames.Select(g => g.Time.Date).Distinct().ToList();
+			foreach (var date in dates)
+			{
+				var dayGames = league.AllGames.Where(g => g.Time.Date == date);
+				if (dayGames.Any(g => !g.Reported))  // Some of the games for this day are not marked as reported. Report on them.
 				{
-					ZoomReports reports = new ZoomReports(league.Title + " games on " + day.ToShortDateString());
+					ZoomReports reports = new ZoomReports(league.Title + " games on " + date.ToShortDateString());
 					reports.Colors.BackgroundColor = Color.Empty;
 					reports.Colors.OddColor = Color.Empty;
 					league.AllGames.Sort();
 				    bool heatMap = false;
 
-					foreach (Game game in league.AllGames)
-						if (game.Time.Date == day)
+					foreach (Game game in dayGames)
+					{
+						reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
+						reports.Add(Reports.OneGame(league, game));
+						if (game.ServerGame != null && game.ServerGame.Events.Count > 0 && !game.ServerGame.InProgress)
 						{
-							reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
-							reports.Add(Reports.OneGame(league, game));
-							if (game.ServerGame != null && game.ServerGame.Events.Count > 0 && !game.ServerGame.InProgress)
+							reports.Add(Reports.GameHeatMap(league, game));
+							string fileName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
+							if (!game.Reported)
 							{
-								reports.Add(Reports.GameHeatMap(league, game));
 								var bitmap = Reports.GameWorm(league, game, true);
-								string fileName = Path.Combine(path, key, "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png");
-								if (bitmap.Height > 1 || !File.Exists(fileName))
-									bitmap.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
-								reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));
-								heatMap = true;
+								string filePath = Path.Combine(path, key, fileName);
+								if (bitmap.Height > 1 || !File.Exists(filePath))
+									bitmap.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
 							}
+							reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));
+							game.Reported = true;
+							heatMap = true;
 						}
+					}
 					if (heatMap)
 						reports.Add(new ZoomHtmlInclusion("</div><p>\u25cb and \u2b24 are hit and destroyed bases.<br/>\u2300 and &olcross; are one- and two-shot denies;<br/>\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>\u25af and \u25ae are warning and termination.<br/>Tags+ includes shots on bases and teammates.</p><div>"));
 
 					reports.Add(new ZoomHtmlInclusion("</div><a href=\"index.html\">Index</a><div>"));
 					if (reports.Count > 1)  // There were games this day.
-						using (StreamWriter sw = File.CreateText(Path.Combine(path, key, "games" + day.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
+						using (StreamWriter sw = File.CreateText(Path.Combine(path, key, "games" + date.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html")))
 							sw.Write(reports.ToSvg());
 				}
+			}
 		}
 
 		void ExportPlayers(League league, string path, string key)

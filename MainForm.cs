@@ -610,6 +610,7 @@ namespace Torn.UI
 					{
 						var serverGame = (ServerGame)item.Tag;
 						serverGame.Game.Title = id.Response;
+						serverGame.Game.Reported = false;
 						while (item.SubItems.Count <= 2)
 							item.SubItems.Add("");
 						item.SubItems[2].Text = id.Response;
