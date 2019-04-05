@@ -427,7 +427,6 @@ namespace Torn.UI
 			if (GetExportFolder() != null)
 			{
 				progressBar1.Value  = 0;
-				progressBar1.Visible = true;
 				try {
 					webOutput.ExportReports(exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
@@ -646,7 +645,6 @@ namespace Torn.UI
 			if (GetExportFolder() != null)
 			{
 				progressBar1.Value = 0;
-				progressBar1.Visible = true;
 				try {
 					webOutput.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
@@ -720,6 +718,7 @@ namespace Torn.UI
 
 		void ProgressBar(double progress, string status = "")
 		{
+			progressBar1.Visible = true;
 			progressBar1.Value = (int)(progress * 1000);
 			labelStatus.Text = status;
 			Application.DoEvents();
@@ -993,7 +992,6 @@ namespace Torn.UI
 
 			Cursor.Current = Cursors.WaitCursor;
 			progressBar1.Value  = 0;
-			progressBar1.Visible = true;
 			try
 			{
 				// Link server games to league games, where a matching league game exists.
