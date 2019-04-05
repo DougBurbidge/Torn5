@@ -242,7 +242,7 @@ namespace Torn.Report
 					int teamId;
 					if (int.TryParse(lastPart.Substring(4, 2), out teamId))
 					{
-						LeagueTeam leagueTeam = holder.League.Teams.Find(x => x.Id == teamId);
+						LeagueTeam leagueTeam = holder.League.Teams.Find(x => x.TeamId == teamId);
 						if (leagueTeam == null)
 							return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid team number: <br>{0}</body></html>", request.RawUrl);
 						else
@@ -297,7 +297,7 @@ namespace Torn.Report
 					progress(++numerator / denominator, "Players pages exported.");
 
 					foreach (LeagueTeam leagueTeam in league.Teams)
-						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.Id.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
+						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html")))
 							sw.Write(TeamPage(league, includeSecret, leagueTeam, GameHyper));
 					progress(++numerator / denominator, "Team pages exported.");
 

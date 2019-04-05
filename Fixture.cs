@@ -91,7 +91,7 @@ namespace Torn
 
 		public int Id() 
 		{
-			return LeagueTeam == null ? -1 : LeagueTeam.Id;
+			return LeagueTeam == null ? -1 : LeagueTeam.TeamId;
 		}
 
 		public override string ToString()

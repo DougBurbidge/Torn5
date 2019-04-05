@@ -237,7 +237,7 @@ namespace Torn
 				if (string.IsNullOrEmpty(name))
 				{
 					if (Players.Count == 0)
-						name = "Team " + Id.ToString(CultureInfo.InvariantCulture);
+						name = "Team " + TeamId.ToString(CultureInfo.InvariantCulture);
 					else if (Players.Count == 2)
 						name = Players[0].Name + " and " + Players[1].Name;
 					else if (Players.Count == 1)
@@ -251,7 +251,7 @@ namespace Torn
 			set { name = value; } 
 		}
 
-		internal int Id  { get; set; }
+		internal int TeamId  { get; set; }
 		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
 		public List<LeaguePlayer> Players { get; private set; }
@@ -267,7 +267,7 @@ namespace Torn
 		{
 			var clone = new LeagueTeam();
 			clone.Name = Name;
-			clone.Id = Id;
+			clone.TeamId = TeamId;
 			clone.Handicap = Handicap;
 			clone.Comment = Comment;
 			
@@ -353,7 +353,7 @@ namespace Torn
 
 	public class GamePlayer: IComparable
 	{
-		public int GameTeamId { get; set; }
+		public int TeamId { get; set; }
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
 		public string Pack { get; set; }
@@ -391,7 +391,7 @@ namespace Torn
 
 		public GamePlayer CopyTo(GamePlayer target)
 		{
-			target.GameTeamId = GameTeamId;
+			target.TeamId = TeamId;
 			target.PlayerId = PlayerId;
 			target.Pack = Pack;
 			target.Score = Score;
@@ -630,11 +630,11 @@ namespace Torn
 			if (leagueTeam == null)
 			{
 				leagueTeam = new LeagueTeam();
-				leagueTeam.Id = NextTeamID();
+				leagueTeam.TeamId = NextTeamID();
 				Teams.Add(leagueTeam);
 			}
 			
-			gameTeam.TeamId = leagueTeam.Id;
+			gameTeam.TeamId = leagueTeam.TeamId;
 
 			leagueTeam.AllPlayed.RemoveAll(x => Game(x) != null && Game(x).Time == game.Time);
 			leagueTeam.AllPlayed.Add(gameTeam);
@@ -646,7 +646,7 @@ namespace Torn
 
 		void LinkPlayerToGame(GamePlayer gamePlayer, GameTeam gameTeam, ServerGame game)
 		{
-			gamePlayer.GameTeamId = (int)gameTeam.TeamId;
+			gamePlayer.TeamId = (int)gameTeam.TeamId;
 
 			if (!game.Game.Players.Contains(gamePlayer))
 				game.Game.Players.Add(gamePlayer);
@@ -782,7 +782,7 @@ namespace Torn
 
 		int NextTeamID()
 		{
-			return teams.Count == 0 ? 0 : teams.Max(x => x.Id) + 1;
+			return teams.Count == 0 ? 0 : teams.Max(x => x.TeamId) + 1;
 		}
 
 		/// <summary>Load a .Torn file from disk.</summary>
@@ -824,7 +824,7 @@ namespace Torn
 				LeagueTeam leagueTeam = new LeagueTeam();
 				
 				leagueTeam.Name = xteam.GetString("teamname");
-				leagueTeam.Id = xteam.GetInt("teamid");
+				leagueTeam.TeamId = xteam.GetInt("teamid");
 				leagueTeam.Handicap = Handicap.Parse(xteam.GetString("handicap"));
 				leagueTeam.Comment = xteam.GetString("comment");
 				
@@ -899,7 +899,7 @@ namespace Torn
 					GamePlayer gamePlayer = new GamePlayer();
 
 					gamePlayer.PlayerId = xplayer.GetString("playerid");
-					gamePlayer.GameTeamId = xplayer.GetInt("teamid");
+					gamePlayer.TeamId = xplayer.GetInt("teamid");
 					gamePlayer.Pack = xplayer.GetString("pack");
 					gamePlayer.Score = xplayer.GetInt("score");
 					gamePlayer.Rank = (uint)xplayer.GetInt("rank");
@@ -948,7 +948,7 @@ namespace Torn
 				foreach (GameTeam gameTeam in game.Teams) 
 				{
 					// Connect each game team back to their league team.
-					var leagueTeam = teams.Find(x => x.Id == gameTeam.TeamId);
+					var leagueTeam = teams.Find(x => x.TeamId == gameTeam.TeamId);
 					if (leagueTeam != null)
 					{
 						leagueTeam.AllPlayed.Add(gameTeam);
@@ -956,7 +956,7 @@ namespace Torn
 						// Connect each game player to their game team.
 						gameTeam.Players.Clear();
 						foreach (GamePlayer gamePlayer in game.Players)
-							if (gamePlayer.GameTeamId == gameTeam.TeamId)
+							if (gamePlayer.TeamId == gameTeam.TeamId)
 								gameTeam.Players.Add(gamePlayer);
 
 						// Connect each game player to their league player.
@@ -1008,7 +1008,7 @@ namespace Torn
 				leagueTeamsNode.AppendChild(teamNode);
 
 				doc.AppendNode(teamNode, "teamname", team.Name);
-				doc.AppendNode(teamNode, "teamid", team.Id);
+				doc.AppendNode(teamNode, "teamid", team.TeamId);
 				if (team.Handicap != null && !team.Handicap.IsZero())
 					doc.AppendNode(teamNode, "handicap", team.Handicap.ToString());
 				if (!string.IsNullOrEmpty(team.Comment)) doc.AppendNode(teamNode, "comment", team.Comment);
@@ -1069,7 +1069,7 @@ namespace Torn
 					XmlNode playerNode = doc.CreateElement("player");
 					playersNode.AppendChild(playerNode);
 
-					doc.AppendNode(playerNode, "teamid", player.GameTeamId);
+					doc.AppendNode(playerNode, "teamid", player.TeamId);
 					doc.AppendNode(playerNode, "playerid", player.PlayerId);
 					doc.AppendNode(playerNode, "pack", player.Pack);
 					doc.AppendNode(playerNode, "score", player.Score);
@@ -1100,7 +1100,8 @@ namespace Torn
 
 		public Game Game(GamePlayer gamePlayer)
 		{
-			return AllGames.Find(g => g.Players.Exists(p => gamePlayer.PlayerId == p.PlayerId));
+//			return AllGames.Find(g => g.Players.Exists(p => gamePlayer.PlayerId == p.PlayerId));
+			return AllGames.Find(g => g.Players.Contains(gamePlayer));
 		}
 
 		public Game Game(GameTeam gameTeam)
