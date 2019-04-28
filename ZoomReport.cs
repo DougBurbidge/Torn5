@@ -28,22 +28,22 @@ namespace Zoom
 	}
 
 	/// This is the abstract parent of ZColumn and ZCell, holding only a few fields common to "rectangular areas that can contain text".
-	public abstract class ZBlock
+	public interface IBlock
 	{
 		/// <summary>Text to appear in the cell or column header.</summary>
-		public virtual string Text { get; set; }
+		string Text { get; set; }
 		/// <summary>If this cell or column heading contains text which links to another report, put the URL of that report here.</summary>
-		public virtual string Hyper { get; set; }
-
-		public override string ToString()
-		{
-			return Text;
-		}
+		string Hyper { get; set; }
 	}
 
+	public abstract class ZBaseColumn {}
+
 	/// This is just the header row(s) and metadata for a column -- does not include the actual cells.
-	public class ZColumn: ZBlock
+	public class ZColumn: ZBaseColumn, IBlock
 	{
+		public string Text { get; set; }
+		public string Hyper { get; set; }
+
 		/// <summary>Optional. Appears *above* heading text.</summary>
 	    public string GroupHeading { get; set; }
 		/// <summary>left, right or center</summary>
@@ -68,6 +68,11 @@ namespace Zoom
 			Alignment = alignment;
 			GroupHeading = groupHeading;
 		}
+
+		public override string ToString()
+		{
+			return Text;
+		}
 	}
 
 	[Flags]
@@ -89,11 +94,11 @@ namespace Zoom
 	}
 
 	/// <summary>Represents a single cell in a table. The cell can optionally have a horizontal chart bar.</summary>
-	public class ZCell: ZBlock
+	public class ZCell: IBlock
 	{
 		string text;
 		
-		public override string Text  // Text data to appear in this cell. 
+		public string Text  // Text data to appear in this cell.
 		{
 			get 
 			{
@@ -112,6 +117,11 @@ namespace Zoom
 			
 			set { text = value; }
 		}
+
+		public string Hyper { get; set; }
+
+		/// <summary>For multiple classes, separate each class with a space. (Blame CSS.)</summary>
+		public string CssClass { get; set; }
 
 		public bool Empty()
 		{
@@ -163,10 +173,24 @@ namespace Zoom
 			
 			return ZReportColors.Darken(Color.White);
 		}
+
+		public override string ToString()
+		{
+			return Text;
+		}
 	}
 
 	public class ZRow: List<ZCell>
 	{
+		public string CssClass { get; set; }
+
+		///<summary>Just like Add(), but returns the added cell.</summary> 
+		public ZCell AddCell(ZCell cell)
+		{
+			Add(cell);
+			return cell;
+		}
+
 		///<summary>If there is exactly one chart in this row (because exactly one cell has its ChartType set, or because all the ChartCell 
 		/// values specified in this row point to just one cell, return the index of the cell whose value is used for the bar.</summary>
 		public ZCell OneBarCell()
@@ -273,10 +297,11 @@ namespace Zoom
 
 	public class ZoomReport: ZoomReportBase
 	{
-		public List<ZColumn> Columns { get; private set; }
+		public List<ZBaseColumn> BaseColumns { get; private set; }
 		public List<ZRow> Rows { get; set; }
 		public string Description { get; set; }
 		public ZNumberStyle NumberStyle { get; set; }
+		public string CssClass { get; set; }
 		/// <summary>If true, scale bar charts in each column separately.</summary>
 		public bool MaxChartByColumn { get; set; }
 		/// <summary>If true, scale bar charts in each column separately.</summary>
@@ -294,7 +319,7 @@ namespace Zoom
 
 		public ZoomReport(string title, string headings = "", string alignments = "", string groupHeadings = "")
 		{
-			Columns = new List<ZColumn>();
+			BaseColumns = new List<ZBaseColumn>();
 			Rows = new List<ZRow>();
 
 			Title = title;
@@ -306,25 +331,42 @@ namespace Zoom
 
 		public void AddColumns(string headings, string alignments = "", string groupHeadings = "")
 		{
-			int firstAdded = Columns.Count();
+			int firstAdded = BaseColumns.Count();
 
 			if (!string.IsNullOrEmpty(headings))
 				foreach (string heading in headings.Split(','))
-					Columns.Add(new ZColumn(heading));
+					BaseColumns.Add(new ZColumn(heading));
 			
 			if (!string.IsNullOrEmpty(alignments))
 			{
 				string[] alignmentList = alignments.Split(',');
-				for (int i = 0; firstAdded + i < Columns.Count && i < alignmentList.Length; i++)
-					Columns[firstAdded + i].Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
+				for (int i = 0; firstAdded + i < BaseColumns.Count && i < alignmentList.Length; i++)
+					Column(firstAdded + i).Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
 			}
 
 			if (!string.IsNullOrEmpty(groupHeadings))
 			{
 				string[] groupList = groupHeadings.Split(',');
-				for (int i = 0; firstAdded + i < Columns.Count && i < groupList.Length; i++)
-					Columns[firstAdded + i].GroupHeading = groupList[i];
+				for (int i = 0; firstAdded + i < BaseColumns.Count && i < groupList.Length; i++)
+					Column(firstAdded + i).GroupHeading = groupList[i];
 			}
+		}
+
+		///<summary>Just like Add(), but returns the added ZColumn.</summary> 
+		public ZColumn AddColumn(ZBaseColumn col)
+		{
+			BaseColumns.Add(col);
+			return col as ZColumn;
+		}
+
+		public List<ZColumn> Columns()
+		{
+			return BaseColumns.Select(x => x as ZColumn).ToList();
+		}
+
+		public ZColumn Column(int i)
+		{
+			return BaseColumns[i] as ZColumn;
 		}
 
 		static void AppendStrings(StringBuilder builder, params string[] strings)
@@ -335,7 +377,7 @@ namespace Zoom
 
 		public ZCell Cell(ZRow row, string columnText)
 		{
-			return row[Columns.FindIndex(x => x.Text == columnText)];
+			return row[Columns().FindIndex(x => x.Text == columnText)];
 		}
 
 		public bool ColumnEmpty(int i)
@@ -358,8 +400,8 @@ namespace Zoom
 
 		public void RemoveColumn(int i)
 		{
-			if (i < Columns.Count)
-				Columns.RemoveAt(i);
+			if (i < BaseColumns.Count)
+				BaseColumns.RemoveAt(i);
 
 			foreach(ZRow row in Rows)
 				if (i < row.Count)
@@ -368,7 +410,7 @@ namespace Zoom
 
 		public void RemoveZeroColumns()
 		{
-			for (int i = Columns.Count - 1; i >= 0; i--)
+			for (int i = BaseColumns.Count - 1; i >= 0; i--)
 				if (ColumnZero(i))
 					RemoveColumn(i);
 		}
@@ -379,7 +421,7 @@ namespace Zoom
 			var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 			var font = new Font("Arial", 11);
 
-			for (int col = 0; col < Columns.Count; col++)
+			for (int col = 0; col < BaseColumns.Count; col++)
 			{
 				float widest = 0;
 				float total = widest;
@@ -443,13 +485,15 @@ namespace Zoom
 			if (!string.IsNullOrEmpty(Title))
 				AppendStrings(s, Title, "\n");
 
+			List<ZColumn> columns = Columns();
+
 			bool hasgroupheadings = false;
-			foreach (ZColumn col in Columns)
+			foreach (ZColumn col in columns)
 				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
 
 			if (hasgroupheadings)
 			{
-				foreach (ZColumn col in Columns)
+				foreach (ZColumn col in columns)
 				{
 					s.Append(col.GroupHeading);
 					s.Append(separator);
@@ -457,7 +501,7 @@ namespace Zoom
 				s.Append('\n');
 			}
 
-			foreach (ZColumn col in Columns)
+			foreach (ZColumn col in columns)
 			{
 				s.Append(col.Text);
 				s.Append(separator);
@@ -480,37 +524,44 @@ namespace Zoom
 		// This writes an HTML fragment -- it does not include <head> or <body> tags etc.
 		public override string ToHtml()
 		{
+			List<ZColumn> columns = Columns();
 			bool hasgroupheadings = false;
-			foreach (ZColumn col in Columns)
+			foreach (ZColumn col in columns)
 				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
 
 			StringBuilder s = new StringBuilder();
 
-			s.Append("\n<table align=\"center\">\n");
+			s.Append("\n<table align=\"center\"");
+			if (!string.IsNullOrEmpty(CssClass))
+				AppendStrings(s, " class=\"", CssClass, "\"");
+
+			s.Append(">\n");
 			s.Append("  <thead>\n");
 
+			// Title row
 			if (!string.IsNullOrEmpty(Title))
 				AppendStrings(s, "    <tr bgcolor=\"", System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor), "\">\n",
-				              "       <th colspan=\"", Columns.Count.ToString(CultureInfo.InvariantCulture), "\"><H2>", WebUtility.HtmlEncode(Title), "</H2></th>\n",
+				              "       <th colspan=\"", columns.Count.ToString(CultureInfo.InvariantCulture), "\"><H2>", WebUtility.HtmlEncode(Title), "</H2></th>\n",
 				              "    </tr>\n");
 
+			// Group Headings rows
 			if (hasgroupheadings)
 			{
 				AppendStrings(s, "    <tr bgcolor=\"", System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor), "\">\n");
 
 				int start = 0;
-				while (start < Columns.Count)
+				while (start < columns.Count)
 				{
 					int end = start;
-					while (end < Columns.Count - 1 && Columns[start].GroupHeading == Columns[end + 1].GroupHeading)
+					while (end < columns.Count - 1 && columns[start].GroupHeading == columns[end + 1].GroupHeading)
 						end++;
 
 					if (start == end)
 						AppendStrings(s, "      <th align=\"center\">", 
-						              WebUtility.HtmlEncode(Columns[start].GroupHeading), "</th>\n");
+						              WebUtility.HtmlEncode(columns[start].GroupHeading), "</th>\n");
 					else
 						AppendStrings(s, "      <th align=\"center\" colspan=\"" + (end - start + 1).ToString(CultureInfo.InvariantCulture) + "\">",
-						              WebUtility.HtmlEncode(Columns[start].GroupHeading), "</th>\n");
+						              WebUtility.HtmlEncode(columns[start].GroupHeading), "</th>\n");
 
 					start = end + 1;
 				}
@@ -518,9 +569,10 @@ namespace Zoom
 				s.Append("    </tr>\n");
 			}
 
+			// Headings row
 			AppendStrings(s, "    <tr bgcolor=\"", System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor), "\">\n");
 
-			foreach (ZColumn col in Columns)
+			foreach (ZColumn col in columns)
 				if (string.IsNullOrEmpty(col.Hyper))
 					AppendStrings(s, "      <th", col.Alignment.ToHtml(), ">", WebUtility.HtmlEncode(col.Text), "</th>\n");
 				else
@@ -546,13 +598,16 @@ namespace Zoom
 			foreach (ZRow row in Rows)
 			{
 		        // Write the <tr> tag that begins the row.
-				s.Append("    <tr style=\"background-color: ");
-				s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(odd)));
-				s.Append("\">\n");
+				AppendStrings(s, "    <tr style=\"background-color: ", System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(odd)), "\"");
+
+				if (!string.IsNullOrEmpty(row.CssClass))
+					AppendStrings(s, " class=\"", row.CssClass, "\"");
+
+				s.Append(">\n");
 
 				ZCell oneBarCell = row.OneBarCell();
 
-				for (int col = 0; col < Columns.Count && col < row.Count; col++)
+				for (int col = 0; col < columns.Count && col < row.Count; col++)
 				{
 					// find colour for the cell
 					string cellColor;
@@ -564,29 +619,30 @@ namespace Zoom
 					if (Bars && /*!oneBar &&*/ row[col].Number != null && (row[col].ChartType != ChartType.None || row[col].ChartCell == row[col]))
 					{
 						// find the max value to scale the bar against
-//						if (MaxBarByColumn)
-//						  thisbar := FMaxBars[col]
-//						else if (MaxBarByRow)
-//						  thisbar := FMaxBars[j]
-//						else
-//						  thisbar := FMaxBar;
+//						thisbar = MaxBarByColumn ? FMaxBars[col] :
+//								  MaxBarByRow    ? FMaxBars[j] : FMaxBar;
 						
 						var barColor = row[col].GetBarColor(Colors.GetBackColor(odd), Colors.BarNone);
 
 						AppendStrings(s, "      <td class=\"barcontainer\"", cellColor, ">\n");
 						s.AppendFormat("        <div class=\"bar{0:X2}{1:X2}{2:X2}\" style=\"width: {3}%\" />\n", 
 						               barColor.R, barColor.G, barColor.B, (int)((double)(row[col].Number) * 100 / (double)max));
-						AppendStrings(s, "        <div", Columns[col].Alignment.ToHtml(), " class=\"bartext\">");
-				    }
+						AppendStrings(s, "        <div", columns[col].Alignment.ToHtml(), " class=\"bartext\">");
+					}
 					else
-						AppendStrings(s, "      <td", Columns[col].Alignment.ToHtml(), cellColor, ">");
+					{
+						AppendStrings(s, "      <td", columns[col].Alignment.ToHtml(), cellColor);
+						if (!string.IsNullOrEmpty(row[col].CssClass))
+							AppendStrings(s, " class=\"", row[col].CssClass, "\"");
+						s.Append(">");
+					}
 
 					if (string.IsNullOrEmpty(row[col].Hyper))
 						s.Append(WebUtility.HtmlEncode(row[col].Text));
 					else
 						AppendStrings(s, "<a href=\"", row[col].Hyper, "\">", WebUtility.HtmlEncode(row[col].Text), "</a>");
 
-					if (Bars)
+					if (Bars && /*!oneBar &&*/ row[col].Number != null && (row[col].ChartType != ChartType.None || row[col].ChartCell == row[col]))
 						s.Append("</div>");
 
 					s.Append("</td>\n");
@@ -606,12 +662,12 @@ namespace Zoom
 		}
 
 		// Write a <rect> tag, and a <text> tag on top of it.
-		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string id = null, string hyper = null, double? bar = null)
+		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, double? bar = null)
 		{
 			SvgRect(s, indent, x, y, width, height, backColor);
 			if (bar != null)
 				SvgRect(s, indent, x, y, width * (double)bar, height, barColor);
-			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text, id, hyper);
+			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text, cssClass, hyper);
 		}
 
 		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
@@ -633,15 +689,15 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string id = null, string hyper = null)
+		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string cssClass = null, string hyper = null)
 		{
 			s.Append('\t', indent);
 			if (!string.IsNullOrEmpty(hyper))
 				AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
 
 			s.Append("<text ");
-			if (!string.IsNullOrEmpty(id))  // id is so that cells can be given an ID that can e.g. be used later by JavaScript. It's not currently used.
-				AppendStrings(s, "id=\"", id, "\" ");
+			if (!string.IsNullOrEmpty(cssClass))  // cssClass is so that cells can be given a CSS class that can e.g. be used later by JavaScript.
+				AppendStrings(s, "class=\"", cssClass, "\" ");
 
 			if (!string.IsNullOrEmpty(hyper))
 				s.Append("text-decoration=\"underline\" ");
@@ -684,7 +740,7 @@ namespace Zoom
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell)
 		{
-			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, null, cell.Hyper);
+			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, cell.Hyper);
 
 //			int decimals = 0;
 //			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
@@ -719,12 +775,12 @@ namespace Zoom
 			SvgEndText(s, cell.Hyper);
 		}
 
-		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string id = null, string hyper = null)
+		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null)
 		{
 			if (string.IsNullOrEmpty(text))
 			    return;
 
-			SvgBeginText(s, indent, x, y, width, height, fontColor, alignment, id, hyper);
+			SvgBeginText(s, indent, x, y, width, height, fontColor, alignment, cssClass, hyper);
 			s.Append(WebUtility.HtmlEncode(text));
 			SvgEndText(s, hyper);
 		}
@@ -764,18 +820,19 @@ namespace Zoom
 			s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&nbsp;+&nbsp;</text>\n");
 			s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&nbsp;-&nbsp;</text>\n");
 
+			List<ZColumn> columns = Columns();
 			int rowTop = rowHeight * 2 + 2;
 			if (hasgroupheadings)
 			{
 				int start = 0;
-				while (start < Columns.Count)
+				while (start < columns.Count)
 				{
 					int end = start;
-					while (end < Columns.Count - 1 && Columns[start].GroupHeading == Columns[end + 1].GroupHeading)
+					while (end < columns.Count - 1 && columns[start].GroupHeading == columns[end + 1].GroupHeading)
 						end++;
 
 					SvgRectText(s, 1, widths.Take(start).Sum() + start + 1, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
-						        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
+						        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, columns[start].GroupHeading);  // Paint group heading.
 
 					start = end + 1;
 				}
@@ -785,14 +842,14 @@ namespace Zoom
 			}
 
 			float x = 1;
-			if (Columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
+			if (columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
 		    {
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 				var font = new Font("Arial", 11);
 
-				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
+				float widest = columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
 				double headerHeight = widest / Math.Sqrt(2) + 10;
-				for (int col = 0; col < Columns.Count; col++)
+				for (int col = 0; col < columns.Count; col++)
 				{
 					// Draw a parallelogram. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself.
 					s.AppendFormat("  <polygon points=\"{0:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:", 
@@ -804,7 +861,7 @@ namespace Zoom
 				rowTop += (int)headerHeight;
 				x = 1;
 				// Draw text inside parallelgram.
-				for (int col = 0; col < Columns.Count; col++)
+				for (int col = 0; col < columns.Count; col++)
 				{
 					//if (string.IsNullOrEmpty(hyper))
 						s.Append("  ");
@@ -821,7 +878,7 @@ namespace Zoom
 					s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
 					s.Append("\">");
 	
-					s.Append(WebUtility.HtmlEncode(Columns[col].Text));
+					s.Append(WebUtility.HtmlEncode(columns[col].Text));
 					s.Append("</text>");
 	
 					//if (!string.IsNullOrEmpty(hyper))
@@ -833,9 +890,9 @@ namespace Zoom
 		    }
 			else  // No Rotate. Write out (column.Heading)s in the boring way.
 			{
-				for (int col = 0; col < Columns.Count; col++)
+				for (int col = 0; col < columns.Count; col++)
 				{
-					ZColumn column = Columns[col];
+					ZColumn column = Column(col);
 					SvgRectText(s, 1, x, rowTop, widths[col], rowHeight,
 					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, column.Alignment, column.Text, null, column.Hyper);  // Paint column heading.
 					x += widths[col] + 1;
@@ -917,7 +974,7 @@ namespace Zoom
 				int bins = (int)Math.Ceiling(2 * Math.Pow(count, 1.0/3));  // number of bars our histogram will have, from Rice's Rule.
 				double binWidth = Math.Round(width / bins + 0.05, 1);  // in "pixels"
 				bins = (int)Math.Round(width / binWidth);
-				if (Columns[column].Alignment == ZAlignment.Integer)
+				if (Column(column).Alignment == ZAlignment.Integer)
 				{
 					bins = Math.Min(bins, (int)(chartMax - chartMin + 1));
 					bins = (int)((chartMax - chartMin + 1) / Math.Round((chartMax - chartMin + 1) / bins));
@@ -1011,10 +1068,10 @@ namespace Zoom
 
 			// Paint any chart cells for this row.
 			int start = 0;
-			while (start < Math.Min(Columns.Count, row.Count))
+			while (start < Math.Min(BaseColumns.Count, row.Count))
 			{
 				int end = start;
-				while (end < Math.Min(Columns.Count, row.Count) - 1 && row[start].ChartCell != null && row[start].ChartCell == row[end + 1].ChartCell)
+				while (end < Math.Min(BaseColumns.Count, row.Count) - 1 && row[start].ChartCell != null && row[start].ChartCell == row[end + 1].ChartCell)
 					end++;
 
 				if (start == end && row[start].ChartType != ChartType.None && row[start].ChartCell == null)  // This is a one-column wide bar.
@@ -1032,9 +1089,9 @@ namespace Zoom
 			s.Append('\n');
 
 			float x = 1;
-			for (int col = 0; col < Columns.Count && col < row.Count; col++)
+			for (int col = 0; col < BaseColumns.Count && col < row.Count; col++)
 			{
-				SvgText(s, 1, (int)x, top, (int)widths[col], height, Columns[col], row[col]);  // Write a data cell.
+				SvgText(s, 1, (int)x, top, (int)widths[col], height, Column(col), row[col]);  // Write a data cell.
 
 				x += widths[col] + 1;
 			}
@@ -1044,8 +1101,9 @@ namespace Zoom
 		// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
 		public override string ToSvg(int table)
 		{
+			List<ZColumn> columns = Columns();
 			bool hasgroupheadings = false;
-			foreach (ZColumn col in Columns)
+			foreach (ZColumn col in columns)
 				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
 
 			var widths = new List<float>();  // Width of each column in pixels. "float", because MeasureString().Width returns a float.
@@ -1058,12 +1116,12 @@ namespace Zoom
 			int rowHeight = 15;  // This is enough to fit 11-point text.
 			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (rowHeight + 1);
 
-			if (Columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so add to height to allow room for those 45 degree headers.
+			if (columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so add to height to allow room for those 45 degree headers.
 			{
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 				var font = new Font("Arial", 11);
 
-				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
+				float widest = columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
 				height += (int)(widest / Math.Sqrt(2) + 10 - rowHeight);
 			}
 

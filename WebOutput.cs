@@ -136,33 +136,34 @@ namespace Torn.Report
 			return reports.ToSvg();
 		}
 
-		static string FixturePage(Fixture fixture, League league, string teamId = null)
-		{
-			string s = teamId;
-			if (s != null && s.StartsWith("fixture", StringComparison.OrdinalIgnoreCase))
-				s = s.Remove(0, 7);
-			if (s != null && s.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
-				s = s.Remove(s.Length - 5, 5);
-
-			int id;
-			if (int.TryParse(s, out id))
-			{
-				if (fixture.Teams.Exists(ft => ft.Id() == id))
-					return FixturePage(fixture, league, fixture.Teams.Find(ft => ft.Id() == id));
-				else
-					return FixturePage(fixture, league, (FixtureTeam)null);
-			}
-			else
-				return FixturePage(fixture, league, (FixtureTeam)null);
-		}
-
-		static string FixturePage(Fixture fixture, League league, FixtureTeam team)
+		static string FixturePage(Fixture fixture, League league)
 		{
 			ZoomReports reports = new ZoomReports();
-			//if (teamId == -1) reports.Add(Reports.FixtureGrid(fixture, league));
-			reports.Add(Reports.FixtureList(fixture, league, team));
-			reports.Add(Reports.FixtureGrid(fixture, league, team));
-			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a> <a href=\"fixture.html\">Fixture</a><div>"));
+			reports.Add(Reports.FixtureList(fixture, league));
+			reports.Add(Reports.FixtureGrid(fixture, league));
+			reports.Add(new ZoomHtmlInclusion(@"
+</div><br/><a href=""index.html"">Index</a> <a href=""fixture.html"">Fixture</a>
+
+<script>
+  var url = new URL(window.location.href);
+  var team = url.searchParams.get('team');
+
+  if (team != '') {
+    var tables = document.querySelectorAll('.fixturelist');
+      for (const table of tables)
+        for (const tbody of table.querySelectorAll('tbody'))
+          for (const tr of tbody.querySelectorAll('tr:not(.t' + team + ')'))
+            tr.style = 'display:none';
+
+    var tables = document.querySelectorAll('.fixturegrid');
+      for (const table of tables)
+        for (const tr of table.querySelectorAll('tr'))
+          for (const td of tr.querySelectorAll('td.t' + team))
+            if (td.innerHTML == '')
+              td.style.backgroundColor = 'gainsboro';
+  }
+</script>
+"));
 			return reports.ToHtml();
 		}
 
@@ -253,7 +254,7 @@ namespace Torn.Report
 				}
 				else if (lastPart.StartsWith("fixture", StringComparison.OrdinalIgnoreCase))
 				{
-					return FixturePage(holder.Fixture, holder.League, lastPart);
+					return FixturePage(holder.Fixture, holder.League);
 				}
 				else if (lastPart == "now.html")
 					return NowPage();
@@ -398,10 +399,6 @@ namespace Torn.Report
 
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture.html")))
 					sw.Write(FixturePage(holder.Fixture, holder.League));
-
-				foreach (var ft in holder.Fixture.Teams)
-					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "fixture" + ft.Id().ToString("D2", CultureInfo.InvariantCulture) + ".html")))
-						sw.Write(FixturePage(holder.Fixture, holder.League, ft));
 			}
 		}
 
