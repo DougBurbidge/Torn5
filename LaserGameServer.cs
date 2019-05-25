@@ -21,6 +21,8 @@ namespace Torn
 		public virtual TimeSpan GameTimeElapsed() { return TimeSpan.MinValue; }
 
 		public abstract List<ServerGame> GetGames();
+		
+		public virtual void GetMoreGames(List<ServerGame> games) {}
 
 		public abstract void PopulateGame(ServerGame game);
 

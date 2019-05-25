@@ -45,7 +45,7 @@ namespace Torn.UI
 			this.radioLaserforce = new System.Windows.Forms.RadioButton();
 			this.label1 = new System.Windows.Forms.Label();
 			this.radioZeon = new System.Windows.Forms.RadioButton();
-			this.radioAcacia = new System.Windows.Forms.RadioButton();
+			this.radioNexus = new System.Windows.Forms.RadioButton();
 			this.tabPageConfiguration = new System.Windows.Forms.TabPage();
 			this.panel4 = new System.Windows.Forms.Panel();
 			this.checkBoxAutoUpdateTeams = new System.Windows.Forms.CheckBox();
@@ -215,7 +215,7 @@ namespace Torn.UI
 			this.panelSystemType.Controls.Add(this.radioLaserforce);
 			this.panelSystemType.Controls.Add(this.label1);
 			this.panelSystemType.Controls.Add(this.radioZeon);
-			this.panelSystemType.Controls.Add(this.radioAcacia);
+			this.panelSystemType.Controls.Add(this.radioNexus);
 			this.panelSystemType.Location = new System.Drawing.Point(8, 6);
 			this.panelSystemType.Name = "panelSystemType";
 			this.panelSystemType.Size = new System.Drawing.Size(340, 115);
@@ -264,16 +264,16 @@ namespace Torn.UI
 			this.radioZeon.Text = "Nexus with ZEON";
 			this.radioZeon.UseVisualStyleBackColor = true;
 			// 
-			// radioAcacia
+			// radioNexus
 			// 
-			this.radioAcacia.AutoSize = true;
-			this.radioAcacia.Location = new System.Drawing.Point(3, 16);
-			this.radioAcacia.Name = "radioAcacia";
-			this.radioAcacia.Size = new System.Drawing.Size(106, 17);
-			this.radioAcacia.TabIndex = 0;
-			this.radioAcacia.TabStop = true;
-			this.radioAcacia.Text = "Acacia / Infusion";
-			this.radioAcacia.UseVisualStyleBackColor = true;
+			this.radioNexus.AutoSize = true;
+			this.radioNexus.Location = new System.Drawing.Point(3, 16);
+			this.radioNexus.Name = "radioNexus";
+			this.radioNexus.Size = new System.Drawing.Size(113, 17);
+			this.radioNexus.TabIndex = 0;
+			this.radioNexus.TabStop = true;
+			this.radioNexus.Text = "Nexus with iButton";
+			this.radioNexus.UseVisualStyleBackColor = true;
 			// 
 			// tabPageConfiguration
 			// 
@@ -671,7 +671,7 @@ namespace Torn.UI
 		private System.Windows.Forms.CheckBox checkBoxAutoUpdateScoreboard;
 		private System.Windows.Forms.Panel panel4;
 		private System.Windows.Forms.TabPage tabPageConfiguration;
-		private System.Windows.Forms.RadioButton radioAcacia;
+		private System.Windows.Forms.RadioButton radioNexus;
 		private System.Windows.Forms.RadioButton radioZeon;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.RadioButton radioLaserforce;

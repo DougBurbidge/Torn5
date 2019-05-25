@@ -159,7 +159,8 @@ namespace Torn.UI
 						else
 							((Laserforce)laserGameServer).Connect(serverAddress, sqlUserId, sqlPassword);
 					break;
-					case SystemType.Acacia: case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
+					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress); break;
+					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
 				}
 
@@ -333,7 +334,7 @@ namespace Torn.UI
 				var teamBoxes = TeamBoxes();
 
 				foreach (TeamBox teamBox in teamBoxes)
-					if (teamBox.Players().Count > 0)
+					if (teamBox.Players().Any())
 					{
 						var teamData = new GameTeamData();
 						teamData.GameTeam = teamBox.GameTeam;
@@ -341,7 +342,7 @@ namespace Torn.UI
 						teamDatas.Add(teamData);
 					}
 
-				if (teamDatas.Count > 0)
+				if (teamDatas.Any())
 				{
 					activeHolder.League.CommitGame(serverGame, teamDatas, groupPlayersBy);
 
@@ -352,7 +353,7 @@ namespace Torn.UI
 							teamBox.GameTeam = teamData.GameTeam;
 
 //						if (autoUpdateTeams &&
-//						    activeHolder.League.LeagueTeam(teamBox.GameTeam) != null && teamBox.Players().Count > 0)
+//						    activeHolder.League.LeagueTeam(teamBox.GameTeam) != null && teamBox.Players().Any())
 //							activeHolder.League.LeagueTeam(teamBox.GameTeam).Handicap = teamBox.Handicap;
 
 						if (autoUpdateTeams)
@@ -365,7 +366,7 @@ namespace Torn.UI
 							{
 								var p = teamBox.Players();
 
-								if (p.Count > 0)
+								if (p.Any())
 							    {
 							    	var h = teamBox.Handicap;
 							    	
@@ -759,14 +760,14 @@ namespace Torn.UI
 					foreach (var colour in (Colour[])Enum.GetValues(typeof(Colour)))
 					{
 						var serverPlayers = playersBox.Players().FindAll(p => p.Colour == colour).ToList();
-						if (serverPlayers.Count > 0 && box < teamBoxes.Count)
+						if (serverPlayers.Any() && box < teamBoxes.Count)
 							teamBoxes[box++].Accept(serverPlayers);
 					}
 				else  // Alias or LotR
 					foreach (var team in league.Teams)
 					{
 						var serverPlayers = playersBox.Players().FindAll(p => team.Players.Exists(p2 => p.PlayerId == p2.Id)).ToList();
-						if (serverPlayers.Count > 0 && box < teamBoxes.Count)
+						if (serverPlayers.Any() && box < teamBoxes.Count)
 							teamBoxes[box++].Accept(serverPlayers);
 					}
 			}
@@ -776,7 +777,7 @@ namespace Torn.UI
 				foreach (var gameTeam in leagueGame.Teams)
 				{
 					var serverPlayers = playersBox.Players().FindAll(sp => gameTeam.Players.Exists(gp => sp.PlayerId == gp.PlayerId)).ToList();
-					if (serverPlayers.Count > 0 && box < teamBoxes.Count)
+					if (serverPlayers.Any() && box < teamBoxes.Count)
 						teamBoxes[box++].Accept(serverPlayers);
 				}
 			}
@@ -970,7 +971,7 @@ namespace Torn.UI
 
 			var serverGames = laserGameServer.GetGames();
 
-			if (serverGames.Count > 0)
+			if (serverGames.Any())
 			{
 				laserGameServer.PopulateGame(serverGames.Last());
 				serverGames.Last().InProgress = timeElapsed > TimeSpan.Zero;
@@ -987,7 +988,7 @@ namespace Torn.UI
 			var oldGames = serverGames;
 			serverGames = laserGameServer == null ? new List<ServerGame>() : laserGameServer.GetGames();
 
-			if (serverGames.Count > 0)
+			if (serverGames.Any())
 				serverGames.Last().InProgress = timeElapsed > TimeSpan.Zero;
 
 			Cursor.Current = Cursors.WaitCursor;
@@ -1083,7 +1084,7 @@ namespace Torn.UI
 			serverGame.League = league;
 			serverGame.Game = leagueGame;
 			leagueGame.ServerGame = serverGame;
-			if (oldGame != null && !oldGame.InProgress && oldGame.Events.Count > 0) {
+			if (oldGame != null && !oldGame.InProgress && oldGame.Events.Any()) {
 				serverGame.Events = oldGame.Events;
 				serverGame.Players.AddRange(oldGame.Players.Where(p => !serverGame.Players.Exists(p2 => p2.PandCPlayerId == p.PandCPlayerId)));
 			}
@@ -1239,7 +1240,7 @@ namespace Torn.UI
 				doc.AppendNode(holderNode, "key", holder.Key);
 				doc.AppendNode(holderNode, "filename", holder.FileName);
 
-				if (holder.ReportTemplates.Count > 0 || holder.Fixture.Games.Count() > 0)
+				if (holder.ReportTemplates.Any() || holder.Fixture.Games.Count() > 0)
 					holder.ReportTemplates.ToXml(doc, holderNode);
 
 				if (holder.Fixture.Games.Count() > 0)

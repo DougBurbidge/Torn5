@@ -148,7 +148,7 @@ namespace Torn.Report
   var url = new URL(window.location.href);
   var team = url.searchParams.get('team');
 
-  if (team != '') {
+  if (team) {
     var tables = document.querySelectorAll('.fixturelist');
       for (const table of tables)
         for (const tbody of table.querySelectorAll('tbody'))
@@ -326,7 +326,7 @@ namespace Torn.Report
 					{
 						reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
 						reports.Add(Reports.OneGame(league, game));
-						if (game.ServerGame != null && game.ServerGame.Events.Count > 0 && !game.ServerGame.InProgress)
+						if (game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress)
 						{
 							reports.Add(Reports.GameHeatMap(league, game));
 							string fileName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";

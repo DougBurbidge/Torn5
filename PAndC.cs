@@ -15,8 +15,10 @@ namespace Torn
 	public class PAndC: LaserGameServer
 	{
 		MySqlConnection connection;
-		int heliosType;  // This is the database schema version.
-		string _server;
+		protected int heliosType;  // This is the database schema version.
+		protected string _server;
+
+		protected PAndC() {}
 
 		public PAndC(string server)
 		{
@@ -85,9 +87,33 @@ namespace Torn
 				return games;
 
 			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
-                         "FROM ng_game_stats S " +
-                         "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
-                         "ORDER BY Start_Time";
+			             "FROM ng_game_stats S " +
+			             "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
+			             "ORDER BY Start_Time";
+			FillGames(sql, games);
+
+			return games;
+		}
+
+		public override void GetMoreGames(List<ServerGame> games)
+		{
+			if (!EnsureConnected())
+				return;
+
+			string where = games.Count == 0 ? "" : "WHERE S.Start_Time > \"" + games.Last().EndTime.ToString("YYYY-MM-DD HH:mm:ss") + "\"";
+			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
+			             "FROM ng_game_stats S " +
+			             "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
+			             where +
+			             " ORDER BY Start_Time";
+			FillGames(sql, games);
+		}
+		
+		void FillGames(string sql, List<ServerGame> games)
+		{
+			if (!EnsureConnected())
+				return;
+
 			MySqlCommand cmd = new MySqlCommand(sql, connection);
 			using (var reader = cmd.ExecuteReader())
 			{
@@ -103,8 +129,17 @@ namespace Torn
 					games.Add(game);
 				}
 			}
+		}
 
-			return games;
+		protected virtual string GameDetailSql(int gameId)
+		{
+			return "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
+			    "FROM ng_player_event_log EL " +
+			    "LEFT JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
+			    "LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
+			    "WHERE EL.Game_ID = " + gameId.ToString() +
+			    " GROUP BY Player_ID " +
+			    "ORDER BY Score DESC";
 		}
 
 		public override void PopulateGame(ServerGame game)
@@ -151,14 +186,7 @@ namespace Torn
 
 			game.Players.Clear();
 
-			sql = "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
-                "FROM ng_player_event_log EL " +
-                "LEFT JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
-                "LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
-				"WHERE EL.Game_ID = " + game.GameId.ToString() +
-                " GROUP BY Player_ID " +
-                "ORDER BY Score DESC";
-			cmd = new MySqlCommand(sql, connection);
+			cmd = new MySqlCommand(GameDetailSql(game.GameId), connection);
 			using (var reader = cmd.ExecuteReader())
 			{
 				while (reader.Read())
@@ -194,16 +222,10 @@ namespace Torn
 			}
 		}
 
-		public override DbDataReader GetPlayers(string mask)
+		protected virtual string PlayersSql()
 		{
-			if (!EnsureConnected())
-				return null;
-
-//			Acacia: "SELECT Player_Alias AS Alias, First_Name + ' ' + Last_Name AS Name, User_ID FROM MEMBERS WHERE User_ID <> ''"
-//			Nexus: "SELECT Alias AS Alias, '' AS Name, Button_ID AS User_ID FROM members"
-
+			return heliosType < 47 ? 
 			// Less than 47 is the old schema, with QRCode in demographics.customer table.
-			string sql = heliosType < 47 ? 
 				"SELECT M.Alias AS Alias, C.First_Name + ' ' + C.Last_Name AS Name, C.QRCode AS User_ID " +
 				"FROM members M " +
 				"LEFT JOIN demographics.customers C on C.Customer_ID = M.member_ID " +
@@ -213,8 +235,14 @@ namespace Torn
 				"SELECT Alias AS Alias, '' AS Name, QRCode AS User_ID " +
 				"FROM members M " +
 				"WHERE SUBSTRING(M.QRCode, 1, 5) <> '00005' AND Alias LIKE @mask ORDER BY Alias";
+		}
 
-			using (var cmd = new MySqlCommand(sql, connection))
+		public override DbDataReader GetPlayers(string mask)
+		{
+			if (!EnsureConnected())
+				return null;
+
+			using (var cmd = new MySqlCommand(PlayersSql(), connection))
 			{
 				cmd.Parameters.AddWithValue("@mask", "%" + mask + "%");
 			    return cmd.ExecuteReader();
@@ -226,14 +254,21 @@ namespace Torn
 			return heliosType < 47;
 		}
 
-		void Connect()
+		protected void Connect()
 		{
 			if (connection != null)
 				connection.Close();
 
 			connection = new MySqlConnection("server=" + _server + ";user=root;database=ng_system;port=3306;password=password;Convert Zero Datetime=True");
-			connection.Open();
-			connected = true;			
+			try
+			{
+				connection.Open();
+				connected = true;
+			}
+			catch
+			{
+				connected = false;
+			}
 		}
 		
 		bool EnsureConnected()
@@ -263,6 +298,41 @@ namespace Torn
 		{
 			int i = reader.GetOrdinal(column);
 			return reader.IsDBNull(i) ? null : reader.GetString(i);
+		}
+	}
+
+	public class PAndCNexusWithIButton: PAndC
+	{
+		public PAndCNexusWithIButton(string server)
+		{
+			try
+			{
+				_server = server;
+				Connect();
+				heliosType = -1;
+			}
+			catch
+			{
+				connected = false;
+				throw;
+			}
+		}
+
+		override protected string GameDetailSql(int gameId)
+		{
+			return "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, Button_ID, Alias " +
+				"FROM ng_player_event_log EL " +
+				"JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
+				"LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
+				"WHERE EL.Game_ID = " + gameId.ToString() +
+				" GROUP BY Player_ID " +
+				"ORDER BY Score DESC";
+		}
+
+		override protected string PlayersSql()
+		{
+			return "SELECT Alias AS Alias, '' AS Name, Button_ID AS User_ID FROM members " +
+				"WHERE Alias LIKE @mask ORDER BY Alias";
 		}
 	}
 }
