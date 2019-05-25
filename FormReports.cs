@@ -32,7 +32,7 @@ namespace Torn.UI
 		public FormReports(Holder holder): this()
 		{
 			Holder = holder;
-			if (Holder.League.AllGames.Count > 0)
+			if (Holder.League.AllGames.Any())
 			{
 				formReport.From = Holder.League.AllGames.First().Time.Date;
 				formReport.To = Holder.League.AllGames.Last().Time.Date;

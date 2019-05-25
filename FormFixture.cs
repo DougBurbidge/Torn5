@@ -99,7 +99,7 @@ namespace Torn.UI
 
 				textBoxTeams.Text = Fixture.Teams.ToString();
 
-				if (Fixture.Games.Count > 0)
+				if (Fixture.Games.Any())
 				{
 					textBoxGames.Text = Fixture.Games.ToString();
 					textBoxGrid.Lines = Fixture.Games.ToGrid(Fixture.Teams);

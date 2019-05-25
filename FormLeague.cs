@@ -43,7 +43,7 @@ namespace Torn.UI
 			}
 
 			totalScore.Checked = League.VictoryPoints.Count == 0;
-			victoryPoints.Checked = League.VictoryPoints.Count > 0;
+			victoryPoints.Checked = League.VictoryPoints.Any();
 
 			for (int i = 0; i < League.VictoryPoints.Count; i++)
 				SetVictoryBox(i, League.VictoryPoints[i]);
@@ -240,7 +240,7 @@ namespace Torn.UI
 			else
 				Force(int.Parse((string)c.Tag), (double)c.Value);
 			
-			if (victory.Count > 0 && victory.Last().Value > 0)
+			if (victory.Any() && victory.Last().Value > 0)
 				SetVictoryBox(victory.Count);
 		}
 
@@ -251,7 +251,7 @@ namespace Torn.UI
 
 			League.VictoryPoints[index] = value;
 
-			while (League.VictoryPoints.Count > 0 && League.VictoryPoints.Last() == 0)
+			while (League.VictoryPoints.Any() && League.VictoryPoints.Last() == 0)
 				League.VictoryPoints.RemoveAt(League.VictoryPoints.Count - 1);
 		}
 	}

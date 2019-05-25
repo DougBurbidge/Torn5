@@ -750,7 +750,7 @@ namespace Torn
 			double bestScore = 0;
 
 			foreach (LeagueTeam team in teams)
-				if (team.Players.Count > 0)
+				if (team.Players.Any())
 				{
 					double thisScore = 1.0 * team.Players.FindAll(p => ids.Contains(p.Id)).Count / team.Players.Count;
 
