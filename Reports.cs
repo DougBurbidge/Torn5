@@ -228,7 +228,7 @@ namespace Torn.Report
 			bool less = false;  // Are there teams with less than the mode number of games?
 			int mode = 0;
 
-			if (rt.Settings.Contains("ScaleGames") && countList.Count > 0 && countList.Min() != countList.Max())  // Find the mode, and add scaled columns.
+			if (rt.Settings.Contains("ScaleGames") && countList.Any() && countList.Min() != countList.Max())  // Find the mode, and add scaled columns.
 			{
 				// Calculate mode, the number of games _most_ teams have played.
 				var groups = countList.GroupBy(x => x);
@@ -238,7 +238,7 @@ namespace Torn.Report
 				if (league.IsPoints())
 					report.AddColumn(new ZColumn("Scaled points", ZAlignment.Right));
 
-				int gamesColumn = report.Columns().FindIndex(x => x.Text == "Games");
+				int gamesColumn = report.Columns.FindIndex(x => x.Text == "Games");
 
 				foreach (ZRow row in report.Rows)
 				{
@@ -262,8 +262,8 @@ namespace Torn.Report
 //				report.OnCalcBar = TeamLadderScaledCalcBar;
 			}  // if ScaleGames
 
-			int scoreColumn = report.Columns().FindIndex(x => x.Text.Contains("core"));
-			int pointsColumn = report.Columns().FindIndex(x => x.Text == "Points");
+			int scoreColumn = report.Columns.FindIndex(x => x.Text.Contains("core"));
+			int pointsColumn = report.Columns.FindIndex(x => x.Text == "Points");
 
 			report.Rows.Sort(delegate(ZRow x, ZRow y)
 			                 {
@@ -471,7 +471,7 @@ namespace Torn.Report
 						row.Add(new ZCell(""));
 				}  // foreach gameTeam
 
-				if (league.VictoryPointsHighScore != 0 && game.Players.Count > 0 && league.LeaguePlayer(game.Players[0]) != null)  // there is a highscore entry at the end of each row
+				if (league.VictoryPointsHighScore != 0 && game.Players.Any() && league.LeaguePlayer(game.Players[0]) != null)  // there is a highscore entry at the end of each row
 				{
 					for (int i = game.Teams.Count; i < mostTeams; i++)
 					{
@@ -495,7 +495,7 @@ namespace Torn.Report
 			    thisgame++;
 			}  // while date/time <= Too
 
-	 		if (games.Count > 0 && games.First().Time.Date == games.Last().Time.Date)
+	 		if (games.Any() && games.First().Time.Date == games.Last().Time.Date)
 			    report.Rows.RemoveAt(0);  // The first entry in rows is a date line; since there's only one date for the whole report, we can delete it.
 	 		report.Title = (string.IsNullOrEmpty(rt.Title) ? league.Title + " Games " : rt.Title) + FromTo(games, rt.From, rt.To);
 			
@@ -558,7 +558,7 @@ namespace Torn.Report
 			}
 			
 			int columns = report.Rows.Max(r => r.Count());
-			for (; report.BaseColumns.Count < columns; )
+			for (; report.Columns.Count < columns; )
 				report.AddColumn(new ZColumn("Game"));
 
 			if (rt.Settings.Contains("Description"))
@@ -600,7 +600,7 @@ namespace Torn.Report
 				}
 	 		}
 
-			int averageCol = report.BaseColumns.Count();
+			int averageCol = report.Columns.Count();
 			int pointsCol = averageCol + 1;
 	 		if (rt.ReportType == ReportType.GameGrid)
 	 		{
@@ -608,7 +608,7 @@ namespace Torn.Report
 				if (league.IsPoints(games))
 				{
 					report.AddColumn(new ZColumn("Pts"));
-					pointsCol = report.BaseColumns.Count() - 1;
+					pointsCol = report.Columns.Count() - 1;
 				}
 
 				if (rt.Drops != null && (rt.Drops.DropWorst(100) > 0 || rt.Drops.DropBest(100) > 0))
@@ -646,7 +646,7 @@ namespace Torn.Report
 	 				}
 				}  // foreach gameTeam
 
-				if (scoresList.Count > 0)
+				if (scoresList.Any())
 				{
 					if (rt.ReportType == ReportType.GameGridCondensed)
 						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList);
@@ -703,7 +703,7 @@ namespace Torn.Report
 					report.AddColumn(column);
 		 		}
 
-			int averageCol = report.BaseColumns.Count();
+			int averageCol = report.Columns.Count();
 			int pointsCol = averageCol + 1;
 	 		if (rt.ReportType == ReportType.GameGridCondensed)
 	 		{
@@ -711,7 +711,7 @@ namespace Torn.Report
 				if (league.IsPoints())
 				{
 					report.AddColumn(new ZColumn("Pts"));
-					pointsCol = report.BaseColumns.Count() - 1;
+					pointsCol = report.Columns.Count() - 1;
 				}
 
 				if (rt.Drops != null && (rt.Drops.DropWorst(100) > 0 || rt.Drops.DropBest(100) > 0))
@@ -732,7 +732,7 @@ namespace Torn.Report
 				int col = 2;
 				while (col < averageCol)
 				{
-					string gameTitle = report.Column(col).GroupHeading;
+					string gameTitle = report.Columns[col].GroupHeading;
 					// Add a cell for each game for this team.
 					foreach (Game game in games.Where(x => x.Title == gameTitle))
 		 			{
@@ -750,7 +750,7 @@ namespace Torn.Report
 					}  // foreach game in title
 
 					// Fill in blanks to the end of this title.
-					while (col < report.BaseColumns.Count && report.Column(col).GroupHeading == gameTitle)
+					while (col < report.Columns.Count && report.Columns[col].GroupHeading == gameTitle)
 					{
 	 					row.Add(new ZCell(""));
 	 					row.Add(new ZCell(""));
@@ -759,7 +759,7 @@ namespace Torn.Report
 					}
 				}
 
-				if (scoresList.Count > 0)
+				if (scoresList.Any())
 				{
 					if (rt.ReportType == ReportType.GameGridCondensed)
 						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList);
@@ -904,7 +904,7 @@ namespace Torn.Report
 
 		public static void FillAverages(ZoomReport report, ZRow averageRow)
 		{
-			for (int col = averageRow.Count; col < report.BaseColumns.Count; col++)
+			for (int col = averageRow.Count; col < report.Columns.Count; col++)
 			{
 				double total = 0.0;
 				int count = 0;
@@ -946,28 +946,29 @@ namespace Torn.Report
 			{
 				var teamTotal = new GamePlayer();
 
+				ZRow playerRow = null;
 				foreach (GamePlayer gamePlayer in gameTeam.Players)
 				{
 					// Add a row for each player on the team.
-					ZRow row = new ZRow();
+					playerRow = new ZRow();
 
 					Color color = (gamePlayer.Colour == Colour.None ? gameTeam.Colour : gamePlayer.Colour).ToColor();
-					row.Add(new ZCell(game.Rank(gamePlayer.PlayerId), ChartType.None, "N0", color));  // Rank
+					playerRow.Add(new ZCell(game.Rank(gamePlayer.PlayerId), ChartType.None, "N0", color));  // Rank
 
 					if (league.LeaguePlayer(gamePlayer) == null)
-						row.Add(new ZCell("Player " + gamePlayer.PlayerId, color));
+						playerRow.Add(new ZCell("Player " + gamePlayer.PlayerId, color));
 					else						
 					{
 						var leaguePlayer = league.LeaguePlayer(gamePlayer);
-						row.AddCell(new ZCell(leaguePlayer.Name, color)).Hyper = "players.html#player" + leaguePlayer.Id;
+						playerRow.AddCell(new ZCell(leaguePlayer.Name, color)).Hyper = "players.html#player" + leaguePlayer.Id;
 					}
 
-					FillDetails(row, gamePlayer, color, (double)game.TotalScore() / game.Players.Count);
+					FillDetails(playerRow, gamePlayer, color, (double)game.TotalScore() / game.Players.Count);
 
 					teamTotal.Add(gamePlayer);
 					gameTotal.Add(gamePlayer);
 
-					report.Rows.Add(row);
+					report.Rows.Add(playerRow);
 				}
 
 				if (gameTeam.Adjustment != 0)
@@ -986,7 +987,7 @@ namespace Torn.Report
 				}
 
 				// Add a row for the team.
-				if (!solo || gameTeam.Players.Count > 1 || gameTeam.Adjustment != 0 || (gameTeam.Players.Count > 0 && gameTeam.Players[0].Score != gameTeam.Score))
+				if (!solo || gameTeam.Players.Count > 1 || gameTeam.Adjustment != 0 || (gameTeam.Players.Any() && gameTeam.Players[0].Score != gameTeam.Score))
 				{
 					ZRow teamRow = new ZRow();
 					Color teamColor = gameTeam.Colour.ToColor();
@@ -1007,6 +1008,13 @@ namespace Torn.Report
 					FillDetails(teamRow, teamTotal, teamColor, (double)game.TotalScore() / game.Players.Count * gameTeam.Players.Count);
 
 					report.Rows.Add(teamRow);
+				}
+				else
+				{
+					string teamName = league.LeagueTeam(gameTeam).Name;
+					if (playerRow[1].Text != teamName)
+						playerRow[1].Text = teamName + "(" + playerRow[1].Text + ")";
+					playerRow[1].Hyper = "team" + (gameTeam.TeamId ?? -1).ToString("D2", CultureInfo.InvariantCulture) + ".html";
 				}
 			}
 
@@ -1270,7 +1278,7 @@ namespace Torn.Report
 			if (teams.Count == 1)
 				report.TitleHyper = "team" + teams[0].TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
 			else
-				report.BaseColumns.Insert(1, new ZColumn("Team"));
+				report.Columns.Insert(1, new ZColumn("Team"));
 
 			report.MaxChartByColumn = true;
 
@@ -1445,7 +1453,9 @@ namespace Torn.Report
 						var thisDestroyed = game.ServerGame.Events.Count(e => e.Event_Type == 31 && e.HitTeam == (int)gameTeam.Colour - 1);
 						var basesThisTeam = gameTeam.Players.Sum(p => p.BaseDestroys);
 						basesConceded = new ZCell(thisDestroyed, ChartType.Bar, "N0");
-						if (thisDestroyed == 0)
+						if (basesThisTeam == 0 && thisDestroyed == 0)
+							baseRatio = new ZCell((string)null);
+						else if (thisDestroyed == 0)
 							baseRatio = new ZCell("\u221E");  // infinity
 						else
 							baseRatio = new ZCell(1.0 * basesThisTeam / thisDestroyed, ChartType.Bar, "P0");
@@ -1467,7 +1477,7 @@ namespace Torn.Report
 			if (description)
 				report.Description = "This report shows the team " + team.Name +" and its players.  Each row is one game.";
 
-			report.RemoveColumn(report.BaseColumns.IndexOf(report.Columns().Find(c => c.Text == "Score again")));
+			report.RemoveColumn(report.Columns.IndexOf(report.Columns.Find(c => c.Text == "Score again")));
 			report.RemoveZeroColumns();
 			return report;
 		}  // OneTeam
@@ -1573,7 +1583,7 @@ namespace Torn.Report
 				foreach (var league in leagues)
 				{
 					var player = league.Players.Find(p => p.Id == solo);
-					if (player != null && player.Played.Count > 0)
+					if (player != null && player.Played.Any())
 					{
 						hitsBy += player.Played.Sum(x => x.HitsBy);
 						hitsOn += player.Played.Sum(x => x.HitsOn);
@@ -1747,7 +1757,7 @@ namespace Torn.Report
 			
 			averages.Add(new ZCell("", Color.Gray));
 			averages.Add(new ZCell("Averages", Color.Gray));
-			if (report.Rows.Count > 0)
+			if (report.Rows.Any())
 				for (int i = 2; i < report.Rows[0].Count; i++)
 					if (i == 2 || i == 5 || i == 6 || i == 9 || i == 12)
 						averages.Add(new ZCell(report.Rows.Average(row => row[i].Number), 
@@ -2043,15 +2053,15 @@ namespace Torn.Report
 									);
 					}
 
-					report.RemoveColumn(report.BaseColumns.Count - 1);  // Last game index
-					report.RemoveColumn(report.BaseColumns.Count - 1);  // Average
+					report.RemoveColumn(report.Columns.Count - 1);  // Last game index
+					report.RemoveColumn(report.Columns.Count - 1);  // Average
 					if (league.IsPoints(games))
-						report.RemoveColumn(report.BaseColumns.Count - 1);  // Pts
+						report.RemoveColumn(report.Columns.Count - 1);  // Pts
 					break;
 				
 				case ReportType.Pyramid: case ReportType.PyramidCondensed:
 					PyramidComparer pc = new PyramidComparer();
-					pc.Columns = report.Columns();
+					pc.Columns = report.Columns;
 					pc.Reversed = reversed;
 					pc.IsPoints = league.IsPoints(games) || rt.ReportType == ReportType.PyramidCondensed;
 					pc.Setup(report);

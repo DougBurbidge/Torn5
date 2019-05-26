@@ -36,21 +36,20 @@ namespace Zoom
 		string Hyper { get; set; }
 	}
 
-	public abstract class ZBaseColumn {}
-
 	/// This is just the header row(s) and metadata for a column -- does not include the actual cells.
-	public class ZColumn: ZBaseColumn, IBlock
+	public class ZColumn: IBlock
 	{
 		public string Text { get; set; }
 		public string Hyper { get; set; }
-
 		/// <summary>Optional. Appears *above* heading text.</summary>
-	    public string GroupHeading { get; set; }
+		public string GroupHeading { get; set; }
 		/// <summary>left, right or center</summary>
-	    public ZAlignment Alignment { get; set; }
+		public ZAlignment Alignment { get; set; }
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
 		public bool Rotate;
-	    
+
+		protected ZColumn() {}
+
 		public ZColumn(string text)
 		{
 			Text = text;
@@ -72,6 +71,43 @@ namespace Zoom
 		public override string ToString()
 		{
 			return Text;
+		}
+	}
+
+	/// <summary>Start or end of a ribbon. A ribbon can have multiple starts and multiple ends.</summary>
+	public class ZRibbonEnd: IComparable
+	{
+		public int Row { get; set; }
+		public double Width { get; set; }
+
+		public ZRibbonEnd(int row, double width)
+		{
+			Row = row;
+			Width = width;
+		}
+
+		int IComparable.CompareTo(object obj)
+		{
+			return Row - ((ZRibbonEnd)obj).Row;
+		}
+	}
+
+	/// <summary>A Ribbon is a connection between some cells. Cells in the column to the left are "From" entries. Cells in the column to the right are "To". The ribbon will join all these in a pretty way.</summary>
+	public class ZRibbonColumn: ZColumn
+	{
+		public List<ZRibbonEnd> From { get; set; } // Cells in the column to the left of the ribbon to draw starting points from.
+		public List<ZRibbonEnd> To { get; set; }  // Cells in the column to the right of the ribbon to draw to.
+		public Color Color { get; set; }
+		
+		public ZRibbonColumn()
+		{
+			From = new List<ZRibbonEnd>();
+			To = new List<ZRibbonEnd>();
+		}
+
+		public double MaxWidth()
+		{
+			return Math.Max(From.Max(x => x.Width), To.Max(x => x.Width));
 		}
 	}
 
@@ -297,7 +333,7 @@ namespace Zoom
 
 	public class ZoomReport: ZoomReportBase
 	{
-		public List<ZBaseColumn> BaseColumns { get; private set; }
+		public List<ZColumn> Columns { get; private set; }
 		public List<ZRow> Rows { get; set; }
 		public string Description { get; set; }
 		public ZNumberStyle NumberStyle { get; set; }
@@ -319,7 +355,7 @@ namespace Zoom
 
 		public ZoomReport(string title, string headings = "", string alignments = "", string groupHeadings = "")
 		{
-			BaseColumns = new List<ZBaseColumn>();
+			Columns = new List<ZColumn>();
 			Rows = new List<ZRow>();
 
 			Title = title;
@@ -331,42 +367,32 @@ namespace Zoom
 
 		public void AddColumns(string headings, string alignments = "", string groupHeadings = "")
 		{
-			int firstAdded = BaseColumns.Count();
+			int firstAdded = Columns.Count();
 
 			if (!string.IsNullOrEmpty(headings))
 				foreach (string heading in headings.Split(','))
-					BaseColumns.Add(new ZColumn(heading));
+					Columns.Add(new ZColumn(heading));
 			
 			if (!string.IsNullOrEmpty(alignments))
 			{
 				string[] alignmentList = alignments.Split(',');
-				for (int i = 0; firstAdded + i < BaseColumns.Count && i < alignmentList.Length; i++)
-					Column(firstAdded + i).Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
+				for (int i = 0; firstAdded + i < Columns.Count && i < alignmentList.Length; i++)
+					Columns[firstAdded + i].Alignment = (ZAlignment)Enum.Parse(typeof(ZAlignment), alignmentList[i], true);
 			}
 
 			if (!string.IsNullOrEmpty(groupHeadings))
 			{
 				string[] groupList = groupHeadings.Split(',');
-				for (int i = 0; firstAdded + i < BaseColumns.Count && i < groupList.Length; i++)
-					Column(firstAdded + i).GroupHeading = groupList[i];
+				for (int i = 0; firstAdded + i < Columns.Count && i < groupList.Length; i++)
+					Columns[firstAdded + i].GroupHeading = groupList[i];
 			}
 		}
 
 		///<summary>Just like Add(), but returns the added ZColumn.</summary> 
-		public ZColumn AddColumn(ZBaseColumn col)
+		public ZColumn AddColumn(ZColumn col)
 		{
-			BaseColumns.Add(col);
-			return col as ZColumn;
-		}
-
-		public List<ZColumn> Columns()
-		{
-			return BaseColumns.Select(x => x as ZColumn).ToList();
-		}
-
-		public ZColumn Column(int i)
-		{
-			return BaseColumns[i] as ZColumn;
+			Columns.Add(col);
+			return col;
 		}
 
 		static void AppendStrings(StringBuilder builder, params string[] strings)
@@ -377,7 +403,7 @@ namespace Zoom
 
 		public ZCell Cell(ZRow row, string columnText)
 		{
-			return row[Columns().FindIndex(x => x.Text == columnText)];
+			return row[Columns.FindIndex(x => x.Text == columnText)];
 		}
 
 		public bool ColumnEmpty(int i)
@@ -400,8 +426,8 @@ namespace Zoom
 
 		public void RemoveColumn(int i)
 		{
-			if (i < BaseColumns.Count)
-				BaseColumns.RemoveAt(i);
+			if (i < Columns.Count)
+				Columns.RemoveAt(i);
 
 			foreach(ZRow row in Rows)
 				if (i < row.Count)
@@ -410,7 +436,7 @@ namespace Zoom
 
 		public void RemoveZeroColumns()
 		{
-			for (int i = BaseColumns.Count - 1; i >= 0; i--)
+			for (int i = Columns.Count - 1; i >= 0; i--)
 				if (ColumnZero(i))
 					RemoveColumn(i);
 		}
@@ -421,9 +447,9 @@ namespace Zoom
 			var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 			var font = new Font("Arial", 11);
 
-			for (int col = 0; col < BaseColumns.Count; col++)
+			for (int col = 0; col < Columns.Count; col++)
 			{
-				float widest = 0;
+				float widest = Columns[col] is ZRibbonColumn ? 15 : 0;
 				float total = widest;
 				int count = 1;
 				double min = 0.0;
@@ -485,15 +511,15 @@ namespace Zoom
 			if (!string.IsNullOrEmpty(Title))
 				AppendStrings(s, Title, "\n");
 
-			List<ZColumn> columns = Columns();
+			List<ZColumn> columns = Columns;
 
 			bool hasgroupheadings = false;
-			foreach (ZColumn col in columns)
+			foreach (ZColumn col in Columns)
 				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
 
 			if (hasgroupheadings)
 			{
-				foreach (ZColumn col in columns)
+				foreach (ZColumn col in Columns)
 				{
 					s.Append(col.GroupHeading);
 					s.Append(separator);
@@ -501,7 +527,7 @@ namespace Zoom
 				s.Append('\n');
 			}
 
-			foreach (ZColumn col in columns)
+			foreach (ZColumn col in Columns)
 			{
 				s.Append(col.Text);
 				s.Append(separator);
@@ -524,9 +550,9 @@ namespace Zoom
 		// This writes an HTML fragment -- it does not include <head> or <body> tags etc.
 		public override string ToHtml()
 		{
-			List<ZColumn> columns = Columns();
+			List<ZColumn> columns = Columns;
 			bool hasgroupheadings = false;
-			foreach (ZColumn col in columns)
+			foreach (ZColumn col in Columns)
 				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
 
 			StringBuilder s = new StringBuilder();
@@ -544,7 +570,7 @@ namespace Zoom
 				              "       <th colspan=\"", columns.Count.ToString(CultureInfo.InvariantCulture), "\"><H2>", WebUtility.HtmlEncode(Title), "</H2></th>\n",
 				              "    </tr>\n");
 
-			// Group Headings rows
+			// Group Headings row
 			if (hasgroupheadings)
 			{
 				AppendStrings(s, "    <tr bgcolor=\"", System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor), "\">\n");
@@ -572,7 +598,7 @@ namespace Zoom
 			// Headings row
 			AppendStrings(s, "    <tr bgcolor=\"", System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor), "\">\n");
 
-			foreach (ZColumn col in columns)
+			foreach (ZColumn col in Columns)
 				if (string.IsNullOrEmpty(col.Hyper))
 					AppendStrings(s, "      <th", col.Alignment.ToHtml(), ">", WebUtility.HtmlEncode(col.Text), "</th>\n");
 				else
@@ -802,12 +828,158 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
+		void SvgLine(StringBuilder s, int indent, double x1, double y1, double x2, double y2, double width, Color fillColor)
+		{
+			if (fillColor != Color.Empty)
+			{
+				s.Append('\t', indent);
+				s.AppendFormat("<line x1=\"{0:F1}\" y1=\"{1:F0}\" x2=\"{2:F1}\" y2=\"{3:F0}\" style=\"stroke-width:{4:F0};stroke-linecap:\"round\";stroke:", x1, y1, x2, y2, width);
+				s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
+				s.Append("\" />\n");
+			}
+		}
+
+		enum TopBottomType { Left, Right, Both }; // Does the top of this ribbon have an end from the left? An end to the right? One of each? What about the bottom of the ribbon?
+
+		// Draw one complete vertical ribbon plus its horizontal ends.
+		void SvgRibbon(StringBuilder s, int indent, ZRibbonColumn ribbon, float left, float width, float top, float height, float rowHeight)
+		{
+			if (ribbon.From.Count == 0 && ribbon.To.Count == 0)
+				return;
+
+			Color c = ribbon.Color == default(Color) ? Color.Gray : ribbon.Color;
+			ribbon.From.Sort();
+			ribbon.To.Sort();
+
+			var topRow = Math.Min(ribbon.From.Count == 0 ? 999 : ribbon.From.First().Row, ribbon.To.Count == 0 ? 999 : ribbon.To.First().Row);
+			var bottomRow = Math.Max(ribbon.From.Count == 0 ? 0 : ribbon.From.Last().Row, ribbon.To.Count == 0 ? 0 : ribbon.To.Last().Row);
+
+			TopBottomType topType;
+			TopBottomType bottomType;
+
+			// Determine types of top and bottom of ribbon.
+			if (!ribbon.From.Any())
+			{
+				topType = TopBottomType.Right;
+				bottomType = TopBottomType.Right;
+			}
+			else if (!ribbon.To.Any())
+			{
+				topType = TopBottomType.Left;
+				bottomType = TopBottomType.Left;
+			}
+			else
+			{
+				topType = ribbon.From.First().Row == ribbon.To.First().Row ? TopBottomType.Both : ribbon.From.First().Row < ribbon.To.First().Row ? TopBottomType.Left : TopBottomType.Right;
+				bottomType = ribbon.From.Last().Row == ribbon.To.Last().Row ? TopBottomType.Both : ribbon.From.Last().Row > ribbon.To.Last().Row ? TopBottomType.Left : TopBottomType.Right;
+			}
+
+			//var ribbonWidthH = ribbon.MaxWidth();  // In unscaled units.
+			var halfScaleWidth = ribbon.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled ribbon width into half a scaled ribbon width. 
+			var halfRibbonH = ribbon.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the ribbon, in output SVG units.
+
+			if (topType == TopBottomType.Right)
+			{
+				// Start in the horizontal middle, draw the top left corner arc. 
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 + halfRibbonH, RowMid(top, ribbon.To.First().Row, rowHeight) - ribbon.To.First().Width * halfScaleWidth);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{0:F1} ", halfRibbonH * 2, -halfRibbonH * 2);
+				if (!ribbon.From.Any())
+					s.AppendFormat("V {2:F1}\n", RowMid(top, ribbon.To.Last().Row, rowHeight) + ribbon.To.Last().Width * halfScaleWidth);
+			}
+			else  // Move cursor to top right end of first arrow.
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1}\n", left + width / 2 - halfRibbonH, RowMid(top, topRow, rowHeight) - ribbon.From.First().Width * halfScaleWidth);
+
+			// Draw left-side "From" ends.
+			for (int i = 0; i < ribbon.From.Count; i++)
+			{
+				var end = ribbon.From[i];
+				var halfRibbon = end.Width * halfScaleWidth;
+
+				s.Append('\t', indent + 1);
+				if (end.Row != topRow)
+				{
+					s.AppendFormat("V {0:F1} ", RowMid(top, end.Row, rowHeight) - halfRibbon * 2);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{0:F1} ", halfRibbon, -halfRibbon);
+				}
+				// Paint a left end: horizontal left, diagonal in / diagonal out, horizontal right.
+				s.AppendFormat("H {0:F1} ", left);
+				s.AppendFormat("l {0:F1},{0:F1} ", halfRibbon);
+				s.AppendFormat("l {0:F1},{1:F1} ", -halfRibbon, halfRibbon);
+				if (end.Row != bottomRow)
+				{
+					s.AppendFormat("H {0:F1} ", left + width / 2 - halfRibbonH - halfRibbon);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{0:F1} ", halfRibbon);
+				}
+				s.Append('\n');
+			}
+
+			// Handle transition between "From" and "To": draw the very bottom.
+			if (bottomType == TopBottomType.Left)
+			{
+				s.Append('\t', indent + 1);
+				s.AppendFormat("H {0:F1} ", left + width / 2 - halfRibbonH);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{1:F1} \n", halfRibbonH * 2, -halfRibbonH * 2);
+			}
+			else if (bottomType == TopBottomType.Both)
+			{
+				s.Append('\t', indent + 1);
+				s.AppendFormat("H {0:F1} ", left + width / 2 - halfRibbonH);
+				if (ribbon.From.Last().Width != ribbon.To.Last().Width)
+					s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1}\n", halfRibbonH, halfRibbonH * 2, (ribbon.To.Last().Width - ribbon.From.Last().Width) / 2);
+			}
+			else if (bottomType == TopBottomType.Right)
+			{
+				s.Append('\t', indent + 1);
+				s.AppendFormat("V {0:F1} ", RowMid(top, ribbon.To.Last().Row, rowHeight) + ribbon.To.Last().Width * halfScaleWidth - halfRibbonH * 2);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{0:F1} \n", halfRibbonH * 2);
+			}
+
+			// Draw right-side "To" ends.
+			for (int i = ribbon.To.Count - 1; i >= 0; i--)
+			{
+				var end = ribbon.To[i];
+				var halfRibbon = end.Width * halfScaleWidth;
+
+				s.Append('\t', indent + 1);
+				if (end.Row != bottomRow)
+				{
+					s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfRibbon * 2);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
+				}
+				// Paint a right end, starting at its bottom left: horizontal right, down, up/right, up/left, down, left.
+				s.AppendFormat("H {0:F1} ", left + width - halfRibbon);
+				s.AppendFormat("v {0:F1} ", halfRibbon);
+				s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon * 2, -halfRibbon * 2);
+				s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon * 2);
+				s.AppendFormat("v {0:F1} ", halfRibbon);
+				s.AppendFormat("H {0:F1} ", left + width / 2 + halfRibbonH + halfRibbon);
+				if (end.Row != topRow)
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfRibbon, -halfRibbon);
+				s.Append('\n');
+			}
+
+			s.Append('\t', indent + 1);
+
+			// Bring us back to top right and finish off.
+			if (topType == TopBottomType.Left)
+			{
+				s.AppendFormat("V {0:F1} ", top + (ribbon.From.First().Row + 0.5) * rowHeight - ribbon.From.First().Width * halfScaleWidth + halfRibbonH * 2);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{1:F1} ", halfRibbonH * 2, -halfRibbonH * 2);
+			}
+			else if (topType == TopBottomType.Both && ribbon.From.First().Width != ribbon.To.First().Width)
+				s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1} ", -halfRibbonH, -halfRibbonH * 2, (ribbon.To.First().Width - ribbon.From.First().Width) / 2);
+
+			s.Append("Z\" fill=\"");
+			s.Append(System.Drawing.ColorTranslator.ToHtml(c));
+			s.Append("\" />\n");
+		}
+
 		// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
 		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max)
 		{
 			s.AppendFormat("<div><svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
 
-			SvgRect(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
+			SvgRect(s, 1, 1, 1, width - 1, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
 			// Add '-' and '+' zoom button text.
 			s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&nbsp;+&nbsp;</text>\n");
@@ -820,19 +992,18 @@ namespace Zoom
 			s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&nbsp;+&nbsp;</text>\n");
 			s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&nbsp;-&nbsp;</text>\n");
 
-			List<ZColumn> columns = Columns();
 			int rowTop = rowHeight * 2 + 2;
 			if (hasgroupheadings)
 			{
 				int start = 0;
-				while (start < columns.Count)
+				while (start < Columns.Count)
 				{
 					int end = start;
-					while (end < columns.Count - 1 && columns[start].GroupHeading == columns[end + 1].GroupHeading)
+					while (end < Columns.Count - 1 && Columns[start].GroupHeading == Columns[end + 1].GroupHeading)
 						end++;
 
 					SvgRectText(s, 1, widths.Take(start).Sum() + start + 1, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
-						        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, columns[start].GroupHeading);  // Paint group heading.
+						        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
 
 					start = end + 1;
 				}
@@ -842,14 +1013,14 @@ namespace Zoom
 			}
 
 			float x = 1;
-			if (columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
+			if (Columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
 		    {
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 				var font = new Font("Arial", 11);
 
-				float widest = columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
+				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
 				double headerHeight = widest / Math.Sqrt(2) + 10;
-				for (int col = 0; col < columns.Count; col++)
+				for (int col = 0; col < Columns.Count; col++)
 				{
 					// Draw a parallelogram. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself.
 					s.AppendFormat("  <polygon points=\"{0:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:", 
@@ -861,7 +1032,7 @@ namespace Zoom
 				rowTop += (int)headerHeight;
 				x = 1;
 				// Draw text inside parallelgram.
-				for (int col = 0; col < columns.Count; col++)
+				for (int col = 0; col < Columns.Count; col++)
 				{
 					//if (string.IsNullOrEmpty(hyper))
 						s.Append("  ");
@@ -878,7 +1049,7 @@ namespace Zoom
 					s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
 					s.Append("\">");
 	
-					s.Append(WebUtility.HtmlEncode(columns[col].Text));
+					s.Append(WebUtility.HtmlEncode(Columns[col].Text));
 					s.Append("</text>");
 	
 					//if (!string.IsNullOrEmpty(hyper))
@@ -890,11 +1061,10 @@ namespace Zoom
 		    }
 			else  // No Rotate. Write out (column.Heading)s in the boring way.
 			{
-				for (int col = 0; col < columns.Count; col++)
+				for (int col = 0; col < Columns.Count; col++)
 				{
-					ZColumn column = Column(col);
 					SvgRectText(s, 1, x, rowTop, widths[col], rowHeight,
-					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, column.Alignment, column.Text, null, column.Hyper);  // Paint column heading.
+					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, Columns[col].Alignment, Columns[col].Text, null, Columns[col].Hyper);  // Paint column heading.
 					x += widths[col] + 1;
 				}
 				s.Append('\n');
@@ -920,6 +1090,12 @@ namespace Zoom
 		double AntiScale(double pixelValue, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return (pixelValue / outputWidth * (scaleMax - scaleMin)) + scaleMin;
+		}
+
+		// Return the y ordinate of the middle of the stated row. top is the top of the top row of the table. row is the 0-based row number. 
+		double RowMid(float top, int row, float rowHeight)
+		{
+			return top + (row + 0.5) * rowHeight;
 		}
 
 		// Return normal distribution value for this x. https://en.wikipedia.org/wiki/Normal_distribution
@@ -974,7 +1150,7 @@ namespace Zoom
 				int bins = (int)Math.Ceiling(2 * Math.Pow(count, 1.0/3));  // number of bars our histogram will have, from Rice's Rule.
 				double binWidth = Math.Round(width / bins + 0.05, 1);  // in "pixels"
 				bins = (int)Math.Round(width / binWidth);
-				if (Column(column).Alignment == ZAlignment.Integer)
+				if (Columns[column].Alignment == ZAlignment.Integer)
 				{
 					bins = Math.Min(bins, (int)(chartMax - chartMin + 1));
 					bins = (int)((chartMax - chartMin + 1) / Math.Round((chartMax - chartMin + 1) / bins));
@@ -1068,10 +1244,10 @@ namespace Zoom
 
 			// Paint any chart cells for this row.
 			int start = 0;
-			while (start < Math.Min(BaseColumns.Count, row.Count))
+			while (start < Math.Min(Columns.Count, row.Count))
 			{
 				int end = start;
-				while (end < Math.Min(BaseColumns.Count, row.Count) - 1 && row[start].ChartCell != null && row[start].ChartCell == row[end + 1].ChartCell)
+				while (end < Math.Min(Columns.Count, row.Count) - 1 && row[start].ChartCell != null && row[start].ChartCell == row[end + 1].ChartCell)
 					end++;
 
 				if (start == end && row[start].ChartType != ChartType.None && row[start].ChartCell == null)  // This is a one-column wide bar.
@@ -1089,9 +1265,9 @@ namespace Zoom
 			s.Append('\n');
 
 			float x = 1;
-			for (int col = 0; col < BaseColumns.Count && col < row.Count; col++)
+			for (int col = 0; col < Columns.Count && col < row.Count; col++)
 			{
-				SvgText(s, 1, (int)x, top, (int)widths[col], height, Column(col), row[col]);  // Write a data cell.
+				SvgText(s, 1, (int)x, top, (int)widths[col], height, Columns[col], row[col]);  // Write a data cell.
 
 				x += widths[col] + 1;
 			}
@@ -1101,10 +1277,9 @@ namespace Zoom
 		// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
 		public override string ToSvg(int table)
 		{
-			List<ZColumn> columns = Columns();
 			bool hasgroupheadings = false;
-			foreach (ZColumn col in columns)
-				hasgroupheadings |= !string.IsNullOrEmpty(col.GroupHeading);
+			foreach (ZColumn col in Columns)
+				hasgroupheadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);
 
 			var widths = new List<float>();  // Width of each column in pixels. "float", because MeasureString().Width returns a float.
 			var mins = new List<double>();   // Minimum numeric value in each column, or if all numbers are positive, 0.
@@ -1116,18 +1291,19 @@ namespace Zoom
 			int rowHeight = 15;  // This is enough to fit 11-point text.
 			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (rowHeight + 1);
 
-			if (columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so add to height to allow room for those 45 degree headers.
+			if (Columns.Exists(col => col != null && col.Rotate))  // At least one column has Rotate set, so add to height to allow room for those 45 degree headers.
 			{
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 				var font = new Font("Arial", 11);
 
-				float widest = columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
+				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
 				height += (int)(widest / Math.Sqrt(2) + 10 - rowHeight);
 			}
 
 			StringBuilder s = new StringBuilder();
 
 			int rowTop = SvgHeader(s, hasgroupheadings, rowHeight, height, widths, maxs, width, max);
+			int ribbonTop = rowTop;
 
 			bool odd = true;
 
@@ -1138,9 +1314,13 @@ namespace Zoom
 				rowTop += rowHeight + 1;
 				odd = !odd;
 			}
-	
+
+			for (int col = 0; col < Columns.Count; col++)
+				if (Columns[col] is ZRibbonColumn)
+					SvgRibbon(s, 1, (ZRibbonColumn)Columns[col], widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
+
 			s.Append("</svg>\n");
-	
+
 			if (!string.IsNullOrEmpty(Description))
 		    	AppendStrings(s, "<p>", Description, "</p>\n");
 			s.Append("</div>");
