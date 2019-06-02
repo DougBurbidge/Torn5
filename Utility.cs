@@ -27,6 +27,15 @@ namespace Torn
 			return "Played " + hoursAgo.ToString() + " ago";
 		}
 
+		public static string ShortDateTime(this DateTime date)
+		{
+			string s = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
+			int i = s.IndexOf(":ss");
+			if (i > -1)
+				s = s.Remove(i, 3);
+			return date.ToShortDateString() + " " + date.ToString(s);
+		}
+
 		static string Rot13(string s)
 		{
 			var sb = new StringBuilder();

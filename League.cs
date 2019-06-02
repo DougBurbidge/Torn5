@@ -446,7 +446,7 @@ namespace Torn
 		public DateTime Time { get; set; }
 		public bool Secret { get; set; }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
 		public List<GameTeam> Teams { get; private set; }
-		public List<GamePlayer> Players { get; private set; }
+		public List<GamePlayer> UnallocatedPlayers { get; private set; }  // players not yet put onto a GameTeam.
 		public ServerGame ServerGame { get; set; }
 		public bool Reported { get; set; }  // Use Reported to decide whether to emit various report pages. TODO: persist this.
 
@@ -454,7 +454,7 @@ namespace Torn
 		public int Hits { get 
 			{
 				if (hits == null)
-					hits = Players.Sum(p => p.HitsOn);
+					hits = Players().Sum(p => p.HitsOn);
 
 				return (int)hits;
 			} 
@@ -463,7 +463,12 @@ namespace Torn
 		public Game()
 		{
 			Teams = new List<GameTeam>();
-			Players = new List<GamePlayer>();
+			UnallocatedPlayers = new List<GamePlayer>();
+		}
+
+		public List<GamePlayer> Players()
+		{
+			return Teams.SelectMany(t => t.Players).Union(UnallocatedPlayers).ToList(); //.OrderByDescending(p => p.Score);
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -491,13 +496,14 @@ namespace Torn
 
 		public int Rank(string playerId)
 		{
-			return Players.FindIndex(x => x.PlayerId == playerId) + 1;
+			return Players().FindIndex(x => x.PlayerId == playerId) + 1;
 		}
 
 		public override string ToString()
 		{
-			return Secret ? string.Join(", ", this.Teams.OrderBy(x => x.ToString()).Select(x => x.ToString())) :
-				string.Join(", ", this.Teams.Select(x => x.ToString()));
+			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + 
+				(Secret ? string.Join(", ", this.Teams.OrderBy(x => x.ToString()).Select(x => x.ToString())) :
+				 string.Join(", ", this.Teams.Select(x => x.ToString())));
 		}
 
 		int? totalScore = null;
@@ -648,8 +654,8 @@ namespace Torn
 		{
 			gamePlayer.TeamId = (int)gameTeam.TeamId;
 
-			if (!game.Game.Players.Contains(gamePlayer))
-				game.Game.Players.Add(gamePlayer);
+			if (!game.Game.Players().Contains(gamePlayer))
+				game.Game.UnallocatedPlayers.Add(gamePlayer);
 
 			var leaguePlayer = LeaguePlayer(gamePlayer);
 
@@ -689,16 +695,16 @@ namespace Torn
 				LinkTeamToGame(teamData, serverGame);
 
 				foreach (var player in teamData.Players)
-					LinkPlayerToGame(game.Players.Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
+					LinkPlayerToGame(game.Players().Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
 					                 teamData.GameTeam, serverGame);
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
 			}
 
-			game.Players.Sort();
-			for (int i = 0; i < game.Players.Count; i++)
-				game.Players[i].Rank = (uint)i + 1;
+			var players = game.Players().OrderByDescending(p => p.Score).ToList();
+			for (int i = 0; i < players.Count; i++)
+				players[i].Rank = (uint)i + 1;
 
 			if (!AllGames.Contains(game))
 			{
@@ -915,9 +921,8 @@ namespace Torn
 					if (xplayer.SelectSingleNode("colour") != null)
 						gamePlayer.Colour = (Colour)(xplayer.GetInt("colour") + 1);
 
-					game.Players.Add(gamePlayer);
+					game.UnallocatedPlayers.Add(gamePlayer);
 				}
-				game.Players.Sort();
 				
 				AllGames.Add(game);
 			}
@@ -955,9 +960,13 @@ namespace Torn
 
 						// Connect each game player to their game team.
 						gameTeam.Players.Clear();
-						foreach (GamePlayer gamePlayer in game.Players)
+						var players = game.UnallocatedPlayers.ToList();  // Make a copy of UnallocatedPlayers. We can't remove from the collection we're foreach'ing over.
+						foreach (GamePlayer gamePlayer in players)
 							if (gamePlayer.TeamId == gameTeam.TeamId)
+							{
 								gameTeam.Players.Add(gamePlayer);
+								game.UnallocatedPlayers.Remove(gamePlayer);
+							}
 
 						// Connect each game player to their league player.
 						foreach (GamePlayer gamePlayer in gameTeam.Players)
@@ -1064,7 +1073,7 @@ namespace Torn
 				XmlNode playersNode = doc.CreateElement("players");
 				gameNode.AppendChild(playersNode);
 
-				foreach (var player in game.Players)
+				foreach (var player in game.Players())
 				{
 					XmlNode playerNode = doc.CreateElement("player");
 					playersNode.AppendChild(playerNode);
@@ -1100,8 +1109,7 @@ namespace Torn
 
 		public Game Game(GamePlayer gamePlayer)
 		{
-//			return AllGames.Find(g => g.Players.Exists(p => gamePlayer.PlayerId == p.PlayerId));
-			return AllGames.Find(g => g.Players.Contains(gamePlayer));
+			return AllGames.Find(g => g.Players().Contains(gamePlayer));
 		}
 
 		public Game Game(GameTeam gameTeam)

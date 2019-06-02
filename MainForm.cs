@@ -1075,6 +1075,31 @@ namespace Torn.UI
 			}
 		}
 
+		void PopulateTeamPlayersFromServerGame(League league, ServerGame serverGame, List<GamePlayer> players)
+		{
+			for (int p = 0; p < players.Count; p++)
+				if (!(players[p] is ServerPlayer))
+				{
+					var playerId = players[p].PlayerId;
+					var serverPlayer = serverGame.Players.Find(sp => sp.PlayerId == playerId);
+					if (serverPlayer != null)
+					{
+						var oldPlayer = players[p];
+						var leaguePlayer = league.LeaguePlayer(oldPlayer);
+
+						oldPlayer.CopyTo(serverPlayer);
+						players[p] = serverPlayer;
+
+						if (leaguePlayer != null)
+						{
+							int i = leaguePlayer.Played.IndexOf(oldPlayer);
+							if (i > -1)
+								leaguePlayer.Played[i] = serverPlayer;
+						}
+					}
+				}
+		}
+
 		bool PopulateGameIfIdle(League league, ServerGame serverGame, ServerGame oldGame)
 		{
 			Game leagueGame = league.AllGames.Find(x => x.Time == serverGame.Time);
@@ -1094,21 +1119,9 @@ namespace Torn.UI
 
 				// Attempt to replace each GamePlayer with a ServerPlayer. This gives us under-the-hood data used by e.g. GameHeatMap.
 				foreach (var gameTeam in leagueGame.Teams)
-					for (int p = 0; p < gameTeam.Players.Count; p++)
-						if (!(gameTeam.Players[p] is ServerPlayer))
-						{
-							var playerId = gameTeam.Players[p].PlayerId;
-							var serverPlayer = serverGame.Players.Find(x => x.PlayerId == playerId);
-							if (serverPlayer != null)
-							{
-								gameTeam.Players[p].CopyTo(serverPlayer);
-								gameTeam.Players[p] = serverPlayer;
+					PopulateTeamPlayersFromServerGame(league, serverGame, gameTeam.Players);
 
-								int lp = leagueGame.Players.FindIndex(x => x.PlayerId == playerId);
-								if (lp > -1)
-									leagueGame.Players[lp] = serverPlayer;
-							}
-						}
+				PopulateTeamPlayersFromServerGame(league, serverGame, leagueGame.UnallocatedPlayers);
 			}
 			return true;
 		}

@@ -163,7 +163,12 @@ namespace Zoom
 		{
 			return string.IsNullOrEmpty(text) && Number == null;
 		}
-		
+
+		public bool EmptyOrNaN()
+		{
+			return string.IsNullOrEmpty(text) && (Number == null || double.IsNaN((double)Number));
+		}
+
 		/// <summary>If this cell contains a number, put it here.</summary>
 		public double? Number { get; set; }
 		public string NumberFormat { get; set; }
@@ -415,10 +420,10 @@ namespace Zoom
 			return true;
 		}
 
-		public bool ColumnZero(int i)
+		public bool ColumnZeroOrNaN(int i)
 		{
 			foreach(ZRow row in Rows)
-				if (i < row.Count && !row[i].Empty() && row[i].Number != 0)
+				if (i < row.Count && !row[i].EmptyOrNaN() && row[i].Number != 0)
 					return false;
 
 			return true;
@@ -437,7 +442,7 @@ namespace Zoom
 		public void RemoveZeroColumns()
 		{
 			for (int i = Columns.Count - 1; i >= 0; i--)
-				if (ColumnZero(i))
+				if (ColumnZeroOrNaN(i))
 					RemoveColumn(i);
 		}
 
@@ -1479,12 +1484,14 @@ namespace Zoom
 
 			sb.Append(@"</div>
 <script>
+window.onload = function() {
   var texts = document.querySelectorAll('text');
   for (i = 0; i < texts.length; i++) {
     var fit = texts[i].getComputedTextLength() / (texts[i].getAttribute('width') - 2);
     if (fit > 1)
       texts[i].setAttribute('font-size', texts[i].getAttribute('font-size') / fit);
   }
+}
 </script>
 ");
 
