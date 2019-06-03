@@ -650,7 +650,7 @@ namespace Torn.Report
 
 				if (scoresList.Any())
 				{
-					if (rt.ReportType == ReportType.GameGridCondensed)
+					if (rt.ReportType == ReportType.GameGrid || rt.ReportType == ReportType.GameGridCondensed)
 						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList);
 
 					report.Rows.Add(row);
