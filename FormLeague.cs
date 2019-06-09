@@ -176,6 +176,7 @@ namespace Torn.UI
 
 			var player = (LeaguePlayer)treeView1.SelectedNode.Tag;
 			FormPlayer.PlayerId = player.Id;
+			FormPlayer.PlayerAlias = player.Name;
 			if (FormPlayer.ShowDialog() == DialogResult.OK)
 			{
 				player.Id = FormPlayer.PlayerId;

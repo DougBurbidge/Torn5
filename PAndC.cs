@@ -147,6 +147,7 @@ namespace Torn
 			if (!EnsureConnected())
 				return;
 
+			// Get game end time. Determine if game is in progress.
 			string sql = "SELECT S.Finish_Time " +
                          "FROM ng_game_stats S " +
                          "WHERE S.Start_Time = \"" + game.Time.ToString("yyyy-MM-dd HH:mm:ss") + "\"";
@@ -234,7 +235,7 @@ namespace Torn
 			// 47 or greater is the new schema, with QRCode in members table.
 				"SELECT Alias AS Alias, '' AS Name, QRCode AS User_ID " +
 				"FROM members M " +
-				"WHERE SUBSTRING(M.QRCode, 1, 5) <> '00005' AND Alias LIKE @mask ORDER BY Alias";
+				"WHERE SUBSTRING(M.QRCode, 1, 5) <> '00005' AND Alias LIKE @mask ORDER BY Alias LIMIT 1000";
 		}
 
 		public override DbDataReader GetPlayers(string mask)
@@ -331,8 +332,8 @@ namespace Torn
 
 		override protected string PlayersSql()
 		{
-			return "SELECT Alias AS Alias, '' AS Name, Button_ID AS User_ID FROM members " +
-				"WHERE Alias LIKE @mask ORDER BY Alias";
+			return "SELECT TRIM(Alias) AS Alias, '' AS Name, Button_ID AS User_ID FROM members " +
+				"WHERE TRIM(Alias) LIKE @mask ORDER BY Alias LIMIT 1000";
 		}
 	}
 }

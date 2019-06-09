@@ -171,6 +171,15 @@ namespace Torn.UI
 					FindMenu(team.Name).DropDownItems.Add(item);
 				}
 			}
+
+			if (ListView.SelectedItems.Count == 1)
+			{
+				var item = ListView.SelectedItems[0];
+				var subIndex = item.SubItems.Count == 0 || string.IsNullOrEmpty(item.SubItems[1].Text) ? 0 : 1;
+				menuIdentifyPlayer.Text = "Identify " + item.SubItems[subIndex].Text.Trim() + "...";
+			}
+			else
+				menuIdentifyPlayer.Text = "Identify";
 		}
 
 		void MenuAdjustTeamScoreClick(object sender, EventArgs e)
@@ -257,8 +266,13 @@ namespace Torn.UI
 		{
 			var player = (ServerPlayer)ListView.SelectedItems[0].Tag;
 			FormPlayer.PlayerId = player.PlayerId;
+			FormPlayer.PlayerAlias = player.Alias;
 			if (FormPlayer.ShowDialog() == DialogResult.OK)
+			{
 				player.PlayerId = FormPlayer.PlayerId;
+				player.Alias = FormPlayer.PlayerAlias;
+				ListView.SelectedItems[0].SubItems[1].Text = player.Alias;
+			}
 		}
 
 		void MenuHandicapPlayerClick(object sender, EventArgs e)
