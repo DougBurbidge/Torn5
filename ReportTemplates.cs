@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using Torn;
+using Zoom;
 
 namespace Torn.Report
 {
@@ -264,6 +265,8 @@ namespace Torn.Report
 	
 	public class ReportTemplates: List<ReportTemplate>
 	{
+		public OutputFormat OutputFormat { get; set; }
+		
 		public void Parse(string s)
 		{
 			string[] ss = s.Split('&');

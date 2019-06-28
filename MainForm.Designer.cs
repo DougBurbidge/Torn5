@@ -50,8 +50,6 @@ namespace Torn.UI
 			this.colGames = new System.Windows.Forms.ColumnHeader();
 			this.colTeams = new System.Windows.Forms.ColumnHeader();
 			this.panelGames = new System.Windows.Forms.Panel();
-			this.buttonCommit2 = new System.Windows.Forms.Button();
-			this.buttonLatestGame2 = new System.Windows.Forms.Button();
 			this.listViewGames = new System.Windows.Forms.ListView();
 			this.colGame = new System.Windows.Forms.ColumnHeader();
 			this.colLeague = new System.Windows.Forms.ColumnHeader();
@@ -97,7 +95,6 @@ namespace Torn.UI
 			this.buttonPackReport = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonUpdateScoreboard = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonExportFixtures = new System.Windows.Forms.ToolStripMenuItem();
-			this.buttonTsvExport = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonSetFolder = new System.Windows.Forms.ToolStripButton();
 			this.buttonExportReports = new System.Windows.Forms.ToolStripButton();
 			this.buttonUploadReports = new System.Windows.Forms.ToolStripButton();
@@ -222,8 +219,6 @@ namespace Torn.UI
 			// 
 			// panelGames
 			// 
-			this.panelGames.Controls.Add(this.buttonCommit2);
-			this.panelGames.Controls.Add(this.buttonLatestGame2);
 			this.panelGames.Controls.Add(this.listViewGames);
 			this.panelGames.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panelGames.Location = new System.Drawing.Point(318, 0);
@@ -232,30 +227,6 @@ namespace Torn.UI
 			this.tableLayoutPanel1.SetRowSpan(this.panelGames, 2);
 			this.panelGames.Size = new System.Drawing.Size(318, 592);
 			this.panelGames.TabIndex = 15;
-			// 
-			// buttonCommit2
-			// 
-			this.buttonCommit2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonCommit2.Location = new System.Drawing.Point(90, 552);
-			this.buttonCommit2.Name = "buttonCommit2";
-			this.buttonCommit2.Size = new System.Drawing.Size(81, 34);
-			this.buttonCommit2.TabIndex = 16;
-			this.buttonCommit2.Text = "Commit Game";
-			this.buttonCommit2.UseVisualStyleBackColor = true;
-			this.buttonCommit2.Visible = false;
-			this.buttonCommit2.Click += new System.EventHandler(this.ButtonCommitClick);
-			// 
-			// buttonLatestGame2
-			// 
-			this.buttonLatestGame2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonLatestGame2.Location = new System.Drawing.Point(3, 552);
-			this.buttonLatestGame2.Name = "buttonLatestGame2";
-			this.buttonLatestGame2.Size = new System.Drawing.Size(81, 34);
-			this.buttonLatestGame2.TabIndex = 13;
-			this.buttonLatestGame2.Text = "Latest Game";
-			this.buttonLatestGame2.UseVisualStyleBackColor = true;
-			this.buttonLatestGame2.Visible = false;
-			this.buttonLatestGame2.Click += new System.EventHandler(this.ButtonLatestGameClick);
 			// 
 			// listViewGames
 			// 
@@ -649,8 +620,7 @@ namespace Torn.UI
 									this.buttonAdHocReport,
 									this.buttonPackReport,
 									this.buttonUpdateScoreboard,
-									this.buttonExportFixtures,
-									this.buttonTsvExport});
+									this.buttonExportFixtures});
 			this.toolStripDropDownReports.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripDropDownReports.Name = "toolStripDropDownReports";
 			this.toolStripDropDownReports.Size = new System.Drawing.Size(65, 22);
@@ -683,13 +653,6 @@ namespace Torn.UI
 			this.buttonExportFixtures.Size = new System.Drawing.Size(199, 22);
 			this.buttonExportFixtures.Text = "Export Fixtures";
 			this.buttonExportFixtures.Click += new System.EventHandler(this.ButtonExportFixturesClick);
-			// 
-			// buttonTsvExport
-			// 
-			this.buttonTsvExport.Name = "buttonTsvExport";
-			this.buttonTsvExport.Size = new System.Drawing.Size(199, 22);
-			this.buttonTsvExport.Text = "Export TSV";
-			this.buttonTsvExport.Click += new System.EventHandler(this.ButtonTsvExportClick);
 			// 
 			// buttonSetFolder
 			// 
@@ -788,7 +751,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem buttonHelp;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownGames;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
-		private System.Windows.Forms.ToolStripMenuItem buttonTsvExport;
 		private System.Windows.Forms.ToolStripMenuItem buttonExportFixtures;
 		private System.Windows.Forms.ToolStripMenuItem buttonUpdateScoreboard;
 		private System.Windows.Forms.ToolStripMenuItem buttonPackReport;
@@ -818,9 +780,7 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripButton buttonClose;
 		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
 		private System.Windows.Forms.ToolStripButton buttonNew;
-		private System.Windows.Forms.Button buttonCommit2;
 		private System.Windows.Forms.Panel panelLeague;
-		private System.Windows.Forms.Button buttonLatestGame2;
 		private System.Windows.Forms.Panel panelGames;
 		private System.Windows.Forms.ImageList imageListPacks;
 		private System.Windows.Forms.ToolStripButton buttonRemoveColumn;

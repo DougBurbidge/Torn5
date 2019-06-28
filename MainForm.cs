@@ -118,8 +118,9 @@ namespace Torn.UI
 
 			webOutput = new WebOutput(webPort);
 			webOutput.Leagues = leagues;
+			webOutput.Elapsed = Elapsed;
 
-	        playersBox = new PlayersBox();
+			playersBox = new PlayersBox();
 			playersBox.Images = imageListPacks;
 			playersBox.GetMoveTarget = FindEmptyTeamBox;
 			tableLayoutPanel1.Controls.Add(playersBox, 2, 0);
@@ -128,7 +129,7 @@ namespace Torn.UI
 			
 			formPlayer = new FormPlayer();
 			formPlayer.Icon = (Icon)Icon.Clone();
-	        ConnectLaserGameServer();
+			ConnectLaserGameServer();
 
 			AddTeamBoxes();
 
@@ -165,6 +166,7 @@ namespace Torn.UI
 				}
 
 				formPlayer.LaserGameServer = laserGameServer;
+				webOutput.Games = laserGameServer.GetGames;
 			}
 			catch (Exception ex)
 			{
@@ -352,27 +354,12 @@ namespace Torn.UI
 						if (teamData != null)
 							teamBox.GameTeam = teamData.GameTeam;
 
-//						if (autoUpdateTeams &&
-//						    activeHolder.League.LeagueTeam(teamBox.GameTeam) != null && teamBox.Players().Any())
-//							activeHolder.League.LeagueTeam(teamBox.GameTeam).Handicap = teamBox.Handicap;
-
 						if (autoUpdateTeams)
 						{
-							var gt = teamBox.GameTeam;
-							
-							var lt = activeHolder.League.LeagueTeam(gt);
+							var lt = activeHolder.League.LeagueTeam(teamBox.GameTeam);
 
-							if (lt != null)
-							{
-								var p = teamBox.Players();
-
-								if (p.Any())
-							    {
-							    	var h = teamBox.Handicap;
-							    	
-									lt.Handicap = h;
-								}
-							}
+							if (lt != null && teamBox.Players().Any())
+								lt.Handicap = teamBox.Handicap;
 						}
 					}
 
@@ -429,7 +416,7 @@ namespace Torn.UI
 			{
 				progressBar1.Value  = 0;
 				try {
-					webOutput.ExportReports(exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
+					ExportPages.ExportReports(exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
 				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
 			}
@@ -438,7 +425,7 @@ namespace Torn.UI
 		void ButtonExportFixturesClick(object sender, EventArgs e)
 		{
 			if (GetExportFolder() != null)
-				webOutput.ExportFixtures(exportFolder, SelectedLeagues());
+				ExportPages.ExportFixtures(exportFolder, SelectedLeagues());
 		}
 
 		void ButtonFixtureClick(object sender, EventArgs e)
@@ -524,7 +511,7 @@ namespace Torn.UI
 				foreach (ListViewItem item in listViewLeagues.SelectedItems)
 					leagues.Add(((Holder)item.Tag).League);
 
-				webOutput.PackReport(exportFolder, leagues);
+				ExportPages.PackReport(exportFolder, leagues, ((Holder)listViewLeagues.SelectedItems[0].Tag).ReportTemplates.OutputFormat);
 			}
 		}
 
@@ -627,14 +614,6 @@ namespace Torn.UI
 			GetExportFolder("Select a root folder for bulk export of league reports.", true);
 		}
 
-		void ButtonTsvExportClick(object sender, EventArgs e)
-		{
-			bool includeSecret = IncludeSecret();
-
-			if (GetExportFolder() != null)
-				webOutput.ExportReportsAsTsv(exportFolder, includeSecret, SelectedLeagues());
-		}
-
 		void ButtonUploadClick(object sender, EventArgs e)
 		{
 			if (string.IsNullOrEmpty(uploadMethod) || string.IsNullOrEmpty(uploadSite) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -647,7 +626,7 @@ namespace Torn.UI
 			{
 				progressBar1.Value = 0;
 				try {
-					webOutput.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
+					ExportPages.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
 				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
 			}
@@ -776,7 +755,7 @@ namespace Torn.UI
 				var leagueGame = serverGame.Game;
 				foreach (var gameTeam in leagueGame.Teams)
 				{
-					var serverPlayers = playersBox.Players().FindAll(sp => gameTeam.Players.Exists(gp => sp.PlayerId == gp.PlayerId)).ToList();
+					var serverPlayers = playersBox.Players().FindAll(sp => gameTeam.Players.Exists(gp => sp.PlayerId == gp.PlayerId || (gp is ServerPlayer && sp.PandCPlayerId == ((ServerPlayer)gp).PandCPlayerId))).ToList();
 					if (serverPlayers.Any() && box < teamBoxes.Count)
 						teamBoxes[box++].Accept(serverPlayers);
 				}
@@ -798,7 +777,6 @@ namespace Torn.UI
 			buttonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonForget.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonCommit.Enabled = EnableCommit();
-			buttonCommit2.Enabled = EnableCommit();
 			
 			if (listViewGames.SelectedItems.Count == 1)
 			{
@@ -845,7 +823,6 @@ namespace Torn.UI
 			buttonClose.Enabled = b;
 			buttonSave.Enabled = b;
 			buttonExportReports.Enabled = b;
-			buttonTsvExport.Enabled = b;
 			buttonUploadReports.Enabled = b;
 			buttonPackReport.Enabled = b;
 			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
@@ -925,6 +902,18 @@ namespace Torn.UI
 				gameInProgress = false;
 			}
 			labelNow.Text = webOutput.NowText();
+		}
+
+		int Elapsed()
+		{
+			if (laserGameServer == null)
+				return -3;
+			else if (!laserGameServer.Connected)
+				return -2;
+			else if (timeElapsed == TimeSpan.Zero)
+				return -1;
+			else
+				return (int)timeElapsed.TotalSeconds;
 		}
 
 		void NumericPortValueChanged(object sender, EventArgs e)

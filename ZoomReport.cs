@@ -11,6 +11,7 @@ using System.Web;
 namespace Zoom
 {
 	public enum ZNumberStyle { Comma, Plain, Brief };  // Comma: use a thousands separator.  Brief: convert larger numbers to 2k, 3M, etc.
+
 	public enum ZAlignment { None, Left, Right, Center, Float, Integer };  // Float and Integer are the same as Right, but give a hint as to the type of data contained in cell.Data. "Integer" means that the underlying data is made of integers (e.g. average score, average rank) not that the number displayed in the cell is an integer.
 
 	public static class ZAlignmentExtensions
@@ -24,6 +25,27 @@ namespace Zoom
 				case ZAlignment.Center: return " align=\"center\"";
 				default:                return " align=\"right\"";
 			}
+		}
+	}
+
+	public enum OutputFormat { Svg = 0, HtmlTable, Tsv, Csv };
+
+	public static class OutputFormatExtensions
+	{
+		public static string ToExtension(this OutputFormat outputFormat)
+		{
+			switch (outputFormat) {
+				case OutputFormat.Svg:
+				case OutputFormat.HtmlTable: return "html";
+				case OutputFormat.Tsv: return "tsv";
+				case OutputFormat.Csv: return "csv";
+				default: return "";
+			}
+		}
+
+		public static bool IsHtml(this OutputFormat outputFormat)
+		{
+			return (outputFormat == OutputFormat.Svg || outputFormat == OutputFormat.HtmlTable);
 		}
 	}
 
@@ -327,6 +349,17 @@ namespace Zoom
 		public virtual string TitleHyper { get; set; }
 		public ZReportColors Colors { get; set; }
 
+		/// <summary>Export to the specified format.</summary>
+		public string ToOutput(OutputFormat outputFormat)
+		{
+			switch (outputFormat) {
+				case OutputFormat.Svg: return ToSvg(0);
+				case OutputFormat.HtmlTable: return ToHtml();
+				case OutputFormat.Tsv: return ToCsv('\t');
+				case OutputFormat.Csv: return ToCsv(',');
+				default: return ""; 
+			}
+		}
 		/// <summary>Export to character-separated value.</summary>
 		public abstract string ToCsv(char separator);
 		/// <summary>Export to an HTML table.</summary>
@@ -454,7 +487,7 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
-				float widest = Columns[col] is ZRibbonColumn ? 15 : 0;
+				float widest = Columns[col] is ZRibbonColumn ? 15 : 1;
 				float total = widest;
 				int count = 1;
 				double min = 0.0;
@@ -1340,7 +1373,7 @@ namespace Zoom
 
 		public ZoomHtmlInclusion(string literal) { Literal = literal; }
 
-		public override string ToCsv(char separator) { return Literal; }
+		public override string ToCsv(char separator) { return ""; }
 
 		public override string ToHtml() { return Literal; }
 
@@ -1406,22 +1439,24 @@ namespace Zoom
 //			return this.SelectMany(x => x.BarCellColors()).Distinct().ToList();
 		}
 
-		public string ToCsv()
+		/// <summary>Export to the specified format.</summary>
+		public string ToOutput(OutputFormat outputFormat)
 		{
-			StringBuilder sb = new StringBuilder();
-			foreach (ZoomReportBase report in this) {
-				sb.Append(report.ToCsv(','));
-		 		sb.Append("\n");
+			switch (outputFormat) {
+				case OutputFormat.Svg: return ToSvg();
+				case OutputFormat.HtmlTable: return ToHtml();
+				case OutputFormat.Tsv: return ToCsv('\t');
+				case OutputFormat.Csv: return ToCsv(',');
+				default: return "";
 			}
-			return sb.ToString();
 		}
 
-		public string ToTsv()
+		public string ToCsv(char separator)
 		{
 			StringBuilder sb = new StringBuilder();
 			foreach (ZoomReportBase report in this) {
-				sb.Append(report.ToCsv('\t'));
-		 		sb.Append("\n");
+				sb.Append(report.ToCsv(separator));
+		 		sb.Append("\n--------\n\n");
 			}
 			return sb.ToString();
 		}
