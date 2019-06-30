@@ -347,7 +347,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return "GameTeam " + (TeamId ?? -1).ToString();
+			return "GameTeam " + (TeamId ?? -1).ToString() + " " + Score.ToString();
 		}
 	}
 
@@ -642,7 +642,7 @@ namespace Torn
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
-			leagueTeam.AllPlayed.RemoveAll(x => Game(x) != null && Game(x).Time == game.Time);
+			leagueTeam.AllPlayed.RemoveAll(x => Game(x) != null && Game(x).Time == game.Time); // This line is not working.
 			leagueTeam.AllPlayed.Add(gameTeam);
 			leagueTeam.AllPlayed.Sort();
 			
@@ -1336,6 +1336,24 @@ namespace Torn
 	    {
 			return compareGame == null ? 1 : this.Time.CompareTo(compareGame.Time);
 	    }
+
+		public void ToJson(StringBuilder sb, int indent)
+		{
+			sb.Append('\t', indent);
+			sb.Append("{\n");
+
+			Utility.JsonKeyValue(sb, indent + 1, "gameId", GameId.ToString());
+			Utility.JsonKeyValue(sb, indent + 1, "description", "\"" + Description + "\"");
+			Utility.JsonKeyValue(sb, indent + 1, "startTime", "\"" + Description + "\"");
+			Utility.JsonKeyValue(sb, indent + 1, "description", Time.ToString("YYYY-MM-DDTHH:mm:ss.zzzZ"));
+			if (InProgress)
+				Utility.JsonKeyValue(sb, indent + 1, "inProgress", "1");
+			else
+				Utility.JsonKeyValue(sb, indent + 1, "endTime", Time.ToString("YYYY-MM-DDTHH:mm:ss.zzzZ"));
+
+			sb.Append('\t', indent);
+			sb.Append('}');
+		}
 	}
 
 	/// <summary>Represents a player as stored on the laser game server.</summary>

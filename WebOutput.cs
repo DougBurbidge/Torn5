@@ -16,6 +16,7 @@ namespace Torn.Report
 {
 	public delegate void Progress (double progress, string status = "");
 
+	/// <summary>Build web pages for WebOutput and ExportPages.</summary>
 	public class ReportPages
 	{
 		public static string RootPage(List<Holder> leagues)
@@ -147,7 +148,7 @@ namespace Torn.Report
 		}
 	}
 
-	/// <summary>Serve web pages on demand. Also generates web pages to file for export or upload.</summary>
+	/// <summary>Serve web pages on demand.</summary>
 	public class WebOutput: IDisposable
 	{
 		WebServer ws;
