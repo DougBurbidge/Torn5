@@ -230,6 +230,8 @@ namespace Torn
 	/// <summary>Stores data about each remembered league team</summary>
 	public class LeagueTeam: IComparable
 	{
+		internal int TeamId  { get; set; }
+
 		string name;
 		public string Name 
 		{
@@ -251,7 +253,6 @@ namespace Torn
 			set { name = value; } 
 		}
 
-		internal int TeamId  { get; set; }
 		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
 		public List<LeaguePlayer> Players { get; private set; }
@@ -291,6 +292,8 @@ namespace Torn
 	public class GameTeam: IComparable
 	{
 		public int? TeamId { get; set; }
+		public DateTime Time { get; set; }
+
 		Colour colour;
 		public Colour Colour
 		{
@@ -325,6 +328,7 @@ namespace Torn
 		public GameTeam Clone()
 		{
 			var clone = new GameTeam();
+			clone.Time = Time;
 			clone.TeamId = TeamId;
 			clone.Colour = colour;
 			clone.Score = Score;
@@ -353,7 +357,7 @@ namespace Torn
 
 	public class GamePlayer: IComparable
 	{
-		public int TeamId { get; set; }
+		public int? TeamId { get; set; }
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
 		public string Pack { get; set; }
@@ -626,9 +630,10 @@ namespace Torn
 				serverGame.Game.ServerGame = serverGame;
 			}
 
+			gameTeam.Time = game.Time;
 			game.Teams.Add(gameTeam);
 
-			LeagueTeam leagueTeam = LeagueTeam(teamData.GameTeam);
+			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
 
 			if (leagueTeam == null)
 				leagueTeam = GuessTeam(teamData.Players.Select(x => x.PlayerId).ToList());
@@ -642,7 +647,7 @@ namespace Torn
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
-			leagueTeam.AllPlayed.RemoveAll(x => Game(x) != null && Game(x).Time == game.Time); // This line is not working.
+			leagueTeam.AllPlayed.RemoveAll(x => x.Time == game.Time);
 			leagueTeam.AllPlayed.Add(gameTeam);
 			leagueTeam.AllPlayed.Sort();
 			
@@ -887,6 +892,7 @@ namespace Torn
 				{
 					GameTeam gameTeam = new GameTeam();
 
+					gameTeam.Time = game.Time;
 					gameTeam.TeamId = xteam.GetInt("teamid");
 					gameTeam.Colour = ColourExtensions.ToColour(xteam.GetString("colour"));
 					gameTeam.Score = xteam.GetInt("score");
@@ -1078,7 +1084,7 @@ namespace Torn
 					XmlNode playerNode = doc.CreateElement("player");
 					playersNode.AppendChild(playerNode);
 
-					doc.AppendNode(playerNode, "teamid", player.TeamId);
+					doc.AppendNode(playerNode, "teamid", player.TeamId ?? -1);
 					doc.AppendNode(playerNode, "playerid", player.PlayerId);
 					doc.AppendNode(playerNode, "pack", player.Pack);
 					doc.AppendNode(playerNode, "score", player.Score);
@@ -1114,12 +1120,12 @@ namespace Torn
 
 		public Game Game(GameTeam gameTeam)
 		{
-			return AllGames.Find(g => g.Teams.Contains(gameTeam));
+			return AllGames.Find(g => g.Time == gameTeam.Time);
 		}
 
 		public Game Game(ServerGame serverGame)
 		{
-			return AllGames.Find(x => x.Time == serverGame.Time);
+			return AllGames.Find(g => g.Time == serverGame.Time);
 		}
 
 		public GameTeam GameTeam(GamePlayer gamePlayer)
@@ -1141,7 +1147,7 @@ namespace Torn
 
 		public LeagueTeam LeagueTeam(GameTeam gameTeam)
 		{
-			return teams.Find(t => t.AllPlayed.Contains(gameTeam));
+			return teams.Find(t => t.TeamId == gameTeam.TeamId);
 		}
 
 		public LeagueTeam LeagueTeam(GamePlayer gamePlayer)
