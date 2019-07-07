@@ -764,9 +764,7 @@ namespace Torn.UI
 						serverPlayers.Add(serverPlayer);
 
 						serverPlayer.PlayerId = gp.PlayerId;
-						var leaguePlayer = league.Players.Find(lp => lp.Id == gp.PlayerId);
-						if (leaguePlayer != null)
-							serverPlayer.Item.SubItems[1].Text = leaguePlayer.Name;
+						serverPlayer.Item.SubItems[1].Text = league.Alias(gp);
 					}
 
 					if (serverPlayers.Any() && box < teamBoxes.Count)

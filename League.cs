@@ -513,7 +513,7 @@ namespace Torn
 		int? totalScore = null;
 		public int TotalScore()
 		{
-			if (totalScore == null)
+			if (totalScore == null && totalScore != 0)
 				totalScore = Teams.Sum(t => t.Score);
 
 			return (int)totalScore;
