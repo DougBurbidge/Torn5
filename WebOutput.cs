@@ -425,7 +425,7 @@ namespace Torn.Report
 							{
 								var bitmap = Reports.GameWorm(league, game, true);
 								string filePath = Path.Combine(path, holder.Key, fileName);
-								if (bitmap.Height > 1 || !File.Exists(filePath))
+								if (bitmap != null && bitmap.Height > 1 || !File.Exists(filePath))
 									bitmap.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
 							}
 							reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));

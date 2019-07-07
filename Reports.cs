@@ -1143,6 +1143,7 @@ namespace Torn.Report
 			return (i / 1000000.0).ToString("F0") + "M";
 		}
 
+		/// <summary>Create a bitmap showing the score of each team over time.</summary>
 		public static Bitmap GameWorm(League league, Game game, bool includeSecret)
 		{
 			var maxLeagueScore = league.Games(includeSecret).Max(g => g.Teams.Max(t => t.Score));
@@ -1152,7 +1153,10 @@ namespace Torn.Report
 			var height = Math.Max((int)Math.Ceiling(duration * (maxScore - minScore) / maxLeagueScore), 1);
 			var skew = Scale(game.ServerGame.Events.Sum(e => e.Event_Type < 28 ? e.Score : 0) / game.Teams.Count, height, minScore, maxScore) / duration;  // In points per second, or points per pixel.
 
-			var bitmap = new Bitmap((int)duration, height + (int)(skew * duration));
+			if (duration < 2 || height < 2 || double.IsInfinity(skew))
+				return null;
+
+			var bitmap = new Bitmap((int)duration, height + (int)(skew * duration));  // Widthwise, 1 pixel = 1 second.
 			var graphics = Graphics.FromImage(bitmap);
 
 			var font = new Font("Arial", 12);
