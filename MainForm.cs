@@ -265,7 +265,7 @@ namespace Torn.UI
 
 		void ButtonAboutClick(object sender, EventArgs e)
 		{
-			MessageBox.Show("A tournament scores editor by Doug Burbidge.\nhttp://www.dougburbidge.com/Apps/", "Torn 5");
+			MessageBox.Show("A tournament scores editor by Doug Burbidge.\nhttp://www.dougburbidge.com/Apps/\nhttps://github.com/DougBurbidge/Torn5/", "Torn 5");
 		}
 
 		void ButtonAddRowClick(object sender, EventArgs e)
