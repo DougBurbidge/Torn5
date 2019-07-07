@@ -755,7 +755,20 @@ namespace Torn.UI
 				var leagueGame = serverGame.Game;
 				foreach (var gameTeam in leagueGame.Teams)
 				{
-					var serverPlayers = playersBox.Players().FindAll(sp => gameTeam.Players.Exists(gp => sp.PlayerId == gp.PlayerId || (gp is ServerPlayer && sp.PandCPlayerId == ((ServerPlayer)gp).PandCPlayerId))).ToList();
+					var serverPlayers = new List<ServerPlayer>();
+					foreach (var gp in gameTeam.Players)
+					{
+						var serverPlayer = playersBox.Players().Find(sp => sp.PlayerId == gp.PlayerId ||
+						                                             (gp is ServerPlayer && sp.PandCPlayerId == ((ServerPlayer)gp).PandCPlayerId) ||
+						                                             sp.Pack == gp.Pack);
+						serverPlayers.Add(serverPlayer);
+
+						serverPlayer.PlayerId = gp.PlayerId;
+						var leaguePlayer = league.Players.Find(lp => lp.Id == gp.PlayerId);
+						if (leaguePlayer != null)
+							serverPlayer.Item.SubItems[1].Text = leaguePlayer.Name;
+					}
+
 					if (serverPlayers.Any() && box < teamBoxes.Count)
 						teamBoxes[box++].Accept(serverPlayers);
 				}

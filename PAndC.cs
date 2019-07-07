@@ -82,25 +82,14 @@ namespace Torn
 		public override List<ServerGame> GetGames()
 		{
 			List<ServerGame> games = new List<ServerGame>();
-
-			if (!EnsureConnected())
-				return games;
-
-			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
-			             "FROM ng_game_stats S " +
-			             "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
-			             "ORDER BY Start_Time";
-			FillGames(sql, games);
-
+			GetMoreGames(games);
 			return games;
 		}
 
 		public override void GetMoreGames(List<ServerGame> games)
 		{
-			if (!EnsureConnected())
-				return;
-
 			string where = games.Count == 0 ? "" : "WHERE S.Start_Time > \"" + games.Last().EndTime.ToString("YYYY-MM-DD HH:mm:ss") + "\"";
+
 			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
 			             "FROM ng_game_stats S " +
 			             "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
@@ -162,13 +151,15 @@ namespace Torn
 				}
 			}
 
-			game.Events.Clear();
 			sql = "SELECT Time_Logged, Player_ID, Player_Team_ID, Event_Type, Score, Result_Data_1, Result_Data_2, Result_Data_3, Result_Data_4 " +
 				"FROM ng_player_event_log " +
 				"WHERE Game_ID = " + game.GameId.ToString();
 			cmd = new MySqlCommand(sql, connection);
 			using (var reader = cmd.ExecuteReader())
 			{
+				if (reader.HasRows)
+					game.Events.Clear();
+
 				while (reader.Read())
 				{
 					var oneEvent = new Event();
