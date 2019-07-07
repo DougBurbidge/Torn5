@@ -1813,37 +1813,44 @@ namespace Torn.Report
 		/// <summary>Every player in every game.</summary>
 		public static ZoomReport EverythingReport(League league, string title, DateTime? from, DateTime? to, bool description)
 		{
-			var	report = new ZoomReport(string.IsNullOrEmpty(title) ? league.Title + " " + "Everything Report" : title + FromTo(league.AllGames, from, to),
-				                        "Player,Pack,Team,Rank,Score,Hits by,Hits On",
-				                        "left,left,left,integer,integer,integer,integer");
+			var report = new ZoomReport(string.IsNullOrEmpty(title) ? league.Title + " Everything Report" : title + FromTo(league.AllGames, from, to),
+			                                   "Player,Pack,Team,Rank,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
+			                                   "left,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
+			                                   ",,,,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties");
 			report.MaxChartByColumn = true;
 
 			foreach (var game in league.AllGames.FindAll(x => x.Time.CompareTo(from ?? DateTime.MinValue) >= 0 &&
 			                                             x.Time.CompareTo(to ?? DateTime.MaxValue) <= 0))
 			{
-				var gameRow = new ZRow();
-				gameRow.Add(new ZCell(""));
-				gameRow.Add(new ZCell(game.Title));
-				gameRow.Add(new ZCell(game.Time.ToString()));
-				gameRow.Add(new ZCell(""));
-				gameRow.Add(new ZCell(game.TotalScore()));
-
-				report.Rows.Add(gameRow);
+				var gameTotal = new GamePlayer();
 
 				foreach (var player in game.Players().OrderByDescending(p => p.Score))
 				{
-					var row = new ZRow();
-				
-					row.Add(new ZCell(league.LeaguePlayer(player) == null ? player.PlayerId : league.LeaguePlayer(player).Name));
-					row.Add(new ZCell(player.Pack));
-					row.Add(new ZCell(league.GameTeam(player) == null ? " " : league.LeagueTeam(league.GameTeam(player)).Name));
-					row.Add(new ZCell(player.Rank));
-					row.Add(new ZCell(player.Score));
-					row.Add(new ZCell(player.HitsBy));
-					row.Add(new ZCell(player.HitsOn));
+					var playerRow = new ZRow();
 
-					report.Rows.Add(row);
+					Color color = player.Colour.ToColor();
+					playerRow.AddCell(new ZCell(league.LeaguePlayer(player) == null ? player.PlayerId : league.LeaguePlayer(player).Name))
+						.Hyper = "players.html#player" + player.PlayerId;;
+					playerRow.Add(new ZCell(player.Pack));
+					playerRow.Add(new ZCell(league.GameTeam(player) == null ? " " : league.LeagueTeam(league.GameTeam(player)).Name));
+					playerRow.Add(new ZCell(player.Rank));
+
+					FillDetails(playerRow, player, color, (double)game.TotalScore() / game.Players().Count);
+
+					gameTotal.Add(player);
+				
+					report.Rows.Add(playerRow);
 				}
+
+				var gameRow = new ZRow();
+				gameRow.Add(new ZCell("", Color.LightGray));
+				gameRow.Add(new ZCell("", Color.LightGray));
+				gameRow.Add(new ZCell(game.LongTitle(), Color.LightGray));
+				gameRow.Add(new ZCell(""));
+
+				FillDetails(gameRow, gameTotal, Color.Empty, game.TotalScore());
+
+				report.Rows.Add(gameRow);
 			}
 
 			return report;
