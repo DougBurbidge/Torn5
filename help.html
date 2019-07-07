@@ -1,4 +1,5 @@
 <html><head><title>Torn 5 Help</title></head><body>
+<div style="max-width:800px; margin:auto">
 <h1>Torn 5</h1>
 <p>
 Torn 5 is a ground-up rewrite of Torn 4. It is a tournament scores manager, and can read data from Nexus, Helios and Laserforce systems. It requires .NET Framework 4.0. Note that Torn 5 is currently in a Beta state &mdash; it mostly works, but not all features are complete, and there may be bugs. If you are using it to open Torn 4 files, I recommend keeping a safe backup of those .Torn files elsewhere, just in case.
@@ -14,7 +15,7 @@ If you're familiar with Torn 4, here's the very quick guide:
 </p>
 <h2>Quick Start</h2>
 </p><p>
-Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. For P&amp;C systems, this is the name or IP address of the database server machine. For Laserforce, this is probably lf-main\lf6. If you don't have a lasergame system, just leave it at Demo.
+Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. For P&amp;C systems, this is the name or IP address of the database server machine. For Laserforce, this is probably lf-main\lf6. (Depending on firewall and SQl Server configuration, you may need to run Torn 5 on the database PC.) If you don't have a lasergame system, just leave it at Demo.
 </p><p>
 Click OK. Click Latest. This will cause Torn to query the server. A list of games should appear.
 </p><p>
@@ -27,11 +28,11 @@ Click a game to see its packs/players. Now you can do all the usual Torn things 
 Because the games listing is now an always-visible list instead of being a drop-down "combo box", you can now select multiple games. Some features work on all selected games &mdash; e.g. Forget will remove all the selected games from whatever league they had been committed to. Set Description lets you title committed games or groups of games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
 Games present in the game server are shown in white. Games only present in Torn files are shown slightly greyed.
 </p><p>
-Reporting is different in Torn 5 &mdash; click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired.
+Reporting is different in Torn 5 &mdash; click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-If you select multiple leagues (select one league then hold down the ctrl key as you select more) and click Export, all the selected leagues will have reports exported.
+If you select multiple leagues (select one then hold down the ctrl key as you select more) and click Export, all the selected leagues will have reports exported.
 </p><p>
-If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a machine called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://(your machine name here):8080</a> to see these interactive reports.
+If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a machine called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
 </p><p>
 For P&amp;C systems, for games that have been committed during this run of Torn 5, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
 </p><p>
@@ -125,7 +126,7 @@ At the moment the Graphics page assumes that teams are contiguously numbered &md
 </p><p>
 <strong>Upload</strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
 </p><p>
-<strong>Configure</strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate.
+<strong>Configure</strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
 <strong>Reports &#x25b8 Ad Hoc Report</strong>: not yet implemented.
 </p><p>
@@ -134,9 +135,6 @@ At the moment the Graphics page assumes that teams are contiguously numbered &md
 <strong>Reports &#x25b8 Update Scoreboard</strong>: not yet implemented.
 </p><p>
 <strong>Reports &#x25b8 Export Fixtures</strong>: exports any fixtures you have set up in Leagues &#x25b8 Set up Fixtures, as HTML.
-</p><p>
-<strong>Reports &#x25b8 Export TSV</strong>: exports your configured set of reports (or the default "overview" reports) as tab-separated values, suitable for import into e.g. Excel.
-</p><p>
 </p>
 <h3>Pack Report</h3>
 <p>
@@ -160,8 +158,11 @@ Very small p values will be highlighted in red. These packs are of concern &mdas
 If pack hardware has been re-arranged (e.g. you've swapped guns between packs) or renumbered midway through data collection (e.g. you re-ID'ed packs to prevent players from picking favourites), these things will of course limit data quality.
 </p><p>
 You can try different chart options, set date ranges, etc. &mdash; on the Reports toolbar click Customise, add a Pack Report, and choose options.
+</p><p>
+If you label Round Robin games as Roud Robin, and/or Round 1 games as Round 1, Torn 5 will use only those games for deciding how "good" players are.
 </p>
 <h2>Download</h2>
 <p>
 Torn 5 can be downloaded from <a href="http://dougburbidge.com/Apps/index.html">my Apps page</a>. The source code is available from <a href="https://github.com/DougBurbidge/Torn5">my GitHub page</a>.
+</div>
 </body>
