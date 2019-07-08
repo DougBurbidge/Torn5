@@ -66,6 +66,7 @@ namespace Torn.UI
 			//
 			InitializeComponent();
 			ListView.ContextMenuStrip = contextMenuStrip1;
+			SetSort(2, SortOrder.Descending);  // Default to sorting by score.
 			GameTeam = new GameTeam();
 		}
 

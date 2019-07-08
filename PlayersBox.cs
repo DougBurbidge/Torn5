@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
@@ -15,14 +14,8 @@ namespace Torn.UI
 	{
 		public PlayersBox()
 		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
 			InitializeComponent();
-			
-			//
-			// TODO: Add constructor code after the InitializeComponent() call.
-			//
+			SetSort(0, SortOrder.Ascending);  // Default to sorting by colour then pack.
 		}
 		
 		public void LoadGame(League league, ServerGame serverGame)
@@ -52,6 +45,8 @@ namespace Torn.UI
 					player.Item = item;
 					Items.Add(item);
 				}
+
+			ListView.Sort();
 		}
 	}
 }
