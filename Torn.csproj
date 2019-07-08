@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>TornWeb</RootNamespace>
+    <RootNamespace>Torn5</RootNamespace>
     <AssemblyName>Torn</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -125,6 +125,9 @@
     <Compile Include="ZoomReport.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="BaseBox.resx">
+      <DependentUpon>BaseBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormLeague.resx">
       <DependentUpon>FormLeague.cs</DependentUpon>
     </EmbeddedResource>
@@ -153,9 +156,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TeamBox.resx">
       <DependentUpon>TeamBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControl1.resx">
-      <DependentUpon>BaseBox.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

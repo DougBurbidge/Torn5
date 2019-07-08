@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TornWeb {
+namespace Torn5 {
 	using System;
 	
 	
@@ -39,7 +39,7 @@ namespace TornWeb {
 		internal static global::System.Resources.ResourceManager ResourceManager {
 			get {
 				if (object.ReferenceEquals(resourceMan, null)) {
-					global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TornWeb.MainForm", typeof(MainForm).Assembly);
+					global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Torn5.MainForm", typeof(MainForm).Assembly);
 					resourceMan = temp;
 				}
 				return resourceMan;
