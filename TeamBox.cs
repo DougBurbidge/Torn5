@@ -38,7 +38,9 @@ namespace Torn.UI
 			{
 				if (leagueTeam == null && value != null && value.Handicap == null)
 					value.Handicap = handicap;
-				leagueTeam = value;				
+				leagueTeam = value;
+				GameTeam.TeamId = leagueTeam == null ? (int?)null : leagueTeam.TeamId;
+				ListView.Columns[1].Text = leagueTeam == null ? "Players" : leagueTeam.Name;
 			}
 		}
 
@@ -80,6 +82,7 @@ namespace Torn.UI
 			LeagueTeam = null;
 			GameTeam = new GameTeam();
 			handicap = new Handicap();
+			ListView.Columns[1].Text = "Players";
 			ListView.Columns[2].Text = "Score";
 		}
 

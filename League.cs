@@ -199,10 +199,6 @@ namespace Torn
 		/// <summary>User-defined. Often used for player grade.</summary>
 		public string Comment { get; set; }  // 
 	
-		Collection<GamePlayer> played;
-		/// <summary>Games this player has played in. Set by LinkThings().</summary>
-		public Collection<GamePlayer> Played { get { return played; } }
-
 		public LeaguePlayer() 
 		{
 			played = new Collection<GamePlayer>();
@@ -256,12 +252,10 @@ namespace Torn
 		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
 		public List<LeaguePlayer> Players { get; private set; }
-		public List<GameTeam> AllPlayed { get; private set; }
 
 		public LeagueTeam()
 		{
 			Players = new List<LeaguePlayer>();
-			AllPlayed = new List<GameTeam>();
 		}
 
 		public LeagueTeam Clone()
@@ -273,7 +267,6 @@ namespace Torn
 			clone.Comment = Comment;
 			
 			clone.Players = new List<LeaguePlayer>(Players);
-			//clone.AllPlayed = new List<GameTeam>(AllPlayed);
 			
 			return clone;
 		}
@@ -348,6 +341,8 @@ namespace Torn
 			else
 				return Math.Sign(gt.Points - this.Points);
 		}
+
+		public static Comparison<GameTeam> CompareTime = (gameTeam1, gameTeam2) => gameTeam1.Time.CompareTo(gameTeam2.Time);
 
 		public override string ToString()
 		{
@@ -610,8 +605,6 @@ namespace Torn
 			clone.VictoryPointsHighScore = VictoryPointsHighScore;
 			clone.VictoryPointsProportional = VictoryPointsProportional;
 
-			clone.LinkThings();
-
 			return clone;
 		}
 
@@ -647,10 +640,6 @@ namespace Torn
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
-			leagueTeam.AllPlayed.RemoveAll(x => x.Time == game.Time);
-			leagueTeam.AllPlayed.Add(gameTeam);
-			leagueTeam.AllPlayed.Sort();
-			
 			gameTeam.Players.Clear();
 			gameTeam.Players.AddRange(teamData.Players);
 		}
@@ -678,9 +667,6 @@ namespace Torn
 
 			if (!LeagueTeam(gameTeam).Players.Contains(leaguePlayer))
 				LeagueTeam(gameTeam).Players.Add(leaguePlayer);
-
-			if (!leaguePlayer.Played.Contains(gamePlayer))
-				leaguePlayer.Played.Add(gamePlayer);
 		}
 
 		public void CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
@@ -946,13 +932,6 @@ namespace Torn
 		void LinkThings()
 		{
 			teams.Sort();
-			foreach (var leagueTeam in teams)
-			{
-				leagueTeam.AllPlayed.Clear();
-				
-				foreach (var player in leagueTeam.Players)
-					player.Played.Clear();
-			}
 
 			foreach (Game game in AllGames)
 			{
@@ -962,8 +941,6 @@ namespace Torn
 					var leagueTeam = teams.Find(x => x.TeamId == gameTeam.TeamId);
 					if (leagueTeam != null)
 					{
-						leagueTeam.AllPlayed.Add(gameTeam);
-
 						// Connect each game player to their game team.
 						gameTeam.Players.Clear();
 						var players = game.UnallocatedPlayers.ToList();  // Make a copy of UnallocatedPlayers. We can't remove from the collection we're foreach'ing over.
@@ -973,12 +950,6 @@ namespace Torn
 								gameTeam.Players.Add(gamePlayer);
 								game.UnallocatedPlayers.Remove(gamePlayer);
 							}
-
-						// Connect each game player to their league player.
-						foreach (GamePlayer gamePlayer in gameTeam.Players)
-							foreach (LeaguePlayer leaguePlayer in LeagueTeam(gameTeam).Players)
-								if (gamePlayer.PlayerId == leaguePlayer.Id)
-									leaguePlayer.Played.Add(gamePlayer);
 					}
 				}
 			}
@@ -1128,7 +1099,7 @@ namespace Torn
 			return AllGames.Find(g => g.Time == serverGame.Time);
 		}
 
-		public GameTeam GameTeam(GamePlayer gamePlayer)
+		public GameTeam GameTeamFromPlayer(GamePlayer gamePlayer)
 		{
 			foreach (var game in AllGames)
 			{
@@ -1138,6 +1109,36 @@ namespace Torn
 			}
 
 			return null;
+		}
+
+		public List<GameTeam> Played(LeagueTeam leagueTeam, bool includeSecret = true)
+		{
+			var played = new List<GameTeam>();
+			foreach (var game in AllGames)
+			{
+				GameTeam gameTeam = includeSecret || !game.Secret ? game.Teams.Find(gt => gt.TeamId == leagueTeam.TeamId) : null;
+				if (gameTeam != null)
+					played.Add(gameTeam);
+			}
+
+			return played;
+		}
+
+		public List<GamePlayer> Played(LeaguePlayer leaguePlayer, bool includeSecret = true)
+		{
+			var played = new List<GamePlayer>();
+
+			if (leaguePlayer == null)
+				return played;
+
+			foreach (var game in AllGames)
+			{
+				GamePlayer gamePlayer = includeSecret || !game.Secret ? game.Players().Find(gp => gp.PlayerId == leaguePlayer.Id) : null;
+				if (gamePlayer != null)
+					played.Add(gamePlayer);
+			}
+
+			return played;
 		}
 
 		public LeaguePlayer LeaguePlayer(GamePlayer gamePlayer)
@@ -1159,7 +1160,7 @@ namespace Torn
 
 		public LeagueTeam LeagueTeam(GamePlayer gamePlayer)
 		{
-			return LeagueTeam(GameTeam(gamePlayer));
+			return LeagueTeam(GameTeamFromPlayer(gamePlayer));
 		}
 
 		public LeagueTeam LeagueTeam(LeaguePlayer leaguePlayer)
@@ -1187,7 +1188,7 @@ namespace Torn
 			var tpcList = new List<TeamPlayerCount>();
 			foreach (var leagueTeam in teams)
 				foreach (var leaguePlayer in leagueTeam.Players)
-					tpcList.Add(new TeamPlayerCount(leagueTeam, leaguePlayer, leagueTeam.AllPlayed.Sum(gt => gt.Players.Count(gp => gp.PlayerId == leaguePlayer.Id))));
+					tpcList.Add(new TeamPlayerCount(leagueTeam, leaguePlayer, Played(leagueTeam).Sum(gt => gt.Players.Count(gp => gp.PlayerId == leaguePlayer.Id))));
 
 			tpcList.Sort((x, y) => y.Count - x.Count);
 
@@ -1209,7 +1210,7 @@ namespace Torn
 
 		int Plays(LeagueTeam leagueTeam, LeaguePlayer leaguePlayer)
 		{
-			return leaguePlayer.Played.Where(x => this.LeagueTeam(x.GameTeam(this)) == leagueTeam).Count();
+			return Played(leaguePlayer).Where(x => this.LeagueTeam(x.GameTeam(this)) == leagueTeam).Count();
 		}
 
 		public string GameString(Game game)
@@ -1277,11 +1278,6 @@ namespace Torn
 			}
 
 			return 0;
-		}
-
-		public List<GameTeam> Played(LeagueTeam leagueTeam, bool includeSecret)
-		{
-			return includeSecret ? leagueTeam.AllPlayed : leagueTeam.AllPlayed.FindAll(x => Game(x) != null && !Game(x).Secret);
 		}
 	}
 

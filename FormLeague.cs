@@ -58,7 +58,7 @@ namespace Torn.UI
 			if (treeView1.SelectedNode.Tag is LeagueTeam)
 			{
 				listViewScores.Items.Clear();
-				foreach (var gameTeam in ((LeagueTeam)treeView1.SelectedNode.Tag).AllPlayed)
+				foreach (var gameTeam in League.Played((LeagueTeam)treeView1.SelectedNode.Tag))
 				{
 					Game game = League.Game(gameTeam);
 					var item = new ListViewItem(game == null ? "?" : game.Time.ToString());
@@ -72,7 +72,7 @@ namespace Torn.UI
 			else if (treeView1.SelectedNode.Tag is LeaguePlayer)
 			{
 				listViewScores.Items.Clear();
-				foreach (var gamePlayer in ((LeaguePlayer)treeView1.SelectedNode.Tag).Played)
+				foreach (var gamePlayer in League.Played((LeaguePlayer)treeView1.SelectedNode.Tag))
 				{
 					var item = new ListViewItem(League.Game(gamePlayer).Time.ToString());
 					item.SubItems.Add(gamePlayer.Score.ToString());
@@ -105,6 +105,7 @@ namespace Torn.UI
 			{
 				var team = new LeagueTeam();
 				team.Name = name;
+				team.TeamId = League.Teams.Any() ? League.Teams.Max(t => t.TeamId) + 1 : 1;
 				League.Teams.Add(team);
 
 				var node = new TreeNode(name);
@@ -184,6 +185,7 @@ namespace Torn.UI
 				treeView1.SelectedNode.Text = FormPlayer.PlayerAlias;
 			}
 
+			// TODO: Change the player's ID in each of their committed games. This will require a deeper Clone() than currently used, in order to be cancellable.
 		}
 
 		void RankCheckedChanged(object sender, EventArgs e)

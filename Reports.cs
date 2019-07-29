@@ -812,32 +812,34 @@ namespace Torn.Report
 					else
 						row.Add(new ZCell(string.Join(", ", pt.Value.Select(x => x.Name))));  // Team(s) played for
 
-					row.Add(DataCell(player.Played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, "N0"));  // Av score
-					row.Add(DataCell(player.Played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
-					row.Add(DataCell(player.Played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
-					row.Add(DataCell(player.Played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
-					row.Add(DataCell(player.Played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P1"));  // Tag ratio
+					var played = league.Played(player);
+
+					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, "N0"));  // Av score
+					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
+					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
+					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
+					row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P1"));  // Tag ratio
 
 					List<double> scoreRatios = new List<double>();
 					List<double> srxTrs = new List<double>();
-					foreach (var played in player.Played)
+					foreach (var play in played)
 					{
-						var game = league.Game(played);
+						var game = league.Game(play);
 						if (game != null)
 						{
 							var playerCount = game.Players().Count;
-							scoreRatios.Add(((double)played.Score) / game.TotalScore() * playerCount);
-							srxTrs.Add(((double)played.Score) / game.TotalScore() * playerCount * played.HitsBy / played.HitsOn);
+							scoreRatios.Add(((double)play.Score) / game.TotalScore() * playerCount);
+							srxTrs.Add(((double)play.Score) / game.TotalScore() * playerCount * play.HitsBy / play.HitsOn);
 						}
 					}
 					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P1"));  // Score ratio
 					row.Add(DataCell(srxTrs, rt.Drops, chartType, "P1"));  // SR x TR
 
-					row.Add(DataCell(player.Played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(player.Played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(player.Played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(player.Played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(player.Played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
 
 					row.Add(new ZCell(games.Count(), ChartType.None, "N0"));  // Games
 
@@ -845,9 +847,9 @@ namespace Torn.Report
 						row.Add(new ZCell(""));  // games dropped
 					else
 					{
-						int countAfterDrops = rt.Drops.CountAfterDrops(player.Played.Count);
-						if (countAfterDrops < player.Played.Count)
-				            row.Add(new ZCell(player.Played.Count - countAfterDrops, ChartType.None, "N0"));  // games dropped
+						int countAfterDrops = rt.Drops.CountAfterDrops(played.Count);
+						if (countAfterDrops < played.Count)
+				            row.Add(new ZCell(played.Count - countAfterDrops, ChartType.None, "N0"));  // games dropped
 			    	    else
 							row.Add(new ZCell(""));  // games dropped
 					}
@@ -1296,7 +1298,7 @@ namespace Torn.Report
 			int totalScore = 0;
 			int totalCount = 0;
 
-			foreach (GamePlayer gamePlayer in player.Played)
+			foreach (GamePlayer gamePlayer in league.Played(player))
 			{
 				// Add a row for each game the player played.
 				ZRow row = new ZRow();
@@ -1338,10 +1340,11 @@ namespace Torn.Report
 			if (teams.Count > 1)
 				totalRow.Add(new ZCell(""));  // Team name
 
-			if (player.Played.Count == 0)
-				totals.Score = 0;
+			var played = league.Played(player);
+			if (played.Any())
+				totals.Score /= played.Count;
 			else
-				totals.Score /= player.Played.Count;
+				totals.Score = 0;
 
 			FillDetails(totalRow, totals, default(Color), (double)totalScore / totalCount);
 
@@ -1593,13 +1596,15 @@ namespace Torn.Report
 				foreach (var league in leagues)
 				{
 					var player = league.Players.Find(p => p.Id == solo);
-					if (player != null && player.Played.Any())
+					var played = league.Played(player);
+
+					if (player != null && played.Any())
 					{
-						hitsBy += player.Played.Sum(x => x.HitsBy);
-						hitsOn += player.Played.Sum(x => x.HitsOn);
-						scoreSum += player.Played.Sum(x => x.Score);
-						scoreSum += player.Played.Average(x => x.Score);
-						gameAverageSum += player.Played.Average(x => league.Game(x) == null ? 0 : league.Game(x).TotalScore() / league.Game(x).Players().Count);
+						hitsBy += played.Sum(x => x.HitsBy);
+						hitsOn += played.Sum(x => x.HitsOn);
+						scoreSum += played.Sum(x => x.Score);
+						scoreSum += played.Average(x => x.Score);
+						gameAverageSum += played.Average(x => league.Game(x) == null ? 0 : league.Game(x).TotalScore() / league.Game(x).Players().Count);
 					}
 				}
 				soloLadder.Add(solo, hitsBy == 0 && hitsOn == 0 ? 
@@ -1832,7 +1837,7 @@ namespace Torn.Report
 					playerRow.AddCell(new ZCell(league.LeaguePlayer(player) == null ? player.PlayerId : league.LeaguePlayer(player).Name))
 						.Hyper = "players.html#player" + player.PlayerId;;
 					playerRow.Add(new ZCell(player.Pack));
-					playerRow.Add(new ZCell(league.GameTeam(player) == null ? " " : league.LeagueTeam(league.GameTeam(player)).Name));
+					playerRow.Add(new ZCell(league.GameTeamFromPlayer(player) == null ? " " : league.LeagueTeam(league.GameTeamFromPlayer(player)).Name));
 					playerRow.Add(new ZCell(player.Rank));
 
 					FillDetails(playerRow, player, color, (double)game.TotalScore() / game.Players().Count);

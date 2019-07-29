@@ -768,7 +768,10 @@ namespace Torn.UI
 					}
 
 					if (serverPlayers.Any() && box < teamBoxes.Count)
-						teamBoxes[box++].Accept(serverPlayers);
+					{
+						teamBoxes[box].Accept(serverPlayers);
+						teamBoxes[box++].LeagueTeam = league.LeagueTeam(gameTeam);
+					}
 				}
 			}
 
@@ -789,6 +792,9 @@ namespace Torn.UI
 			buttonForget.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonCommit.Enabled = EnableCommit();
 			
+			foreach (var tb in TeamBoxes())
+				tb.Clear();
+
 			if (listViewGames.SelectedItems.Count == 1)
 			{
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
@@ -798,20 +804,10 @@ namespace Torn.UI
 				if (activeHolder != null && activeHolder.League != null)
 					playersBox.LoadGame(activeHolder.League, game);
 
-				foreach (Control c in tableLayoutPanel1.Controls)
-					if (c is TeamBox)
-						((TeamBox)c).Clear();
-	
 				TransferPlayers(game);
 			}
 			else
-			{
 				playersBox.Clear();
-
-				foreach (Control c in tableLayoutPanel1.Controls)
-					if (c is TeamBox)
-						((TeamBox)c).Clear();
-			}
 		}
 
 		void ListViewLeaguesAfterLabelEdit(object sender, LabelEditEventArgs e)
@@ -859,9 +855,8 @@ namespace Torn.UI
 				labelLeagueDetails.Text = sb.ToString();
 			}
 
-			foreach (var c in tableLayoutPanel1.Controls)
-				if (c is TeamBox)
-					((TeamBox)c).League = activeHolder == null ? null : activeHolder.League;
+			foreach (var tb in TeamBoxes())
+					tb.League = activeHolder == null ? null : activeHolder.League;
 		}
 
 		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
@@ -940,10 +935,7 @@ namespace Torn.UI
 
 		List<TeamBox> RankTeams()
 		{
-			var teams = new List<TeamBox>();
-			foreach (var c in tableLayoutPanel1.Controls)
-				if (c is TeamBox)
-					teams.Add((TeamBox)c);
+			var teams = TeamBoxes();
 
 			teams.Sort((x, y) => (y.Score - x.Score) * 100 + (x.GameTeam == null || y.GameTeam == null ? 0 : (int)(x.GameTeam.Colour - y.GameTeam.Colour)));
 
@@ -1089,13 +1081,6 @@ namespace Torn.UI
 
 						oldPlayer.CopyTo(serverPlayer);
 						players[p] = serverPlayer;
-
-						if (leaguePlayer != null)
-						{
-							int i = leaguePlayer.Played.IndexOf(oldPlayer);
-							if (i > -1)
-								leaguePlayer.Played[i] = serverPlayer;
-						}
 					}
 				}
 		}

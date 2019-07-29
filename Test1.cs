@@ -16,6 +16,7 @@ namespace TornWeb
 			var league = new League(Path.Combine(Path.GetTempPath(), "TestLeague1.Torn"));
 
 			var team = new LeagueTeam() { Name = "Team A" };
+			team.TeamId = 1;
 			league.Teams.Add(team);
 
 			league.Players.Add(new LeaguePlayer() { Name = "One", Id = "001", Comment = "one" } );
@@ -26,6 +27,7 @@ namespace TornWeb
 			team.Players.Add(league.Players[2]);
 
 			team = new LeagueTeam() { Name = "Team B" };
+			team.TeamId = 2;
 			league.Teams.Add(team);
 
 			league.Players.Add(new LeaguePlayer() { Name = "Four", Id = "004", Comment = "one" } );
@@ -34,6 +36,7 @@ namespace TornWeb
 			team.Players.Add(league.Players[4]);
 
 			team = new LeagueTeam() { Name = "Team C" };
+			team.TeamId = 3;
 			league.Teams.Add(team);
 
 			return league;			
@@ -70,6 +73,7 @@ namespace TornWeb
 		void AddTeam(Game game)
 		{
 			var gameTeam = new GameTeam();
+			gameTeam.Time = new DateTime(2018, 1, 1, 12, 0, 0);
 			gameTeam.Players.Add(new GamePlayer() { PlayerId = "005", Score = 1000, Colour = Colour.Blue } );
 			gameTeam.Score = 1000;
 			game.Teams.Add(gameTeam);
@@ -124,9 +128,12 @@ namespace TornWeb
 			AddGame(league);
 
 			Assert.AreEqual(1, league.AllGames.Count, "game count");
-			Assert.AreEqual(1, league.Teams[0].AllPlayed.Count, "team 0 game count");
-			Assert.AreEqual(1, league.Teams[1].AllPlayed.Count, "team 1 game count");
-			Assert.AreEqual(0, league.Teams[2].AllPlayed.Count, "team 2 game count");
+//			Assert.AreEqual(1, league.Teams[0].AllPlayed.Count, "team 0 game count");
+//			Assert.AreEqual(1, league.Teams[1].AllPlayed.Count, "team 1 game count");
+//			Assert.AreEqual(0, league.Teams[2].AllPlayed.Count, "team 2 game count");
+			Assert.AreEqual(1, league.Played(league.Teams[0]).Count, "team 0 game count");
+			Assert.AreEqual(1, league.Played(league.Teams[1]).Count, "team 1 game count");
+			Assert.AreEqual(0, league.Played(league.Teams[2]).Count, "team 2 game count");
 		}
 
 		[Test]
