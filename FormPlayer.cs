@@ -61,30 +61,23 @@ namespace Torn.UI
 			}
 			else
 			{
-				var reader = LaserGameServer.GetPlayers(search);
+				var players = LaserGameServer.GetPlayers(search);
 
-				try
+				listViewPlayers.Items.Clear();
+				foreach (var player in players)
 				{
-					listViewPlayers.Items.Clear();
-					while (reader.Read())
+					var item = new ListViewItem(player.Alias);
+					item.SubItems.Add(player.Name);
+					item.Tag = player.Id;
+					listViewPlayers.Items.Add(item);
+				}
+
+				for (int i = 0; i < listViewPlayers.Items.Count; i++)
+					if (listViewPlayers.Items[i].Text.StartsWith(search, true, CultureInfo.CurrentCulture))
 					{
-						var item = new ListViewItem(reader.GetString(0));
-						item.SubItems.Add(reader.GetString(1));
-						item.Tag = reader.GetString(2);
-						listViewPlayers.Items.Add(item);
+						listViewPlayers.Items[i].Selected = true;
+						break;
 					}
-
-					for (int i = 0; i < listViewPlayers.Items.Count; i++)
-						if (listViewPlayers.Items[i].Text.StartsWith(search, true, CultureInfo.CurrentCulture))
-						{
-							listViewPlayers.Items[i].Selected = true;
-							break;
-						}
-				}
-				finally
-				{
-					reader.Close();
-				}
 			}
 
 			if (!LaserGameServer.HasNames())

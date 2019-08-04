@@ -141,7 +141,7 @@ namespace Torn
 			}
 		}
 
-		public override DbDataReader GetPlayers(string mask)
+		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
 			string sql = "SELECT TOP " + PlayersLimit.ToString() + 
 					    "M.codename AS [Alias], M.givenNames + ' ' + M.surname AS [Name], " +
@@ -152,11 +152,8 @@ namespace Torn
 					    "ORDER BY M.codename, [ID]";
 			using (SqlCommand cmd = new SqlCommand(sql, connection))
 			{
-//			    var param = new SqlParameter("mask", SqlDbType.NVarChar);
-//			    param.Value = mask + "%";
-
-			    cmd.Parameters.AddWithValue("@mask", mask);
-			    return cmd.ExecuteReader();
+				cmd.Parameters.AddWithValue("@mask", mask + "%");
+				return ReadPlayers(cmd.ExecuteReader());
 			}
 		}
 	}

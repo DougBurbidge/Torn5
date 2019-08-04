@@ -199,11 +199,6 @@ namespace Torn
 		/// <summary>User-defined. Often used for player grade.</summary>
 		public string Comment { get; set; }  // 
 	
-		public LeaguePlayer() 
-		{
-			played = new Collection<GamePlayer>();
-		}
-
 		public LeaguePlayer Clone()
 		{
 			LeaguePlayer clone = new LeaguePlayer();
@@ -211,8 +206,6 @@ namespace Torn
 			clone.Id = Id;
 			clone.Handicap = Handicap;
 			clone.Comment = Comment;
-
-			clone.played = new Collection<GamePlayer>(played);
 
 			return clone;
 		}
@@ -1349,7 +1342,8 @@ namespace Torn
 		public void ToJson(StringBuilder sb, int indent)
 		{
 			sb.Append('\t', indent);
-			sb.Append("{\n");
+			sb.Append('{');
+			sb.Append('\n');
 
 			Utility.JsonKeyValue(sb, indent + 1, "gameId", GameId.ToString());
 			Utility.JsonKeyValue(sb, indent + 1, "description", "\"" + Description + "\"");

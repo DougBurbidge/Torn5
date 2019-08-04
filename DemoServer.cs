@@ -9,8 +9,13 @@ namespace Torn
 	/// </summary>
 	public class DemoServer: LaserGameServer
 	{
+		string[] adjectives;
+		string[] nouns;
+
 		public DemoServer()
 		{
+			adjectives = new string[] { "Actual ", "Cyber ", "Dark ", "Laser ", "Mega ", "Phasor ", "Super ", "Ultra ", "Vector ", "Zone " };
+			nouns = new string[] { "Ace", "Blazer", "Chaser", "Dueller", "Rogue", "Runner", "Shark", "Star", "Stunner", "Trekker" };
 		}
 
 		public override List<ServerGame> GetGames()
@@ -32,9 +37,6 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
-			var adjectives = new string[] { "Actual ", "Cyber ", "Dark ", "Laser ", "Mega ", "Phasor ", "Super ", "Ultra ", "Vector ", "Zone " };
-			var nouns = new string[] { "Ace", "Blazer", "Chaser", "Dueller", "Rogue", "Runner", "Shark", "Star", "Stunner", "Trekker" };
-
 		    game.Players = new List<ServerPlayer>();
 			Random r = new Random();
 
@@ -52,9 +54,21 @@ namespace Torn
 			}
 		}
 
-		public override DbDataReader GetPlayers(string mask)
+		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
-			return null;
+			var players = new List<LaserGamePlayer>();
+			for (int x = 0; x < 10; x++)
+				for (int y = 0; y < 10; y++)
+				{
+					players.Add(new LaserGamePlayer
+				            {
+				            	Alias = adjectives[x] + nouns[y],
+				            	Name = adjectives[x] + nouns[y],
+				            	Id = "demo" + (x * 10).ToString() + y.ToString()
+				            }
+				           );
+				}
+			return players;
 		}
 	}
 }

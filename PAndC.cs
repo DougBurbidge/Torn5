@@ -229,7 +229,7 @@ namespace Torn
 				"WHERE SUBSTRING(M.QRCode, 1, 5) <> '00005' AND Alias LIKE @mask ORDER BY Alias LIMIT 1000";
 		}
 
-		public override DbDataReader GetPlayers(string mask)
+		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
 			if (!EnsureConnected())
 				return null;
@@ -237,7 +237,7 @@ namespace Torn
 			using (var cmd = new MySqlCommand(PlayersSql(), connection))
 			{
 				cmd.Parameters.AddWithValue("@mask", "%" + mask + "%");
-			    return cmd.ExecuteReader();
+				return ReadPlayers(cmd.ExecuteReader());
 			}
 		}
 
