@@ -116,8 +116,9 @@ namespace Torn
 		public static void JsonKeyValue(StringBuilder sb, int indent, string key, string value)
 		{
 			sb.Append('\t', indent);
-			sb.Append('\"');
+			sb.Append('"');
 			sb.Append(key);
+			sb.Append('"');
 			sb.Append(':');
 			sb.Append(value);
 			sb.Append('\n');

@@ -134,7 +134,7 @@ namespace Zoom
 	}
 
 	[Flags]
-	public enum ChartType { None = 0, Bar = 1, Rug = 2, BoxPlot = 4, Histogram = 8, KernelDensityEstimate = 16 };
+	public enum ChartType { None = 0, Bar = 1, Rug = 2, BoxPlot = 4, Histogram = 8, KernelDensityEstimate = 16, Area = 32, XYScatter = 64};
 	public static class ChartTypeExtensions
 	{
 		public static ChartType ToChartType(string value)
@@ -147,7 +147,22 @@ namespace Zoom
 			if (value.Contains("box")) chartType |= ChartType.BoxPlot;
 			if (value.Contains("histogram")) chartType |= ChartType.Histogram;
 			if (value.Contains("kernel")) chartType |= ChartType.KernelDensityEstimate;
+			if (value.Contains("columns")) chartType |= ChartType.Area;
 			return chartType;
+		}
+	}
+
+	public class ChartPoint
+	{
+		public Color Color { get; set; }
+		public DateTime X { get; set; }
+		public double Y { get; set; }
+		
+		public ChartPoint(DateTime x, double y, Color color)
+		{
+			Color = color;
+			X = x;
+			Y = y;
 		}
 	}
 
@@ -205,7 +220,9 @@ namespace Zoom
 		/// <summary>List of values to be shown as a scatter plot / quartile plot / stem-and-leaf plot / rug map / kernel density estimation.</summary>
 		public List<double> Data { get; private set; }
 		/// <summary>Can hold whatever data the caller wants.</summary>
-    	public object Custom { get; set; }
+		[System.ComponentModel.Bindable(true)]
+		[System.ComponentModel.TypeConverter(typeof(System.ComponentModel.StringConverter))]
+		public object Tag { get; set; }
 
 		public ZCell(string text = "", Color color = default(Color), ZCell barCell = null)
 		{
@@ -490,7 +507,7 @@ namespace Zoom
 				float widest = Columns[col] is ZRibbonColumn ? 15 : 1;
 				float total = widest;
 				int count = 1;
-				double min = 0.0;
+				double min = double.MaxValue;
 				double max = 0.0;
 				string numberFormat = "";
 				bool hasNumber = false;
@@ -499,18 +516,23 @@ namespace Zoom
 				{
 					if (col < Rows[row].Count)
 					{
-						if (Rows[row][col].Number.HasValue && !double.IsNaN((double)Rows[row][col].Number))
+						if (Rows[row][col].Data != null && Rows[row][col].Data.Any())
+						{
+							hasNumber = true;
+							min = Math.Min(min, Rows[row][col].Data.Min());
+							max = Math.Max(max, Rows[row][col].Data.Max());
+						}
+						else if (Rows[row][col].Tag is List<ChartPoint> && ((List<ChartPoint>)Rows[row][col].Tag).Any())
+						{
+							hasNumber = true;
+							min = Math.Min(min, ((List<ChartPoint>)Rows[row][col].Tag).Min(p => p.X.Ticks));
+							max = Math.Max(max, ((List<ChartPoint>)Rows[row][col].Tag).Max(p => p.X.Ticks));
+						}
+						else if (Rows[row][col].Number.HasValue && !double.IsNaN((double)Rows[row][col].Number))
 						{
 							hasNumber = true;
 							min = Math.Min(min, Math.Abs((double)Rows[row][col].Number));
 							max = Math.Max(max, Math.Abs((double)Rows[row][col].Number));
-							if (Rows[row][col].Data != null)
-							{
-								min = Math.Min(min, Rows[row][col].Data.DefaultIfEmpty(0).Min());
-								max = Math.Max(max, Rows[row][col].Data.DefaultIfEmpty(0).Max());
-							}
-							if (!string.IsNullOrEmpty(Rows[row][col].NumberFormat))
-							    numberFormat = Rows[row][col].NumberFormat;
 						}
 						else if (!string.IsNullOrEmpty(Rows[row][col].Text))
 						{
@@ -519,6 +541,9 @@ namespace Zoom
 							count++;
 							widest = Math.Max(widest, width);
 						}
+
+						if (hasNumber && !string.IsNullOrEmpty(Rows[row][col].NumberFormat))
+							numberFormat = Rows[row][col].NumberFormat;
 					}
 				}
 
@@ -585,7 +610,7 @@ namespace Zoom
 			return s.ToString();
 		}
 
-		// This writes an HTML fragment -- it does not include <head> or <body> tags etc.
+		/// This writes an HTML fragment -- it does not include <head> or <body> tags etc.
 		public override string ToHtml()
 		{
 			List<ZColumn> columns = Columns;
@@ -806,25 +831,30 @@ namespace Zoom
 		{
 			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, cell.Hyper);
 
-//			int decimals = 0;
-//			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
-//				decimals = int.Parse(cell.NumberFormat.Substring(1));
-//
-//			if (cell.Number == 0)
-//			{
-//				s.Append('0');
-//				if (decimals > 0)
-//					s.Append('\u2008');  // punctutation space (width of a .)
-//				s.Append('\u2002', decimals);  // en space (nut)
-//			}
+			int decimals = 0;
+			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
+				decimals = int.Parse(cell.NumberFormat.Substring(1));
+
 			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
-			    cell.Number < -0.0001 || cell.Number > 0.0001)
-				s.Append(WebUtility.HtmlEncode(cell.Text));
+			    Math.Abs((double)cell.Number) > 0.0001)
+			{
+				var numberAsText = WebUtility.HtmlEncode(cell.Text);
+				s.Append(numberAsText);
+				
+				// Now right-pad it, with a decimal-sized space if there's no decimal, and digit-sized spaces if there's not enough digits after the decimal.
+				if (decimals > 0 && !numberAsText.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator))
+					s.Append('\u2008');  // punctutation space (width of a .)
+				var digitsAfterDecimal = numberAsText.Length - numberAsText.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator) - 1;
+				if (decimals > 0 && digitsAfterDecimal < decimals)
+					s.Append('0', decimals - digitsAfterDecimal);
+				if (decimals > 0 && digitsAfterDecimal < 4)
+					s.Append('\u2002', 4 - digitsAfterDecimal);  // en space (nut)
+			}
 			else
 			{
 				int magnitude = (int)Math.Floor(Math.Log10(Math.Abs((double)cell.Number)));
 				string digits = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";  // superscript 0123456789
-				s.AppendFormat("{0:F2}", (double)cell.Number * Math.Pow(10, -magnitude));
+				s.AppendFormat("{0:F" + (decimals - 1).ToString() + "}", (double)cell.Number * Math.Pow(10, -magnitude));
 				s.Append('\u00D7'); // multiply symbol
 				s.Append("10");
 				if (magnitude < 0)
@@ -849,6 +879,18 @@ namespace Zoom
 			SvgEndText(s, hyper);
 		}
 
+		void SvgCircle(StringBuilder s, int indent, double x, double y, double radius, Color fillColor)
+		{
+			if (fillColor != Color.Empty)
+			{
+				s.Append('\t', indent);
+				s.AppendFormat("<circle cx=\"{0:F2}\" cy=\"{1:F2}\" r=\"{2:F2}\" style=\"fill:", x, y, radius);
+				s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
+				s.Append("\" />\n");
+			}
+		}
+
+		/// points x values are scaled; points y values are unscaled and should be in the range 0 .. yMax. 
 		void SvgPolygon(StringBuilder s, int indent, List<Tuple<double, double>> points, double rowTop, double rowHeight, double yMax, Color fillColor)
 		{
 			s.Append('\t', indent);
@@ -879,7 +921,7 @@ namespace Zoom
 
 		enum TopBottomType { Left, Right, Both }; // Does the top of this ribbon have an end from the left? An end to the right? One of each? What about the bottom of the ribbon?
 
-		// Draw one complete vertical ribbon plus its horizontal ends.
+		/// Draw one complete vertical ribbon plus its horizontal ends.
 		void SvgRibbon(StringBuilder s, int indent, ZRibbonColumn ribbon, float left, float width, float top, float height, float rowHeight)
 		{
 			if (ribbon.From.Count == 0 && ribbon.To.Count == 0)
@@ -1012,7 +1054,7 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
+		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
 		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max)
 		{
 			s.AppendFormat("<div><svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
@@ -1112,31 +1154,31 @@ namespace Zoom
 			return rowTop;
 		}
 
-		// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
+		/// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
 		double Scale(double value, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return (value - scaleMin) / (scaleMax - scaleMin) * outputWidth;
 		}
 
-		// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
+		/// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
 		double ScaleWidth(double value, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return value / (scaleMax - scaleMin) * outputWidth;
 		}
 
-		// scaleMin and scaleMax are all in the before-scaling ordinate system. pixelValue and outputWidth are in the after-scaling ordinate system.
+		/// scaleMin and scaleMax are all in the before-scaling ordinate system. pixelValue and outputWidth are in the after-scaling ordinate system.
 		double AntiScale(double pixelValue, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return (pixelValue / outputWidth * (scaleMax - scaleMin)) + scaleMin;
 		}
 
-		// Return the y ordinate of the middle of the stated row. top is the top of the top row of the table. row is the 0-based row number. 
+		/// Return the y ordinate of the middle of the stated row. top is the top of the top row of the table. row is the 0-based row number. 
 		double RowMid(float top, int row, float rowHeight)
 		{
 			return top + (row + 0.5) * rowHeight;
 		}
 
-		// Return normal distribution value for this x. https://en.wikipedia.org/wiki/Normal_distribution
+		/// Return normal distribution value for this x. https://en.wikipedia.org/wiki/Normal_distribution
 		double Gauss(double x, double mean, double variance)
 		{
 			return 1 / Math.Sqrt(2 * Math.PI * variance) * Math.Exp(-Math.Pow(x - mean, 2) / 2 / variance);
@@ -1152,7 +1194,7 @@ namespace Zoom
 
 			int count = 0;
 			if (cell.ChartType.HasFlag(ChartType.Rug) || cell.ChartType.HasFlag(ChartType.BoxPlot) || 
-			    cell.ChartType.HasFlag(ChartType.Histogram) || cell.ChartType.HasFlag(ChartType.KernelDensityEstimate))
+			    cell.ChartType.HasFlag(ChartType.Histogram) || cell.ChartType.HasFlag(ChartType.KernelDensityEstimate) || cell.ChartType.HasFlag(ChartType.Area))
 			{
 				cell.Data.Sort();
 				count = cell.Data.Count;
@@ -1223,9 +1265,9 @@ namespace Zoom
 				double mean = sum / count;
 				double stddev = count <= 1 ? 0 : Math.Sqrt((squaredSum - (sum * sum / count)) / (count - 1));
 				double bandwidth =  1.06 * stddev * Math.Pow(count, -0.2);
-				
-				int n = width < 100 ? (int)width * 10 : (int)width * 10 / (int)(width / 50);
-				
+
+				int n = width < 100 ? (int)width * 10 : (int)width * 10 / (int)(width / 50);  // Number of points in curve for our kernel density estimate polygon.
+
 				var points = new List<Tuple<double, double>>();
 				points.Add(new Tuple<double, double>(left, 0));
 				double yMax = 0;
@@ -1273,6 +1315,33 @@ namespace Zoom
 					SvgRect2(s, 1, left + markCentre - markWidth / 2, top + height - (markNumber + 1) * markHeight, markWidth, markHeight, markColor);  // Paint mark.
 				}
 			}
+
+			if (cell.ChartType.HasFlag(ChartType.Area))  // Area
+			{
+				var points = new List<Tuple<double, double>>();
+				points.Add(new Tuple<double, double>(left, 0));
+				for (int i = 0; i < count; i++)
+					points.Add(new Tuple<double, double>(left + Scale(i, width, 0, count - 1), cell.Data[i]));
+				points.Add(new Tuple<double, double>(left + width, 0));
+				SvgPolygon(s, 1, points, top, height, chartMax, chartColor);
+				SvgRect2(s, 1, left, top + height - Scale(0.5, height, chartMin, chartMax) - 0.1, width, 0.1, chartColor); // Paint mean stripe.
+				SvgRect2(s, 1, left, top + height - Scale(0.5, height, chartMin, chartMax), width, 0.1, backColor); // Paint mean stripe.
+			}
+
+			if (cell.ChartType.HasFlag(ChartType.XYScatter) && cell.Tag is List<ChartPoint>)  // XYScatter
+			{
+				var points = (List<ChartPoint>)cell.Tag;
+				var minY = Math.Min(0, points.Min(p => p.Y));
+				var maxY = Math.Max(1, points.Max(p => p.Y));
+				var radius = Math.Min(Math.Max(width / points.Count / 4, 0.1), 2.0);
+
+				SvgRect2(s, 1, left, top + height - Scale(1, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint "full height" stripe. (Points will actually appear above this line because scaling.)
+				SvgRect2(s, 1, left, top + height - Scale(0.5, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint mean stripe.
+				SvgRect2(s, 1, left, top + height - Scale(0, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint baseline.
+
+				foreach (var point in points)
+					SvgCircle(s, 1, left + Scale(point.X.Ticks, width, chartMin, chartMax), top + height - Scale(point.Y, height, minY, maxY), radius, point.Color);
+			}
 		}
 
 		// Write a single table row.
@@ -1280,6 +1349,11 @@ namespace Zoom
 		{
 			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(odd));  // Paint the background for the whole row.
 
+			// Ensure ChartCells point to themselves, where they're part of a multi-cell chart.
+			foreach (var cell in row)
+				if (cell.ChartCell == null && row.Any(c => c.ChartCell == cell))
+					cell.ChartCell = cell;
+			
 			// Paint any chart cells for this row.
 			int start = 0;
 			while (start < Math.Min(Columns.Count, row.Count))
@@ -1413,7 +1487,7 @@ namespace Zoom
 				report.Colors = colors;
 		}
 
-		// Return a list of colours of bar cells, over all reports.
+		/// Return a list of colours of bar cells, over all reports.
 		List<Color> BarCellColors()
 		{
 			var result = new List<Color>();

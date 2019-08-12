@@ -294,16 +294,26 @@ namespace Torn.Report
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
 
+		string RestGames()
+		{
+			var sb = new StringBuilder();
+			sb.Append("\n  \"games\":[\n");
+			foreach (var game in Games())
+				game.ToJson(sb, 1);
+			sb.Append("]\n");
+			return sb.ToString();
+		}
+
 		string RestResponse(string rawUrl)
 		{
 			if (rawUrl == "elapsed")
-				return "{\n  \"elapsed\": " + Elapsed.ToString() + "\n}";
+				return "{\n  \"elapsed\": " + Elapsed().ToString() + "\n}";
 			else if (rawUrl == "games")
-				return "{\n  \"games\": " + Games.ToString() + "\n}";
+				return "{\n  \"games\": " + RestGames() + "\n}";
 			else if (rawUrl == "game")
-				return "{\n  \"game\": 0\n}";
+				return "{\n  \"game\": 0\n}";  // return one detailed game: all the players, all the details.
 			else if (rawUrl == "players")
-				return "{\n  \"players\": 0\n}";
+				return "{\n  \"players\": 0\n}";  // return the list of all players available rom this lasergame server.
 			else
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
@@ -537,21 +547,21 @@ namespace Torn.Report
 		}
 
 		/// <summary>Write a single pack report incorporating data from all the selected leagues.</summary>
-		public static void PackReport(string path, List<League> leagues, OutputFormat outputFormat)
+		public static void PackReport(string path, List<League> leagues, ReportTemplate reportTemplate, OutputFormat outputFormat)
 		{
 			if (path != null)
 			{
-				var soloGames = new List<Game>();
+				var round1Games = new List<Game>();
 				foreach (var league in leagues)
-					soloGames.AddRange(league.AllGames.Where(g => g.Title == "Round Robin" || g.Title == "Round 1" ||
+					round1Games.AddRange(league.AllGames.Where(g => g.Title == "Round Robin" || g.Title == "Round 1" ||
 					                                         g.Title == "Rep 1" || g.Title == "Repechage 1"));
 				
-				if (soloGames.Count == 0)
+				if (round1Games.Count == 0)
 					foreach (var league in leagues)
-						soloGames.AddRange(league.AllGames);
+						round1Games.AddRange(league.AllGames);
 
 				var reports = new ZoomReports();
-				reports.Add(Reports.PackReport(leagues, soloGames, null, null, null, ChartType.KernelDensityEstimate | ChartType.Rug, true));
+				reports.Add(Reports.PackReport(leagues, round1Games, reportTemplate.Title, reportTemplate.From, reportTemplate.To, ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), true));
 
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "packreport." + outputFormat.ToExtension())))
 					sw.Write(reports.ToOutput(outputFormat));

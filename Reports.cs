@@ -1575,7 +1575,7 @@ namespace Torn.Report
 		// overlapping 95% confidence intervals. If top pack's confidence interval overlaps bottom pack's interval, there are no outliers.
 		// ellipse containing 95% of values on a scatter plot. Draw 45 ellipses; see if they overlap.
 		/// <summary>Show overall stats for each pack, including a t test comparing it to all other packs combined.</summary>
-		public static ZoomReport PackReport(List<League> leagues, List<Game> soloGames, string title, DateTime? from, DateTime? to, ChartType chartType, bool description)
+		public static ZoomReport PackReport(List<League> leagues, List<Game> round1Games, string title, DateTime? from, DateTime? to, ChartType chartType, bool description)
 		{
 			// Build a list of player IDs.
 			var solos = new List<string>();
@@ -1612,15 +1612,32 @@ namespace Torn.Report
 				               hitsOn == 0 ? 1000000 : (double)hitsBy / hitsOn);
 			}
 
+			// Assign each league a color, for longitudinal chart points.
+			var leagueColors = new Dictionary<League, Color>();
+			for (int i = 0; i < leagues.Count; i++)
+			{
+				leagueColors.Add(leagues[i], Color.FromArgb((int)(0x80 + Math.Sin(2 * Math.PI * i / leagues.Count) * 0x7F),
+				                                      (int)(0x80 + Math.Sin(2 * Math.PI * i / leagues.Count + 2.0/3 * Math.PI) * 0x7F),
+				                                      (int)(0x80 + Math.Sin(2 * Math.PI * i / leagues.Count + 4.0/3 * Math.PI) * 0x7F)));
+			}
+			
 			// Build list of games to report on.
 			var games = new List<Game>();
+			var gameColors = new Dictionary<Game, Color>();
 			foreach (var league in leagues)
-				games.AddRange(league.AllGames.Where(g => g.Time > (from ?? DateTime.MinValue) && g.Time < (to ?? DateTime.MaxValue)));
+			{
+				var games2 = league.AllGames.Where(g => g.Time > (from ?? DateTime.MinValue) && g.Time < (to ?? DateTime.MaxValue));
+				games.AddRange(games2);
+				foreach (var game in games2)
+					gameColors.Add(game, leagueColors[league]);
+			}
+
+			games.Sort((x, y) => DateTime.Compare(x.Time, y.Time));
 
 			// Now build the pack report.
 			var	report = new ZoomReport((string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Pack Report" : title) + FromTo(games, from, to),
-				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Tag diff,t,p,Count,",
-				                        "center,left,integer,float,float,integer,float,float,float,float,float,float,integer");
+				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Count,Longitudinal",
+				                        "center,left,integer,float,float,integer,float,float,float,integer,float");
 			report.MaxChartByColumn = true;
 
 			var packs = games.SelectMany(game => game.Players().Select(player => player.Pack)).Distinct().ToList();
@@ -1630,13 +1647,15 @@ namespace Torn.Report
 				var row = new ZRow();
 				report.Rows.Add(row);
 				
-				row.Add(new ZCell(0, ChartType.None));  // put in a temporary Rank
-				row.Add(new ZCell(pack));  // set up pack name
+				row.Add(new ZCell(0, ChartType.None));  // 0: put in a temporary Rank
+				row.Add(new ZCell(pack));  // 1: set up pack name
 
 				// Sample 1 is "this pack".
 				var scoreRatios = new List<double>();
 				var tagRatios = new List<double>();
 				var tagDifferences = new List<double>();
+				var pointScoreRatios = new List<ChartPoint>();
+				var pointTagRatios = new List<ChartPoint>();
 
 				// Sample 2 is "all the other packs".
 				int n2 = 0;
@@ -1661,7 +1680,7 @@ namespace Torn.Report
 						if (player.HitsOn != 0)
 							gameTotalScale += (double)player.HitsBy / player.HitsOn / scale;
 					}
-					
+
 					foreach (var player in players)
 					{
 						double scale = player.PlayerId != null && soloLadder.ContainsKey(player.PlayerId) ? soloLadder[player.PlayerId] : 1;
@@ -1671,8 +1690,12 @@ namespace Torn.Report
 						if (player.Pack == pack)
 						{
 							scoreRatios.Add(scoreRatio);
+							pointScoreRatios.Add(new ChartPoint(game.Time, scoreRatio / (scoreRatio + 1), gameColors[game]));
 							if (tagRatio != null)
+							{
 								tagRatios.Add((double)tagRatio);
+								pointTagRatios.Add(new ChartPoint(game.Time, (double)(tagRatio / (tagRatio + 1)), gameColors[game]));
+							}
 							if (player.HitsBy != 0 || player.HitsOn != 0)
 								tagDifferences.Add(player.HitsBy / scale - player.HitsOn);
 						}
@@ -1698,15 +1721,15 @@ namespace Torn.Report
 					}
 				}
 
-				row.AddCell(new ZCell(scoreRatios.Average(), chartType, "P0")).Data.AddRange(scoreRatios);  // Average score ratio.
+				row.AddCell(new ZCell(scoreRatios.Average(), chartType, "P0")).Data.AddRange(scoreRatios);  // 2: Average score ratio.
 
 				double t = tStatistic(scoreRatios.Count, scoreRatios.Sum(), scoreRatios.Sum(x => Math.Pow(x, 2)), n2, scoreRatio2Sum, scoreRatio2SquaredSum);
 				double pValue = 1 - Erf(Math.Abs(t) / Math.Sqrt(2));
 
 				if (scoreRatios.Count * 0.9 > tagRatios.Count) // Less than 90% of the results for this pack have tag ratios, so show score ratio statistics.
 				{
-					row.Add(new ZCell(t, ChartType.None, "F2"));  // t statistic
-					row.Add(new ZCell(pValue, ChartType.None, "G2"));  // p value
+					row.Add(new ZCell(t, ChartType.None, "F2"));  // 3: t statistic
+					row.Add(new ZCell(pValue, ChartType.None, "G2"));  // 4: p value
 
 					if (Math.Abs(pValue) < 0.05 / packs.Count)
 						row.Last().Color = Color.FromArgb(0xFF, 0xC0, 0xC0);
@@ -1719,40 +1742,23 @@ namespace Torn.Report
 					row.Add(new ZCell("-"));  // p value
 				}
 
-				row.Add(new ZCell(scoreRatios.Count, ChartType.None, "F0"));  // Total games played.
+				row.Add(new ZCell(scoreRatios.Count, ChartType.None, "F0"));  // 5: Total games played.
 				
 				if (tagRatios.Count == 0)
 				{
-					row.Add(new ZCell("-"));  // Average tag ratio.
-					row.Add(new ZCell("-"));  // t statistic
-					row.Add(new ZCell("-"));  // p value
-
-					row.Add(new ZCell("-"));  // Average tag difference.
-					row.Add(new ZCell("-"));  // t statistic
-					row.Add(new ZCell("-"));  // p value
+					row.Add(new ZCell("-"));  // 6: Average tag ratio.
+					row.Add(new ZCell("-"));  // 7: t statistic
+					row.Add(new ZCell("-"));  // 8: p value
 				}
 				else
 				{
-					row.AddCell(new ZCell(tagRatios.Average(), chartType, "P0")).Data.AddRange(tagRatios);  // Average tag ratio.
+					row.AddCell(new ZCell(tagRatios.Average(), chartType, "P0")).Data.AddRange(tagRatios);  // 6: Average tag ratio.
 
 					t = tStatistic(tagRatios.Count, tagRatios.Sum(), tagRatios.Sum(x => Math.Pow(x, 2)), tagRatio2Count, tagRatio2Sum, tagRatio2SquaredSum);
 					pValue = 1 - Erf(Math.Abs(t) / Math.Sqrt(2));
 
-					row.Add(new ZCell(t, ChartType.None, "F2"));  // t statistic
-					row.Add(new ZCell(pValue, ChartType.None, "G2"));  // p value
-
-					if (Math.Abs(pValue) < 0.05 / packs.Count)
-						row.Last().Color = Color.FromArgb(0xFF, 0xC0, 0xC0);
-					else if (Math.Abs(pValue) < 0.05)
-						row.Last().Color = Color.FromArgb(0xFF, 0xF0, 0xF0);
-
-					row.AddCell(new ZCell(tagDifferences.Average(), chartType, "F2")).Data.AddRange(tagDifferences);  // Average tag difference.
-
-					t = tStatistic(tagDifferences.Count, tagDifferences.Sum(), tagDifferences.Sum(x => Math.Pow(x, 2)), tagDifference2Count, tagDifference2Sum, tagDifference2SquaredSum);
-					pValue = 1 - Erf(Math.Abs(t) / Math.Sqrt(2));
-
-					row.Add(new ZCell(t, ChartType.None, "F2"));  // t statistic
-					row.Add(new ZCell(pValue, ChartType.None, "G2"));  // p value
+					row.Add(new ZCell(t, ChartType.None, "F2"));  // 7: t statistic
+					row.Add(new ZCell(pValue, ChartType.None, "G2"));  // 8: p value
 
 					if (Math.Abs(pValue) < 0.05 / packs.Count)
 						row.Last().Color = Color.FromArgb(0xFF, 0xC0, 0xC0);
@@ -1760,7 +1766,12 @@ namespace Torn.Report
 						row.Last().Color = Color.FromArgb(0xFF, 0xF0, 0xF0);
 				}
 
-				row.Add(new ZCell(tagRatios.Count, ChartType.None, "F0"));  // Total games used for tag ratio statistics.
+				row.Add(new ZCell(tagRatios.Count, ChartType.None, "F0"));  // 9: Total games used for tag ratio statistics.
+
+				if (tagRatios.Any())
+					row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointTagRatios;  // 10: longitudinal scatter of tag ratios
+				else
+					row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointScoreRatios;  // 10: longitudinal scatter of score ratios
 			}  // foreach pack
 
 			report.Rows = report.Rows.OrderByDescending(x => x[7].Number).ThenByDescending(x => x[3].Number).ToList();
@@ -1769,13 +1780,14 @@ namespace Torn.Report
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
 			
+			// Do footer row.
 			var averages = new ZRow();
 			
 			averages.Add(new ZCell("", Color.Gray));
 			averages.Add(new ZCell("Averages", Color.Gray));
 			if (report.Rows.Any())
 				for (int i = 2; i < report.Rows[0].Count; i++)
-					if (i == 2 || i == 5 || i == 6 || i == 9 || i == 12)
+					if (report.Columns[i].Text == "Score Ratio" || report.Columns[i].Text == "Tag Ratio" || report.Columns[i].Text == "Count")
 						averages.Add(new ZCell(report.Rows.Average(row => row[i].Number), 
 						                       ChartType.None, report.Rows[0][i].NumberFormat, Color.Gray));
 					else
@@ -1783,7 +1795,8 @@ namespace Torn.Report
 
 			report.Rows.Add(averages);
 
-			if (report.Rows.Sum(row => row[12].Number) == 0)  // No tag ratios for any pack.
+			var tagRatiosCount = report.Rows.Sum(row => row[9].Number);
+			if (tagRatiosCount == 0)  // No tag ratios for any pack.
 			{
 				for (int i = 12; i >= 6; i--)
 					report.RemoveColumn(i);
@@ -1791,7 +1804,19 @@ namespace Torn.Report
 					foreach (var cell in row)
 						cell.ChartCell = report.Cell(row, "Score Ratio");
 			}
-			
+			else if (report.Rows.Sum(row => row[5].Number) * 0.9 <= tagRatiosCount) // More than 90% of the results for this pack have tag ratios, so don't show score ratio statistics.
+			{
+				report.RemoveColumn(5);
+				report.RemoveColumn(4);
+				report.RemoveColumn(3);
+				report.RemoveColumn(2);
+				for (int i = 0; i < report.Rows.Count; i++)
+				{
+					report.Rows[i][0].ChartCell = report.Rows[i][2];
+					report.Rows[i][1].ChartCell = report.Rows[i][2];
+				}
+			}
+
 			if (description)
 			{
 				report.Description = "This report shows the performance of each pack, each time it is used by a logged-on player. " +

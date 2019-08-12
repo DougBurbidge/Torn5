@@ -511,7 +511,24 @@ namespace Torn.UI
 				foreach (ListViewItem item in listViewLeagues.SelectedItems)
 					leagues.Add(((Holder)item.Tag).League);
 
-				ExportPages.PackReport(exportFolder, leagues, ((Holder)listViewLeagues.SelectedItems[0].Tag).ReportTemplates.OutputFormat);
+				var dialog = new FormReport();
+				dialog.ReportTemplate = new ReportTemplate();
+				dialog.ReportTemplate.ReportType = ReportType.Packs;
+				dialog.ReportTemplate.Title = "Pack report for " + string.Join(", ", leagues);
+				dialog.ReportTemplate.Settings.Add("ChartType=kernel density estimate with rug");
+				dialog.ReportTemplate.Settings.Add("Description");
+				if (dialog.ShowDialog() == DialogResult.OK)
+				{
+					Cursor.Current = Cursors.WaitCursor;
+					try
+					{
+						ExportPages.PackReport(exportFolder, leagues, dialog.ReportTemplate, ((Holder)listViewLeagues.SelectedItems[0].Tag).ReportTemplates.OutputFormat);
+					}
+					finally
+					{
+						Cursor.Current = Cursors.Default;
+					}
+				}
 			}
 		}
 
@@ -761,10 +778,13 @@ namespace Torn.UI
 						var serverPlayer = playersBox.Players().Find(sp => sp.PlayerId == gp.PlayerId ||
 						                                             (gp is ServerPlayer && sp.PandCPlayerId == ((ServerPlayer)gp).PandCPlayerId) ||
 						                                             sp.Pack == gp.Pack);
-						serverPlayers.Add(serverPlayer);
+						if (serverPlayer != null)
+						{
+							serverPlayers.Add(serverPlayer);
 
-						serverPlayer.PlayerId = gp.PlayerId;
-						serverPlayer.Item.SubItems[1].Text = league.Alias(gp);
+							serverPlayer.PlayerId = gp.PlayerId;
+							serverPlayer.Item.SubItems[1].Text = league.Alias(gp);
+						}
 					}
 
 					if (serverPlayers.Any() && box < teamBoxes.Count)
@@ -850,7 +870,7 @@ namespace Torn.UI
 				sb.Append(listViewLeagues.SelectedItems.Count.ToString(CultureInfo.CurrentCulture));
 				          sb.Append(" leagues selected:\n");
 				foreach (ListViewItem item in listViewLeagues.SelectedItems)
-					sb.Append(item.SubItems[1].Text + ", ");
+					sb.Append(item.SubItems[1].Text + ",\n");
 				sb.Remove(sb.Length - 2, 2);
 				labelLeagueDetails.Text = sb.ToString();
 			}
