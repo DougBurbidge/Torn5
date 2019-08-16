@@ -152,6 +152,7 @@ namespace Torn.Report
 	public class WebOutput: IDisposable
 	{
 		WebServer ws;
+		List<ServerGame> serverGames;
 
 		public Holders Leagues { get; set; }
 		public Holder MostRecentHolder { get; set; }  // This is the league that owns the game with the most recent DateTime.
@@ -160,6 +161,8 @@ namespace Torn.Report
 		public ServerGame MostRecentServerGame { get; set; }
 		public Func<int> Elapsed { get; set; }  // Learn you Func Prog on five minute quick!
 		public Func<List<ServerGame>> Games { get; set; }
+		public Action<ServerGame> PopulateGame { get; set; }
+		public Func<string, List<LaserGamePlayer>> Players { get; set; }
 
 		public WebOutput(int port = 8080)
 		{
@@ -294,26 +297,64 @@ namespace Torn.Report
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
 
+		string RestGame(string gameTime)
+		{
+			var sb = new StringBuilder();
+			if (serverGames == null)
+				serverGames = Games();
+
+			var game = serverGames.Find(g => g.Time.ToString("s") == gameTime);
+			if (game == null)
+				return "{\n\"error\": \"game " + gameTime + "not found.\"\n}";
+
+			PopulateGame(game);
+
+			sb.Append("\"game\":{\n");
+			game.ToJson2(sb, 1);
+			sb.Append('\n');
+			sb.Append("}\n");
+			return sb.ToString();
+		}
+
 		string RestGames()
 		{
 			var sb = new StringBuilder();
-			sb.Append("\n  \"games\":[\n");
-			foreach (var game in Games())
+			sb.Append("\"games\":[\n");
+			serverGames = Games();
+			foreach (var game in serverGames)
+			{
 				game.ToJson(sb, 1);
-			sb.Append("]\n");
+				sb.Append(",\n");
+			}
+			sb.Remove(sb.Length - 2, 2);
+			sb.Append("\n]\n");
+			return sb.ToString();
+		}
+
+		string RestPlayers(string mask)
+		{
+			var sb = new StringBuilder();
+			sb.Append("\"players\":[\n");
+			foreach (var player in Players(mask))
+			{
+				player.ToJson(sb, 1);
+				sb.Append(",\n");
+			}
+			sb.Remove(sb.Length - 2, 2);
+			sb.Append("\n]\n");
 			return sb.ToString();
 		}
 
 		string RestResponse(string rawUrl)
 		{
-			if (rawUrl == "elapsed")
-				return "{\n  \"elapsed\": " + Elapsed().ToString() + "\n}";
-			else if (rawUrl == "games")
-				return "{\n  \"games\": " + RestGames() + "\n}";
-			else if (rawUrl == "game")
-				return "{\n  \"game\": 0\n}";  // return one detailed game: all the players, all the details.
-			else if (rawUrl == "players")
-				return "{\n  \"players\": 0\n}";  // return the list of all players available rom this lasergame server.
+			if (rawUrl.EndsWith("elapsed"))
+				return "{\n\t\"elapsed\":" + Elapsed().ToString() + "\n}";
+			else if (rawUrl.EndsWith("games"))
+				return RestGames();
+			else if (rawUrl.Contains("game2"))
+				return RestGame(rawUrl.Substring(rawUrl.IndexOf("game") + 4));  // return one detailed game: all the players, all the details.
+			else if (rawUrl.EndsWith("players"))
+				return RestPlayers("");  // return the list of all players available from this lasergame server.
 			else
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}

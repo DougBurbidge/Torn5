@@ -167,6 +167,8 @@ namespace Torn.UI
 
 				formPlayer.LaserGameServer = laserGameServer;
 				webOutput.Games = laserGameServer.GetGames;
+				webOutput.PopulateGame = laserGameServer.PopulateGame;
+				webOutput.Players = laserGameServer.GetPlayers;
 			}
 			catch (Exception ex)
 			{

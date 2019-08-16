@@ -1345,15 +1345,42 @@ namespace Torn
 			sb.Append('{');
 			sb.Append('\n');
 
-			Utility.JsonKeyValue(sb, indent + 1, "gameId", GameId.ToString());
-			Utility.JsonKeyValue(sb, indent + 1, "description", "\"" + Description + "\"");
-			Utility.JsonKeyValue(sb, indent + 1, "startTime", "\"" + Description + "\"");
-			Utility.JsonKeyValue(sb, indent + 1, "description", Time.ToString("YYYY-MM-DDTHH:mm:ss.zzzZ"));
+			if (!string.IsNullOrEmpty(Description))
+				Utility.JsonKeyValue(sb, indent + 1, "description", Description);
+			Utility.JsonKeyValue(sb, indent + 1, "startTime", Time.ToString("s"));
 			if (InProgress)
-				Utility.JsonKeyValue(sb, indent + 1, "inProgress", "1");
+				Utility.JsonKeyValue(sb, indent + 1, "inProgress", 1, 0, false);
 			else
-				Utility.JsonKeyValue(sb, indent + 1, "endTime", Time.ToString("YYYY-MM-DDTHH:mm:ss.zzzZ"));
+				Utility.JsonKeyValue(sb, indent + 1, "endTime", Time.ToString("s"), false);
 
+			sb.Append('\t', indent);
+			sb.Append('}');
+		}
+
+		public void ToJson2(StringBuilder sb, int indent)
+		{
+			sb.Append('\t', indent);
+			sb.Append('{');
+			sb.Append('\n');
+
+			Utility.JsonKeyValue(sb, indent + 1, "description", Description);
+			Utility.JsonKeyValue(sb, indent + 1, "startTime", Time.ToString("s"));
+			if (InProgress)
+				Utility.JsonKeyValue(sb, indent + 1, "inProgress", 1);
+			else
+				Utility.JsonKeyValue(sb, indent + 1, "endTime", Time.ToString("s"));
+
+			sb.Append('\t', indent + 1);
+			sb.Append("players:[\n");
+			foreach (var player in Players)
+			{
+				player.ToJson(sb, indent + 2);
+				sb.Append(",\n");
+			}
+			sb.Remove(sb.Length - 2, 2);
+			sb.Append('\n');
+			sb.Append('\t', indent + 1);
+			sb.Append("]\n");
 			sb.Append('\t', indent);
 			sb.Append('}');
 		}
@@ -1371,6 +1398,40 @@ namespace Torn
 		public override string ToString()
 		{
 			return "ServerPlayer " + Alias;
+		}
+
+		public void ToJson(StringBuilder sb, int indent)
+		{
+			sb.Append('\t', indent);
+			sb.Append('{');
+			sb.Append('\n');
+
+			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerId", PandCPlayerId);
+			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerTeamId", PandCPlayerTeamId);
+			Utility.JsonKeyValue(sb, indent + 1, "alias", Alias);
+
+			Utility.JsonKeyValue(sb, indent + 1, "teamId", TeamId);
+			Utility.JsonKeyValue(sb, indent + 1, "playerId", PlayerId);
+			Utility.JsonKeyValue(sb, indent + 1, "pack", Pack);
+			Utility.JsonKeyValue(sb, indent + 1, "score", Score);
+			Utility.JsonKeyValue(sb, indent + 1, "rank", (int)Rank, 0);
+
+			if (Colour != Colour.None)
+				Utility.JsonKeyValue(sb, indent + 1, "colour", Colour.ToString());
+
+			Utility.JsonKeyValue(sb, indent + 1, "hitsBy", HitsBy, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "hitsOn", HitsOn, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "basehits", BaseHits, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "baseDestroys", BaseDestroys, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "baseDenies", BaseDenies, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "baseDenied", BaseDenied, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "yellowCards", YellowCards, 0);
+			Utility.JsonKeyValue(sb, indent + 1, "redCards", RedCards, 0);
+
+			sb.Remove(sb.Length - 2, 2);
+			sb.Append('\n');
+			sb.Append('\t', indent);
+			sb.Append('}');
 		}
 	}
 }

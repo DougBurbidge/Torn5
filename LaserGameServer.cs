@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Text;
 
 namespace Torn
 {
@@ -59,6 +60,21 @@ namespace Torn
 		public string Alias { get; set; }
 		public string Name { get; set; }
 		public string Id { get; set; }
+
+		public void ToJson(StringBuilder sb, int indent)
+		{
+			sb.Append('\t', indent);
+			sb.Append('{');
+			sb.Append('\n');
+
+			Utility.JsonKeyValue(sb, indent + 1, "alias", Alias);
+			if (!string.IsNullOrEmpty(Name))
+				Utility.JsonKeyValue(sb, indent + 1, "name", Name);
+			Utility.JsonKeyValue(sb, indent + 1, "id", Id, false);
+
+			sb.Append('\t', indent);
+			sb.Append('}');
+		}
 	}
 
 	/// <summary>This is a fake stub lasergame server for test purposes.</summary>
