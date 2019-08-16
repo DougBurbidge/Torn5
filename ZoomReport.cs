@@ -846,8 +846,12 @@ namespace Zoom
 					s.Append('\u2008');  // punctutation space (width of a .)
 				var digitsAfterDecimal = numberAsText.Length - numberAsText.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator) - 1;
 				if (decimals > 0 && digitsAfterDecimal < decimals)
+				{
 					s.Append('0', decimals - digitsAfterDecimal);
-				if (decimals > 0 && digitsAfterDecimal < 4)
+					if (digitsAfterDecimal < 4)
+						s.Append('\u2002', 4 - decimals);  // en space (nut)
+				}
+				else if (decimals > 0 && digitsAfterDecimal < 4)
 					s.Append('\u2002', 4 - digitsAfterDecimal);  // en space (nut)
 			}
 			else
