@@ -386,6 +386,14 @@ namespace Zoom
 		public abstract IEnumerable<Color> BarCellColors();
 	}
 
+	public static class ZoomUtility
+	{
+		public static bool Valid<T>(this IList<T> list, int i)
+		{
+			return 0 <= i && i < list.Count;
+		}
+	}
+
 	public class ZoomReport: ZoomReportBase
 	{
 		public List<ZColumn> Columns { get; private set; }
@@ -458,7 +466,8 @@ namespace Zoom
 
 		public ZCell Cell(ZRow row, string columnText)
 		{
-			return row[Columns.FindIndex(x => x.Text == columnText)];
+			int i = Columns.FindIndex(x => x.Text == columnText);
+			return row.Valid(i) ? row[i] : null;
 		}
 
 		public bool ColumnEmpty(int i)
