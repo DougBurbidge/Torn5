@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -298,8 +298,8 @@ namespace Torn
 			}
 			set { colour = value; }
 		}
-		public int Score { get; set; }
-		public int Adjustment { get; set; }
+		public double Score { get; set; }
+		public double Adjustment { get; set; }
 		public double Points { get; set; }
 		public double PointsAdjustment { get; set; }
 
@@ -330,9 +330,9 @@ namespace Torn
 		{
 			GameTeam gt = (GameTeam)obj;
 			if (this.Points == gt.Points)
-				return gt.Score - this.Score;
+				return gt.Score.CompareTo(this.Score);
 			else
-				return Math.Sign(gt.Points - this.Points);
+				return gt.Points.CompareTo(this.Points);
 		}
 
 		public static Comparison<GameTeam> CompareTime = (gameTeam1, gameTeam2) => gameTeam1.Time.CompareTo(gameTeam2.Time);
@@ -349,7 +349,7 @@ namespace Torn
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
 		public string Pack { get; set; }
-		public int Score { get; set; }
+		public double Score { get; set; }
 		public uint Rank { get; set; }
 		public Colour Colour { get; set; }
 		public int HitsBy { get; set; }
@@ -378,7 +378,7 @@ namespace Torn
 
 		int IComparable.CompareTo(object obj)
 		{
-			return ((GamePlayer)obj).Score - this.Score;
+			return ((GamePlayer)obj).Score.CompareTo(this.Score);
 		}
 
 		public GamePlayer CopyTo(GamePlayer target)
@@ -498,8 +498,8 @@ namespace Torn
 				 string.Join(", ", this.Teams.Select(x => x.ToString())));
 		}
 
-		int? totalScore = null;
-		public int TotalScore()
+		double? totalScore = null;
+		public double TotalScore()
 		{
 			if (totalScore == null && totalScore != 0)
 				totalScore = Teams.Sum(t => t.Score);
@@ -874,10 +874,10 @@ namespace Torn
 					gameTeam.Time = game.Time;
 					gameTeam.TeamId = xteam.GetInt("teamid");
 					gameTeam.Colour = ColourExtensions.ToColour(xteam.GetString("colour"));
-					gameTeam.Score = xteam.GetInt("score");
-					gameTeam.Points = xteam.GetInt("points");
-					gameTeam.Adjustment = xteam.GetInt("adjustment");
-					gameTeam.PointsAdjustment = xteam.GetInt("victorypointsadjustment");
+					gameTeam.Score = xteam.GetDouble("score");
+					gameTeam.Points = xteam.GetDouble("points");
+					gameTeam.Adjustment = xteam.GetDouble("adjustment");
+					gameTeam.PointsAdjustment = xteam.GetDouble("victorypointsadjustment");
 
 					game.Teams.Add(gameTeam);
 				}
@@ -1034,7 +1034,7 @@ namespace Torn
 
 					doc.AppendNode(teamNode, "teamid", team.TeamId ?? -1);
 					doc.AppendNode(teamNode, "colour", team.Colour.ToString());
-					doc.AppendNode(teamNode, "score", team.Score);
+					doc.AppendNonZero(teamNode, "score", team.Score);
 					doc.AppendNonZero(teamNode, "points", team.Points);
 					doc.AppendNonZero(teamNode, "adjustment", team.Adjustment);
 					doc.AppendNonZero(teamNode, "victorypointsadjustment", team.PointsAdjustment);
@@ -1051,7 +1051,7 @@ namespace Torn
 					doc.AppendNode(playerNode, "teamid", player.TeamId ?? -1);
 					doc.AppendNode(playerNode, "playerid", player.PlayerId);
 					doc.AppendNode(playerNode, "pack", player.Pack);
-					doc.AppendNode(playerNode, "score", player.Score);
+					doc.AppendNonZero(playerNode, "score", player.Score);
 					doc.AppendNode(playerNode, "rank", (int)player.Rank);
 					doc.AppendNonZero(playerNode, "hitsby", player.HitsBy);
 					doc.AppendNonZero(playerNode, "hitson", player.HitsOn);
@@ -1119,12 +1119,17 @@ namespace Torn
 
 		public List<GamePlayer> Played(LeaguePlayer leaguePlayer, bool includeSecret = true)
 		{
+			return Played(AllGames, leaguePlayer, includeSecret);
+		}
+
+		public static List<GamePlayer> Played(IEnumerable<Game> games, LeaguePlayer leaguePlayer, bool includeSecret)
+		{
 			var played = new List<GamePlayer>();
 
 			if (leaguePlayer == null)
 				return played;
 
-			foreach (var game in AllGames)
+			foreach (var game in games)
 			{
 				GamePlayer gamePlayer = includeSecret || !game.Secret ? game.Players().Find(gp => gp.PlayerId == leaguePlayer.Id) : null;
 				if (gamePlayer != null)
@@ -1384,6 +1389,11 @@ namespace Torn
 			sb.Append('\t', indent);
 			sb.Append('}');
 		}
+		
+		public ServerGame(string json)
+		{
+			
+		}
 	}
 
 	/// <summary>Represents a player as stored on the laser game server.</summary>
@@ -1413,7 +1423,7 @@ namespace Torn
 			Utility.JsonKeyValue(sb, indent + 1, "teamId", TeamId);
 			Utility.JsonKeyValue(sb, indent + 1, "playerId", PlayerId);
 			Utility.JsonKeyValue(sb, indent + 1, "pack", Pack);
-			Utility.JsonKeyValue(sb, indent + 1, "score", Score);
+			Utility.JsonKeyValue(sb, indent + 1, "score", Score.ToString());
 			Utility.JsonKeyValue(sb, indent + 1, "rank", (int)Rank, 0);
 
 			if (Colour != Colour.None)

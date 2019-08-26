@@ -158,6 +158,7 @@ namespace Torn.UI
 			orderBy.Enabled = i == 0 || i == 2;
 			labelOrderBy.Enabled = i == 0 || i == 2;
 			description.Enabled = true;
+			longitudinal.Enabled = i == 0 || i == 2 || i == 9;
 
 			labelTopWhat.Text = i == 2 ? "players" : "teams";
 		}

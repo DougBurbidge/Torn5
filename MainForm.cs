@@ -504,6 +504,7 @@ namespace Torn.UI
 			}
 		}
 
+		FormReport packReport; 
 		void ButtonPackReportClick(object sender, EventArgs e)
 		{
 			if (GetExportFolder() != null)
@@ -513,18 +514,23 @@ namespace Torn.UI
 				foreach (ListViewItem item in listViewLeagues.SelectedItems)
 					leagues.Add(((Holder)item.Tag).League);
 
-				var dialog = new FormReport();
-				dialog.ReportTemplate = new ReportTemplate();
-				dialog.ReportTemplate.ReportType = ReportType.Packs;
-				dialog.ReportTemplate.Title = "Pack report for " + string.Join(", ", leagues);
-				dialog.ReportTemplate.Settings.Add("ChartType=kernel density estimate with rug");
-				dialog.ReportTemplate.Settings.Add("Description");
-				if (dialog.ShowDialog() == DialogResult.OK)
+				if (packReport == null)
+				{
+					packReport = new FormReport();
+					packReport.ReportTemplate = new ReportTemplate();
+					packReport.ReportTemplate.ReportType = ReportType.Packs;
+					packReport.ReportTemplate.Title = "Pack report for " + string.Join(", ", leagues);
+					packReport.ReportTemplate.Settings.Add("ChartType=kernel density estimate with rug");
+					packReport.ReportTemplate.Settings.Add("Description");
+					packReport.ReportTemplate.Settings.Add("Longitudinal");
+				}
+
+				if (packReport.ShowDialog() == DialogResult.OK)
 				{
 					Cursor.Current = Cursors.WaitCursor;
 					try
 					{
-						ExportPages.PackReport(exportFolder, leagues, dialog.ReportTemplate, ((Holder)listViewLeagues.SelectedItems[0].Tag).ReportTemplates.OutputFormat);
+						ExportPages.PackReport(exportFolder, leagues, packReport.ReportTemplate, ((Holder)listViewLeagues.SelectedItems[0].Tag).ReportTemplates.OutputFormat);
 					}
 					finally
 					{

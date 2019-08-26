@@ -81,6 +81,17 @@ namespace Torn.UI
 			return id.ShowDialog() == DialogResult.OK ? (double)id.numericUpDown1.Value : defaultResponse;
 		}
 
+		public static bool GetDouble(string title, string message, ref double response)
+		{
+			var id = new InputDialog(title, message);
+			id.SetNumeric((decimal)response);
+			Boolean b = (id.ShowDialog() == DialogResult.OK);
+			
+			if (b)
+				response = (int)id.numericUpDown1.Value;
+			return b;
+		}
+
 		void SetNumeric(decimal value)
 		{
 			textBox1.Visible = false;

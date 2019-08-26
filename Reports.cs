@@ -135,7 +135,7 @@ namespace Torn.Report
 						if (ratio)
 						{
 							if (league.Game(gameTeam).TotalScore() != 0)
-								scoreList.Add(1.0 * gameTeam.Score / league.Game(gameTeam).TotalScore() * league.Game(gameTeam).Teams.Count);
+								scoreList.Add(gameTeam.Score / league.Game(gameTeam).TotalScore() * league.Game(gameTeam).Teams.Count);
 						}
 						else
 							scoreList.Add(gameTeam.Score);
@@ -783,9 +783,9 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Solo Ladder" : rt.Title,
-			                                   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games",
-			                                   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer",
-			                                   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,");
+			                                   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Longitudinal",
+			                                   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,float",
+			                                   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,,,");
 			report.MaxChartByColumn = true;
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
@@ -812,7 +812,7 @@ namespace Torn.Report
 					else
 						row.Add(new ZCell(string.Join(", ", pt.Value.Select(x => x.Name))));  // Team(s) played for
 
-					var played = league.Played(player);
+					var played = League.Played(games, player, includeSecret);
 
 					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, "N0"));  // Av score
 					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
@@ -822,16 +822,22 @@ namespace Torn.Report
 
 					List<double> scoreRatios = new List<double>();
 					List<double> srxTrs = new List<double>();
+					var pointRatios = new List<ChartPoint>();
 					foreach (var play in played)
 					{
 						var game = league.Game(play);
 						if (game != null)
 						{
 							var playerCount = game.Players().Count;
-							scoreRatios.Add(((double)play.Score) / game.TotalScore() * playerCount);
-							srxTrs.Add(((double)play.Score) / game.TotalScore() * playerCount * play.HitsBy / play.HitsOn);
+							var scoreRatio = (double)play.Score / game.TotalScore() * playerCount;
+							var tagRatio = 1.0 * play.HitsBy / play.HitsOn;
+							scoreRatios.Add(scoreRatio);
+							srxTrs.Add(((double)play.Score) / game.TotalScore() * playerCount * tagRatio);
+							pointRatios.Add(new ChartPoint(game.Time, scoreRatio / (scoreRatio + 1), Color.FromArgb(0xFF, 0x33, 0x00)));  // scarlet
+							pointRatios.Add(new ChartPoint(game.Time, tagRatio / (tagRatio + 1), Color.FromArgb(0x3D, 0x42, 0x8B)));  // royal blue
 						}
 					}
+
 					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P1"));  // Score ratio
 					row.Add(DataCell(srxTrs, rt.Drops, chartType, "P1"));  // SR x TR
 
@@ -841,7 +847,7 @@ namespace Torn.Report
 					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
 
-					row.Add(new ZCell(games.Count(), ChartType.None, "N0"));  // Games
+					row.Add(new ZCell(played.Count(), ChartType.None, "N0"));  // Games
 
 					if (rt.Drops == null)
 						row.Add(new ZCell(""));  // games dropped
@@ -853,6 +859,9 @@ namespace Torn.Report
 			    	    else
 							row.Add(new ZCell(""));  // games dropped
 					}
+
+					if (rt.Settings.Contains("Longitudinal"))
+						row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointRatios;  // Longitudinal scatter of score ratios and tag ratios.
 
  					row[0].ChartCell = row[3];
  					row[1].ChartCell = row[3];
@@ -871,7 +880,15 @@ namespace Torn.Report
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
 
-			report.RemoveZeroColumns();
+			if (rt.Settings.Contains("Longitudinal"))
+			{
+				report.Rows[0].Last().Text = "1";
+				report.RemoveZeroColumns();
+				report.Rows[0].Last().Text = null;
+			}
+			else
+				report.RemoveZeroColumns();
+
 			return report;
 		}  // SoloLadder
 
@@ -1121,9 +1138,9 @@ namespace Torn.Report
 		}
 
 		// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputRange gives the range of the after-scaling ordinate system.
-		static float Scale(double value, float outputRange, float scaleMin, float scaleMax)
+		static float Scale(double value, float outputRange, double scaleMin, double scaleMax)
 		{
-			return ((float)value - scaleMin) / (scaleMax - scaleMin) * outputRange;
+			return (float)((value - scaleMin) / (scaleMax - scaleMin) * outputRange);
 		}
 
 		static float Scale(DateTime value, double outputRange, DateTime scaleMin, DateTime scaleMax)
@@ -1295,7 +1312,7 @@ namespace Torn.Report
 			report.MaxChartByColumn = true;
 
 			var totals = new GamePlayer();
-			int totalScore = 0;
+			double totalScore = 0;
 			int totalCount = 0;
 
 			foreach (GamePlayer gamePlayer in league.Played(player))
@@ -1569,13 +1586,18 @@ namespace Torn.Report
 			return report;
 		}
 
+		// Things I'm not doing right:
+		// I'm taking the ratio of two things (hits by / hit on). This is wrong -- hits by and hits on are each normally distributed, but a ratio is not. Instead I should convert to a logit: p/(1-p).
+		// (I'm already doing something like this (but I'm not sure if it's exactly this) for Longitudinal.)
+		// I'm calculating _n_ different p values, and then dividing the p threshold by _n_ to avoid false positives. But this causes false negatives. See notes below for possible ways around this. 
 		// false discovery rate. multivariate repeated measures. logit = p/(1-p). poisson model. 
 		// do some histograms of: #hits by each pack, #hits on each pack, #hitsby minus #hitson, ratios of each pack, logits of each pack, and see what's normally distributed.
 		// ch 7, ch 11.5 bootstrapping, p 1034 questions of interest, ch27
 		// overlapping 95% confidence intervals. If top pack's confidence interval overlaps bottom pack's interval, there are no outliers.
 		// ellipse containing 95% of values on a scatter plot. Draw 45 ellipses; see if they overlap.
+
 		/// <summary>Show overall stats for each pack, including a t test comparing it to all other packs combined.</summary>
-		public static ZoomReport PackReport(List<League> leagues, List<Game> round1Games, string title, DateTime? from, DateTime? to, ChartType chartType, bool description)
+		public static ZoomReport PackReport(List<League> leagues, List<Game> round1Games, string title, DateTime? from, DateTime? to, ChartType chartType, bool description, bool longitudinal)
 		{
 			// Build a list of player IDs.
 			var solos = new List<string>();
@@ -1641,6 +1663,7 @@ namespace Torn.Report
 			report.MaxChartByColumn = true;
 
 			var packs = games.SelectMany(game => game.Players().Select(player => player.Pack)).Distinct().ToList();
+			bool missingTags = false;  // True if any pack is missing some tag ratios.
 
 			foreach (string pack in packs)
 			{
@@ -1765,16 +1788,22 @@ namespace Torn.Report
 					else if (Math.Abs(pValue) < 0.05)
 						row.Last().Color = Color.FromArgb(0xFF, 0xF0, 0xF0);
 				}
+				missingTags |= tagRatios.Count < scoreRatios.Count;
 
 				row.Add(new ZCell(tagRatios.Count, ChartType.None, "F0"));  // 9: Total games used for tag ratio statistics.
 
-				if (tagRatios.Any())
-					row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointTagRatios;  // 10: longitudinal scatter of tag ratios
-				else
-					row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointScoreRatios;  // 10: longitudinal scatter of score ratios
+				if (longitudinal)
+				{
+					if (tagRatios.Any())
+						row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointTagRatios;  // 10: longitudinal scatter of tag ratios
+					else
+						row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointScoreRatios;  // 10: longitudinal scatter of score ratios
+				}
 			}  // foreach pack
 
 			report.Rows = report.Rows.OrderByDescending(x => x[7].Number).ThenByDescending(x => x[3].Number).ToList();
+
+			var tagRatiosCount = report.Rows.Sum(row => row[9].Number);
 
 			// Assign ranks.
 			for (int i = 0; i < report.Rows.Count; i++)
@@ -1795,7 +1824,6 @@ namespace Torn.Report
 
 			report.Rows.Add(averages);
 
-			var tagRatiosCount = report.Rows.Sum(row => row[9].Number);
 			if (tagRatiosCount == 0)  // No tag ratios for any pack.
 			{
 				for (int i = 12; i >= 6; i--)
@@ -1823,18 +1851,21 @@ namespace Torn.Report
 				    "Each score the pack gains is scaled by the player's ratio, effectively 'handicapping'. " +
 				    "You should ignore results from a pack where most of its games are played by a particular player. " +
 				    "You should ignore results from a pack with less than 10 or so games. <br/>" +
-					"'t' is the result of Student's t test -- the further the number is from 0, the more this pack's average deviates from the average of all the rest of the packs. " +
-					"'p' is the likelihood of the t test result occurring by chance." +
-					"You should pay attention to any pack with a p value smaller than " + (0.05 / packs.Count).ToString("G2", CultureInfo.CurrentCulture) +
-					" -- these results are statistically significant, meaning that there is less than a 5% chance that such results occurred by chance. " +
+				    "'t' is the result of Student's t test -- the further the number is from 0, the more this pack's average deviates from the average of all the rest of the packs. " +
+				    "'p' is the likelihood of the t test result occurring by chance." +
+				    "You should pay attention to any pack with a p value smaller than " + (0.05 / packs.Count).ToString("G2", CultureInfo.CurrentCulture) +
+				    " -- these results are statistically significant, meaning that there is less than a 5% chance that such results occurred by chance. " +
 				    "Once you know which packs are at the ends of the curve, you should remove any unusually good or bad packs. " +
 				    "In a team event, you can try to balance the colours, by removing the best pack from this colour, the worst from that colour, etc.";
 			
-//				if (something)
-//			        report.Description += " Note that on Nexus or Helios, in .Torn files created by Torn 4, only games committed with \"Calculate scores by Torn\" selected in Preferences will show tag ratios.";
+				if (missingTags)
+					report.Description += " Note that on Nexus or Helios, in .Torn files created by Torn 4, only games committed with \"Calculate scores by Torn\" selected in Preferences will show tag ratios.";
 			
+				if (longitudinal)
+					report.Description += " The \"Longitudinal\" column shows the performance of each pack in each game over time -- higher means the pack did better.";
+
 				if (from != null || to != null)
-			        report.Description += " The report has been limited to games" + FromTo(games, from, to) + ".";
+					report.Description += " The report has been limited to games" + FromTo(games, from, to) + ".";
 			}
 
 			return report;

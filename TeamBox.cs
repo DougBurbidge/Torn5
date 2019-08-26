@@ -188,8 +188,8 @@ namespace Torn.UI
 
 		void MenuAdjustTeamScoreClick(object sender, EventArgs e)
 		{
-			int a = GameTeam.Adjustment == 0 ? -1000 : GameTeam.Adjustment;
-			if (InputDialog.GetInteger("Adjustment", "Set team score adjustment", ref a))
+			double a = GameTeam.Adjustment == 0 ? -1000 : GameTeam.Adjustment;
+			if (InputDialog.GetDouble("Adjustment", "Set team score adjustment", ref a))
 				GameTeam.Adjustment = a;
 			Recalculate(false);
 		}
@@ -295,7 +295,7 @@ namespace Torn.UI
 		int IComparer.Compare(object x, object y)
 		{
 			return (x is ListViewItem && y is ListViewItem && ((ListViewItem)x).Tag is ServerPlayer && ((ListViewItem)y).Tag is ServerPlayer) ?
-				((ServerPlayer)((ListViewItem)y).Tag).Score - ((ServerPlayer)((ListViewItem)x).Tag).Score :
+				((ServerPlayer)((ListViewItem)y).Tag).Score.CompareTo(((ServerPlayer)((ListViewItem)x).Tag).Score) :
 				0;
 		}
 	}

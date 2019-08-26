@@ -65,6 +65,7 @@ namespace Torn.UI
 			this.chartType = new System.Windows.Forms.ComboBox();
 			this.labelTitle = new System.Windows.Forms.Label();
 			this.title = new System.Windows.Forms.TextBox();
+			this.longitudinal = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
 			this.groupBoxDateRange.SuspendLayout();
@@ -413,7 +414,7 @@ namespace Torn.UI
 			this.description.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.description.Location = new System.Drawing.Point(12, 619);
 			this.description.Name = "description";
-			this.description.Size = new System.Drawing.Size(250, 24);
+			this.description.Size = new System.Drawing.Size(88, 24);
 			this.description.TabIndex = 20;
 			this.description.Tag = "Description";
 			this.description.Text = "description";
@@ -461,6 +462,18 @@ namespace Torn.UI
 			this.title.Size = new System.Drawing.Size(211, 20);
 			this.title.TabIndex = 24;
 			// 
+			// longitudinal
+			// 
+			this.longitudinal.Checked = true;
+			this.longitudinal.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.longitudinal.Location = new System.Drawing.Point(153, 619);
+			this.longitudinal.Name = "longitudinal";
+			this.longitudinal.Size = new System.Drawing.Size(128, 24);
+			this.longitudinal.TabIndex = 25;
+			this.longitudinal.Tag = "Longitudinal";
+			this.longitudinal.Text = "longitudinal chart";
+			this.longitudinal.UseVisualStyleBackColor = true;
+			// 
 			// FormReport
 			// 
 			this.AcceptButton = this.buttonOK;
@@ -468,6 +481,7 @@ namespace Torn.UI
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(298, 694);
+			this.Controls.Add(this.longitudinal);
 			this.Controls.Add(this.title);
 			this.Controls.Add(this.labelTitle);
 			this.Controls.Add(this.chartType);
@@ -506,6 +520,7 @@ namespace Torn.UI
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.CheckBox longitudinal;
 		private System.Windows.Forms.TextBox title;
 		private System.Windows.Forms.Label labelTitle;
 		private System.Windows.Forms.CheckBox dateFrom;

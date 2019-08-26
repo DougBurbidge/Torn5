@@ -77,7 +77,7 @@ namespace Torn.Report
 					case ReportType.Packs:
 						var x = new List<League>();
 						x.Add(holder.League);
-						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), rt.Title, rt.From, rt.To, ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description));
+						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), rt.Title, rt.From, rt.To, ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal")));
 						break;
 					case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, rt.Title, rt.From, rt.To, description)); break;
 				}
@@ -602,7 +602,7 @@ namespace Torn.Report
 						round1Games.AddRange(league.AllGames);
 
 				var reports = new ZoomReports();
-				reports.Add(Reports.PackReport(leagues, round1Games, reportTemplate.Title, reportTemplate.From, reportTemplate.To, ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), true));
+				reports.Add(Reports.PackReport(leagues, round1Games, reportTemplate.Title, reportTemplate.From, reportTemplate.To, ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), reportTemplate.Settings.Contains("Description"), reportTemplate.Settings.Contains("Longitudinal")));
 
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "packreport." + outputFormat.ToExtension())))
 					sw.Write(reports.ToOutput(outputFormat));
