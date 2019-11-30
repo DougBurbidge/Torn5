@@ -91,6 +91,8 @@ namespace Torn.UI
 		string username;
 		string password;
 
+		string logFolder;
+
 		PlayersBox playersBox;
 		
 		FormPlayer formPlayer;
@@ -159,6 +161,7 @@ namespace Torn.UI
 							((Laserforce)laserGameServer).Connect(serverAddress);
 						else
 							((Laserforce)laserGameServer).Connect(serverAddress, sqlUserId, sqlPassword);
+//						((Laserforce)laserGameServer).LogFolder = logFolder;
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress); break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
@@ -235,11 +238,17 @@ namespace Torn.UI
 
 		void SetRowSpans(int adjust)
 		{
-			tableLayoutPanel1.SetCellPosition(panelLeague, new TableLayoutPanelCellPosition(0, (tableLayoutPanel1.RowCount + adjust) / 2));
-			tableLayoutPanel1.SetRowSpan(listViewLeagues, (tableLayoutPanel1.RowCount + adjust) / 2);
-			tableLayoutPanel1.SetRowSpan(panelLeague, (tableLayoutPanel1.RowCount + adjust + 1) / 2);
-			tableLayoutPanel1.SetRowSpan(panelGames, tableLayoutPanel1.RowCount + adjust);
-			tableLayoutPanel1.SetRowSpan(playersBox, tableLayoutPanel1.RowCount + adjust);
+			try
+			{
+				tableLayoutPanel1.SetCellPosition(panelLeague, new TableLayoutPanelCellPosition(0, (tableLayoutPanel1.RowCount + adjust) / 2));
+				tableLayoutPanel1.SetRowSpan(listViewLeagues, (tableLayoutPanel1.RowCount + adjust) / 2);
+				tableLayoutPanel1.SetRowSpan(panelLeague, (tableLayoutPanel1.RowCount + adjust + 1) / 2);
+				tableLayoutPanel1.SetRowSpan(panelGames, tableLayoutPanel1.RowCount + adjust);
+				tableLayoutPanel1.SetRowSpan(playersBox, tableLayoutPanel1.RowCount + adjust);
+			}
+			catch
+			{
+			}		
 		}
 
 		void EnableRemoveRowColumnButtons()
@@ -558,6 +567,7 @@ namespace Torn.UI
 			form.Sqluser = sqlUserId;
 			form.Password = sqlPassword;
 			form.WebPort = webPort;
+			form.LogFolder = logFolder;
 
 			if (form.ShowDialog() == DialogResult.OK)
 			{
@@ -574,6 +584,8 @@ namespace Torn.UI
 				windowsAuth = form.WindowsAuth;
 				sqlUserId = form.Sqluser;
 				sqlPassword = form.SqlPassword;
+				logFolder = form.LogFolder;
+				
 				ConnectLaserGameServer();
 				timeToNextCheck = TimeSpan.FromSeconds(1);
 				ButtonLatestGameClick(null,null);
@@ -615,7 +627,10 @@ namespace Torn.UI
 
 			var changed = new List<League>();
 
-			var id = new InputDialog("Description: ", "Set a description", listViewGames.SelectedItems[0].SubItems[2].Text);
+			var firstItem = listViewGames.SelectedItems[0];
+			while(firstItem.SubItems.Count <= 2) firstItem.SubItems.Add("");
+
+			var id = new InputDialog("Description: ", "Set a description", firstItem.SubItems[2].Text);
 			if (id.ShowDialog() == DialogResult.OK)
 				foreach (ListViewItem item in listViewGames.SelectedItems)
 					if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
@@ -680,28 +695,36 @@ namespace Torn.UI
 		void SetRowColumnCount(int rows, int columns)
 		{
 			for (int i = rows * columns + 3; i < tableLayoutPanel1.Controls.Count; )
-				tableLayoutPanel1.Controls.RemoveAt(tableLayoutPanel1.Controls.Count - 1);
+				try
+				{
+					tableLayoutPanel1.Controls.RemoveAt(tableLayoutPanel1.Controls.Count - 1);
+				}
+				catch
+				{
+				}
 
 			if (rows < tableLayoutPanel1.RowCount)
 				SetRowSpans(rows - tableLayoutPanel1.RowCount);
 
-			tableLayoutPanel1.RowCount = Math.Max(rows, 2);
-			tableLayoutPanel1.ColumnCount = Math.Max(columns + 3, 4);
-			
-			SetRowSpans(0);
- 
-			while (tableLayoutPanel1.RowStyles.Count < rows)
-				tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent));
-			foreach (RowStyle rowStyle in tableLayoutPanel1.RowStyles)
-				rowStyle.Height = 100 / tableLayoutPanel1.RowCount;
+			try {
+				tableLayoutPanel1.RowCount = Math.Max(rows, 2);
+				tableLayoutPanel1.ColumnCount = Math.Max(columns + 3, 4);
+				
+				SetRowSpans(0);
+	 
+				while (tableLayoutPanel1.RowStyles.Count < rows)
+					tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent));
+				foreach (RowStyle rowStyle in tableLayoutPanel1.RowStyles)
+					rowStyle.Height = 100 / tableLayoutPanel1.RowCount;
 
-			while (tableLayoutPanel1.ColumnStyles.Count < columns + 3)
-				tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent));
-			foreach (ColumnStyle columnStyle in tableLayoutPanel1.ColumnStyles)
-				columnStyle.Width = 100 / tableLayoutPanel1.ColumnCount;
+				while (tableLayoutPanel1.ColumnStyles.Count < columns + 3)
+					tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent));
+				foreach (ColumnStyle columnStyle in tableLayoutPanel1.ColumnStyles)
+					columnStyle.Width = 100 / tableLayoutPanel1.ColumnCount;
 
-			AddTeamBoxes();
-			EnableRemoveRowColumnButtons();
+				AddTeamBoxes();
+				EnableRemoveRowColumnButtons();
+			} catch {}
 		}
 
 		bool IncludeSecret()
@@ -784,7 +807,7 @@ namespace Torn.UI
 					foreach (var gp in gameTeam.Players)
 					{
 						var serverPlayer = playersBox.Players().Find(sp => sp.PlayerId == gp.PlayerId ||
-						                                             (gp is ServerPlayer && sp.PandCPlayerId == ((ServerPlayer)gp).PandCPlayerId) ||
+						                                             (gp is ServerPlayer && sp.ServerPlayerId == ((ServerPlayer)gp).ServerPlayerId) ||
 						                                             sp.Pack == gp.Pack);
 						if (serverPlayer != null)
 						{
@@ -1124,7 +1147,7 @@ namespace Torn.UI
 			leagueGame.ServerGame = serverGame;
 			if (oldGame != null && !oldGame.InProgress && oldGame.Events.Any()) {
 				serverGame.Events = oldGame.Events;
-				serverGame.Players.AddRange(oldGame.Players.Where(p => !serverGame.Players.Exists(p2 => p2.PandCPlayerId == p.PandCPlayerId)));
+				serverGame.Players.AddRange(oldGame.Players.Where(p => !serverGame.Players.Exists(p2 => p2.ServerPlayerId == p.ServerPlayerId)));
 			}
 			else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0 && laserGameServer != null) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
 			{

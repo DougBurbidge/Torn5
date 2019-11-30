@@ -164,12 +164,12 @@ namespace Torn
 				{
 					var oneEvent = new Event();
 					oneEvent.Time = GetDateTime(reader, "Time_Logged");
-					oneEvent.PandCPlayerId = GetInt(reader, "Player_ID");
-					oneEvent.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
+					oneEvent.ServerPlayerId = GetString(reader, "Player_ID");
+					oneEvent.ServerTeamId = GetInt(reader, "Player_Team_ID");
 					oneEvent.Event_Type = GetInt(reader, "Event_Type");
 					oneEvent.Score = GetInt(reader, "Score");
-					oneEvent.HitPlayer = GetInt(reader, "Result_Data_1");
-					oneEvent.HitTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
+					oneEvent.OtherPlayer = GetString(reader, "Result_Data_1");
+					oneEvent.OtherTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
 					oneEvent.PointsLostByDeniee = GetInt(reader, "Result_Data_3");
 					oneEvent.ShotsDenied = GetInt(reader, "Result_Data_4");
 					game.Events.Add(oneEvent);
@@ -185,11 +185,11 @@ namespace Torn
 				{
 					ServerPlayer player = new ServerPlayer();
 
-					player.PandCPlayerId = GetInt(reader, "Player_ID");
-					player.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
+					player.ServerPlayerId = GetString(reader, "Player_ID");
+					player.ServerTeamId = GetInt(reader, "Player_Team_ID");
 
-					if (0 <= player.PandCPlayerTeamId && player.PandCPlayerTeamId < 8)
-						player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
+					if (0 <= player.ServerTeamId && player.ServerTeamId < 8)
+						player.Colour = (Colour)(player.ServerTeamId + 1);
 					else
 						player.Colour = Colour.None;
 
@@ -198,16 +198,16 @@ namespace Torn
 					player.PlayerId = GetString(reader, "Button_ID");
 					player.Alias = GetString(reader, "Alias");
 
-					player.HitsBy = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
+					player.HitsBy = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && 
 					                               (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
-					player.HitsOn = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
+					player.HitsOn = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && 
 					                               (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
-					player.BaseHits = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 30);
-					player.BaseDestroys = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 31);
-					player.BaseDenies = game.Events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
-					player.BaseDenied = game.Events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && (x.Event_Type == 1404 || x.Event_Type == 1404)).Sum(x => x.ShotsDenied);
-					player.YellowCards = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 28);
-					player.RedCards = game.Events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 29);
+					player.BaseHits = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 30);
+					player.BaseDestroys = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 31);
+					player.BaseDenies = game.Events.FindAll(x => x.ServerPlayerId == player.ServerPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
+					player.BaseDenied = game.Events.FindAll(x => x.ServerPlayerId == player.ServerPlayerId && (x.Event_Type == 1404 || x.Event_Type == 1404)).Sum(x => x.ShotsDenied);
+					player.YellowCards = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 28);
+					player.RedCards = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 29);
 
 					game.Players.Add(player);
 				}

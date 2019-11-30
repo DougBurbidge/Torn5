@@ -73,9 +73,14 @@ namespace Torn.UI
 			this.labelPort = new System.Windows.Forms.Label();
 			this.numericPort = new System.Windows.Forms.NumericUpDown();
 			this.checkBoxWebServer = new System.Windows.Forms.CheckBox();
+			this.tabPageLaserforce = new System.Windows.Forms.TabPage();
+			this.buttonLogFolder = new System.Windows.Forms.Button();
+			this.textBoxLogFolder = new System.Windows.Forms.TextBox();
+			this.labelLogFolder = new System.Windows.Forms.Label();
 			this.panelBottom = new System.Windows.Forms.Panel();
 			this.buttonCancel = new System.Windows.Forms.Button();
 			this.buttonOK = new System.Windows.Forms.Button();
+			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
 			this.tabControl1.SuspendLayout();
 			this.tabPageSystem.SuspendLayout();
 			this.panel1.SuspendLayout();
@@ -87,6 +92,7 @@ namespace Torn.UI
 			this.panel3.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericPort)).BeginInit();
+			this.tabPageLaserforce.SuspendLayout();
 			this.panelBottom.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -96,6 +102,7 @@ namespace Torn.UI
 			this.tabControl1.Controls.Add(this.tabPageConfiguration);
 			this.tabControl1.Controls.Add(this.tabPageUpload);
 			this.tabControl1.Controls.Add(this.tabPage1);
+			this.tabControl1.Controls.Add(this.tabPageLaserforce);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
 			this.tabControl1.Name = "tabControl1";
@@ -407,14 +414,14 @@ namespace Torn.UI
 			this.textBoxSite.Location = new System.Drawing.Point(80, 124);
 			this.textBoxSite.Name = "textBoxSite";
 			this.textBoxSite.Size = new System.Drawing.Size(268, 20);
-			this.textBoxSite.TabIndex = 8;
+			this.textBoxSite.TabIndex = 1;
 			// 
 			// labelSite
 			// 
-			this.labelSite.Location = new System.Drawing.Point(6, 127);
+			this.labelSite.Location = new System.Drawing.Point(8, 127);
 			this.labelSite.Name = "labelSite";
 			this.labelSite.Size = new System.Drawing.Size(68, 23);
-			this.labelSite.TabIndex = 7;
+			this.labelSite.TabIndex = 0;
 			this.labelSite.Text = "Site:";
 			// 
 			// textBoxPassword
@@ -424,7 +431,7 @@ namespace Torn.UI
 			this.textBoxPassword.Location = new System.Drawing.Point(80, 176);
 			this.textBoxPassword.Name = "textBoxPassword";
 			this.textBoxPassword.Size = new System.Drawing.Size(268, 20);
-			this.textBoxPassword.TabIndex = 6;
+			this.textBoxPassword.TabIndex = 5;
 			// 
 			// textBoxUsername
 			// 
@@ -433,11 +440,11 @@ namespace Torn.UI
 			this.textBoxUsername.Location = new System.Drawing.Point(80, 150);
 			this.textBoxUsername.Name = "textBoxUsername";
 			this.textBoxUsername.Size = new System.Drawing.Size(268, 20);
-			this.textBoxUsername.TabIndex = 5;
+			this.textBoxUsername.TabIndex = 3;
 			// 
 			// labelPassword
 			// 
-			this.labelPassword.Location = new System.Drawing.Point(6, 179);
+			this.labelPassword.Location = new System.Drawing.Point(8, 179);
 			this.labelPassword.Name = "labelPassword";
 			this.labelPassword.Size = new System.Drawing.Size(68, 23);
 			this.labelPassword.TabIndex = 4;
@@ -445,10 +452,10 @@ namespace Torn.UI
 			// 
 			// labelUsername
 			// 
-			this.labelUsername.Location = new System.Drawing.Point(6, 153);
+			this.labelUsername.Location = new System.Drawing.Point(8, 153);
 			this.labelUsername.Name = "labelUsername";
 			this.labelUsername.Size = new System.Drawing.Size(68, 23);
-			this.labelUsername.TabIndex = 3;
+			this.labelUsername.TabIndex = 2;
 			this.labelUsername.Text = "Username:";
 			// 
 			// panel3
@@ -461,7 +468,7 @@ namespace Torn.UI
 			this.panel3.Location = new System.Drawing.Point(6, 6);
 			this.panel3.Name = "panel3";
 			this.panel3.Size = new System.Drawing.Size(93, 112);
-			this.panel3.TabIndex = 2;
+			this.panel3.TabIndex = 0;
 			// 
 			// radioHttps
 			// 
@@ -493,7 +500,7 @@ namespace Torn.UI
 			this.label2.Location = new System.Drawing.Point(3, 0);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(79, 13);
-			this.label2.TabIndex = 2;
+			this.label2.TabIndex = 0;
 			this.label2.Text = "Upload method";
 			// 
 			// radioSftp
@@ -503,7 +510,7 @@ namespace Torn.UI
 			this.radioSftp.Location = new System.Drawing.Point(3, 39);
 			this.radioSftp.Name = "radioSftp";
 			this.radioSftp.Size = new System.Drawing.Size(42, 17);
-			this.radioSftp.TabIndex = 1;
+			this.radioSftp.TabIndex = 2;
 			this.radioSftp.TabStop = true;
 			this.radioSftp.Tag = "sftp";
 			this.radioSftp.Text = "sftp";
@@ -515,7 +522,7 @@ namespace Torn.UI
 			this.radioFtp.Location = new System.Drawing.Point(3, 16);
 			this.radioFtp.Name = "radioFtp";
 			this.radioFtp.Size = new System.Drawing.Size(37, 17);
-			this.radioFtp.TabIndex = 0;
+			this.radioFtp.TabIndex = 1;
 			this.radioFtp.TabStop = true;
 			this.radioFtp.Tag = "ftp";
 			this.radioFtp.Text = "ftp";
@@ -570,6 +577,47 @@ namespace Torn.UI
 			this.checkBoxWebServer.Text = "Enable internal web server";
 			this.checkBoxWebServer.UseVisualStyleBackColor = true;
 			this.checkBoxWebServer.CheckedChanged += new System.EventHandler(this.CheckBoxWebServerCheckedChanged);
+			// 
+			// tabPageLaserforce
+			// 
+			this.tabPageLaserforce.Controls.Add(this.buttonLogFolder);
+			this.tabPageLaserforce.Controls.Add(this.textBoxLogFolder);
+			this.tabPageLaserforce.Controls.Add(this.labelLogFolder);
+			this.tabPageLaserforce.Location = new System.Drawing.Point(4, 22);
+			this.tabPageLaserforce.Name = "tabPageLaserforce";
+			this.tabPageLaserforce.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageLaserforce.Size = new System.Drawing.Size(356, 303);
+			this.tabPageLaserforce.TabIndex = 4;
+			this.tabPageLaserforce.Text = "Laserforce";
+			this.tabPageLaserforce.UseVisualStyleBackColor = true;
+			// 
+			// buttonLogFolder
+			// 
+			this.buttonLogFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonLogFolder.Location = new System.Drawing.Point(325, 4);
+			this.buttonLogFolder.Name = "buttonLogFolder";
+			this.buttonLogFolder.Size = new System.Drawing.Size(23, 23);
+			this.buttonLogFolder.TabIndex = 2;
+			this.buttonLogFolder.Text = "...";
+			this.buttonLogFolder.UseVisualStyleBackColor = true;
+			this.buttonLogFolder.Click += new System.EventHandler(this.ButtonLogFolderClick);
+			// 
+			// textBoxLogFolder
+			// 
+			this.textBoxLogFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxLogFolder.Location = new System.Drawing.Point(77, 6);
+			this.textBoxLogFolder.Name = "textBoxLogFolder";
+			this.textBoxLogFolder.Size = new System.Drawing.Size(242, 20);
+			this.textBoxLogFolder.TabIndex = 1;
+			// 
+			// labelLogFolder
+			// 
+			this.labelLogFolder.Location = new System.Drawing.Point(8, 9);
+			this.labelLogFolder.Name = "labelLogFolder";
+			this.labelLogFolder.Size = new System.Drawing.Size(70, 23);
+			this.labelLogFolder.TabIndex = 0;
+			this.labelLogFolder.Text = "txt log folder:";
 			// 
 			// panelBottom
 			// 
@@ -632,9 +680,16 @@ namespace Torn.UI
 			this.panel3.PerformLayout();
 			this.tabPage1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.numericPort)).EndInit();
+			this.tabPageLaserforce.ResumeLayout(false);
+			this.tabPageLaserforce.PerformLayout();
 			this.panelBottom.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+		private System.Windows.Forms.Label labelLogFolder;
+		private System.Windows.Forms.TextBox textBoxLogFolder;
+		private System.Windows.Forms.Button buttonLogFolder;
+		private System.Windows.Forms.TabPage tabPageLaserforce;
 		private System.Windows.Forms.RadioButton radioWindowsAuth;
 		private System.Windows.Forms.RadioButton radioSqlAuth;
 		private System.Windows.Forms.Label labelSqlUser;

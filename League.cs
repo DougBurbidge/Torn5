@@ -404,6 +404,8 @@ namespace Torn
 		/// <summary>Used for averaging data for a team, a game, etc.</summary>
 		public void DivideBy(int divisor)
 		{
+			if (divisor == 0) return;
+
 			Score /= divisor;
 			Rank /= (uint)divisor;
 			HitsBy /= divisor;
@@ -723,10 +725,10 @@ namespace Torn
 			if (game.Players == null)
 				return result;
 
-			var teams = game.Players.Select(x => x.PandCPlayerTeamId).Distinct();
+			var teams = game.Players.Select(x => x.ServerTeamId).Distinct();
 
 			foreach (int teamId in teams)
-				result.Add(GuessTeam(game.Players.FindAll(x => x.PandCPlayerTeamId == teamId).Select(y => y.PlayerId).ToList()));
+				result.Add(GuessTeam(game.Players.FindAll(x => x.ServerTeamId == teamId).Select(y => y.PlayerId).ToList()));
 
 			return result;
 		}
@@ -1283,12 +1285,12 @@ namespace Torn
 	public class Event
 	{
 		public DateTime Time;
-		public int PandCPlayerId;  // ID of shooter
-		public int PandCPlayerTeamId;  // team of shooter
+		public string ServerPlayerId;  // ID of player that this record is about
+		public int ServerTeamId;  // team of that player
 		public int Event_Type;  // see below
 		public int Score;  // points gained by shooter
-		public int HitPlayer;  // ID of shootee
-		public int HitTeam;  // team of shootee
+		public string OtherPlayer;  // ID of other involved player: for 0..13, this is the shootee; for 14..27 this is the shooter.
+		public int OtherTeam;  // team of other involved player
 		public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
 		public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
 
@@ -1399,8 +1401,8 @@ namespace Torn
 	/// <summary>Represents a player as stored on the laser game server.</summary>
 	public class ServerPlayer: GamePlayer
 	{
-		public int PandCPlayerId { get; set; }  // This is the under-the-hood PAndC table ID field.
-		public int PandCPlayerTeamId { get; set; }  // Ditto. These two are only used by systems with in-game data available.
+		public string ServerPlayerId { get; set; }  // This is the under-the-hood PAndC table ID field.
+		public int ServerTeamId { get; set; }   // Ditto. These two are only used by systems with in-game data available.
 		public string Alias { get; set; }
 		/// <summary>If this object is linked from a ListViewItem's Tag, list that ListViewItem here.</summary>
 		public ListViewItem Item { get; set; }
@@ -1416,8 +1418,8 @@ namespace Torn
 			sb.Append('{');
 			sb.Append('\n');
 
-			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerId", PandCPlayerId);
-			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerTeamId", PandCPlayerTeamId);
+			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerId", ServerPlayerId);
+			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerTeamId", ServerTeamId);
 			Utility.JsonKeyValue(sb, indent + 1, "alias", Alias);
 
 			Utility.JsonKeyValue(sb, indent + 1, "teamId", TeamId);

@@ -1089,7 +1089,7 @@ namespace Torn.Report
 								cell = new ZCell("\u2572", Color.Gray);
 							else if (player1 is ServerPlayer && player2 is ServerPlayer)
 							{
-								int count = game.ServerGame.Events.Count(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && x.HitPlayer == ((ServerPlayer)player2).PandCPlayerId && x.Event_Type < 14);
+								int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == ((ServerPlayer)player1).ServerPlayerId && x.OtherPlayer == ((ServerPlayer)player2).ServerPlayerId && x.Event_Type < 14);
 								cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? color : Color.Empty);
 								if (gameTeam != gameTeam2)
 									cell.BarColor = ZReportColors.Darken(color);
@@ -1104,7 +1104,7 @@ namespace Torn.Report
 					var startTime = game.ServerGame.Events.FirstOrDefault().Time;
 					int minutes = 0;  // How many whole minutes into the game are we?
 					if (player1 is ServerPlayer)
-						foreach (var eevent in game.ServerGame.Events.Where(x => x.PandCPlayerId == ((ServerPlayer)player1).PandCPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) ||(x.Event_Type >= 37 && x.Event_Type <= 1404))))
+						foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == ((ServerPlayer)player1).ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) ||(x.Event_Type >= 37 && x.Event_Type <= 1404))))
 						{
 							int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
 							s.Append('\u00B7', now - minutes);  // Add one dot for each whole minute of the game.
@@ -1213,10 +1213,10 @@ namespace Torn.Report
 			for (var i = spacing; i < minutes; i += spacing)
 				graphics.DrawString(i.ToString(), font, Brushes.Gray, Scale(i, bitmap.Width, 0, minutes), height - Scale(0, height, minScore, maxScore) - graphics.MeasureString("0", font).Height);  // Time labels.
 
-			var playerIds = game.ServerGame.Players.Select(p => p.PandCPlayerId).Distinct();
-			var playerTeams = new Dictionary<int, GameTeam>();  // Dictionary to let us quickly find a player's team.
+			var playerIds = game.ServerGame.Players.Select(p => p.ServerPlayerId).Distinct();
+			var playerTeams = new Dictionary<string, GameTeam>();  // Dictionary to let us quickly find a player's team.
 			foreach (var id in playerIds)
-				playerTeams.Add(id, game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == game.ServerGame.Players.Find(sp => sp.PandCPlayerId == id).PlayerId)));
+				playerTeams.Add(id, game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == game.ServerGame.Players.Find(sp => sp.ServerPlayerId == id).PlayerId)));
 
 			var currents = new Dictionary<GameTeam, KeyValuePair<DateTime, int>>();  // Dictionary of gameTeam -> <time, team score>.
 			
@@ -1229,7 +1229,7 @@ namespace Torn.Report
 			foreach (var oneEvent in game.ServerGame.Events)
 				if (oneEvent.Score != 0)
 				{
-					var serverPlayer = game.ServerGame.Players.Find(sp => sp.PandCPlayerId == oneEvent.PandCPlayerId);
+					var serverPlayer = game.ServerGame.Players.Find(sp => sp.ServerPlayerId == oneEvent.ServerPlayerId);
 					if (serverPlayer != null)
 					{
 						var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
@@ -1245,14 +1245,14 @@ namespace Torn.Report
 						var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), y);
 
 						if (oneEvent.Event_Type == 30) // Base hit: show in the base's colour not the player's colour.
-							pen.Color = ((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor();
+							pen.Color = ((Colour)(oneEvent.OtherTeam + 1)).ToSaturatedColor();
 
 						graphics.DrawLine(pen, oldPoint, newPoint);  // Show the hit.
 
 						if (oneEvent.Event_Type == 31) // Base destroyed.
 						{
 							// Show the hit in a dashed line, half player colour, half base colour.
-							var dashPen = new Pen(((Colour)(oneEvent.HitTeam + 1)).ToSaturatedColor(), 3);
+							var dashPen = new Pen(((Colour)(oneEvent.OtherTeam + 1)).ToSaturatedColor(), 3);
 							float baseHeight = Math.Abs(oldPoint.Y - newPoint.Y);
 							dashPen.DashPattern = new float[] { baseHeight * 0.11F, baseHeight * 0.22F };
 							dashPen.DashOffset = baseHeight * -0.11F;
@@ -1480,7 +1480,7 @@ namespace Torn.Report
 					else
 					{
 						var basesTotal = game.Teams.Sum(t => t.Players.Sum(p => p.BaseDestroys));
-						var thisDestroyed = game.ServerGame.Events.Count(e => e.Event_Type == 31 && e.HitTeam == (int)gameTeam.Colour - 1);
+						var thisDestroyed = game.ServerGame.Events.Count(e => e.Event_Type == 31 && e.OtherTeam == (int)gameTeam.Colour - 1);
 						var basesThisTeam = gameTeam.Players.Sum(p => p.BaseDestroys);
 						basesConceded = new ZCell(thisDestroyed, ChartType.Bar, "N0");
 						if (basesThisTeam == 0 && thisDestroyed == 0)
@@ -1590,11 +1590,11 @@ namespace Torn.Report
 		// I'm taking the ratio of two things (hits by / hit on). This is wrong -- hits by and hits on are each normally distributed, but a ratio is not. Instead I should convert to a logit: p/(1-p).
 		// (I'm already doing something like this (but I'm not sure if it's exactly this) for Longitudinal.)
 		// I'm calculating _n_ different p values, and then dividing the p threshold by _n_ to avoid false positives. But this causes false negatives. See notes below for possible ways around this. 
-		// false discovery rate. multivariate repeated measures. logit = p/(1-p). poisson model. 
-		// do some histograms of: #hits by each pack, #hits on each pack, #hitsby minus #hitson, ratios of each pack, logits of each pack, and see what's normally distributed.
-		// ch 7, ch 11.5 bootstrapping, p 1034 questions of interest, ch27
-		// overlapping 95% confidence intervals. If top pack's confidence interval overlaps bottom pack's interval, there are no outliers.
-		// ellipse containing 95% of values on a scatter plot. Draw 45 ellipses; see if they overlap.
+		// False discovery rate. multivariate repeated measures. logit = p/(1-p). poisson model. 
+		// Do some histograms of: #hits by each pack, #hits on each pack, #hitsby minus #hitson, ratios of each pack, logits of each pack, and see what's normally distributed.
+		// Applied Linear Statistical Models, Kutner et al: ch 7, ch 11.5 bootstrapping, p 1034 questions of interest, ch27
+		// Overlapping 95% confidence intervals. If top pack's confidence interval overlaps bottom pack's interval, there are no outliers.
+		// Ellipse containing 95% of values on a scatter plot. (X and y axes are hits by and hits on.) Draw an ellipse for each pack; see if they overlap.
 
 		/// <summary>Show overall stats for each pack, including a t test comparing it to all other packs combined.</summary>
 		public static ZoomReport PackReport(List<League> leagues, List<Game> round1Games, string title, DateTime? from, DateTime? to, ChartType chartType, bool description, bool longitudinal)
@@ -1856,13 +1856,13 @@ namespace Torn.Report
 				    "You should pay attention to any pack with a p value smaller than " + (0.05 / packs.Count).ToString("G2", CultureInfo.CurrentCulture) +
 				    " -- these results are statistically significant, meaning that there is less than a 5% chance that such results occurred by chance. " +
 				    "Once you know which packs are at the ends of the curve, you should remove any unusually good or bad packs. " +
-				    "In a team event, you can try to balance the colours, by removing the best pack from this colour, the worst from that colour, etc.";
+				    "In a team event, you can try to balance the colours, by removing the best pack from this colour, the worst from that colour, etc. <br/>";
 			
 				if (missingTags)
-					report.Description += " Note that on Nexus or Helios, in .Torn files created by Torn 4, only games committed with \"Calculate scores by Torn\" selected in Preferences will show tag ratios.";
+					report.Description += " Note that on Nexus or Helios, in .Torn files created by Torn 4, only games committed with \"Calculate scores by Torn\" selected in Preferences will show tag ratios. <br/>";
 			
 				if (longitudinal)
-					report.Description += " The \"Longitudinal\" column shows the performance of each pack in each game over time -- higher means the pack did better.";
+					report.Description += " The \"Longitudinal\" column shows the performance of each pack in each game over time -- higher means the pack did better. <br/>";
 
 				if (from != null || to != null)
 					report.Description += " The report has been limited to games" + FromTo(games, from, to) + ".";

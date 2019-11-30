@@ -109,6 +109,9 @@ namespace Torn.UI
 
 		public string SqlPassword { get { return textBoxSqlPassword.Text; }
 		                            set { textBoxSqlPassword.Text = value; } }
+		
+		public string LogFolder { get { return textBoxLogFolder.Text; }
+			                      set { textBoxLogFolder.Text = value; } }
 
 		void CheckBoxWebServerCheckedChanged(object sender, EventArgs e)
 		{
@@ -136,6 +139,15 @@ namespace Torn.UI
 
 			if (textBoxSqlUser.Enabled && string.IsNullOrEmpty(textBoxSqlUser.Text))
 				textBoxSqlUser.Text = "sa";
+		}
+
+		void ButtonLogFolderClick(object sender, EventArgs e)
+		{
+			if (!string.IsNullOrEmpty(textBoxLogFolder.Text))
+			    folderBrowserDialog1.SelectedPath = textBoxLogFolder.Text;
+
+			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+				textBoxLogFolder.Text = folderBrowserDialog1.SelectedPath;
 		}
 	}
 }
