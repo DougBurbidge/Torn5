@@ -161,7 +161,7 @@ namespace Torn.UI
 							((Laserforce)laserGameServer).Connect(serverAddress);
 						else
 							((Laserforce)laserGameServer).Connect(serverAddress, sqlUserId, sqlPassword);
-//						((Laserforce)laserGameServer).LogFolder = logFolder;
+						((Laserforce)laserGameServer).LogFolder = logFolder;
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress); break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
@@ -276,7 +276,7 @@ namespace Torn.UI
 
 		void ButtonAboutClick(object sender, EventArgs e)
 		{
-			MessageBox.Show("A tournament scores editor by Doug Burbidge.\nhttp://www.dougburbidge.com/Apps/\nhttps://github.com/DougBurbidge/Torn5/", "Torn 5");
+			MessageBox.Show("A tournament scores editor by Doug Burbidge.\n\nhttp://www.dougburbidge.com/Apps/\n\nhttps://github.com/DougBurbidge/Torn5/", "Torn 5");
 		}
 
 		void ButtonAddRowClick(object sender, EventArgs e)

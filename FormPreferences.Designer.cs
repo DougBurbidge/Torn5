@@ -594,9 +594,9 @@ namespace Torn.UI
 			// buttonLogFolder
 			// 
 			this.buttonLogFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonLogFolder.Location = new System.Drawing.Point(325, 4);
+			this.buttonLogFolder.Location = new System.Drawing.Point(324, 4);
 			this.buttonLogFolder.Name = "buttonLogFolder";
-			this.buttonLogFolder.Size = new System.Drawing.Size(23, 23);
+			this.buttonLogFolder.Size = new System.Drawing.Size(24, 23);
 			this.buttonLogFolder.TabIndex = 2;
 			this.buttonLogFolder.Text = "...";
 			this.buttonLogFolder.UseVisualStyleBackColor = true;
@@ -608,7 +608,7 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxLogFolder.Location = new System.Drawing.Point(77, 6);
 			this.textBoxLogFolder.Name = "textBoxLogFolder";
-			this.textBoxLogFolder.Size = new System.Drawing.Size(242, 20);
+			this.textBoxLogFolder.Size = new System.Drawing.Size(241, 20);
 			this.textBoxLogFolder.TabIndex = 1;
 			// 
 			// labelLogFolder
