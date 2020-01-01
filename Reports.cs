@@ -399,6 +399,7 @@ namespace Torn.Report
 					{
 						cell = new ZCell("\u2572", Color.Gray);
 						cell.Number = 1;  // Ensure that ZoomReport.Widths will set sensible widths for all columns.
+						cell.NumberFormat = "F1";  // Ensure that ZoomReport.Widths will set sensible widths for all columns.
 					}
 					else if (cellGames.Count == 0)
 						cell = new ZCell((string)null);
