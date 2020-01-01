@@ -396,7 +396,10 @@ namespace Torn.Report
 					                                   x.Teams.Any(z => league.LeagueTeam(z) == team2));  // Get games that include these two teams.
 					ZCell cell;
 					if (team1 == team2)
+					{
 						cell = new ZCell("\u2572", Color.Gray);
+						cell.Number = 1;  // Ensure that ZoomReport.Widths will set sensible widths for all columns.
+					}
 					else if (cellGames.Count == 0)
 						cell = new ZCell((string)null);
 					else
@@ -1216,7 +1219,8 @@ namespace Torn.Report
 			var playerIds = game.ServerGame.Players.Select(p => p.ServerPlayerId).Distinct();
 			var playerTeams = new Dictionary<string, GameTeam>();  // Dictionary to let us quickly find a player's team.
 			foreach (var id in playerIds)
-				playerTeams.Add(id, game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == game.ServerGame.Players.Find(sp => sp.ServerPlayerId == id).PlayerId)));
+				if (id != null)
+					playerTeams.Add(id, game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == game.ServerGame.Players.Find(sp => sp.ServerPlayerId == id).PlayerId)));
 
 			var currents = new Dictionary<GameTeam, KeyValuePair<DateTime, int>>();  // Dictionary of gameTeam -> <time, team score>.
 			
@@ -1380,25 +1384,26 @@ namespace Torn.Report
 
 			var averages = new Dictionary<LeaguePlayer, double>();
 			foreach (LeaguePlayer leaguePlayer in team.Players)
-			{
-				double score = 0;
-				int count = 0;
+				if (leaguePlayer != null)
+				{
+					double score = 0;
+					int count = 0;
 
-				foreach (GameTeam gameTeam in league.Played(team, includeSecret))
-					if (league.Game(gameTeam).Time > from && league.Game(gameTeam).Time < to)
-					{
-						GamePlayer gamePlayer = gameTeam.Players.Find(x => x.PlayerId == leaguePlayer.Id);
-						if (gamePlayer != null)
+					foreach (GameTeam gameTeam in league.Played(team, includeSecret))
+						if (league.Game(gameTeam).Time > from && league.Game(gameTeam).Time < to)
 						{
-							score += gamePlayer.Score;
-							count++;
+							GamePlayer gamePlayer = gameTeam.Players.Find(x => x.PlayerId == leaguePlayer.Id);
+							if (gamePlayer != null)
+							{
+								score += gamePlayer.Score;
+								count++;
+							}
 						}
-					}
 
-				if (averages.Keys.Contains(leaguePlayer))
-				    throw(new Exception("Player " + leaguePlayer.Name + " already in averages."));
-				averages.Add(leaguePlayer, count == 0 ? 0 : score / count);
-			}
+					if (averages.Keys.Contains(leaguePlayer))
+					    throw(new Exception("Player " + leaguePlayer.Name + " already in averages."));
+					averages.Add(leaguePlayer, count == 0 ? 0 : score / count);
+				}
 			
 			List<KeyValuePair<LeaguePlayer, double>> averagesList = averages.ToList();
 			averagesList.Sort(delegate(KeyValuePair<LeaguePlayer, double> x, KeyValuePair<LeaguePlayer, double> y)
