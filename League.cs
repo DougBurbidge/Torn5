@@ -603,7 +603,7 @@ namespace Torn
 			return clone;
 		}
 
-		void LinkTeamToGame(GameTeamData teamData, ServerGame serverGame)
+		string LinkTeamToGame(GameTeamData teamData, ServerGame serverGame)
 		{
 			if (teamData.GameTeam == null)
 				teamData.GameTeam = new GameTeam();
@@ -637,6 +637,8 @@ namespace Torn
 
 			gameTeam.Players.Clear();
 			gameTeam.Players.AddRange(teamData.Players);
+
+			return leagueTeam.Name;
 		}
 
 		void LinkPlayerToGame(GamePlayer gamePlayer, GameTeam gameTeam, ServerGame game)
@@ -664,21 +666,26 @@ namespace Torn
 				LeagueTeam(gameTeam).Players.Add(leaguePlayer);
 		}
 
-		public void CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
+		public string CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
 		{
+			var debug = new StringBuilder();
 			Game game;
 			if (serverGame.Game == null)
 			{
 				serverGame.Game = new Game();
 				serverGame.Game.Time = serverGame.Time;
 				serverGame.Game.ServerGame = serverGame;
+				debug.Append("Created new serverGame for ");
+				debug.Append(serverGame.Time.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.CurrentCulture));
+				debug.Append(".\n");
 			}
 			game = serverGame.Game;
 
 			game.Teams.Clear();
 			foreach (var teamData in teamDatas)
 			{
-				LinkTeamToGame(teamData, serverGame);
+				debug.Append("ID'ed league team ");
+				debug.Append(LinkTeamToGame(teamData, serverGame));
 
 				foreach (var player in teamData.Players)
 					LinkPlayerToGame(game.Players().Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
@@ -686,6 +693,10 @@ namespace Torn
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
+
+				debug.Append(" for players ");
+				debug.Append(teamData.Players.ToString());
+				debug.Append(".\n");
 			}
 
 			var players = game.Players().OrderByDescending(p => p.Score).ToList();
@@ -706,6 +717,7 @@ namespace Torn
 				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam, groupPlayersBy);
 
 			Save();
+			return debug.ToString();
 		}
 
 		public Games Games(bool includeSecret)
@@ -1281,7 +1293,7 @@ namespace Torn
 		}
 	}
 
-	/// <summary>This is P&C/Helios/Nexus-specific, because at the moment that's the only server we get this detailed data for.</summary>
+	/// <summary>Encapsulate a single event from a LaserGameServer. A player-on-player hit may be two events, one from the perspective of each player.</summary>
 	public class Event
 	{
 		public DateTime Time;
@@ -1294,7 +1306,7 @@ namespace Torn
 		public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
 		public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
 
-// EventType (see ng_event_types):
+// EventType (see P&C ng_event_types):
 //  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, other, other, back);
 //  7..13:  tagged ally;
 //  14..20: tagged by foe;
@@ -1345,6 +1357,11 @@ namespace Torn
 	    {
 			return compareGame == null ? 1 : this.Time.CompareTo(compareGame.Time);
 	    }
+
+		public override string ToString()
+		{
+			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + (OnServer ? "on server " : "") + Events.Count.ToString();
+		}
 
 		public void ToJson(StringBuilder sb, int indent)
 		{
@@ -1409,7 +1426,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return "ServerPlayer " + Alias;
+			return "ServerPlayer " + Alias + "; " + PlayerId;
 		}
 
 		public void ToJson(StringBuilder sb, int indent)
