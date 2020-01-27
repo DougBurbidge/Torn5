@@ -806,9 +806,10 @@ namespace Torn.UI
 					var serverPlayers = new List<ServerPlayer>();
 					foreach (var gp in gameTeam.Players)
 					{
-						var serverPlayer = playersBox.Players().Find(sp => sp.PlayerId == gp.PlayerId ||
-						                                             (gp is ServerPlayer && sp.ServerPlayerId == ((ServerPlayer)gp).ServerPlayerId) ||
-						                                             sp.Pack == gp.Pack);
+						var players = playersBox.Players();
+						var serverPlayer = players.Find(sp => (!string.IsNullOrEmpty(sp.PlayerId) && sp.PlayerId == gp.PlayerId) ||
+						                                      (!string.IsNullOrEmpty(sp.ServerPlayerId) && gp is ServerPlayer && sp.ServerPlayerId == ((ServerPlayer)gp).ServerPlayerId) ||
+						                                      (!string.IsNullOrEmpty(sp.Pack) && sp.Pack == gp.Pack));
 						if (serverPlayer != null)
 						{
 							serverPlayers.Add(serverPlayer);
@@ -852,8 +853,11 @@ namespace Torn.UI
 
 				if (laserGameServer != null)
 					laserGameServer.PopulateGame(game);
+
 				if (activeHolder != null && activeHolder.League != null)
 					playersBox.LoadGame(activeHolder.League, game);
+				else
+					playersBox.LoadGame(null, game);
 
 				TransferPlayers(game);
 			}
@@ -885,7 +889,9 @@ namespace Torn.UI
 			buttonPackReport.Enabled = b;
 			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
-			if (listViewLeagues.SelectedItems.Count == 1 && e != null)
+			if (listViewLeagues.SelectedItems.Count == 0)
+				labelLeagueDetails.Text = "Click new to create a new league file, or Open to open an existing one."; 
+			else if (listViewLeagues.SelectedItems.Count == 1 && e != null)
 			{
 				activeHolder = (Holder)e.Item.Tag;
 				labelLeagueDetails.Text = "Title: " + activeHolder.League.Title + "\nKey: " + activeHolder.Key + 

@@ -304,7 +304,7 @@ namespace Torn.UI
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.labelLeagueDetails.Location = new System.Drawing.Point(0, 0);
 			this.labelLeagueDetails.Name = "labelLeagueDetails";
-			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 82);
+			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 136);
 			this.labelLeagueDetails.TabIndex = 13;
 			this.labelLeagueDetails.Text = "Select a league and its details will appear here.";
 			// 
