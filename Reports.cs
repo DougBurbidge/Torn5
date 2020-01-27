@@ -959,7 +959,7 @@ namespace Torn.Report
 			ZoomReport report = new ZoomReport(game.LongTitle(),
 			                                   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
 			                                   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
-			                                   ",,,Tags,Tags,Ratio,Ratio,Ratio,,Base,Base,Base,Penalties,Penalties");
+			                                   ",,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties");
 			report.MaxChartByColumn = true;
 //			for (int i = 8; i < report.Columns.Count; i++)
 //				report.Columns[i].Rotate = true;
@@ -1119,7 +1119,7 @@ namespace Torn.Report
 									case 28: s.Append('\u25af'); break;  // warning: open rectangle
 									case 29: s.Append('\u25ae'); break;  // terminated: filled rectangle
 									case 30: s.Append('\u25cb'); break;  // hit base: open circle
-									case 31: s.Append('\u2b24'); break;  // destroyed base: filled circle
+									case 31: s.Append('\u2b24'); break;  // destroyed base: filled circle. For future: red U+1F534, blue U+1F535, green U+1F7E2, yellow U+1F7E1, purple U+1F7E3, orange U+1F7E0, brown U+1F7E4.
 									case 32: s.Append("\U0001f480"); break;  // eliminated: skull
 									case 33: s.Append('!'); break;  // hit by base
 									case 34: s.Append('!'); break;  // hit by mine
@@ -1592,7 +1592,7 @@ namespace Torn.Report
 			return report;
 		}
 
-		// Things I'm not doing right:
+		// Things I'm not doing right in PackReport:
 		// I'm taking the ratio of two things (hits by / hit on). This is wrong -- hits by and hits on are each normally distributed, but a ratio is not. Instead I should convert to a logit: p/(1-p).
 		// (I'm already doing something like this (but I'm not sure if it's exactly this) for Longitudinal.)
 		// I'm calculating _n_ different p values, and then dividing the p threshold by _n_ to avoid false positives. But this causes false negatives. See notes below for possible ways around this. 
