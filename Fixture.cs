@@ -195,6 +195,9 @@ namespace Torn
 				Add(game);
 			}
 
+			if (firstGame != null)
+				Sort();
+
 			return lines;
 		}
 
