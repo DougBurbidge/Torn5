@@ -181,14 +181,11 @@ namespace Torn
 				var game = new FixtureGame();
 				for (int row = 0; row < lines.Length && row < teams.Count; row++)
 				{
-					if (lines[row][col] == 'x')
+					Colour colour = ColourExtensions.ToColour(lines[row][col]);
+					if (colour != Colour.None)
+						game.Teams.Add(teams[row], colour);
+					else if (colour == Colour.None && char.IsLetter(lines[row][col]))
 						game.Teams.Add(teams[col], Colour.None);
-					else 
-					{
-						Colour c = ColourExtensions.ToColour(lines[row][col]);
-						if (c != Colour.None)
-							game.Teams.Add(teams[row], c);
-					}
 				}
 				if (firstGame != null)
 				{
@@ -198,7 +195,6 @@ namespace Torn
 				Add(game);
 			}
 
-			Sort();
 			return lines;
 		}
 
@@ -274,6 +270,43 @@ namespace Torn
 		int IComparable.CompareTo(object obj)
 		{
 			return DateTime.Compare(this.Time, ((FixtureGame)obj).Time);
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("FixtureGame: ");
+			if (Time != default(DateTime))
+			{
+				sb.Append(Time);
+				sb.Append('\t');
+			}
+
+			for (var i = Colour.Red; i <= Colour.White; i++)
+			{
+				var ft = Teams.FirstOrDefault(x => x.Value == i).Key;
+				if (ft != null)
+				{
+					if (ft.LeagueTeam == null)
+						sb.Append(ft.Name);
+					else
+						sb.Append(ft.Id());
+					sb.Append('\t');
+				}
+			}
+
+			foreach (var kv in Teams.Where(t => t.Value == Colour.None))
+			{
+				if (kv.Key.LeagueTeam == null)
+					sb.Append(kv.Key.Name);
+				else
+					sb.Append(kv.Key.Id());
+				sb.Append('\t');
+			}
+
+			sb.Remove(sb.Length - 1, 1);
+
+			return sb.ToString();
 		}
 	}
 }
