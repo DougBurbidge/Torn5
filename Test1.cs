@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using NUnit.Framework;
@@ -235,6 +236,14 @@ namespace TornWeb
 			Assert.AreEqual("ROW", grid[0]);
 			Assert.AreEqual("B..", grid[1]);
 			Assert.AreEqual("Y.P", grid[2]);
+			
+			AddGame(league);
+			Assert.AreSame(fixture.Games[0], fixture.BestMatch(league.AllGames[0]), "match game 1");
+			fixture.Games.Parse("8:00\t2\t1\t3", fixture.Teams, '\t');
+			Assert.AreSame(fixture.Games[3], fixture.BestMatch(league.AllGames[0]), "match game 4");
+			league.AllGames[0].Teams[0].Colour = Colour.Green;
+			league.AllGames[0].Teams[1].Colour = Colour.Red;
+			Assert.AreSame(fixture.Games[0], fixture.BestMatch(league.AllGames[0]), "match game 1 again");
 		}
 
 		[Test]
@@ -264,5 +273,5 @@ namespace TornWeb
 			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd B");
 			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd C");
 		}
-	}
+    }
 }

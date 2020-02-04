@@ -26,13 +26,54 @@ namespace Torn
 			if (Games.Count == 0)
 				return null;
 
+			FixtureGame bestMatch = null;
+			double bestScore = 0.0;
 			var games = Games.OrderBy(fg => Math.Abs(fg.Time.Subtract(game.Time).TotalSeconds));
 
 			foreach (var fg in games)
-				if (fg.Teams.Keys.All(ft => game.Teams.Exists(gt => gt.TeamId == ft.Id())))
-					return fg;
+			{
+				double thisScore = Match(game, fg);
+				if (bestScore < thisScore)
+				{
+					bestScore = thisScore;
+					bestMatch = fg;
+				}
+			}
 
-			return games.First();
+			return bestMatch != null ? bestMatch :
+				games.Any() ? games.First() : 
+				null;
+		}
+		
+		/// Rate how well a game and a fixture game match. 0.0 is no match; 1.0 is perfect match.
+		double Match(Game game, FixtureGame fg)
+		{
+			// Check how many fixture game teams are in the game.
+			int a = 0;
+			foreach (var kv in fg.Teams)
+			{
+				var ft = kv.Key;
+				var matches = game.Teams.Where(gt => gt.TeamId == ft.Id());  // Should be 1 item in the collection if this fixture team is in this game. 
+				if (matches.Any())
+				{
+					a++;
+					if (matches.Any(y => y.Colour == kv.Value))
+						a++;
+				}
+			}
+
+			// Check how many game teams are in the fixture game.
+			int b = 0;
+			foreach (var team in game.Teams)
+				foreach (var kv in fg.Teams)
+					if (team.TeamId == kv.Key.Id())
+					{
+						b++;
+						if (team.Colour == kv.Value)
+							b++;
+					}
+
+			return 0.25 * a / fg.Teams.Count + 0.25 * b / game.Teams.Count;
 		}
 	}
 
