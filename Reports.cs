@@ -1533,7 +1533,9 @@ namespace Torn.Report
 			{
 				ZRow row = new ZRow();
 
-				row.Add(new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm")));
+				ZCell timeCell = new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm"));
+				timeCell.CssClass = "time";
+				row.Add(timeCell);
 
 				foreach (var kv in fg.Teams.OrderBy(t => t.Value).ThenBy(t => t.Key.Name))
 				{

@@ -120,15 +120,28 @@ namespace Torn.Report
 </div><br/><a href=""index.html"">Index</a> <a href=""fixture.html"">Fixture</a>
 
 <script>
+  var tables = document.querySelectorAll('.fixturelist');
+    for (const table of tables)
+      for (const tr of table.querySelectorAll('tr'))
+        for (const td of tr.querySelectorAll('.time')) {
+          var year = parseInt(td.innerHTML.substr(0, 4), 10);
+          var month = parseInt(td.innerHTML.substr(5, 2), 10);
+          var day = parseInt(td.innerHTML.substr(8, 2), 10);
+          var hour = parseInt(td.innerHTML.substr(11, 2), 10);
+          var minute = parseInt(td.innerHTML.substr(14, 2), 10);
+          var gameTime = new Date(year, month - 1, day, hour, minute, 0);
+          if (gameTime < Date.now())
+            td.style.backgroundColor = 'gainsboro';
+        }
+
   var url = new URL(window.location.href);
   var team = url.searchParams.get('team');
 
   if (team) {
     var tables = document.querySelectorAll('.fixturelist');
       for (const table of tables)
-        for (const tbody of table.querySelectorAll('tbody'))
-          for (const tr of tbody.querySelectorAll('tr:not(.t' + team + ')'))
-            tr.style = 'display:none';
+        for (const tr of table.querySelectorAll('tr:not(.t' + team + ')'))
+          tr.style = 'display:none';
 
     var tables = document.querySelectorAll('.fixturegrid');
       for (const table of tables)
