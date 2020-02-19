@@ -89,7 +89,17 @@ namespace Torn
 
 				ft.Name = lines[i];
 				if (league != null)
+				{
 					ft.LeagueTeam = league.Teams.Find(x => x.Name == ft.Name);
+					if (ft.LeagueTeam == null)
+					{
+						var team = new LeagueTeam();
+						team.Name = ft.Name;
+						league.AddTeam(team);
+						ft.LeagueTeam = team;
+					}
+				}
+				
 
 				Add(ft);
 			}
@@ -170,10 +180,13 @@ namespace Torn
 							ft = new FixtureTeam();
 							ft.Name = "Team " + fields[i];
 						}
-						if (fields.Length <= 4)  // If there are four or less teams per game,
-							fg.Teams.Add(ft, (Colour)i);  // assign colours to teams.
-						else
-							fg.Teams.Add(ft, Colour.None);
+						if (!fg.Teams.ContainsKey(ft))
+						{
+							if (fields.Length <= 5)  // If there are five or less teams per game,
+								fg.Teams.Add(ft, (Colour)i);  // assign colours to teams.
+							else
+								fg.Teams.Add(ft, Colour.None);
+						}
 					}
 
 				Add(fg);
@@ -192,7 +205,7 @@ namespace Torn
 				foreach (GameTeam gt in lg.Teams)
 				{
 					FixtureTeam ft = teams.Find(x => x.LeagueTeam == league.LeagueTeam(gt));
-					if (ft != null)
+					if (ft != null && !fg.Teams.ContainsKey(ft))
 						fg.Teams.Add(ft, gt.Colour);
 				}
 
@@ -217,24 +230,25 @@ namespace Torn
 				minLength = Math.Min(minLength, lines[row].Length);
 			}
 
-			for (int col = 0; col < minLength; col ++)
-			{
-				var game = new FixtureGame();
-				for (int row = 0; row < lines.Length && row < teams.Count; row++)
+			if (minLength < int.MaxValue)
+				for (int col = 0; col < minLength; col ++)
 				{
-					Colour colour = ColourExtensions.ToColour(lines[row][col]);
-					if (colour != Colour.None)
-						game.Teams.Add(teams[row], colour);
-					else if (colour == Colour.None && char.IsLetter(lines[row][col]))
-						game.Teams.Add(teams[col], Colour.None);
+					var game = new FixtureGame();
+					for (int row = 0; row < lines.Length && row < teams.Count; row++)
+					{
+						Colour colour = ColourExtensions.ToColour(lines[row][col]);
+						if (colour != Colour.None)
+							game.Teams.Add(teams[row], colour);
+						else if (colour == Colour.None && char.IsLetter(lines[row][col]))
+							game.Teams.Add(teams[row], Colour.None);
+					}
+					if (firstGame != null)
+					{
+						game.Time = (DateTime)firstGame;
+						firstGame += duration ?? TimeSpan.Zero;
+					}
+					Add(game);
 				}
-				if (firstGame != null)
-				{
-					game.Time = (DateTime)firstGame;
-					firstGame += duration ?? TimeSpan.Zero;
-				}
-				Add(game);
-			}
 
 			if (firstGame != null)
 				Sort();
@@ -242,6 +256,7 @@ namespace Torn
 			return lines;
 		}
 
+		// This ToString() is used to persist fixtures to settings. 
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
