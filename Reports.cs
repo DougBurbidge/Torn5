@@ -1568,10 +1568,14 @@ namespace Torn.Report
 				report.Rows.Add(row);
 			}
 
+			bool multiDay = fixture.Games.Count > 1 && fixture.Games.First().Time.Date < fixture.Games.Last().Time.Date;
+
 			foreach (var fg in fixture.Games)
 			{
 				// Create a column for each game.
-				report.AddColumn(new ZColumn(fg.Time.ToShortTimeString(), ZAlignment.Center));
+				var column = report.AddColumn(new ZColumn(fg.Time.ToShortTimeString(), ZAlignment.Center));
+				if (multiDay)
+					column.GroupHeading = fg.Time.ToLongDateString();
 				
 				// Add cells for this game, to this column.
 				for (int i = 0; i < fixture.Teams.Count; i++)
@@ -1589,6 +1593,16 @@ namespace Torn.Report
 
 					report.Rows[i].Add(cell);
 				}
+			}
+
+			// Add one final column for the team name again.
+			report.AddColumn(new ZColumn("Team", ZAlignment.Left));
+			for (int i = 0; i < fixture.Teams.Count; i++)
+			{
+				var ft = fixture.Teams[i];
+				var teamCell = new ZCell(ft.Name);
+				teamCell.Hyper = "fixture.html?team=" + ft.Id().ToString(CultureInfo.InvariantCulture);
+				report.Rows[i].Add(teamCell);
 			}
 
 			return report;
