@@ -25,7 +25,8 @@ namespace Torn.UI
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			
+
+			datePicker.Value = DateTime.Now.Date;
 			timePicker.CustomFormat = CultureInfo.CurrentUICulture.DateTimeFormat.ShortTimePattern;
 			leftButton = Colour.Red;
 			middleButton = Colour.Blue;

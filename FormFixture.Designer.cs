@@ -240,7 +240,7 @@ namespace Torn.UI
 			this.buttonClearGames.Name = "buttonClearGames";
 			this.buttonClearGames.Size = new System.Drawing.Size(75, 23);
 			this.buttonClearGames.TabIndex = 25;
-			this.buttonClearGames.Text = "Clear";
+			this.buttonClearGames.Text = "Clear Fixture";
 			this.buttonClearGames.UseVisualStyleBackColor = true;
 			this.buttonClearGames.Click += new System.EventHandler(this.ButtonClearClick);
 			// 
@@ -270,7 +270,7 @@ namespace Torn.UI
 			this.buttonClearGrid.Name = "buttonClearGrid";
 			this.buttonClearGrid.Size = new System.Drawing.Size(75, 23);
 			this.buttonClearGrid.TabIndex = 31;
-			this.buttonClearGrid.Text = "Clear";
+			this.buttonClearGrid.Text = "Clear Fixture";
 			this.buttonClearGrid.UseVisualStyleBackColor = true;
 			this.buttonClearGrid.Click += new System.EventHandler(this.ButtonClearClick);
 			// 
@@ -340,7 +340,7 @@ namespace Torn.UI
 			this.label4.Size = new System.Drawing.Size(748, 27);
 			this.label4.TabIndex = 22;
 			this.label4.Text = "Enter a grid of games, with each row being a team, each column being a game, and " +
-			"each letter representing the colour of that team in that game: RGBYPICOW";
+			"each letter representing the colour of that team in that game: RGBYPMCOW";
 			// 
 			// textBoxGrid
 			// 
