@@ -1070,7 +1070,7 @@ namespace Zoom
 		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
 		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max)
 		{
-			s.AppendFormat("<div><svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);  // width=\"{0}\" height=\"{1}\"
+			s.AppendFormat("<div><svg viewBox=\"0 0 {0} {1}\" width=\"{2}\" align=\"center\">\n", width, height, Math.Min(width, 1280));  // width=\"{0}\" height=\"{1}\"
 
 			SvgRect(s, 1, 1, 1, width - 1, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
