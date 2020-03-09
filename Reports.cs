@@ -76,7 +76,8 @@ namespace Torn.Report
 		public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
-		    bool ratio = rt.Setting("OrderBy") == "score ratio";
+			bool ratio = rt.Setting("OrderBy").Contains("score ratio");
+			bool scaled = rt.Setting("OrderBy").StartsWith("scaled");
 		    bool showColours = rt.Settings.Contains("ShowColours");
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladder" : rt.Title, "Rank,Team", "center,left");
@@ -264,18 +265,22 @@ namespace Torn.Report
 
 			int scoreColumn = report.Columns.FindIndex(x => x.Text.Contains("core"));
 			int pointsColumn = report.Columns.FindIndex(x => x.Text == "Points");
+			int scaledColumn = report.Columns.FindIndex(x => x.Text.Contains("caled"));
 
 			report.Rows.Sort(delegate(ZRow x, ZRow y)
 			                 {
 								double? result = 0;
 								if (pointsColumn != -1)
 								{
-									if (x[pointsColumn].Number == null)
+									double? xPoints = scaledColumn == -1 || x[scaledColumn].Number == null ? x[pointsColumn].Number : x[scaledColumn].Number;
+									double? yPoints = scaledColumn == -1 || y[scaledColumn].Number == null ? y[pointsColumn].Number : y[scaledColumn].Number;
+
+									if (xPoints == null)
 										return 1;
-									if (y[pointsColumn].Number == null)
+									if (yPoints == null)
 										return -1;
 
-									result = y[pointsColumn].Number - x[pointsColumn].Number;
+									result = yPoints - xPoints;
 								}
 								if (result == 0 && scoreColumn != -1)
 								{
@@ -422,6 +427,68 @@ namespace Torn.Report
 			return report;
 		}  // TeamsVsTeams
 
+		public static ZoomReport ColourReport(League league, bool includeSecret, ReportTemplate rt)
+		{
+			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
+
+			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Colour Performance" : rt.Title, "Rank", "center");
+
+	 		var colourTotals = new Dictionary<Colour, List<int>>();
+	 		for (Colour c = Colour.Red; c <= Colour.White; c++)
+			{
+				report.AddColumn(new ZColumn(c.ToString(), ZAlignment.Integer));
+
+				colourTotals.Add(c, new List<int>());
+			}
+
+			List<Game> games = league.Games(includeSecret);
+
+			foreach (Game game in games)
+				foreach (GameTeam gameTeam in game.Teams)  // Roll through this team's games.
+					if ((rt.From == null || game.Time >= rt.From) && (rt.To == null || game.Time <= rt.To))
+					{
+						// Add the team's rank in this game to the colourTotals.
+						int rank = league.Game(gameTeam).Teams.IndexOf(gameTeam);
+
+						while (colourTotals[gameTeam.Colour].Count <= rank)
+							colourTotals[gameTeam.Colour].Add(0);
+						colourTotals[gameTeam.Colour][rank]++;
+					}
+			
+			int maxRank = games.Max(g => g.Teams.Count);
+
+ 			for (int rank = 0; rank < maxRank; rank++)
+ 			{
+				ZRow row = new ZRow();
+				report.Rows.Add(row);
+				switch (rank) 
+				{
+					case 0:  row.Add(new ZCell("1st"));  break;
+					case 1:  row.Add(new ZCell("2nd"));  break;
+					case 2:  row.Add(new ZCell("3rd"));  break;
+					default: row.Add(new ZCell((rank + 1).ToString() + "th"));  break;
+				}
+
+		 		for (Colour c = Colour.Red; c <= Colour.White; c++)
+					if (colourTotals[c].Count > rank)
+						row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, c.ToColor()));
+					else
+						row.Add(new ZCell("", c.ToColor()));
+			}
+
+			// Clear columns that contain only '0's.
+			for (int i = report.Columns.Count; i > 0; i--)
+				if (report.ColumnZeroOrNaN(i) && report.ColumnZeroOrNaN(i + 1) && report.ColumnZeroOrNaN(i + 2))
+					report.RemoveColumn(i);
+
+			if (rt.Settings.Contains("Description"))
+				report.Description = "This report shows the total number of firsts, seconds and thirds that were scored by each colour.";
+
+			FinishReport(league, report, games, rt);
+
+			return report;
+		}
+
 		/// <summary>Build a list of games over a specified date/time range. One game per row.</summary>
 		public static ZoomReport GamesList(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
 		{
@@ -536,10 +603,11 @@ namespace Torn.Report
 			return report;
 		}  // GamesList
 
-		/// <summary>Build a list of games over a specified date/time range. One game per cell.</summary>
-		public static ZoomReport GamesCompressed(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
+		/// <summary>Build a list of games over a specified date/time range. One row per day; one game per cell.</summary>
+		public static ZoomReport GamesToc(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
 		{
-			ZoomReport report = new ZoomReport("", "Date", "right");
+			ZoomReport report = new ZoomReport("Table of Contents");
+			report.Columns.Add(new ZColumn("", ZAlignment.Right));
 
 			List<Game> games = league.Games(includeSecret).Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue)).ToList();
 			games.Sort();
@@ -552,13 +620,27 @@ namespace Torn.Report
 				{
 					ZRow dateRow = new ZRow();  // create a row
 					report.Rows.Add(dateRow);
-					dateRow.Add(new ZCell(date.ToShortDateString()));  // to show the new date.
+					if (dates.Count == 1)
+						dateRow.Add(new ZCell(dayGames.First().Title));  // to show the title.
+					else
+						dateRow.Add(new ZCell(date.ToShortDateString()));  // to show the new date.
+					int gamesThisRow = 0;
+					var lastGame = dayGames.First();
 					
 					foreach (var game in dayGames)
 					{
-						ZCell dateCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim());
+						if (gamesThisRow > 15 || lastGame.Time.AddHours(0.5) < game.Time || lastGame.Title != game.Title)  // If this row is too long, or if there's a 3 hour break between games, or the title has changed,
+						{
+							dateRow = new ZRow();  // Start a new row.
+							report.Rows.Add(dateRow);
+							dateRow.Add(new ZCell(game.Title));
+							gamesThisRow = 0;
+						}
+						ZCell dateCell = new ZCell((game.Time.ToShortTimeString()).Trim());
 						dateCell.Hyper = gameHyper(game);
 						dateRow.Add(dateCell);
+						gamesThisRow++;
+						lastGame = game;
 					}
 				}
 			}
@@ -692,6 +774,8 @@ namespace Torn.Report
 
 				if (gameTitle != null)
 					titleCount.Add(gameTitle, maxCount);
+				else if (titles.Count == 1)
+					titleCount.Add("", maxCount);
 			}
 
 			// Create columns.
@@ -740,7 +824,7 @@ namespace Torn.Report
 				{
 					string gameTitle = report.Columns[col].GroupHeading;
 					// Add a cell for each game for this team.
-					foreach (Game game in games.Where(x => x.Title == gameTitle))
+					foreach (Game game in games.Where(x => x.Title == gameTitle || x.Title == null && gameTitle == ""))
 		 			{
 						GameTeam gameTeam = game.Teams.Find(x => league.LeagueTeam(x) == leagueTeam);
 		 				if (gameTeam != null)
@@ -1519,10 +1603,19 @@ namespace Torn.Report
 		}  // OneTeam
 
 		/// <summary>Each row is a game.</summary>
-		public static ZoomReport FixtureList(Fixture fixture, League league)
+		public static ZoomReport FixtureList(Fixture fixture, League league, GameHyper gameHyper)
 		{
 			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Time", "left");
 			report.CssClass = "fixturelist";
+
+			var match = new Dictionary<FixtureGame, Game>();
+			foreach (Game game in league.Games(false))
+			{
+				double score;
+				var fg = fixture.BestMatch(game, out score);
+				if (score > 0.5)
+					match.Add(fg, game);
+			}
 
 			int maxTeams = fixture.Games.Count == 0 ? 0 : fixture.Games.Max(x => x.Teams.Count());
 			
@@ -1535,6 +1628,8 @@ namespace Torn.Report
 
 				ZCell timeCell = new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm"));
 				timeCell.CssClass = "time";
+				if (match.ContainsKey(fg))
+					timeCell.Hyper = gameHyper(match[fg]);
 				row.Add(timeCell);
 
 				foreach (var kv in fg.Teams.OrderBy(t => t.Value).ThenBy(t => t.Key.Name))

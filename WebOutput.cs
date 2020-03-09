@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -68,6 +69,7 @@ namespace Torn.Report
 				{
 					case ReportType.TeamLadder:   reports.Add(Reports.TeamLadder(holder.League, includeSecret, rt)); break;
 					case ReportType.TeamsVsTeams: reports.Add(Reports.TeamsVsTeams(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
+					case ReportType.ColourPerformance: reports.Add(Reports.ColourReport(holder.League, includeSecret, rt)); break;
 					case ReportType.SoloLadder:   reports.Add(Reports.SoloLadder(holder.League, includeSecret, rt)); break;
 					case ReportType.GameByGame:   reports.Add(Reports.GamesList(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
 					case ReportType.GameGrid: case ReportType.Ascension: case ReportType.Pyramid: 
@@ -83,7 +85,7 @@ namespace Torn.Report
 				}
 			}
 
-			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"/\">Index</a><div>"));
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"../index.html\">Index</a><div>"));
 
 			return reports;
 		}
@@ -114,7 +116,7 @@ namespace Torn.Report
 		public static string FixturePage(Fixture fixture, League league, OutputFormat outputFormat = OutputFormat.Svg)
 		{
 			ZoomReports reports = new ZoomReports();
-			reports.Add(Reports.FixtureList(fixture, league));
+			reports.Add(Reports.FixtureList(fixture, league, ReportPages.GameHyper));
 			reports.Add(Reports.FixtureGrid(fixture, league));
 			reports.Add(new ZoomHtmlInclusion(@"
 </div><br/><a href=""index.html"">Index</a> <a href=""fixture.html"">Fixture</a>
@@ -130,7 +132,7 @@ namespace Torn.Report
           var hour = parseInt(td.innerHTML.substr(11, 2), 10);
           var minute = parseInt(td.innerHTML.substr(14, 2), 10);
           var gameTime = new Date(year, month - 1, day, hour, minute, 0);
-          if (gameTime < Date.now())
+          if (td.innerHTML.substr(0, 3) == '<a ' || gameTime < Date.now())
             td.style.backgroundColor = 'gainsboro';
         }
 
@@ -241,6 +243,42 @@ namespace Torn.Report
 			return sb.ToString();
 		}
 
+		string ScoreboardPage(League league, OutputFormat outputFormat = OutputFormat.Svg)
+		{
+			if (MostRecentGame == null)
+				Update();
+
+			if (MostRecentGame == null)
+				return NowPage();
+
+			ZoomReports reports = new ZoomReports();
+			reports.Colors.BackgroundColor = Color.Empty;
+			reports.Colors.OddColor = Color.Empty;
+			reports.Add(Reports.OneGame(league, MostRecentGame));
+
+			if (NextGame != null)
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.Append("</div><br/><a href=\"fixture.html\">Up Next</a>:");
+
+				foreach (var ft in NextGame.Teams)
+					sb.Append(ft.Key.LeagueTeam.Name + "; ");
+				sb.Remove(sb.Length - 2, 2);
+				sb.Append("<div>");
+				reports.Add(new ZoomHtmlInclusion(sb.ToString()));
+			}
+
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>"));
+/*
+			reports.Add(new ZoomHtmlInclusion(@"
+<script>
+</script>
+"));
+*/
+			return reports.ToOutput(outputFormat);
+
+		}
+
 		string SendResponse(HttpListenerRequest request)
 		{
 			try
@@ -275,7 +313,11 @@ namespace Torn.Report
 
 		string HtmlResponse(string rawUrl, string lastPart, Holder holder)
 		{
-			if (lastPart == "index.html")
+			if (lastPart == "now.html")
+				return NowPage();
+			else if (holder == null)
+				return string.Format(CultureInfo.InvariantCulture, "<html><body>Couldn't find a league key in \"<br>{0}\". Try <a href=\"now.html\">Now Playing</a> instead.</body></html>", rawUrl);
+			else if (lastPart == "index.html")
 				return ReportPages.OverviewPage(holder, false, ReportPages.GameHyper, OutputFormat.Svg);
 			else if (lastPart.StartsWith("game", StringComparison.OrdinalIgnoreCase))
 			{
@@ -304,8 +346,8 @@ namespace Torn.Report
 			{
 				return ReportPages.FixturePage(holder.Fixture, holder.League);
 			}
-			else if (lastPart == "now.html")
-				return NowPage();
+			else if (lastPart == "scoreboard.html")
+				return ScoreboardPage(holder.League);
 			else
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
@@ -323,7 +365,7 @@ namespace Torn.Report
 			PopulateGame(game);
 
 			sb.Append("\"game\":{\n");
-			game.ToJson2(sb, 1);
+//			game.ToJson2(sb, 1);
 			sb.Append('\n');
 			sb.Append("}\n");
 			return sb.ToString();
@@ -331,6 +373,16 @@ namespace Torn.Report
 
 		string RestGames()
 		{
+			if (serverGames == null)
+				serverGames = Games();
+
+			var stream = new MemoryStream();
+			var ser = new DataContractJsonSerializer(typeof(ServerGame));
+			ser.WriteObject(stream, serverGames[0]);
+			stream.Position = 0;
+			var sr = new StreamReader(stream);
+			return sr.ReadToEnd();
+/*
 			var sb = new StringBuilder();
 			sb.Append("\"games\":[\n");
 			serverGames = Games();
@@ -342,6 +394,7 @@ namespace Torn.Report
 			sb.Remove(sb.Length - 2, 2);
 			sb.Append("\n]\n");
 			return sb.ToString();
+*/
 		}
 
 		string RestPlayers(string mask)
@@ -475,7 +528,10 @@ namespace Torn.Report
 					reports.Colors.BackgroundColor = Color.Empty;
 					reports.Colors.OddColor = Color.Empty;
 					league.AllGames.Sort();
-				    bool heatMap = false;
+					bool heatMap = false;
+
+					var rt = new ReportTemplate() { From = date, To = date.AddSeconds(86399) };
+					reports.Add(Reports.GamesToc(league, false, rt, ReportPages.GameHyper));
 
 					foreach (Game game in dayGames)
 					{
@@ -489,7 +545,7 @@ namespace Torn.Report
 							{
 								var bitmap = Reports.GameWorm(league, game, true);
 								string filePath = Path.Combine(path, holder.Key, fileName);
-								if (bitmap != null && bitmap.Height > 1 || !File.Exists(filePath))
+								if (bitmap != null && (bitmap.Height > 1 || !File.Exists(filePath)))
 									bitmap.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
 							}
 							reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));

@@ -21,8 +21,9 @@ namespace Torn
 			Games = new FixtureGames();
 		}
 
-		public FixtureGame BestMatch(Game game)
+		public FixtureGame BestMatch(Game game, out double score)
 		{
+			score = 0;
 			if (Games.Count == 0)
 				return null;
 
@@ -40,11 +41,18 @@ namespace Torn
 				}
 			}
 
+			score = bestScore;
 			return bestMatch != null ? bestMatch :
 				games.Any() ? games.First() : 
 				null;
 		}
 		
+		public FixtureGame BestMatch(Game game)
+		{
+			double score;
+			return BestMatch(game, out score);
+		}
+
 		/// Rate how well a game and a fixture game match. 0.0 is no match; 1.0 is perfect match.
 		double Match(Game game, FixtureGame fg)
 		{
