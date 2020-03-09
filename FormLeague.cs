@@ -48,6 +48,11 @@ namespace Torn.UI
 			for (int i = 0; i < League.VictoryPoints.Count; i++)
 				SetVictoryBox(i, League.VictoryPoints[i]);
 
+			radioButtonPercent.Checked = League.HandicapStyle == HandicapStyle.Percent;
+			radioButtonPlus.Checked = League.HandicapStyle == HandicapStyle.Plus;
+			radioButtonMinus.Checked = League.HandicapStyle == HandicapStyle.Minus;
+			radioButtonNone.Checked = League.HandicapStyle == HandicapStyle.None;
+
 			RankCheckedChanged(null, null);
 		}
 
@@ -105,8 +110,7 @@ namespace Torn.UI
 			{
 				var team = new LeagueTeam();
 				team.Name = name;
-				team.TeamId = League.Teams.Any() ? League.Teams.Max(t => t.TeamId) + 1 : 1;
-				League.Teams.Add(team);
+				League.AddTeam(team);
 
 				var node = new TreeNode(name);
 				node.Tag = team;
@@ -256,6 +260,11 @@ namespace Torn.UI
 
 			while (League.VictoryPoints.Any() && League.VictoryPoints.Last() == 0)
 				League.VictoryPoints.RemoveAt(League.VictoryPoints.Count - 1);
+		}
+		
+		void RadioButtonHandicapCheckedChanged(object sender, EventArgs e)
+		{
+			League.HandicapStyle = HandicapExtensions.ToHandicapStyle(((Control)sender).Text);
 		}
 	}
 }

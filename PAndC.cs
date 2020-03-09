@@ -97,7 +97,7 @@ namespace Torn
 			             " ORDER BY Start_Time";
 			FillGames(sql, games);
 		}
-		
+
 		void FillGames(string sql, List<ServerGame> games)
 		{
 			if (!EnsureConnected())
@@ -120,7 +120,7 @@ namespace Torn
 			}
 		}
 
-		protected virtual string GameDetailSql(int gameId)
+		protected virtual string GameDetailSql(int? gameId)
 		{
 			return "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
 			    "FROM ng_player_event_log EL " +
@@ -133,7 +133,7 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
-			if (!EnsureConnected())
+			if (!EnsureConnected() || !game.GameId.HasValue)
 				return;
 
 			// Get game end time. Determine if game is in progress.
@@ -262,7 +262,7 @@ namespace Torn
 				connected = false;
 			}
 		}
-		
+
 		bool EnsureConnected()
 		{
 			if (!Connected)
@@ -310,7 +310,7 @@ namespace Torn
 			}
 		}
 
-		override protected string GameDetailSql(int gameId)
+		override protected string GameDetailSql(int? gameId)
 		{
 			return "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, Button_ID, Alias " +
 				"FROM ng_player_event_log EL " +

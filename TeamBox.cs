@@ -99,20 +99,24 @@ namespace Torn.UI
 			}
 
 			var tempTeam = GameTeam.Clone();
+
 			tempTeam.Players.Clear();
 			tempTeam.Players.AddRange(Players());
+
+			if (guessTeam && League != null)
+			{
+				var ids = new List<string>();
+				foreach (var listPlayer in Players())
+					ids.Add(listPlayer.PlayerId);
+
+				LeagueTeam = League.GuessTeam(ids);
+				if (LeagueTeam != null)
+					tempTeam.TeamId = LeagueTeam.TeamId;
+			}
+
 			score = League == null ? 0 : League.CalculateScore(tempTeam);
 			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
 				(GameTeam.Adjustment == 0 ? "" : "*");
-
-			var ids = new List<string>();
-			foreach (var listPlayer in Players())
-				ids.Add(listPlayer.PlayerId);
-
-			if (guessTeam && League != null)
-				LeagueTeam = League.GuessTeam(ids);
-
-			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
 		}
 
 		LeaguePlayer LeaguePlayer(ListViewItem item)
@@ -240,7 +244,7 @@ namespace Torn.UI
 				}
 				LeagueTeam.Players.Add(leaguePlayer);
 			}
-			League.Teams.Add(LeagueTeam);
+			League.AddTeam(LeagueTeam);
 		}
 
 		void MenuSortTeamsClick(object sender, EventArgs e)

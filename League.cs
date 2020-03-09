@@ -61,7 +61,7 @@ namespace Torn
 		{
 			var dict = new Dictionary<char, Colour> {
 				{ 'r', Colour.Red }, { 'b', Colour.Blue }, { 'g', Colour.Green }, { 'y', Colour.Yellow },
-				{ 'p', Colour.Purple }, { 'i', Colour.Pink }, { 'c', Colour.Cyan }, { 'o', Colour.Orange }, { 'w', Colour.White },
+				{ 'p', Colour.Purple }, { 'm', Colour.Pink }, { 'c', Colour.Cyan }, { 'o', Colour.Orange }, { 'w', Colour.White },
 				{ '1', Colour.Red }, { '2', Colour.Blue }, { '3', Colour.Green }, { '4', Colour.Yellow },
 				{ '5', Colour.Purple }, { '6', Colour.Pink }, { '7', Colour.Cyan }, { '8', Colour.Orange }, { '9', Colour.White }
 			};
@@ -73,7 +73,7 @@ namespace Torn
 
 		public static char ToChar(this Colour c)
 		{
-			return "xRBGYPICOW"[(int)c];
+			return "xRBGYPMCOW"[(int)c];
 		}
 
 		public static Colour ToColour(int i) // Converts from a Laserforce colour index number.
@@ -94,13 +94,13 @@ namespace Torn
 		}
 	}
 
-	public enum HandicapStyle { Percent, Plus, Minus };
+	public enum HandicapStyle { Percent, Plus, Minus, None };
 	public static class HandicapExtensions
 	{
 		public static HandicapStyle ToHandicapStyle(string s)
 		{
 		    var dict = new Dictionary<string, HandicapStyle> { 
-				{ "%", HandicapStyle.Percent }, { "+", HandicapStyle.Plus }, { "-", HandicapStyle.Minus }
+				{ "%", HandicapStyle.Percent }, { "+", HandicapStyle.Plus }, { "-", HandicapStyle.Minus }, { ".", HandicapStyle.None }, { "None", HandicapStyle.None }
 			};
 
 			HandicapStyle h;
@@ -114,6 +114,7 @@ namespace Torn
 				case HandicapStyle.Percent: return "%";
 				case HandicapStyle.Plus: return "+";
 				case HandicapStyle.Minus: return "-";
+				case HandicapStyle.None: return ".";
 			}
 			return "";
 		}
@@ -139,7 +140,8 @@ namespace Torn
 			return Value == null ? score :
 				Style == HandicapStyle.Percent ? score * (double)Value / 100 :
 				Style == HandicapStyle.Plus ?    score + (double)Value :
-				                                 score - (double)Value;
+				Style == HandicapStyle.Minus ?   score - (double)Value :
+				                                 score;
 		}
 
 		/// <summary>Parse strings like "110%", "+1000", "-1000", "110" into handicap value and style.</summary>
@@ -181,13 +183,14 @@ namespace Torn
 				Style.ToString() + ((double)Value).ToString(CultureInfo.InvariantCulture);
 		}
 
-		/// <summary>True if the handicap is 100%, +0 or -0.</summary>
+		/// <summary>True if the handicap is 100%, +0 or -0, or handicap style is None.</summary>
 		public bool IsZero()
 		{
-			return Value == null || (Style == HandicapStyle.Percent && Value == 100) || (Style != HandicapStyle.Percent && Value == 0);
+			return Value == null || (Style == HandicapStyle.Percent && Value == 100) || (Style != HandicapStyle.Percent && Value == 0) || (Style == HandicapStyle.None);
 		}
 	}
 
+	/// <summary>Stores data about a player in a league. (This is different from GamePlayer.)</summary>
 	public class LeaguePlayer
 	{
 		/// <summary>Friendly name e.g. "RONiN".</summary>
@@ -251,7 +254,7 @@ namespace Torn
 			Players = new List<LeaguePlayer>();
 		}
 
-		public LeagueTeam Clone()
+		public LeagueTeam Clone(League clonedLeague)
 		{
 			var clone = new LeagueTeam();
 			clone.Name = Name;
@@ -259,8 +262,16 @@ namespace Torn
 			clone.Handicap = Handicap;
 			clone.Comment = Comment;
 			
-			clone.Players = new List<LeaguePlayer>(Players);
-			
+			clone.Players = new List<LeaguePlayer>();
+			foreach (var player in Players)
+			{
+				// By the time we get here, clonedLeague contains cloned players, but our newly created clone LeagueTeam does not.
+				// Look up each existing player id in the old LeagueTeam, find its match in clonedLeague, and put that in our clone.
+				var newPlayer = clonedLeague.LeaguePlayer(player.Id);
+				if (newPlayer != null)
+					clone.Players.Add(newPlayer);
+			}
+
 			return clone;
 		}
 
@@ -343,6 +354,7 @@ namespace Torn
 		}
 	}
 
+	/// <summary>Stores data about a player in a single game. (This is different from LeaguePlayer.)</summary>
 	public class GamePlayer: IComparable
 	{
 		public int? TeamId { get; set; }
@@ -518,10 +530,17 @@ namespace Torn
 		}
 	}
 
+	/// <summary>Used during game Commit, to hold a TeamBox's GameTeam and ServerPlayers.</summary>
 	public class GameTeamData
 	{
 		public GameTeam GameTeam { get; set; }
 		public List<ServerPlayer> Players { get; set; }
+
+		public override string ToString()
+		{
+			return "GameTeamData " + (GameTeam == null ? "null GameTeam" : "GameTeam " + GameTeam.TeamId.ToString()) + ": " +
+				(Players == null ? "null" : Players.Count.ToString()) + " Players";
+		}
 	}
 
 	/// <summary>Load and manage a .Torn league file, containing league teams and games.</summary>
@@ -570,6 +589,14 @@ namespace Torn
 			Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
 		}
 
+		public void AddTeam(LeagueTeam leagueTeam)
+		{
+			if (leagueTeam.TeamId <= 0)
+				leagueTeam.TeamId = NextTeamId();
+
+			Teams.Add(leagueTeam);
+		}
+
 		void Clear()
 		{
 			Title = "";
@@ -592,8 +619,8 @@ namespace Torn
 			clone.GridWide = GridWide;
 			clone.GridPlayers = GridPlayers;
 
-			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone()).ToList();
 			clone.players = Players.Select(item => (LeaguePlayer)item.Clone()).ToList();
+			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone(clone)).ToList();
 			clone.AllGames.AddRange(AllGames);
 
 			clone.victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList());
@@ -629,8 +656,7 @@ namespace Torn
 			if (leagueTeam == null)
 			{
 				leagueTeam = new LeagueTeam();
-				leagueTeam.TeamId = NextTeamID();
-				Teams.Add(leagueTeam);
+				AddTeam(leagueTeam);
 			}
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
@@ -641,7 +667,7 @@ namespace Torn
 			return leagueTeam.Name;
 		}
 
-		void LinkPlayerToGame(GamePlayer gamePlayer, GameTeam gameTeam, ServerGame game)
+		string LinkPlayerToGame(GamePlayer gamePlayer, GameTeam gameTeam, ServerGame game)
 		{
 			gamePlayer.TeamId = (int)gameTeam.TeamId;
 
@@ -649,9 +675,6 @@ namespace Torn
 				game.Game.UnallocatedPlayers.Add(gamePlayer);
 
 			var leaguePlayer = LeaguePlayer(gamePlayer);
-
-			if (leaguePlayer == null)
-				leaguePlayer = Players.Find(p => p.Id == gamePlayer.PlayerId);
 
 			if (leaguePlayer == null)
 			{
@@ -664,6 +687,8 @@ namespace Torn
 
 			if (!LeagueTeam(gameTeam).Players.Contains(leaguePlayer))
 				LeagueTeam(gameTeam).Players.Add(leaguePlayer);
+
+			return leaguePlayer == null ? "null" : leaguePlayer.Name;
 		}
 
 		public string CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
@@ -686,17 +711,19 @@ namespace Torn
 			{
 				debug.Append("ID'ed league team ");
 				debug.Append(LinkTeamToGame(teamData, serverGame));
+				debug.Append(" for players ");
 
 				foreach (var player in teamData.Players)
-					LinkPlayerToGame(game.Players().Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
-					                 teamData.GameTeam, serverGame);
+				{
+					debug.Append(LinkPlayerToGame(game.Players().Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
+					                              teamData.GameTeam, serverGame));
+					debug.Append(", ");
+				}
+
+				debug.Remove(debug.Length - 2, 2); debug.Append(".\n");
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
-
-				debug.Append(" for players ");
-				debug.Append(teamData.Players.ToString());
-				debug.Append(".\n");
 			}
 
 			var players = game.Players().OrderByDescending(p => p.Score).ToList();
@@ -742,7 +769,7 @@ namespace Torn
 			foreach (int teamId in teams)
 				result.Add(GuessTeam(game.Players.FindAll(x => x.ServerTeamId == teamId).Select(y => y.PlayerId).ToList()));
 
-			return result;
+			return result.Where(x => x != null).ToList();
 		}
 
 		public LeagueTeam GuessTeam(List<string> ids)
@@ -784,9 +811,9 @@ namespace Torn
 			return false;
 		}
 
-		int NextTeamID()
+		int NextTeamId()
 		{
-			return teams.Count == 0 ? 0 : teams.Max(x => x.TeamId) + 1;
+			return teams.Any() ? teams.Max(x => x.TeamId) + 1 : 1;
 		}
 
 		/// <summary>Load a .Torn file from disk.</summary>
@@ -1158,6 +1185,11 @@ namespace Torn
 			return players.Find(p => p.Id == gamePlayer.PlayerId);
 		}
 
+		public LeaguePlayer LeaguePlayer(string id)
+		{
+			return players.Find(p => p.Id == id);
+		}
+
 		/// <summary>Return a player's Name.</summary>
 		public string Alias(GamePlayer gamePlayer)
 		{
@@ -1167,7 +1199,15 @@ namespace Torn
 
 		public LeagueTeam LeagueTeam(GameTeam gameTeam)
 		{
-			return gameTeam == null ? null : teams.Find(t => t.TeamId == gameTeam.TeamId);
+			var result = gameTeam == null ? null : teams.Find(team => team.TeamId == gameTeam.TeamId);
+			if (result != null)
+				return result;
+
+			foreach (var team in teams)
+				if (team.TeamId == gameTeam.TeamId)
+					return team;
+
+			return null;
 		}
 
 		public LeagueTeam LeagueTeam(GamePlayer gamePlayer)
@@ -1336,7 +1376,7 @@ namespace Torn
 	/// <summary>Represents a game as stored on the laser game server.</summary>
 	public class ServerGame: IComparable<ServerGame>
 	{
-		public int GameId { get; set; }
+		public int? GameId { get; set; }
 		public string Description { get; set; }
 		public DateTime Time { get; set; }
 		public DateTime EndTime { get; set; }
@@ -1362,7 +1402,7 @@ namespace Torn
 		{
 			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + (OnServer ? "on server " : "") + Events.Count.ToString();
 		}
-
+/*
 		public void ToJson(StringBuilder sb, int indent)
 		{
 			sb.Append('\t', indent);
@@ -1413,6 +1453,7 @@ namespace Torn
 		{
 			
 		}
+*/
 	}
 
 	/// <summary>Represents a player as stored on the laser game server.</summary>

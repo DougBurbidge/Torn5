@@ -44,6 +44,11 @@ namespace Torn.UI
 			this.panelRight = new System.Windows.Forms.Panel();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.leaguePage = new System.Windows.Forms.TabPage();
+			this.groupBoxHandicapStyle = new System.Windows.Forms.GroupBox();
+			this.radioButtonMinus = new System.Windows.Forms.RadioButton();
+			this.radioButtonPlus = new System.Windows.Forms.RadioButton();
+			this.radioButtonNone = new System.Windows.Forms.RadioButton();
+			this.radioButtonPercent = new System.Windows.Forms.RadioButton();
 			this.victoryPoints = new System.Windows.Forms.RadioButton();
 			this.totalScore = new System.Windows.Forms.RadioButton();
 			this.label1 = new System.Windows.Forms.Label();
@@ -60,6 +65,7 @@ namespace Torn.UI
 			this.panelRight.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.leaguePage.SuspendLayout();
+			this.groupBoxHandicapStyle.SuspendLayout();
 			this.scoresPage.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -217,6 +223,7 @@ namespace Torn.UI
 			// 
 			// leaguePage
 			// 
+			this.leaguePage.Controls.Add(this.groupBoxHandicapStyle);
 			this.leaguePage.Controls.Add(this.victoryPoints);
 			this.leaguePage.Controls.Add(this.totalScore);
 			this.leaguePage.Controls.Add(this.label1);
@@ -227,6 +234,65 @@ namespace Torn.UI
 			this.leaguePage.TabIndex = 0;
 			this.leaguePage.Text = "League";
 			this.leaguePage.UseVisualStyleBackColor = true;
+			// 
+			// groupBoxHandicapStyle
+			// 
+			this.groupBoxHandicapStyle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+									| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonMinus);
+			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonPlus);
+			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonNone);
+			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonPercent);
+			this.groupBoxHandicapStyle.Location = new System.Drawing.Point(6, 272);
+			this.groupBoxHandicapStyle.Name = "groupBoxHandicapStyle";
+			this.groupBoxHandicapStyle.Size = new System.Drawing.Size(253, 50);
+			this.groupBoxHandicapStyle.TabIndex = 3;
+			this.groupBoxHandicapStyle.TabStop = false;
+			this.groupBoxHandicapStyle.Text = "Handicap Style";
+			// 
+			// radioButtonMinus
+			// 
+			this.radioButtonMinus.Location = new System.Drawing.Point(98, 19);
+			this.radioButtonMinus.Name = "radioButtonMinus";
+			this.radioButtonMinus.Size = new System.Drawing.Size(40, 24);
+			this.radioButtonMinus.TabIndex = 3;
+			this.radioButtonMinus.TabStop = true;
+			this.radioButtonMinus.Text = "-";
+			this.radioButtonMinus.UseVisualStyleBackColor = true;
+			this.radioButtonMinus.CheckedChanged += new System.EventHandler(this.RadioButtonHandicapCheckedChanged);
+			// 
+			// radioButtonPlus
+			// 
+			this.radioButtonPlus.Location = new System.Drawing.Point(52, 19);
+			this.radioButtonPlus.Name = "radioButtonPlus";
+			this.radioButtonPlus.Size = new System.Drawing.Size(40, 24);
+			this.radioButtonPlus.TabIndex = 2;
+			this.radioButtonPlus.TabStop = true;
+			this.radioButtonPlus.Text = "+";
+			this.radioButtonPlus.UseVisualStyleBackColor = true;
+			this.radioButtonPlus.CheckedChanged += new System.EventHandler(this.RadioButtonHandicapCheckedChanged);
+			// 
+			// radioButtonNone
+			// 
+			this.radioButtonNone.Location = new System.Drawing.Point(144, 19);
+			this.radioButtonNone.Name = "radioButtonNone";
+			this.radioButtonNone.Size = new System.Drawing.Size(60, 24);
+			this.radioButtonNone.TabIndex = 1;
+			this.radioButtonNone.TabStop = true;
+			this.radioButtonNone.Text = "None";
+			this.radioButtonNone.UseVisualStyleBackColor = true;
+			this.radioButtonNone.CheckedChanged += new System.EventHandler(this.RadioButtonHandicapCheckedChanged);
+			// 
+			// radioButtonPercent
+			// 
+			this.radioButtonPercent.Location = new System.Drawing.Point(6, 19);
+			this.radioButtonPercent.Name = "radioButtonPercent";
+			this.radioButtonPercent.Size = new System.Drawing.Size(40, 24);
+			this.radioButtonPercent.TabIndex = 0;
+			this.radioButtonPercent.TabStop = true;
+			this.radioButtonPercent.Text = "%";
+			this.radioButtonPercent.UseVisualStyleBackColor = true;
+			this.radioButtonPercent.CheckedChanged += new System.EventHandler(this.RadioButtonHandicapCheckedChanged);
 			// 
 			// victoryPoints
 			// 
@@ -349,9 +415,15 @@ namespace Torn.UI
 			this.tabControl1.ResumeLayout(false);
 			this.leaguePage.ResumeLayout(false);
 			this.leaguePage.PerformLayout();
+			this.groupBoxHandicapStyle.ResumeLayout(false);
 			this.scoresPage.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
+		private System.Windows.Forms.RadioButton radioButtonNone;
+		private System.Windows.Forms.RadioButton radioButtonPlus;
+		private System.Windows.Forms.RadioButton radioButtonMinus;
+		private System.Windows.Forms.RadioButton radioButtonPercent;
+		private System.Windows.Forms.GroupBox groupBoxHandicapStyle;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.RadioButton totalScore;
 		private System.Windows.Forms.RadioButton victoryPoints;
