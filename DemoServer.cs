@@ -38,8 +38,11 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
+			if (!game.GameId.HasValue)
+				return;
+
 		    game.Players = new List<ServerPlayer>();
-			Random r = new Random(game.GameId);
+		    Random r = new Random((int)game.GameId);
 
 			for (int i = 0; i < 10; i++)
 			{
@@ -49,7 +52,7 @@ namespace Torn
 				player.Pack = "Pack" + r.Next(1, 30).ToString("D2");
 				var x = r.Next(0, adjectives.Length);
 				var y = r.Next(0, nouns.Length);
-				player.PlayerId = string.Format("demo%2d%2d", x * 10, y);
+				player.PlayerId = string.Format("demo{0:D2}{1:D2}", x, y);
 				player.Alias = adjectives[x] + nouns[y];
 				game.Players.Add(player);
 			}
