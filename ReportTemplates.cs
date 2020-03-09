@@ -12,7 +12,8 @@ using Zoom;
 
 namespace Torn.Report
 {
-	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, Ascension, Pyramid, PyramidCondensed, Packs, Everything, PageBreak };
+	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, Ascension, Pyramid, PyramidCondensed,
+		                     ColourPerformance, Packs, Everything, PageBreak };
 
 	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate
@@ -68,7 +69,7 @@ namespace Torn.Report
 		public string Setting(string name)
 		{
 			int index = Settings.FindIndex(s => s.StartsWith(name));
-			return index > -1 ? Settings[index].Substring(name.Length + 1) : null;
+			return index > -1 ? Settings[index].Substring(name.Length + 1) : "";
 		}
 
 		public override string ToString()

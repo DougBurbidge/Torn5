@@ -91,6 +91,7 @@ namespace Torn.UI
 			this.scaleGames.Tag = "ScaleGames";
 			this.scaleGames.Text = "scale up teams with less games";
 			this.scaleGames.UseVisualStyleBackColor = true;
+			this.scaleGames.CheckedChanged += new System.EventHandler(this.ScaleGamesCheckedChanged);
 			// 
 			// dropGames
 			// 
@@ -140,6 +141,7 @@ namespace Torn.UI
 			this.showTopN.TabIndex = 12;
 			this.showTopN.Text = "show only top";
 			this.showTopN.UseVisualStyleBackColor = true;
+			this.showTopN.CheckedChanged += new System.EventHandler(this.ShowTopNCheckedChanged);
 			// 
 			// atLeastN
 			// 
@@ -149,12 +151,13 @@ namespace Torn.UI
 			this.atLeastN.TabIndex = 15;
 			this.atLeastN.Text = "show only players with at least";
 			this.atLeastN.UseVisualStyleBackColor = true;
+			this.atLeastN.CheckedChanged += new System.EventHandler(this.AtLeastNCheckedChanged);
 			// 
 			// labelOrderBy
 			// 
 			this.labelOrderBy.Location = new System.Drawing.Point(12, 595);
 			this.labelOrderBy.Name = "labelOrderBy";
-			this.labelOrderBy.Size = new System.Drawing.Size(59, 23);
+			this.labelOrderBy.Size = new System.Drawing.Size(53, 23);
 			this.labelOrderBy.TabIndex = 18;
 			this.labelOrderBy.Text = "order by";
 			// 
@@ -213,8 +216,8 @@ namespace Torn.UI
 			this.orderBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.orderBy.FormattingEnabled = true;
 			this.orderBy.Items.AddRange(new object[] {
-									"score",
-									"score ratio"});
+									"victory points then score",
+									"victory points then score ratio"});
 			this.orderBy.Location = new System.Drawing.Point(73, 592);
 			this.orderBy.Name = "orderBy";
 			this.orderBy.Size = new System.Drawing.Size(189, 21);
@@ -400,6 +403,7 @@ namespace Torn.UI
 									"Ascension",
 									"Pyramid",
 									"Pyramid condensed",
+									"Colours",
 									"Packs",
 									"Everything"});
 			this.listBoxReportType.Location = new System.Drawing.Point(62, 12);
