@@ -23,8 +23,11 @@ namespace Torn
 		{
 			int hoursAgo = (int)DateTime.Now.Date.Subtract(date.Date).TotalHours;
 
-			if (hoursAgo == 0) return "Just played";
-			return "Played " + hoursAgo.ToString() + " ago";
+			if (hoursAgo == 0) 
+				return "Just played";
+			if (hoursAgo < 48)
+				return "Played " + hoursAgo.ToString() + " hours ago";
+			return "Played on " + date.Date.ToLongDateString();
 		}
 
 		public static string ShortDateTime(this DateTime date)
