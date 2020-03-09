@@ -345,7 +345,7 @@ namespace Torn.UI
 
 				var teamDatas = new List<GameTeamData>();
 				var teamBoxes = TeamBoxes();
-
+				// Build a list, one TeamData per TeamBox, connecting each GameTeam to its ServerPlayers.
 				foreach (TeamBox teamBox in teamBoxes)
 					if (teamBox.Players().Any())
 					{
@@ -385,6 +385,12 @@ namespace Torn.UI
 
 		void ButtonEditLeagueClick(object sender, EventArgs e)
 		{
+			if (activeHolder == null)
+			{
+				MessageBox.Show("Please select a league.");
+				return;
+			}
+
 			var form = new FormLeague();
 			form.Icon = (Icon)Icon.Clone();
 			form.League = activeHolder.League.Clone();
@@ -396,7 +402,7 @@ namespace Torn.UI
 					var lt = new LeagueTeam();
 					lt.Name = ft.Name;
 					ft.LeagueTeam = lt;
-					form.League.Teams.Add(lt);
+					form.League.AddTeam(lt);
 				}
 
 			if (form.ShowDialog() == DialogResult.OK)
@@ -821,8 +827,9 @@ namespace Torn.UI
 
 					if (serverPlayers.Any() && box < teamBoxes.Count)
 					{
+						teamBoxes[box].LeagueTeam = league.LeagueTeam(gameTeam);
 						teamBoxes[box].Accept(serverPlayers);
-						teamBoxes[box++].LeagueTeam = league.LeagueTeam(gameTeam);
+						box++;
 					}
 				}
 			}
@@ -889,8 +896,8 @@ namespace Torn.UI
 			buttonPackReport.Enabled = b;
 			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
-			if (listViewLeagues.SelectedItems.Count == 0)
-				labelLeagueDetails.Text = "Click new to create a new league file, or Open to open an existing one."; 
+			if (listViewLeagues.Items.Count == 0)
+				labelLeagueDetails.Text = "Click New to create a new league file, or Open to open an existing one."; 
 			else if (listViewLeagues.SelectedItems.Count == 1 && e != null)
 			{
 				activeHolder = (Holder)e.Item.Tag;
@@ -925,10 +932,6 @@ namespace Torn.UI
 			if (timeToNextCheck <= TimeSpan.Zero)
 			{
 				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the database server.
-				webOutput.MostRecentHolder = leagues.MostRecent();
-				if (webOutput.MostRecentHolder != null)
-					webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.LastOrDefault();
-				webOutput.MostRecentServerGame = MostRecent();  // This also queries the database server.
 
 				if (timeElapsed > TimeSpan.FromSeconds(1))
 					timeToNextCheck = TimeSpan.FromSeconds(61 - timeElapsed.TotalSeconds % 60);  // Set the next query to be one second after an integer number of minutes elapsed. This way, we will query one second after the game finishes.
@@ -942,16 +945,10 @@ namespace Torn.UI
 				timeToNextCheck = timeToNextCheck.Subtract(TimeSpan.FromMilliseconds(timerGame.Interval));
 			}
 
-			if (laserGameServer == null)
-				labelTime.Text = "No lasergame server";
-			else if (!laserGameServer.Connected)
-				labelTime.Text = "Not connected";
-			else if (timeElapsed == TimeSpan.Zero)
-				labelTime.Text = "Idle";
-			else if (timeElapsed.TotalHours < 1)
-				labelTime.Text = "+" + timeElapsed.ToString("m\\:ss");
-			else
-				labelTime.Text = "+" + timeElapsed.ToString();
+			UpdateNow();
+
+			if (timeToNextCheck <= TimeSpan.Zero)
+				webOutput.MostRecentServerGame = MostRecent();  // This also queries the database server.
 
 			if (timeElapsed > TimeSpan.Zero && !gameInProgress)
 			{
@@ -977,6 +974,27 @@ namespace Torn.UI
 				return -1;
 			else
 				return (int)timeElapsed.TotalSeconds;
+		}
+
+		void UpdateNow()
+		{
+			webOutput.MostRecentHolder = leagues.MostRecent();
+
+			if (webOutput.MostRecentHolder != null)
+				webOutput.MostRecentGame = webOutput.MostRecentHolder.League.AllGames.LastOrDefault();
+
+			if (laserGameServer == null)
+				labelTime.Text = "No lasergame server";
+			else if (!laserGameServer.Connected)
+				labelTime.Text = "Not connected";
+			else if (timeElapsed == TimeSpan.Zero)
+				labelTime.Text = "Idle";
+			else if (timeElapsed.TotalHours < 1)
+				labelTime.Text = "+" + timeElapsed.ToString("m\\:ss");
+			else
+				labelTime.Text = "+" + timeElapsed.ToString();
+
+			labelNow.Text = webOutput.NowText();
 		}
 
 		void NumericPortValueChanged(object sender, EventArgs e)
@@ -1100,21 +1118,16 @@ namespace Torn.UI
 				listViewGames.EndUpdate();
 			}
 
-			// Restore scroll position to where it was.
 			if (focused != null && focused.Tag is ServerGame)
 			{
-				var old = ((ServerGame)topItem.Tag).Time;
+				// Restore scroll position to where it was.
 				foreach (ListViewItem item in listViewGames.Items)
-					if (((ServerGame)item.Tag).Time == old)
+					if (((ServerGame)item.Tag).Time == ((ServerGame)topItem.Tag).Time)
 						listViewGames.TopItem = item;
-			}
 
-			// Restore focus to the same item it was on before we started.
-			if (focused != null && focused.Tag is ServerGame)
-			{
-				var old = ((ServerGame)focused.Tag).Time;
+				// Restore focus to the same item it was on before we started.
 				foreach (ListViewItem item in listViewGames.Items)
-					if (((ServerGame)item.Tag).Time == old)
+					if (((ServerGame)item.Tag).Time == ((ServerGame)focused.Tag).Time)
 					{
 						listViewGames.FocusedItem = item;
 						listViewGames.SelectedIndices.Add(item.Index);
