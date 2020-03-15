@@ -1023,12 +1023,18 @@ namespace Torn.UI
 		void ArrangeTeamsByRank()
 		{
 			var teams = RankTeams();
+			try 
+			{
+				foreach(var team in teams)
+					tableLayoutPanel1.Controls.Remove(team);
 
-			foreach(var team in teams)
-				tableLayoutPanel1.Controls.Remove(team);
-
-			foreach(var team in teams)
-				tableLayoutPanel1.Controls.Add(team);
+				foreach(var team in teams)
+					tableLayoutPanel1.Controls.Add(team);
+			}
+			catch (Exception)
+			{
+				// Squish. Sometimes .NET throws while adding/removing panels. It shouldn't, because the number of panels after should be the same as the number of panels before.
+			}
 		}
 
 		ServerGame MostRecent()
@@ -1069,7 +1075,13 @@ namespace Torn.UI
 					var leaguelist = leagues.Select(h => h.League);  // Grab the leagues out, because the below loop takes a long time, during which the user may add/remove leagues, modifying the "leagues" list.
 					foreach (var league in leaguelist)
 						if (PopulateGameIfIdle(league, serverGame, oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time)))
-							ProgressBar(1.0 * i / serverGames.Count, "Populated " + Utility.FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm"));
+							ProgressBar(0.95 * i / serverGames.Count, "Populated " + Utility.FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm"));
+				}
+
+				for (int i = 0; i < leagues.Count; i++)
+				{
+					FillEvents(leagues[i].League);
+					ProgressBar(0.95 + 0.05 * i / leagues.Count, "Filled events for " + leagues[i].League.Title);
 				}
 			}
 			finally
@@ -1193,6 +1205,15 @@ namespace Torn.UI
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
 					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
 				}
+		}
+
+		/// <summary>Pull Event data from ServerGames and put it into GamePlayers in league Games.</summary>
+		bool FillEvents(League league)
+		{
+			bool any = false;
+			foreach (Game game in league.AllGames)
+				any |= game.PopulateEvents();
+			return any;
 		}
 
 		void ListViewGamesDrawItem(object sender, DrawListViewItemEventArgs e)

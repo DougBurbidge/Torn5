@@ -197,17 +197,7 @@ namespace Torn
 					player.Pack = GetString(reader, "Pack_Name");
 					player.PlayerId = GetString(reader, "Button_ID");
 					player.Alias = GetString(reader, "Alias");
-
-					player.HitsBy = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && 
-					                               (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
-					player.HitsOn = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && 
-					                               (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
-					player.BaseHits = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 30);
-					player.BaseDestroys = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 31);
-					player.BaseDenies = game.Events.FindAll(x => x.ServerPlayerId == player.ServerPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
-					player.BaseDenied = game.Events.FindAll(x => x.ServerPlayerId == player.ServerPlayerId && (x.Event_Type == 1404 || x.Event_Type == 1404)).Sum(x => x.ShotsDenied);
-					player.YellowCards = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 28);
-					player.RedCards = game.Events.Count(x => x.ServerPlayerId == player.ServerPlayerId && x.Event_Type == 29);
+					player.Populate(game.Events);
 
 					game.Players.Add(player);
 				}

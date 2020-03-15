@@ -454,13 +454,13 @@ namespace Torn
 		public List<GameTeam> Teams { get; private set; }
 		public List<GamePlayer> UnallocatedPlayers { get; private set; }  // players not yet put onto a GameTeam.
 		public ServerGame ServerGame { get; set; }
-		public bool Reported { get; set; }  // Use Reported to decide whether to emit various report pages. TODO: persist this.
+		public bool Reported { get; set; }  // Use Reported to decide whether to emit various report pages.
 
 		int? hits = null;
 		public int Hits { get 
 			{
 				if (hits == null)
-					hits = Players().Sum(p => p.HitsOn);
+					RefreshHits();
 
 				return (int)hits;
 			} 
@@ -498,6 +498,28 @@ namespace Torn
 			string timeFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(":ss", "");
 
 			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Time.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + timeFormat);
+		}
+
+		/// <summary>Pull Event data from ServerGames and put it into GamePlayers.</summary>
+		public bool PopulateEvents()
+		{
+			bool any = false;
+			foreach (var player in Players())
+				if (player is ServerPlayer && !((ServerPlayer)player).IsPopulated())
+				{
+					((ServerPlayer)player).Populate(ServerGame.Events);
+					any = true;
+				}
+
+			if (any)
+				RefreshHits();
+
+			return any;
+		}
+
+		void RefreshHits()
+		{
+			hits = Players().Sum(p => p.HitsOn);
 		}
 
 		public int Rank(string playerId)
@@ -1464,6 +1486,25 @@ namespace Torn
 		public string Alias { get; set; }
 		/// <summary>If this object is linked from a ListViewItem's Tag, list that ListViewItem here.</summary>
 		public ListViewItem Item { get; set; }
+
+		public bool IsPopulated()
+		{
+			return HitsBy > 0 || HitsOn > 0 || BaseHits > 0 || BaseDestroys > 0 || BaseDenies > 0 || BaseDenied > 0 || YellowCards > 0 || RedCards > 0;
+		}
+
+		public void Populate(List<Event> events)
+		{
+			HitsBy = events.Count(x => x.ServerPlayerId == ServerPlayerId && 
+			                      (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
+			HitsOn = events.Count(x => x.ServerPlayerId == ServerPlayerId && 
+			                      (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
+			BaseHits = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 30);
+			BaseDestroys = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 31);
+			BaseDenies = events.FindAll(x => x.ServerPlayerId == ServerPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
+			BaseDenied = events.FindAll(x => x.ServerPlayerId == ServerPlayerId && (x.Event_Type == 1404 || x.Event_Type == 1404)).Sum(x => x.ShotsDenied);
+			YellowCards = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 28);
+			RedCards = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 29);
+		}
 
 		public override string ToString()
 		{
