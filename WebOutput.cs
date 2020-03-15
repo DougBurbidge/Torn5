@@ -20,6 +20,7 @@ namespace Torn.Report
 	/// <summary>Build web pages for WebOutput and ExportPages.</summary>
 	public class ReportPages
 	{
+		/// <summary>Generate a page with clickable links to each league in the list.</summary>
 		public static string RootPage(List<Holder> leagues)
 		{
 			if (leagues.Count == 0)
@@ -41,6 +42,7 @@ namespace Torn.Report
 			return sb.ToString();
 		}
 
+		/// <summary>Generate a page full of reports for a league. If no ReportTemplates, use a default set of reports.</summary>
 		public static ZoomReports OverviewReports(Holder holder, bool includeSecret, GameHyper gameHyper)
 		{
 			ZoomReports reports = new ZoomReports(holder.League.Title);
@@ -105,6 +107,7 @@ namespace Torn.Report
 			return reports.ToOutput(outputFormat);
 		}
 
+		/// <summary>Generate a page with results for a team.</summary>
 		public static string TeamPage(League league, bool includeSecret, LeagueTeam leagueTeam, GameHyper gameHyper, OutputFormat outputFormat)
 		{
 			ZoomReports reports = new ZoomReports();
@@ -113,6 +116,7 @@ namespace Torn.Report
 			return reports.ToOutput(outputFormat);
 		}
 
+		/// <summary>Display fixtures for a league, both as a list and as a grid.</summary>
 		public static string FixturePage(Fixture fixture, League league, OutputFormat outputFormat = OutputFormat.Svg)
 		{
 			ZoomReports reports = new ZoomReports();
@@ -157,6 +161,7 @@ namespace Torn.Report
 			return outputFormat == OutputFormat.Svg ? reports.ToHtml() : reports.ToOutput(outputFormat);
 		}
 
+		/// <summary>Callback passed to various reports to generate HTML fragment with URL of a game.</summary>
 		public static string GameHyper(Game game)
 		{
 			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture);
@@ -521,8 +526,11 @@ namespace Torn.Report
 			var dates = league.AllGames.Select(g => g.Time.Date).Distinct().ToList();
 			foreach (var date in dates)
 			{
+				string fileName = Path.Combine(path, holder.Key, "games" + date.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + 
+                                                      "." + holder.ReportTemplates.OutputFormat.ToExtension());
+
 				var dayGames = league.AllGames.Where(g => g.Time.Date == date);
-				if (dayGames.Any(g => !g.Reported))  // Some of the games for this day are not marked as reported. Report on them.
+				if (dayGames.Any(g => !g.Reported) || !File.Exists(fileName))  // Some of the games for this day are not marked as reported. Report on them.
 				{
 					ZoomReports reports = new ZoomReports(league.Title + " games on " + date.ToShortDateString());
 					reports.Colors.BackgroundColor = Color.Empty;
@@ -540,15 +548,15 @@ namespace Torn.Report
 						if (game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress)
 						{
 							reports.Add(Reports.GameHeatMap(league, game));
-							string fileName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
-							if (!game.Reported)
+							string imageName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
+							string imagePath = Path.Combine(path, holder.Key, imageName);
+							if (!game.Reported || !File.Exists(imagePath))
 							{
 								var bitmap = Reports.GameWorm(league, game, true);
-								string filePath = Path.Combine(path, holder.Key, fileName);
-								if (bitmap != null && (bitmap.Height > 1 || !File.Exists(filePath)))
-									bitmap.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+								if (bitmap != null && (bitmap.Height > 1 || !File.Exists(imagePath)))
+									bitmap.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
 							}
-							reports.Add(new ZoomHtmlInclusion("<img src=\"" + fileName + "\">"));
+							reports.Add(new ZoomHtmlInclusion("<img src=\"" + imageName + "\">"));
 							game.Reported = true;
 							heatMap = true;
 						}
@@ -558,8 +566,7 @@ namespace Torn.Report
 
 					reports.Add(new ZoomHtmlInclusion("</div><a href=\"index.html\">Index</a><div>"));
 					if (reports.Count > 1)  // There were games this day.
-						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "games" + date.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + 
-						                                                      "." + holder.ReportTemplates.OutputFormat.ToExtension())))
+						using (StreamWriter sw = File.CreateText(fileName))
 							sw.Write(reports.ToOutput(holder.ReportTemplates.OutputFormat));
 				}
 			}

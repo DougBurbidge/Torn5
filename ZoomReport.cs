@@ -506,10 +506,11 @@ namespace Zoom
 		}
 
 		/// <summary>For each column, calculate a pixel width, and find the min and max values.</summary>
-		void Widths(List<float> widths, List<double> mins, List<double> maxs)
+		void Widths(List<float> widths, List<double> mins, List<double> maxs, out int maxPoints)
 		{
 			var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 			var font = new Font("Arial", 11);
+			maxPoints = 0;
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
@@ -533,9 +534,13 @@ namespace Zoom
 						}
 						else if (Rows[row][col].Tag is List<ChartPoint> && ((List<ChartPoint>)Rows[row][col].Tag).Any())
 						{
+							if (min == 0.0)
+								min = double.MaxValue; // For most data types we want an all-positive data series to have a  min of 0, not its actual series minimum. But for chart points, where X is a date/time, that starts the chart at 1900, which is bad. So one-off setting the min to MaxValue means we'll end with a min of the earliest time in the series. 
 							hasNumber = true;
-							min = Math.Min(min, ((List<ChartPoint>)Rows[row][col].Tag).Min(p => p.X.Ticks));
-							max = Math.Max(max, ((List<ChartPoint>)Rows[row][col].Tag).Max(p => p.X.Ticks));
+							var points = (List<ChartPoint>)Rows[row][col].Tag;
+							min = Math.Min(min, points.Min(p => p.X.Ticks));
+							max = Math.Max(max, points.Max(p => p.X.Ticks));
+							maxPoints = Math.Max(maxPoints, points.Count);
 						}
 						else if (Rows[row][col].Number.HasValue && !double.IsNaN((double)Rows[row][col].Number))
 						{
@@ -1197,7 +1202,7 @@ namespace Zoom
 			return 1 / Math.Sqrt(2 * Math.PI * variance) * Math.Exp(-Math.Pow(x - mean, 2) / 2 / variance);
 		}
 
-		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, Color backColor, Color chartColor, ZCell cell, int column)
+		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, int maxPoints, Color backColor, Color chartColor, ZCell cell, int column)
 		{
 			if (cell.Color != Color.Empty)
 				SvgRect(s, 1, left, top, width, height, backColor);  // Paint chart cell(s) background.
@@ -1346,7 +1351,7 @@ namespace Zoom
 				var points = (List<ChartPoint>)cell.Tag;
 				var minY = Math.Min(0, points.Min(p => p.Y));
 				var maxY = Math.Max(1, points.Max(p => p.Y));
-				var radius = Math.Min(Math.Max(width / points.Count / 4, 0.1), 2.0);
+				var radius = Math.Min(Math.Max(width / maxPoints / 4, 0.1), 2.0);
 
 				SvgRect2(s, 1, left, top + height - Scale(1, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint "full height" stripe. (Points will actually appear above this line because scaling.)
 				SvgRect2(s, 1, left, top + height - Scale(0.5, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint mean stripe.
@@ -1358,7 +1363,7 @@ namespace Zoom
 		}
 
 		// Write a single table row.
-		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int width, ZRow row, bool odd)
+		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int MaxPoints, int width, ZRow row, bool odd)
 		{
 			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(odd));  // Paint the background for the whole row.
 
@@ -1382,7 +1387,7 @@ namespace Zoom
 
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
 					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
-					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), 
+					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), MaxPoints,
 					         Colors.GetBackColor(odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(odd), Colors.BarNone), sourceCell, barSource);
 
 				start = end + 1;
@@ -1409,7 +1414,8 @@ namespace Zoom
 			var widths = new List<float>();  // Width of each column in pixels. "float", because MeasureString().Width returns a float.
 			var mins = new List<double>();   // Minimum numeric value in each column, or if all numbers are positive, 0.
 			var maxs = new List<double>();   // Maximum numeric value in each column.
-			Widths(widths, mins, maxs);
+			int maxPoints;
+			Widths(widths, mins, maxs, out maxPoints);
 			int width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
 			double max = maxs.DefaultIfEmpty(1).Max();
 
@@ -1434,7 +1440,7 @@ namespace Zoom
 
 			foreach (ZRow row in Rows)
 			{
-				SvgRow(s, rowTop, rowHeight, widths, mins, maxs, width, row, odd);
+				SvgRow(s, rowTop, rowHeight, widths, mins, maxs, maxPoints, width, row, odd);
 
 				rowTop += rowHeight + 1;
 				odd = !odd;

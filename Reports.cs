@@ -973,6 +973,7 @@ namespace Torn.Report
 				report.Rows[0].Last().Text = "1";
 				report.RemoveZeroColumns();
 				report.Rows[0].Last().Text = null;
+				report.Description += " The Longitudinal column shows each game for each player. Scarlet is score ratio; blue is tag ratio.";
 			}
 			else
 				report.RemoveZeroColumns();
@@ -1253,11 +1254,11 @@ namespace Torn.Report
 		/// <summary>Create a bitmap showing the score of each team over time.</summary>
 		public static Bitmap GameWorm(League league, Game game, bool includeSecret)
 		{
-			var maxLeagueScore = league.Games(includeSecret).Max(g => g.Teams.Max(t => t.Score));
+			var scoreRange = league.Games(includeSecret).Max(g => g.Teams.Max(t => t.Score)) - league.Games(includeSecret).Min(g => Math.Min(g.Teams.Min(t => t.Score), 0));
 			var minScore = Math.Min(game.Teams.Min(x => x.Score), 0);  // Handle games where all teams scores are positive, some are negative, 
 			var maxScore = Math.Max(game.Teams.Max(x => x.Score), 0);  // or all are negative (e.g. Lord of the Ring).
 			double duration = game.ServerGame.EndTime.Subtract(game.Time).TotalSeconds;
-			var height = Math.Max((int)Math.Ceiling(duration * (maxScore - minScore) / maxLeagueScore), 1);
+			var height = Math.Max((int)Math.Ceiling(duration * (maxScore - minScore) / scoreRange), 1);
 			var skew = Scale(game.ServerGame.Events.Sum(e => e.Event_Type < 28 ? e.Score : 0) / game.Teams.Count, height, minScore, maxScore) / duration;  // In points per second, or points per pixel.
 
 			if (duration < 2 || height < 2 || double.IsInfinity(skew))
@@ -1775,8 +1776,12 @@ namespace Torn.Report
 
 			// Now build the pack report.
 			var	report = new ZoomReport((string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Pack Report" : title) + FromTo(games, from, to),
-				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Count,Longitudinal",
-				                        "center,left,integer,float,float,integer,float,float,float,integer,float");
+				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Count",
+				                        "center,left,integer,float,float,integer,float,float,float,integer");
+			
+			if (longitudinal)
+				report.Columns.Add(new ZColumn("Longitudinal", ZAlignment.Float));
+
 			report.MaxChartByColumn = true;
 
 			var packs = games.SelectMany(game => game.Players().Select(player => player.Pack)).Distinct().ToList();
@@ -1967,7 +1972,7 @@ namespace Torn.Report
 				report.Description = "This report shows the performance of each pack, each time it is used by a logged-on player. " +
 				    "Each score the pack gains is scaled by the player's ratio, effectively 'handicapping'. " +
 				    "You should ignore results from a pack where most of its games are played by a particular player. " +
-				    "You should ignore results from a pack with less than 10 or so games. <br/>" +
+				    "You should ignore results from a pack with less than 20 or so games. <br/>" +
 				    "'t' is the result of Student's t test -- the further the number is from 0, the more this pack's average deviates from the average of all the rest of the packs. " +
 				    "'p' is the likelihood of the t test result occurring by chance." +
 				    "You should pay attention to any pack with a p value smaller than " + (0.05 / packs.Count).ToString("G2", CultureInfo.CurrentCulture) +
@@ -2301,9 +2306,9 @@ namespace Torn.Report
 			{
 				if (rt.From != null && rt.To != null)
 					report.Description += " The report has been limited to games " + FromTo(games, rt.From, rt.To) + ".";
-				else if (rt.From != null)
+				else if (rt.From != null && games.Any())
 					report.Description += " The report has been limited to games after " + games.First().Time.ToShortDateString() + ".";
-				else if (rt.To != null)
+				else if (rt.To != null && games.Any())
 					report.Description += " The report has been limited to games before " + games.Last().Time.ToShortDateString() + ".";
 			}
 		}
