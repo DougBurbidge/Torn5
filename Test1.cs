@@ -7,6 +7,12 @@ using Torn;
 using Torn.Report;
 using Zoom;
 
+//using System.Runtime.Serialization.Json;
+
+//  Json in System.Web.Helpers, JsonQueryStringConverter in System.ServiceModel.Web, JavascriptSerializer in System.Web.Script.Serialization,
+//	DataContractJsonSerializer in System.Runtime.Serialization.Json
+//  Json.NET, System.Json, JsonValue in Windows.Data.Json
+
 namespace TornWeb
 {
 	[TestFixture]
@@ -17,8 +23,7 @@ namespace TornWeb
 			var league = new League(Path.Combine(Path.GetTempPath(), "TestLeague1.Torn"));
 
 			var team = new LeagueTeam() { Name = "Team A" };
-			team.TeamId = 1;
-			league.Teams.Add(team);
+			league.AddTeam(team);
 
 			league.Players.Add(new LeaguePlayer() { Name = "One", Id = "001", Comment = "one" } );
 			team.Players.Add(league.Players[0]);
@@ -28,8 +33,7 @@ namespace TornWeb
 			team.Players.Add(league.Players[2]);
 
 			team = new LeagueTeam() { Name = "Team B" };
-			team.TeamId = 2;
-			league.Teams.Add(team);
+			league.AddTeam(team);
 
 			league.Players.Add(new LeaguePlayer() { Name = "Four", Id = "004", Comment = "one" } );
 			team.Players.Add(league.Players[3]);
@@ -37,8 +41,7 @@ namespace TornWeb
 			team.Players.Add(league.Players[4]);
 
 			team = new LeagueTeam() { Name = "Team C" };
-			team.TeamId = 3;
-			league.Teams.Add(team);
+			league.AddTeam(team);
 
 			return league;			
 		}
@@ -219,6 +222,7 @@ namespace TornWeb
 			Assert.AreEqual(Colour.Red, fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
 			
 			fixture.Games.Clear();
+			Assert.IsNull(fixture.BestMatch(league.AllGames[0]), "match game null");
 			
 			var lines = new string[] { "row", "b..", "y.p" };
 			fixture.Games.Parse(lines, fixture.Teams, null, null);
@@ -272,6 +276,121 @@ namespace TornWeb
 			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd A");
 			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd B");
 			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd C");
+		}
+
+		LaserGameServer stubServer;
+		LaserGameServer jsonServer;
+
+		[Test]
+		public void TestJsonServer()
+		{
+			var webOutput = new WebOutput(8080);
+			stubServer = new StubServer();
+
+			webOutput.Games = stubServer.GetGames;
+			webOutput.PopulateGame = stubServer.PopulateGame;
+			webOutput.Players = stubServer.GetPlayers;
+			webOutput.Leagues = new Holders();
+			webOutput.Elapsed = Elapsed;
+
+			jsonServer = new JsonServer();
+			Assert.AreEqual(new TimeSpan(0, 0, 42), jsonServer.GameTimeElapsed(), "jsonServer time");
+
+			var games = jsonServer.GetGames();
+			Assert.AreEqual(3, games.Count);
+			
+			webOutput.Dispose();
+		}
+
+		int Elapsed()
+		{
+			if (stubServer == null)
+				return -3;
+			else if (!stubServer.Connected)
+				return -2;
+			
+			var timeElapsed = stubServer.GameTimeElapsed();
+
+			if (timeElapsed == TimeSpan.Zero)
+				return -1;
+			else
+				return (int)timeElapsed.TotalSeconds;
+		}
+	}
+
+	public class StubServer: LaserGameServer
+	{
+		public StubServer() {}
+		
+		protected override bool GetConnected()
+		{
+			return true;
+		}
+
+		public override TimeSpan GameTimeElapsed()
+		{
+			return new TimeSpan(0, 0, 42);
+		}
+
+		public override List<ServerGame> GetGames()
+		{
+			var games = new List<ServerGame>();
+
+			games.Add(NewGame(11, new DateTime(2018, 1, 1, 12, 0, 0), new DateTime(2018, 1, 1, 12, 12, 0), "League"));
+			games.Add(NewGame(12, new DateTime(2018, 1, 1, 12, 15, 0), new DateTime(2018, 1, 1, 12, 27, 0), "League"));
+			games.Add(NewGame(13, new DateTime(2018, 1, 1, 12, 30, 0), new DateTime(2018, 1, 1, 12, 42, 0), "League"));
+			
+			return games;
+		}
+
+		ServerGame NewGame(int gameId, DateTime startTime, DateTime endTime, string description)
+		{
+			ServerGame game = new ServerGame();
+			game.GameId = 11;
+			game.Time = new DateTime(2018, 1, 1, 12, 0, 0);
+			game.EndTime = new DateTime(2018, 1, 1, 12, 12, 0);
+			game.Description = "League";
+			game.OnServer = true;
+
+			return game;
+		}
+
+		public override void PopulateGame(ServerGame game)
+		{
+			game.Players.Add(NewServerPlayer(Colour.Red, "RONiN 441", "1-50-50", "pack1", 1001));
+			game.Players.Add(NewServerPlayer(Colour.Green, "", "", "pack2", 2001));
+			game.Players.Add(NewServerPlayer(Colour.Red, "C", "1-50-3", "pack3", 3001));
+		}
+
+		ServerPlayer NewServerPlayer(Colour colour, string alias, string id, string pack, int score)
+		{
+			var player = new ServerPlayer();
+			player.Colour = colour;
+			player.Score = score;
+			player.Pack = pack;
+			if (!string.IsNullOrEmpty(id))
+				player.PlayerId = id;
+			if (!string.IsNullOrEmpty(alias))
+				player.Alias = alias;
+			player.ServerPlayerId = player.Alias;
+			return player;
+		}
+
+		public override List<LaserGamePlayer> GetPlayers(string mask)
+		{
+			var players = new List<LaserGamePlayer>();
+			players.Add(NewGamePlayer("RONiN 441", "1-50-50"));
+			players.Add(NewGamePlayer("B", "1-50-2"));
+			players.Add(NewGamePlayer("C", "1-50-3"));
+			return players;
+		}
+		
+		LaserGamePlayer NewGamePlayer(string alias, string id)
+		{
+			var player = new LaserGamePlayer();
+			player.Alias = alias;
+			player.Id = id;
+			return player;
 		}
     }
 }
