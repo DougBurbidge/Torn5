@@ -1,72 +1,120 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Net;
 using Torn;
 
-namespace Torn5
+namespace Torn
 {
 	/// <summary>
 	/// This queries a JSON server for lasergame data.
 	/// </summary>
 	public class JsonServer: LaserGameServer
 	{
-		WebClient webClient;
+        readonly WebClient webClient;
+        readonly DemoServer demoServer;
+        readonly string _server;
 
-		public JsonServer()
+		public JsonServer(string server = "")
 		{
 			webClient = new WebClient();
+			demoServer = new DemoServer();
+			_server = server;
 		}
+
+		bool gameTimeElapsedReentrant = false;
+		public override TimeSpan GameTimeElapsed()
+		{
+			if (gameTimeElapsedReentrant)
+				return TimeSpan.FromSeconds(-4);
+
+			gameTimeElapsedReentrant = true;
+			try
+			{
+				try
+				{
+					return TimeSpan.FromSeconds(JsonSerializer.Deserialize<int>(webClient.DownloadString(_server + "/elapsed")));
+				}
+				catch
+				{
+					return TimeSpan.FromSeconds(-5);
+				}
+			}
+			finally
+			{
+				gameTimeElapsedReentrant = false;
+			}
+		}
+
+		// These reentrant flags are to allow Torn5 to call itself for results: configure Torn5 to use JsonServer, and point it at localhost:8080.
+		// When this happens, it will return results from DemoServer, rather than infinite looping. This is handy for testing, and for when users accidentally misconfigure.
+		bool getGamesReentrant = false;
 
 		public override List<ServerGame> GetGames()
 		{
-			string g;
-			try
-			{
-				g = webClient.DownloadString("http://localhost:8080/games");
+			if (getGamesReentrant)
+				return demoServer.GetGames();
+
+			getGamesReentrant = true;
+            try
+            {
+				try
+				{
+					return JsonSerializer.Deserialize<List<ServerGame>>(webClient.DownloadString(_server + "/games"));
+				}
+				catch
+				{
+					return null;
+				}
 			}
-			catch
+			finally
 			{
-				return null;
+				getGamesReentrant = false;
 			}
-
-			List<ServerGame> games = new List<ServerGame>();
-
-			int pos = g.IndexOf('[') + 1;
-
-			while (pos > 0 && pos < g.Length)
-			{
-				int posEnd = g.IndexOf('}', pos);
-				if (posEnd > -1 && posEnd < g.Length)
-					games.Add(new ServerGame(g.Substring(pos, posEnd - pos)));
-				pos = posEnd + 1;
-			}
-
-			return games;
 		}
+
+		bool populateGameReentrant = false;
 
 		public override void PopulateGame(ServerGame game)
 		{
-		    game.Players = new List<ServerPlayer>();
-			Random r = new Random();
-
-			for (int i = 0; i < 10; i++)
+			if (populateGameReentrant)
 			{
-				ServerPlayer player = new ServerPlayer();
-				player.Colour = (Colour)r.Next(1, 9);
-				player.Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001;
-				player.Pack = "Pack" + r.Next(1, 30).ToString("D2");
-				var x = r.Next(0, 10);
-				var y = r.Next(0, 10);
-				player.PlayerId = "demo" + (x * 10).ToString() + y.ToString();
-				game.Players.Add(player);
+				demoServer.PopulateGame(game);
+				return;
+			}
+
+			populateGameReentrant = true;
+			try
+            {
+				ServerGame game2 = JsonSerializer.Deserialize<ServerGame>(webClient.DownloadString(_server + "/game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture)));
+				game.Description = game2.Description;
+			}
+			finally
+            {
+				populateGameReentrant = false;
 			}
 		}
 
+		bool getPlayersReentrant = false;
+
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
-			var players = new List<LaserGamePlayer>();
+			if (getPlayersReentrant)
+				return demoServer.GetPlayers(mask);
 
-			return players;
+			getPlayersReentrant = true;
+			try
+			{
+				var players = new List<LaserGamePlayer>();
+
+				return players;
+			}
+			finally
+			{
+				getPlayersReentrant = false;
+			}
 		}
 	}
 }

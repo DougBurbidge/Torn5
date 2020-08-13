@@ -20,7 +20,7 @@ namespace Torn
 		public int PlayersLimit { get; set; }
 		public string LogFolder { get; set; }
 
-		public Laserforce(string server = "")
+		public Laserforce()
 		{
 			GamesLimit = 1000;
 			PlayersLimit = 1000;
@@ -87,13 +87,14 @@ namespace Torn
 			{
 				while (reader.Read())
 				{
-					ServerGame game = new ServerGame();
-					game.GameId = reader.GetInt32(0);
-					game.Time = reader.GetDateTime(1);
-					game.EndTime = reader.GetDateTime(2);
-					game.Description = reader.GetString(3);
-					game.OnServer = true;
-					games.Add(game);
+					games.Add(new ServerGame
+					{
+						GameId = reader.GetInt32(0),
+						Time = reader.GetDateTime(1),
+						EndTime = reader.GetDateTime(2),
+						Description = reader.GetString(3),
+						OnServer = true
+					});
 				}
 			}
 			finally
@@ -129,10 +130,12 @@ namespace Torn
 			{
 				while (reader.Read())
 				{
-					ServerPlayer player = new ServerPlayer();
-					player.Colour = ColourExtensions.ToColour(reader.GetInt32(0));
-					player.Score = reader.GetInt32(1);
-					player.Pack = reader.GetString(2);
+					ServerPlayer player = new ServerPlayer
+					{
+						Colour = ColourExtensions.ToColour(reader.GetInt32(0)),
+						Score = reader.GetInt32(1),
+						Pack = reader.GetString(2)
+					};
 					if (!reader.IsDBNull(3))
 						player.PlayerId = reader.GetString(3);
 					if (!reader.IsDBNull(4))
@@ -159,10 +162,11 @@ namespace Torn
 					// Line format: number of milliseconds elapsed in game [tab] event code [tab] teamcolour:playeralias [tab] event description [tab] teamcolour:playeralias
 					
 					var line = file.ReadLine().Split('\t');
-	
-					var oneEvent = new Event();
 
-					oneEvent.Time = game.Time.AddMilliseconds(int.Parse(line[0]));
+					var oneEvent = new Event
+					{
+						Time = game.Time.AddMilliseconds(int.Parse(line[0]))
+					};
 
 					string eventType = line[1];
 					if (eventType.StartsWith("01")) continue;
@@ -180,19 +184,17 @@ namespace Torn
 					game.Events.Add(oneEvent);
 					
 					if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
-					{
-						var twoEvent = new Event();
-						twoEvent.Time = oneEvent.Time;
-						twoEvent.Event_Type = oneEvent.Event_Type + 14;
-						twoEvent.Score = -40;
+						game.Events.Add(new Event
+						{
+							Time = oneEvent.Time,
+							Event_Type = oneEvent.Event_Type + 14,
+							Score = -40,
 
-						twoEvent.ServerTeamId = oneEvent.OtherTeam;
-						twoEvent.ServerPlayerId = oneEvent.OtherPlayer;
-						twoEvent.OtherTeam = oneEvent.ServerTeamId;
-						twoEvent.OtherPlayer = oneEvent.ServerPlayerId;
-
-						game.Events.Add(twoEvent);
-					}
+							ServerTeamId = oneEvent.OtherTeam,
+							ServerPlayerId = oneEvent.OtherPlayer,
+							OtherTeam = oneEvent.ServerTeamId,
+							OtherPlayer = oneEvent.ServerPlayerId
+						});
 				}
 			}
 		}
@@ -249,3 +251,4 @@ namespace Torn
 			}
 		}
 	}
+}

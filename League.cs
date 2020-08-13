@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -62,8 +63,7 @@ namespace Torn
 				{ "fire", Colour.Fire }, { "ice", Colour.Ice }, { "earth", Colour.Earth }, { "crystal", Colour.Crystal }, { "rainbow", Colour.Rainbow }, { "cops", Colour.Cops }  
 			};
 
-			Colour c;
-			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out c);
+			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out Colour c);
 			return c;
 		}
 
@@ -76,8 +76,7 @@ namespace Torn
 				{ '5', Colour.Purple }, { '6', Colour.Pink }, { '7', Colour.Cyan }, { '8', Colour.Orange }, { '9', Colour.White }
 			};
 
-			Colour c;
-			dict.TryGetValue(char.ToLower(ch, CultureInfo.InvariantCulture), out c);
+			dict.TryGetValue(char.ToLower(ch, CultureInfo.InvariantCulture), out Colour c);
 			return c;
 		}
 
@@ -120,8 +119,7 @@ namespace Torn
 				{ "%", HandicapStyle.Percent }, { "+", HandicapStyle.Plus }, { "-", HandicapStyle.Minus }, { ".", HandicapStyle.None }, { "None", HandicapStyle.None }
 			};
 
-			HandicapStyle h;
-			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out h);
+			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out HandicapStyle h);
 			return h;
 		}
 		
@@ -221,13 +219,13 @@ namespace Torn
 	
 		public LeaguePlayer Clone()
 		{
-			LeaguePlayer clone = new LeaguePlayer();
-			clone.Name = Name;
-			clone.Id = Id;
-			clone.Handicap = Handicap;
-			clone.Comment = Comment;
-
-			return clone;
+			return new LeaguePlayer
+			{
+				Name = Name,
+				Id = Id,
+				Handicap = Handicap,
+				Comment = Comment
+			};
 		}
 
 		public override string ToString()
@@ -273,13 +271,15 @@ namespace Torn
 
 		public LeagueTeam Clone(League clonedLeague)
 		{
-			var clone = new LeagueTeam();
-			clone.Name = Name;
-			clone.TeamId = TeamId;
-			clone.Handicap = Handicap;
-			clone.Comment = Comment;
-			
-			clone.Players = new List<LeaguePlayer>();
+			var clone = new LeagueTeam
+			{
+				Name = Name,
+				TeamId = TeamId,
+				Handicap = Handicap,
+				Comment = Comment,
+
+				Players = new List<LeaguePlayer>()
+			};
 			foreach (var player in Players)
 			{
 				// By the time we get here, clonedLeague contains cloned players, but our newly created clone LeagueTeam does not.
@@ -331,7 +331,7 @@ namespace Torn
 		public double Points { get; set; }
 		public double PointsAdjustment { get; set; }
 
-		List<GamePlayer> players;
+		readonly List<GamePlayer> players;
 		public List<GamePlayer> Players { get { return players; } }
 
 		public GameTeam()
@@ -341,17 +341,17 @@ namespace Torn
 
 		public GameTeam Clone()
 		{
-			var clone = new GameTeam();
-			clone.Time = Time;
-			clone.TeamId = TeamId;
-			clone.Colour = colour;
-			clone.Score = Score;
-			clone.Adjustment = Adjustment;
-			clone.Points = Points;
-			clone.PointsAdjustment = PointsAdjustment;
+			return new GameTeam
+			{
+				Time = Time,
+				TeamId = TeamId,
+				Colour = colour,
+				Score = Score,
+				Adjustment = Adjustment,
+				Points = Points,
+				PointsAdjustment = PointsAdjustment
+			};
 			// Don't clone players as this will be done by LinkThings().
-
-			return clone;
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -522,9 +522,9 @@ namespace Torn
 		{
 			bool any = false;
 			foreach (var player in Players())
-				if (player is ServerPlayer && !((ServerPlayer)player).IsPopulated())
+				if (player is ServerPlayer serverPlayer && !serverPlayer.IsPopulated())
 				{
-					((ServerPlayer)player).Populate(ServerGame.Events);
+					serverPlayer.Populate(ServerGame.Events);
 					any = true;
 				}
 
@@ -649,23 +649,24 @@ namespace Torn
 		/// <summary>This is a deep clone of league teams, league players and victory points, but a shallow clone of game data: Game, GameTeam, GamePlayer.</summary>
 		public League Clone()
 		{
-			League clone = new League();
+			League clone = new League
+			{
+				Title = Title,
+				file = file,
 
-			clone.Title = Title;
-			clone.file = file;
+				GridHigh = GridHigh,
+				GridWide = GridWide,
+				GridPlayers = GridPlayers,
 
-			clone.GridHigh = GridHigh;
-			clone.GridWide = GridWide;
-			clone.GridPlayers = GridPlayers;
+				players = Players.Select(item => (LeaguePlayer)item.Clone()).ToList(),
 
-			clone.players = Players.Select(item => (LeaguePlayer)item.Clone()).ToList();
+				victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList()),
+				VictoryPointsHighScore = VictoryPointsHighScore,
+				VictoryPointsProportional = VictoryPointsProportional
+			};
+
 			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone(clone)).ToList();
 			clone.AllGames.AddRange(AllGames);
-
-			clone.victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList());
-			clone.VictoryPointsHighScore = VictoryPointsHighScore;
-			clone.VictoryPointsProportional = VictoryPointsProportional;
-
 			return clone;
 		}
 
@@ -678,8 +679,10 @@ namespace Torn
 			Game game = serverGame.Game ?? Game(gameTeam);
 			if (game == null)
 			{
-				game = new Game();
-				game.Time = serverGame.Time;
+				game = new Game
+				{
+					Time = serverGame.Time
+				};
 				serverGame.Game = game;
 				serverGame.Game.ServerGame = serverGame;
 			}
@@ -694,8 +697,11 @@ namespace Torn
 			
 			if (leagueTeam == null)
 			{
-				leagueTeam = new LeagueTeam();
-				AddTeam(leagueTeam);
+				leagueTeam = new LeagueTeam
+				{
+					TeamId = NextTeamId()
+				};
+				Teams.Add(leagueTeam);
 			}
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
@@ -718,8 +724,8 @@ namespace Torn
 			if (leaguePlayer == null)
 			{
 				leaguePlayer = new LeaguePlayer();
-				if (gamePlayer is ServerPlayer)
-					leaguePlayer.Name = ((ServerPlayer)gamePlayer).Alias;
+				if (gamePlayer is ServerPlayer serverPlayer)
+					leaguePlayer.Name = serverPlayer.Alias;
 				leaguePlayer.Id = gamePlayer.PlayerId;
 				Players.Add(leaguePlayer);
 			}
@@ -736,9 +742,11 @@ namespace Torn
 			Game game;
 			if (serverGame.Game == null)
 			{
-				serverGame.Game = new Game();
-				serverGame.Game.Time = serverGame.Time;
-				serverGame.Game.ServerGame = serverGame;
+				serverGame.Game = new Game
+				{
+					Time = serverGame.Time,
+					ServerGame = serverGame
+				};
 				debug.Append("Created new serverGame for ");
 				debug.Append(serverGame.Time.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.CurrentCulture));
 				debug.Append(".\n");
@@ -891,14 +899,15 @@ namespace Torn
 
 			foreach (XmlNode xteam in xteams)
 			{
-				LeagueTeam leagueTeam = new LeagueTeam();
-				
-				leagueTeam.Name = xteam.GetString("teamname");
-				leagueTeam.TeamId = xteam.GetInt("teamid");
-				leagueTeam.Handicap = Handicap.Parse(xteam.GetString("handicap"));
-				leagueTeam.Comment = xteam.GetString("comment");
-				
-				var teamPlayers = xteam.SelectSingleNode("players");
+				LeagueTeam leagueTeam = new LeagueTeam
+				{
+					Name = xteam.GetString("teamname"),
+					TeamId = xteam.GetInt("teamid"),
+					Handicap = Handicap.Parse(xteam.GetString("handicap")),
+					Comment = xteam.GetString("comment")
+				};
+
+					var teamPlayers = xteam.SelectSingleNode("players");
 				if (teamPlayers != null)
 				{
 					XmlNodeList xplayers = teamPlayers.SelectNodes("player");
@@ -932,11 +941,12 @@ namespace Torn
 
 			foreach (XmlNode xgame in xgames) 
 			{
-				Game game = new Game();
-
-				game.Title = xgame.GetString("title");
-				game.Secret = xgame.GetString("secret") == "y";
-				game.Reported = xgame.GetString("reported") == "y";
+				Game game = new Game
+				{
+					Title = xgame.GetString("title"),
+					Secret = xgame.GetString("secret") == "y",
+					Reported = xgame.GetString("reported") == "y"
+				};
 
 				var child = xgame.SelectSingleNode("ansigametime");
 				if (child == null)
@@ -949,15 +959,16 @@ namespace Torn
 
 				foreach (XmlNode xteam in xteams)
 				{
-					GameTeam gameTeam = new GameTeam();
-
-					gameTeam.Time = game.Time;
-					gameTeam.TeamId = xteam.GetInt("teamid");
-					gameTeam.Colour = ColourExtensions.ToColour(xteam.GetString("colour"));
-					gameTeam.Score = xteam.GetDouble("score");
-					gameTeam.Points = xteam.GetDouble("points");
-					gameTeam.Adjustment = xteam.GetDouble("adjustment");
-					gameTeam.PointsAdjustment = xteam.GetDouble("victorypointsadjustment");
+					GameTeam gameTeam = new GameTeam
+					{
+						Time = game.Time,
+						TeamId = xteam.GetInt("teamid"),
+						Colour = ColourExtensions.ToColour(xteam.GetString("colour")),
+						Score = xteam.GetDouble("score"),
+						Points = xteam.GetDouble("points"),
+						Adjustment = xteam.GetDouble("adjustment"),
+						PointsAdjustment = xteam.GetDouble("victorypointsadjustment")
+					};
 
 					game.Teams.Add(gameTeam);
 				}
@@ -967,21 +978,22 @@ namespace Torn
 
 				foreach (XmlNode xplayer in xplayers)
 				{
-					GamePlayer gamePlayer = new GamePlayer();
-
-					gamePlayer.PlayerId = xplayer.GetString("playerid");
-					gamePlayer.TeamId = xplayer.GetInt("teamid");
-					gamePlayer.Pack = xplayer.GetString("pack");
-					gamePlayer.Score = xplayer.GetInt("score");
-					gamePlayer.Rank = (uint)xplayer.GetInt("rank");
-					gamePlayer.HitsBy = xplayer.GetInt("hitsby");
-					gamePlayer.HitsOn = xplayer.GetInt("hitson");
-					gamePlayer.BaseHits = xplayer.GetInt("basehits");
-					gamePlayer.BaseDestroys = xplayer.GetInt("basedestroys");
-					gamePlayer.BaseDenies = xplayer.GetInt("basedenies");
-					gamePlayer.BaseDenied = xplayer.GetInt("basedenied");
-					gamePlayer.YellowCards = xplayer.GetInt("yellowcards");
-					gamePlayer.RedCards = xplayer.GetInt("redcards");
+					GamePlayer gamePlayer = new GamePlayer
+					{
+						PlayerId = xplayer.GetString("playerid"),
+						TeamId = xplayer.GetInt("teamid"),
+						Pack = xplayer.GetString("pack"),
+						Score = xplayer.GetInt("score"),
+						Rank = (uint)xplayer.GetInt("rank"),
+						HitsBy = xplayer.GetInt("hitsby"),
+						HitsOn = xplayer.GetInt("hitson"),
+						BaseHits = xplayer.GetInt("basehits"),
+						BaseDestroys = xplayer.GetInt("basedestroys"),
+						BaseDenies = xplayer.GetInt("basedenies"),
+						BaseDenied = xplayer.GetInt("basedenied"),
+						YellowCards = xplayer.GetInt("yellowcards"),
+						RedCards = xplayer.GetInt("redcards")
+					};
 
 					if (xplayer.SelectSingleNode("colour") != null)
 						gamePlayer.Colour = (Colour)(xplayer.GetInt("colour") + 1);
@@ -1409,28 +1421,31 @@ namespace Torn
 		{
 			return "Event Type " + Event_Type.ToString();
 		}
-
 	}
 
 	/// <summary>Represents a game as stored on the laser game server.</summary>
 	[DataContract]
 	public class ServerGame: IComparable<ServerGame>
 	{
-		[DataMember]
+		[JsonIgnore]
 		public int? GameId { get; set; }
-		[DataMember]
+		[JsonPropertyName("description")]
 		public string Description { get; set; }
-		[DataMember]
+		[JsonPropertyName("startTime")]
 		public DateTime Time { get; set; }
-		[DataMember]
+		[JsonPropertyName("endTime")]
 		public DateTime EndTime { get; set; }
+		[JsonIgnore]
 		public League League { get; set; }
+		[JsonIgnore]
 		public Game Game { get; set; }
+		[JsonPropertyName("players")]
 		public List<ServerPlayer> Players { get; set; }
-		[DataMember]
+		[JsonPropertyName("inProgress")]
 		public bool InProgress { get; set; }
-		[DataMember]
+		[JsonIgnore]
 		public bool OnServer { get; set; }
+		[JsonIgnore]
 		public List<Event> Events { get; set; }
 
 		public ServerGame()

@@ -118,19 +118,25 @@ namespace Torn.UI
 			toolStripGame.Location = new Point(0, 1);
 			toolStripLeague.Location = new Point(0, 1);
 
-			webOutput = new WebOutput(webPort);
-			webOutput.Leagues = leagues;
-			webOutput.Elapsed = Elapsed;
+			webOutput = new WebOutput(webPort)
+			{
+				Leagues = leagues,
+				Elapsed = Elapsed
+			};
 
-			playersBox = new PlayersBox();
-			playersBox.Images = imageListPacks;
-			playersBox.GetMoveTarget = FindEmptyTeamBox;
+			playersBox = new PlayersBox
+			{
+				Images = imageListPacks,
+				GetMoveTarget = FindEmptyTeamBox
+			};
 			tableLayoutPanel1.Controls.Add(playersBox, 2, 0);
 			tableLayoutPanel1.SetRowSpan(playersBox, tableLayoutPanel1.RowCount);
 			playersBox.Dock = DockStyle.Fill;
-			
-			formPlayer = new FormPlayer();
-			formPlayer.Icon = (Icon)Icon.Clone();
+
+			formPlayer = new FormPlayer
+			{
+				Icon = (Icon)Icon.Clone()
+			};
 			ConnectLaserGameServer();
 
 			AddTeamBoxes();
@@ -163,8 +169,9 @@ namespace Torn.UI
 							((Laserforce)laserGameServer).Connect(serverAddress, sqlUserId, sqlPassword);
 						((Laserforce)laserGameServer).LogFolder = logFolder;
 					break;
-					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress); break;
+					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress);  break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
+					case SystemType.Torn: laserGameServer = new JsonServer(serverAddress);  break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
 				}
 
@@ -261,13 +268,15 @@ namespace Torn.UI
 		{
 			while(tableLayoutPanel1.Controls.Count - 4 < tableLayoutPanel1.RowCount * (tableLayoutPanel1.ColumnCount - 3))
 			{
-				TeamBox teamBox = new TeamBox();
-				teamBox.League = activeHolder == null ? null : activeHolder.League;
-				teamBox.Images = imageListPacks;
-				teamBox.GetMoveTarget = FindEmptyTeamBox;
-				teamBox.RankTeams = RankTeamBoxes;
-				teamBox.SortTeamsByRank = ArrangeTeamsByRank;
-				teamBox.FormPlayer = formPlayer; 
+				TeamBox teamBox = new TeamBox
+				{
+					League = activeHolder?.League,
+					Images = imageListPacks,
+					GetMoveTarget = FindEmptyTeamBox,
+					RankTeams = RankTeamBoxes,
+					SortTeamsByRank = ArrangeTeamsByRank,
+					FormPlayer = formPlayer
+				};
 				tableLayoutPanel1.Controls.Add(teamBox);
 				teamBox.Dock = DockStyle.Fill;
 			}
@@ -341,19 +350,18 @@ namespace Torn.UI
 		{
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 			{
-				ServerGame serverGame = item.Tag is ServerGame ? ((ServerGame)item.Tag) : null;
+				ServerGame serverGame = item.Tag is ServerGame game ? game : null;
 
 				var teamDatas = new List<GameTeamData>();
 				var teamBoxes = TeamBoxes();
 				// Build a list, one TeamData per TeamBox, connecting each GameTeam to its ServerPlayers.
 				foreach (TeamBox teamBox in teamBoxes)
 					if (teamBox.Players().Any())
-					{
-						var teamData = new GameTeamData();
-						teamData.GameTeam = teamBox.GameTeam;
-						teamData.Players = teamBox.Players();
-						teamDatas.Add(teamData);
-					}
+						teamDatas.Add(new GameTeamData
+						{
+							GameTeam = teamBox.GameTeam,
+							Players = teamBox.Players()
+						});
 
 				if (teamDatas.Any())
 				{
@@ -391,16 +399,17 @@ namespace Torn.UI
 				return;
 			}
 
-			var form = new FormLeague();
-			form.Icon = (Icon)Icon.Clone();
-			form.League = activeHolder.League.Clone();
-			form.FormPlayer = formPlayer;
+			var form = new FormLeague
+			{
+				Icon = (Icon)Icon.Clone(),
+				League = activeHolder.League.Clone(),
+				FormPlayer = formPlayer
+			};
 
 			if (form.League.Teams.Count == 0)
 				foreach (var ft in activeHolder.Fixture.Teams)
 				{
-					var lt = new LeagueTeam();
-					lt.Name = ft.Name;
+					var lt = new LeagueTeam { Name = ft.Name };
 					ft.LeagueTeam = lt;
 					form.League.AddTeam(lt);
 				}
@@ -468,18 +477,17 @@ namespace Torn.UI
 			var changed = new List<League>();
 
 			foreach (ListViewItem item in listViewGames.SelectedItems)
-				if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
+				if (item.Tag is ServerGame serverGame && serverGame.Game != null)
 				{
-					Game game = ((ServerGame)item.Tag).Game;
-					var holder = leagues.Find(h => h.League.AllGames.Contains(game));
+					var holder = leagues.Find(h => h.League.AllGames.Contains(serverGame.Game));
 					if (holder != null)
 					{
-						holder.League.AllGames.Remove(game);
+						holder.League.AllGames.Remove(serverGame.Game);
 						item.SubItems[1].Text = null;
 						if (!changed.Contains(holder.League))
 						    changed.Add(holder.League);
 					}
-					((ServerGame)item.Tag).Game = null;
+					serverGame.Game = null;
 				}
 
 			foreach (var league in changed)
@@ -531,10 +539,14 @@ namespace Torn.UI
 
 				if (packReport == null)
 				{
-					packReport = new FormReport();
-					packReport.ReportTemplate = new ReportTemplate();
-					packReport.ReportTemplate.ReportType = ReportType.Packs;
-					packReport.ReportTemplate.Title = "Pack report for " + string.Join(", ", leagues);
+					packReport = new FormReport
+					{
+						ReportTemplate = new ReportTemplate
+						{
+							ReportType = ReportType.Packs,
+							Title = "Pack report for " + string.Join(", ", leagues)
+						}
+					};
 					packReport.ReportTemplate.Settings.Add("ChartType=kernel density estimate with rug");
 					packReport.ReportTemplate.Settings.Add("Description");
 					packReport.ReportTemplate.Settings.Add("Longitudinal");
@@ -557,23 +569,25 @@ namespace Torn.UI
 
 		void ButtonPreferencesClick(object sender, EventArgs e)
 		{
-			var form = new FormPreferences();
-			form.Icon = (Icon)Icon.Clone();
-			form.GroupPlayersBy = groupPlayersBy;
-			form.AutoUpdateScoreboard = autoUpdateScoreboard;
-			form.AutoUpdateTeams = autoUpdateTeams;
-			form.UploadMethod = uploadMethod;
-			form.UploadSite = uploadSite;
-			form.Username = username;
-			form.Password = password;
+			var form = new FormPreferences
+			{
+				Icon = (Icon)Icon.Clone(),
+				GroupPlayersBy = groupPlayersBy,
+				AutoUpdateScoreboard = autoUpdateScoreboard,
+				AutoUpdateTeams = autoUpdateTeams,
+				UploadMethod = uploadMethod,
+				UploadSite = uploadSite,
+				Username = username,
+				Password = password,
 
-			form.SystemType = systemType;
-			form.ServerAddress = serverAddress;
-			form.WindowsAuth = windowsAuth;
-			form.Sqluser = sqlUserId;
-			form.Password = sqlPassword;
-			form.WebPort = webPort;
-			form.LogFolder = logFolder;
+				SystemType = systemType,
+				ServerAddress = serverAddress,
+				WindowsAuth = windowsAuth,
+				Sqluser = sqlUserId,
+				SqlPassword = sqlPassword,
+				WebPort = webPort,
+				LogFolder = logFolder
+			};
 
 			if (form.ShowDialog() == DialogResult.OK)
 			{
@@ -640,16 +654,15 @@ namespace Torn.UI
 			var id = new InputDialog("Description: ", "Set a description", firstItem.SubItems[2].Text);
 			if (id.ShowDialog() == DialogResult.OK)
 				foreach (ListViewItem item in listViewGames.SelectedItems)
-					if (item.Tag is ServerGame && ((ServerGame)item.Tag).Game != null)
+					if (item.Tag is ServerGame serverGame && serverGame.Game != null)
 					{
-						var serverGame = (ServerGame)item.Tag;
 						serverGame.Game.Title = id.Response;
 						serverGame.Game.Reported = false;
 						while (item.SubItems.Count <= 2)
 							item.SubItems.Add("");
 						item.SubItems[2].Text = id.Response;
-						if (!changed.Contains(serverGame.League))
-						    changed.Add(serverGame.League);
+						if (!changed.Contains((League)serverGame.League))
+							changed.Add((League)serverGame.League);
 					}
 
 			foreach (var league in changed)
@@ -762,8 +775,8 @@ namespace Torn.UI
 		TeamBox FindEmptyTeamBox()
 		{
 			foreach (Control c in tableLayoutPanel1.Controls)
-				if (c is TeamBox && ((TeamBox)c).Items.Count == 0)
-					return (TeamBox)c;
+				if (c is TeamBox teamBox && teamBox.Items.Count == 0)
+					return teamBox;
 
 			return null;
 		}
@@ -772,8 +785,8 @@ namespace Torn.UI
 		{
 			var teamBoxes = new List<TeamBox>();
 			foreach (Control c in tableLayoutPanel1.Controls)
-				if (c is TeamBox)
-					teamBoxes.Add((TeamBox)c);
+				if (c is TeamBox teamBox)
+					teamBoxes.Add(teamBox);
 
 			return teamBoxes;
 		}
@@ -815,7 +828,7 @@ namespace Torn.UI
 					{
 						var players = playersBox.Players();
 						var serverPlayer = players.Find(sp => (!string.IsNullOrEmpty(sp.PlayerId) && sp.PlayerId == gp.PlayerId) ||
-						                                      (!string.IsNullOrEmpty(sp.ServerPlayerId) && gp is ServerPlayer && sp.ServerPlayerId == ((ServerPlayer)gp).ServerPlayerId) ||
+						                                      (!string.IsNullOrEmpty(sp.ServerPlayerId) && gp is ServerPlayer player && sp.ServerPlayerId == player.ServerPlayerId) ||
 						                                      (!string.IsNullOrEmpty(sp.Pack) && sp.Pack == gp.Pack));
 						if (serverPlayer != null)
 						{
@@ -851,7 +864,7 @@ namespace Torn.UI
 			buttonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonForget.Enabled = listViewGames.SelectedItems.Count > 0;
 			buttonCommit.Enabled = EnableCommit();
-			
+
 			foreach (var tb in TeamBoxes())
 				tb.Clear();
 
@@ -862,10 +875,7 @@ namespace Torn.UI
 				if (laserGameServer != null)
 					laserGameServer.PopulateGame(game);
 
-				if (activeHolder != null && activeHolder.League != null)
-					playersBox.LoadGame(activeHolder.League, game);
-				else
-					playersBox.LoadGame(null, game);
+				playersBox.LoadGame(activeHolder?.League, game);
 
 				TransferPlayers(game);
 			}
@@ -888,7 +898,7 @@ namespace Torn.UI
 		void ListViewLeaguesItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
 			Boolean b = listViewLeagues.SelectedItems.Count > 0;
-			string s = listViewLeagues.SelectedItems.Count > 1 ? "s" : "";
+			//string s = listViewLeagues.SelectedItems.Count > 1 ? "s" : "";
 
 			buttonClose.Enabled = b;
 			buttonSave.Enabled = b;
@@ -924,7 +934,7 @@ namespace Torn.UI
 			}
 
 			foreach (var tb in TeamBoxes())
-				tb.League = activeHolder == null ? null : activeHolder.League;
+				tb.League = activeHolder?.League;
 		}
 
 		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
@@ -1078,7 +1088,7 @@ namespace Torn.UI
 					var serverGame = serverGames[i];
 					var leaguelist = leagues.Select(h => h.League);  // Grab the leagues out, because the below loop takes a long time, during which the user may add/remove leagues, modifying the "leagues" list.
 					foreach (var league in leaguelist)
-						if (PopulateGameIfIdle(league, serverGame, oldGames == null ? null : oldGames.Find(x => x.Time == serverGame.Time)))
+						if (PopulateGameIfIdle(league, serverGame, oldGames?.Find(x => x.Time == serverGame.Time)))
 							ProgressBar(0.95 * i / serverGames.Count, "Populated " + Utility.FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm"));
 				}
 
@@ -1099,13 +1109,12 @@ namespace Torn.UI
 			foreach (Holder holder in leagues)
 				foreach (Game leagueGame in holder.League.AllGames)
 					if (serverGames.Find(x => x.Time == leagueGame.Time) == null)
-					{
-						ServerGame game = new ServerGame();
-						game.League = holder.League;
-						game.Game = leagueGame;
-						game.Time = leagueGame.Time;
-						serverGames.Add(game);
-					}
+						serverGames.Add(new ServerGame
+						{
+							League = holder.League,
+							Game = leagueGame,
+							Time = leagueGame.Time
+						});
 
 			serverGames.Sort();
 
@@ -1117,9 +1126,10 @@ namespace Torn.UI
 				// Create items in the list view, one for each server game.
 				foreach (var serverGame in serverGames)
 				{
-					ListViewItem item = new ListViewItem();
-					item.Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDate()) + 
-						serverGame.Time.ToString(" HH:mm");
+					ListViewItem item = new ListViewItem
+					{
+						Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDate()) + serverGame.Time.ToString(" HH:mm")
+					};
 
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
 					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
@@ -1134,7 +1144,7 @@ namespace Torn.UI
 				listViewGames.EndUpdate();
 			}
 
-			if (focused != null && focused.Tag is ServerGame)
+			if (focused != null && focused.Tag is ServerGame sg)
 			{
 				// Restore scroll position to where it was.
 				foreach (ListViewItem item in listViewGames.Items)
@@ -1143,7 +1153,7 @@ namespace Torn.UI
 
 				// Restore focus to the same item it was on before we started.
 				foreach (ListViewItem item in listViewGames.Items)
-					if (((ServerGame)item.Tag).Time == ((ServerGame)focused.Tag).Time)
+					if (((ServerGame)item.Tag).Time == sg.Time)
 					{
 						listViewGames.FocusedItem = item;
 						listViewGames.SelectedIndices.Add(item.Index);

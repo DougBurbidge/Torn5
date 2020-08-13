@@ -81,79 +81,88 @@ namespace Torn
 	/// <summary>This is a fake stub lasergame server for test purposes.</summary>
 	public class StubServer: LaserGameServer
 	{
-		public StubServer(string server = "")
+		public StubServer()
 		{
 			Connected = true;
 		}
 
 		public override List<ServerGame> GetGames()
 		{
-			List<ServerGame> games = new List<ServerGame>();
+			List<ServerGame> games = new List<ServerGame>
+			{
+				new ServerGame
+				{
+					GameId = 1,
+					Description = "test game 1",
+					Time = new DateTime(2018, 1, 1, 12, 00, 00),
+					EndTime = new DateTime(2018, 1, 1, 12, 12, 00),
+					OnServer = true
+				},
 
-			var game = new ServerGame();
-			game.GameId = 1;
-			game.Description = "test game 1";
-			game.Time = new DateTime(2018, 1, 1, 12, 00, 00);
-			game.EndTime = new DateTime(2018, 1, 1, 12, 12, 00);
-			game.OnServer = true;
-			games.Add(game);
+				new ServerGame
+				{
+					GameId = 2,
+					Description = "test game 2",
+					Time = new DateTime(2018, 1, 1, 12, 15, 00),
+					EndTime = new DateTime(2018, 1, 1, 12, 27, 00),
+					OnServer = true
+				},
 
-			game = new ServerGame();
-			game.GameId = 2;
-			game.Description = "test game 2";
-			game.Time = new DateTime(2018, 1, 1, 12, 15, 00);
-			game.EndTime = new DateTime(2018, 1, 1, 12, 27, 00);
-			game.OnServer = true;
-			games.Add(game);
-
-			game = new ServerGame();
-			game.GameId = 3;
-			game.Description = "test game 3";
-			game.Time = new DateTime(2018, 1, 1, 12, 30, 00);
-			game.InProgress = true;
-			game.OnServer = true;
-			games.Add(game);
+				new ServerGame
+				{
+					GameId = 3,
+					Description = "test game 3",
+					Time = new DateTime(2018, 1, 1, 12, 30, 00),
+					InProgress = true,
+					OnServer = true
+				}
+			};
 
 			return games;
 		}
 
 		public override void PopulateGame(ServerGame game)
 		{
-			game.Players = new List<ServerPlayer>();
+			game.Players = new List<ServerPlayer>
+			{
+				new ServerPlayer
+				{
+					Colour = Colour.Red,
+					Score = 1000,
+					Pack = "Pack 1",
+					PlayerId = "ABC-001",
+					Alias = "Alias 1"
+				},
 
-			var player = new ServerPlayer();
-			player.Colour = Colour.Red;
-			player.Score = 1000;
-			player.Pack = "Pack 1";
-			player.PlayerId = "ABC-001";
-			player.Alias = "Alias 1";
-			game.Players.Add(player);
+				new ServerPlayer
+				{
+					Colour = Colour.Red,
+					Score = 2000,
+					Pack = "Pack 2",
+					PlayerId = "ABC-002",
+					Alias = "Alias 2"
+				},
 
-			player = new ServerPlayer();
-			player.Colour = Colour.Red;
-			player.Score = 2000;
-			player.Pack = "Pack 2";
-			player.PlayerId = "ABC-002";
-			player.Alias = "Alias 2";
-			game.Players.Add(player);
-			
-			player = new ServerPlayer();
-			player.Colour = Colour.Blue;
-			player.Score = 3000;
-			player.Pack = "Pack 3";
-			player.PlayerId = "ABC-003";
-			player.Alias = "Alias 3";
-			game.Players.Add(player);
+				new ServerPlayer
+				{
+					Colour = Colour.Blue,
+					Score = 3000,
+					Pack = "Pack 3",
+					PlayerId = "ABC-003",
+					Alias = "Alias 3"
+				}
+			};
 		}
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
-			var players = new List<LaserGamePlayer>();
-			players.Add(new LaserGamePlayer { Alias = "Alias 1", Name = "Name 1", Id = "ABC-001" });
-			players.Add(new LaserGamePlayer { Alias = "Alias 2", Name = "Name 2", Id = "ABC-002" });
-			players.Add(new LaserGamePlayer { Alias = "Alias 3", Name = "Name 3", Id = "ABC-003" });
-			players.Add(new LaserGamePlayer { Alias = "Alias 4", Name = "Name 4", Id = "ABC-004" });
-			return players;
+			return new List<LaserGamePlayer>
+			{
+				new LaserGamePlayer { Alias = "Alias 1", Name = "Name 1", Id = "ABC-001" },
+				new LaserGamePlayer { Alias = "Alias 2", Name = "Name 2", Id = "ABC-002" },
+				new LaserGamePlayer { Alias = "Alias 3", Name = "Name 3", Id = "ABC-003" },
+				new LaserGamePlayer { Alias = "Alias 4", Name = "Name 4", Id = "ABC-004" }
+			};
 		}
 	}
 }

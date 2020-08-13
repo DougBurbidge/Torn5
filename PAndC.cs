@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using MySql.Data;
+using MySql.Data;  // To install: https://dev.mysql.com/doc/visual-studio/en/visual-studio-install.html
 using MySql.Data.MySqlClient;
 
 namespace Torn
@@ -108,13 +108,15 @@ namespace Torn
 			{
 				while (reader.Read())
 				{
-					ServerGame game = new ServerGame();
-					game.GameId = GetInt(reader, "Game_ID");
-					game.Description = GetString(reader, "Description");
-					game.Time = GetDateTime(reader, "Start_Time");
-					game.EndTime = GetDateTime(reader, "Finish_Time");
-					game.InProgress = game.EndTime == default(DateTime);
-					game.OnServer = true;
+					ServerGame game = new ServerGame
+					{
+						GameId = GetInt(reader, "Game_ID"),
+						Description = GetString(reader, "Description"),
+						Time = GetDateTime(reader, "Start_Time"),
+						EndTime = GetDateTime(reader, "Finish_Time"),
+						OnServer = true
+					};
+					game.InProgress = game.EndTime == default;
 					games.Add(game);
 				}
 			}
@@ -146,7 +148,7 @@ namespace Torn
 				if (reader.Read())
 				{
 					game.EndTime = GetDateTime(reader, "Finish_Time");
-					game.InProgress = game.EndTime == default(DateTime);
+					game.InProgress = game.EndTime == default;
 					game.OnServer = true;
 				}
 			}
@@ -162,16 +164,18 @@ namespace Torn
 
 				while (reader.Read())
 				{
-					var oneEvent = new Event();
-					oneEvent.Time = GetDateTime(reader, "Time_Logged");
-					oneEvent.ServerPlayerId = GetString(reader, "Player_ID");
-					oneEvent.ServerTeamId = GetInt(reader, "Player_Team_ID");
-					oneEvent.Event_Type = GetInt(reader, "Event_Type");
-					oneEvent.Score = GetInt(reader, "Score");
-					oneEvent.OtherPlayer = GetString(reader, "Result_Data_1");
+					var oneEvent = new Event
+					{
+						Time = GetDateTime(reader, "Time_Logged"),
+						ServerPlayerId = GetString(reader, "Player_ID"),
+						ServerTeamId = GetInt(reader, "Player_Team_ID"),
+						Event_Type = GetInt(reader, "Event_Type"),
+						Score = GetInt(reader, "Score"),
+						OtherPlayer = GetString(reader, "Result_Data_1"),
+						PointsLostByDeniee = GetInt(reader, "Result_Data_3"),
+						ShotsDenied = GetInt(reader, "Result_Data_4")
+					};
 					oneEvent.OtherTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
-					oneEvent.PointsLostByDeniee = GetInt(reader, "Result_Data_3");
-					oneEvent.ShotsDenied = GetInt(reader, "Result_Data_4");
 					game.Events.Add(oneEvent);
 				}
 			}
@@ -183,10 +187,11 @@ namespace Torn
 			{
 				while (reader.Read())
 				{
-					ServerPlayer player = new ServerPlayer();
-
-					player.ServerPlayerId = GetString(reader, "Player_ID");
-					player.ServerTeamId = GetInt(reader, "Player_Team_ID");
+					ServerPlayer player = new ServerPlayer
+					{
+						ServerPlayerId = GetString(reader, "Player_ID"),
+						ServerTeamId = GetInt(reader, "Player_Team_ID")
+					};
 
 					if (0 <= player.ServerTeamId && player.ServerTeamId < 8)
 						player.Colour = (Colour)(player.ServerTeamId + 1);
@@ -264,9 +269,9 @@ namespace Torn
 		{
 			try {
 				int i = reader.GetOrdinal(column);
-				return reader.IsDBNull(i) ? default(DateTime) : reader.GetDateTime(i);
+				return reader.IsDBNull(i) ? default : reader.GetDateTime(i);
 			} catch (Exception) {
-				return default(DateTime);
+				return default;
 			}
 		}
 

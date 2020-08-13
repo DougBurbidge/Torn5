@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Windows.Forms;
-using System.Xml;
-using Torn;
 using Zoom;
 
 namespace Torn.Report
@@ -79,10 +78,8 @@ namespace Torn.Report
 					case ReportType.GameGridCondensed: case ReportType.PyramidCondensed: 
 						reports.Add(Reports.GamesGridCondensed(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
 					case ReportType.Packs:
-						var x = new List<League>();
-						x.Add(holder.League);
-						reports.Add(Reports.PackReport(x, holder.League.Games(includeSecret), rt.Title, rt.From, rt.To, ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal")));
-						break;
+						reports.Add(Reports.PackReport(new List<League> { holder.League }, holder.League.Games(includeSecret), rt.Title, rt.From, rt.To, 
+							ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal")));	break;
 					case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, rt.Title, rt.From, rt.To, description)); break;
 				}
 			}
@@ -110,19 +107,21 @@ namespace Torn.Report
 		/// <summary>Generate a page with results for a team.</summary>
 		public static string TeamPage(League league, bool includeSecret, LeagueTeam leagueTeam, GameHyper gameHyper, OutputFormat outputFormat)
 		{
-			ZoomReports reports = new ZoomReports();
-			reports.Add(Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true, ReportPages.GameHyper));
-			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>"));
-			return reports.ToOutput(outputFormat);
+			return new ZoomReports
+			{
+				Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true, ReportPages.GameHyper),
+				new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>")
+			}.ToOutput(outputFormat);
 		}
 
 		/// <summary>Display fixtures for a league, both as a list and as a grid.</summary>
 		public static string FixturePage(Fixture fixture, League league, OutputFormat outputFormat = OutputFormat.Svg)
 		{
-			ZoomReports reports = new ZoomReports();
-			reports.Add(Reports.FixtureList(fixture, league, ReportPages.GameHyper));
-			reports.Add(Reports.FixtureGrid(fixture, league));
-			reports.Add(new ZoomHtmlInclusion(@"
+			ZoomReports reports = new ZoomReports
+			{
+				Reports.FixtureList(fixture, league, GameHyper),
+				Reports.FixtureGrid(fixture, league),
+				new ZoomHtmlInclusion(@"
 </div><br/><a href=""index.html"">Index</a> <a href=""fixture.html"">Fixture</a>
 
 <script>
@@ -157,7 +156,8 @@ namespace Torn.Report
               td.style.backgroundColor = 'gainsboro';
   }
 </script>
-"));
+")
+			};
 			return outputFormat == OutputFormat.Svg ? reports.ToHtml() : reports.ToOutput(outputFormat);
 		}
 
@@ -166,6 +166,12 @@ namespace Torn.Report
 		{
 			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture);
 		}
+	}
+
+	class Error
+	{
+		[JsonPropertyName("error")]
+		public string Message { get; set; }
 	}
 
 	/// <summary>Serve web pages on demand.</summary>
@@ -307,7 +313,7 @@ namespace Torn.Report
 				else if (lastPart.EndsWith(".html"))
 					return HtmlResponse(request.RawUrl, lastPart, holder);
 				else
-					return RestResponse(request.RawUrl);
+					return RestResponse(request);
 			}
 			catch (Exception ex)
 			{
@@ -335,8 +341,7 @@ namespace Torn.Report
 			}
 			else if (lastPart.StartsWith("team", StringComparison.OrdinalIgnoreCase))
 			{
-				int teamId;
-				if (int.TryParse(lastPart.Substring(4, 2), out teamId))
+				if (int.TryParse(lastPart.Substring(4, 2), out int teamId))
 				{
 					LeagueTeam leagueTeam = holder.League.Teams.Find(x => x.TeamId == teamId);
 					if (leagueTeam == null)
@@ -357,49 +362,30 @@ namespace Torn.Report
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
 
-		string RestGame(string gameTime)
+		private string RestGame(string gameTime)
 		{
 			var sb = new StringBuilder();
 			if (serverGames == null)
-				serverGames = Games();
+				serverGames = Games == null ? null : Games();
+			if (serverGames == null)
+				return JsonSerializer.Serialize(new Error { Message = "Games list not initialised. (Perhaps no lasergame server is configured.)" });
 
 			var game = serverGames.Find(g => g.Time.ToString("s") == gameTime);
 			if (game == null)
-				return "{\n\"error\": \"game " + gameTime + "not found.\"\n}";
+				return JsonSerializer.Serialize(new Error { Message = "Game " + gameTime + "not found." });
 
 			PopulateGame(game);
-
-			sb.Append("\"game\":{\n");
-//			game.ToJson2(sb, 1);
-			sb.Append('\n');
-			sb.Append("}\n");
-			return sb.ToString();
+			return JsonSerializer.Serialize<ServerGame>(game);
 		}
 
-		string RestGames()
+		private string RestGames()
 		{
+			var serverGames = Games == null ? null :Games();
 			if (serverGames == null)
-				serverGames = Games();
+				return JsonSerializer.Serialize(new Error { Message = "Games list not initialised. (Perhaps no lasergame server is configured.)" });
+			else
+				return JsonSerializer.Serialize<List<ServerGame>>(Games());
 
-			var stream = new MemoryStream();
-			var ser = new DataContractJsonSerializer(typeof(ServerGame));
-			ser.WriteObject(stream, serverGames[0]);
-			stream.Position = 0;
-			var sr = new StreamReader(stream);
-			return sr.ReadToEnd();
-/*
-			var sb = new StringBuilder();
-			sb.Append("\"games\":[\n");
-			serverGames = Games();
-			foreach (var game in serverGames)
-			{
-				game.ToJson(sb, 1);
-				sb.Append(",\n");
-			}
-			sb.Length -= 2;
-			sb.Append("\n]\n");
-			return sb.ToString();
-*/
 		}
 
 		string RestPlayers(string mask)
@@ -416,10 +402,11 @@ namespace Torn.Report
 			return sb.ToString();
 		}
 
-		string RestResponse(string rawUrl)
+		string RestResponse(HttpListenerRequest request)
 		{
+			string rawUrl = request.RawUrl;
 			if (rawUrl.EndsWith("elapsed"))
-				return "{\n\t\"elapsed\":" + Elapsed().ToString() + "\n}";
+				return JsonSerializer.Serialize<int>(Elapsed());
 			else if (rawUrl.EndsWith("games"))
 				return RestGames();
 			else if (rawUrl.Contains("game2"))
@@ -677,11 +664,12 @@ namespace Torn.Report
 					foreach (var league in leagues)
 						round1Games.AddRange(league.AllGames);
 
-				var reports = new ZoomReports();
-				reports.Add(Reports.PackReport(leagues, round1Games, reportTemplate.Title, reportTemplate.From, reportTemplate.To, ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), reportTemplate.Settings.Contains("Description"), reportTemplate.Settings.Contains("Longitudinal")));
-
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "packreport." + outputFormat.ToExtension())))
-					sw.Write(reports.ToOutput(outputFormat));
+					sw.Write(new ZoomReports
+						{
+							Reports.PackReport(leagues, round1Games, reportTemplate.Title, reportTemplate.From, reportTemplate.To, 
+								ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), reportTemplate.Settings.Contains("Description"), reportTemplate.Settings.Contains("Longitudinal"))
+						}.ToOutput(outputFormat));
 			}
 		}
 	}

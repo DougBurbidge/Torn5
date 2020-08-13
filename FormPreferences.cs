@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace Torn.UI
 {
-	public enum SystemType { Nexus, Zeon, Laserforce, Demo };
+	public enum SystemType { Nexus, Zeon, Laserforce, Torn, Demo };
 
 	/// <summary>Prefs Form.</summary>
 	public partial class FormPreferences : Form
@@ -26,6 +26,7 @@ namespace Torn.UI
 				if (radioNexus.Checked) return SystemType.Nexus;
 				if (radioZeon.Checked) return SystemType.Zeon;
 				if (radioLaserforce.Checked) return SystemType.Laserforce;
+				if (radioTorn.Checked) return SystemType.Torn;
 				return SystemType.Demo;
 			}
 
@@ -33,7 +34,8 @@ namespace Torn.UI
 				switch (value) {
 					case SystemType.Nexus:       radioNexus.Checked      = true;  break;
 					case SystemType.Zeon:        radioZeon.Checked       = true;  break;
-					case SystemType.Laserforce:  radioLaserforce.Checked = true;  break;
+					case SystemType.Laserforce:  radioLaserforce.Checked = true; break;
+					case SystemType.Torn:        radioTorn.Checked       = true; break;
 					default:                     radioDemo.Checked       = true;  break;
 				}
 			}

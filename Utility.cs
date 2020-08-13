@@ -39,7 +39,7 @@ namespace Torn
 			return date.ToShortDateString() + " " + date.ToString(s);
 		}
 
-		static string Rot13(string s)
+/*		static string Rot13(string s)
 		{
 			var sb = new StringBuilder();
 
@@ -58,7 +58,7 @@ namespace Torn
 				   i < 36 ? (char)(i + 'a' - 10) :
 				            (char)(i + 'A' - 36);
 		}
-
+*/
 		public static string GetString(this XmlNode node, string name, string defaultValue = null)
 		{
 			var child = node.SelectSingleNode(name);

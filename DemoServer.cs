@@ -9,8 +9,8 @@ namespace Torn
 	/// </summary>
 	public class DemoServer: LaserGameServer
 	{
-		string[] adjectives;
-		string[] nouns;
+        readonly string[] adjectives;
+        readonly string[] nouns;
 
 		public DemoServer()
 		{
@@ -24,12 +24,14 @@ namespace Torn
 
 			for (int i = 0; i < 10; i++)
 			{
-				ServerGame game = new ServerGame();
-				game.GameId = i;
-				game.Description = "Demo Game";
-				game.Time = DateTime.Now.AddMinutes(i * 15 - 150);
-				game.EndTime = game.Time.AddMinutes(12);
-				game.OnServer = true;
+                ServerGame game = new ServerGame
+                {
+                    GameId = i,
+                    Description = "Demo Game",
+                    Time = DateTime.Now.AddMinutes(i * 15 - 150),
+                    OnServer = true
+                };
+                game.EndTime = game.Time.AddMinutes(12);
 				games.Add(game);
 			}
 
@@ -46,15 +48,17 @@ namespace Torn
 
 			for (int i = 0; i < 10; i++)
 			{
-				ServerPlayer player = new ServerPlayer();
-				player.Colour = (Colour)r.Next(1, 9);
-				player.Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001;
-				player.Pack = "Pack" + r.Next(1, 30).ToString("D2");
 				var x = r.Next(0, adjectives.Length);
 				var y = r.Next(0, nouns.Length);
-				player.PlayerId = string.Format("demo{0:D2}{1:D2}", x, y);
-				player.Alias = adjectives[x] + nouns[y];
-				game.Players.Add(player);
+                ServerPlayer player = new ServerPlayer
+                {
+                    Colour = (Colour)r.Next(1, 9),
+                    Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001,
+                    Pack = "Pack" + r.Next(1, 30).ToString("D2"),
+                    PlayerId = string.Format("demo{0:D2}{1:D2}", x, y),
+                    Alias = adjectives[x] + nouns[y]
+                };
+                game.Players.Add(player);
 			}
 		}
 
