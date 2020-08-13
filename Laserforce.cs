@@ -112,7 +112,7 @@ namespace Torn
 
 			string sql = "SELECT MAT.colourTeam AS [Colour], MP.score, U.[desc] AS [Pack_Name], " +
 						 "cast(C.region as varchar) + '-' + cast(C.site as varchar) + '-' + cast(Member.id as varchar) as [Player_ID], " +
-						 "member.codename AS [Alias], MAT.[desc] AS [Team] " +
+						 "Member.codename AS [Alias], MAT.[desc] AS [Team] " +
 						 "FROM MissionPlayer MP " +
 						 "LEFT JOIN Unit U ON U.ref = MP.unit " +
 						 "LEFT JOIN Member ON Member.ref = MP.member " +
@@ -146,7 +146,7 @@ namespace Torn
 				reader.Close();
 			}
 			
-			if (string.IsNullOrEmpty(LogFolder))
+			if (string.IsNullOrEmpty(LogFolder) || !Directory.Exists(LogFolder))
 				return;
 
 			var files = new DirectoryInfo(LogFolder).GetFiles(game.Time.ToString("HHmm") + " - *.txt");
