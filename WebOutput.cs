@@ -240,7 +240,7 @@ namespace Torn.Report
 
 				foreach (var ft in NextGame.Teams)
 					sb.Append(ft.Key.LeagueTeam.Name + "; ");
-				sb.Remove(sb.Length - 2, 2);
+				sb.Length -= 2;
 			}
 			// Add a hyperlink for each team: "team" + team.Id.ToString("D2", CultureInfo.InvariantCulture)
 
@@ -268,7 +268,7 @@ namespace Torn.Report
 
 				foreach (var ft in NextGame.Teams)
 					sb.Append(ft.Key.LeagueTeam.Name + "; ");
-				sb.Remove(sb.Length - 2, 2);
+				sb.Length -= 2;
 				sb.Append("<div>");
 				reports.Add(new ZoomHtmlInclusion(sb.ToString()));
 			}
@@ -396,7 +396,7 @@ namespace Torn.Report
 				game.ToJson(sb, 1);
 				sb.Append(",\n");
 			}
-			sb.Remove(sb.Length - 2, 2);
+			sb.Length -= 2;
 			sb.Append("\n]\n");
 			return sb.ToString();
 */
@@ -411,7 +411,7 @@ namespace Torn.Report
 				player.ToJson(sb, 1);
 				sb.Append(",\n");
 			}
-			sb.Remove(sb.Length - 2, 2);
+			sb.Length -= 2;
 			sb.Append("\n]\n");
 			return sb.ToString();
 		}

@@ -137,7 +137,7 @@ namespace Torn
 				sb.Append("\r\n");
 			}
 			if (sb.Length > 0)
-				sb.Remove(sb.Length - 2, 2);
+				sb.Length -= 2;
 			return sb.ToString();
 		}
 	}
@@ -294,7 +294,7 @@ namespace Torn
 					sb.Append('\t');
 				}
 
-				sb.Remove(sb.Length - 1, 1);
+				sb.Length--;
 				sb.Append("\r\n");
 			}
 			
@@ -371,7 +371,7 @@ namespace Torn
 				sb.Append('\t');
 			}
 
-			sb.Remove(sb.Length - 1, 1);
+			sb.Length--;
 
 			return sb.ToString();
 		}

@@ -118,7 +118,7 @@ namespace Torn.Report
 				sb.Append(((DateTime)To).ToString("yyyy-MM-dd HH:mm"));
 				sb.Append(", ");
 			}
-			sb.Remove(sb.Length - 2, 2);
+			sb.Length -= 2;
 			return sb.ToString();
 		}
 
