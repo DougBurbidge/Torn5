@@ -164,6 +164,11 @@ namespace Zoom
 			X = x;
 			Y = y;
 		}
+
+		public override string ToString()
+		{
+			return "ChartPoint " + X.ToString() + ", " + Y.ToString();
+		}
 	}
 
 	/// <summary>Represents a single cell in a table. The cell can optionally have a horizontal chart bar.</summary>
@@ -177,7 +182,11 @@ namespace Zoom
 			{
 				if (text == null)
 				{
-					if (string.IsNullOrEmpty(NumberFormat))
+					if (Number != null && double.IsNegativeInfinity((double)Number))
+						return "-\u221E";
+					else if (Number != null && double.IsInfinity((double)Number))
+						return "\u221E";
+					else if (string.IsNullOrEmpty(NumberFormat))
 						return Number.ToString();
 					else if (Number != null)
 						return ((double)Number).ToString(NumberFormat, CultureInfo.CurrentCulture);
@@ -1349,7 +1358,7 @@ namespace Zoom
 			if (cell.ChartType.HasFlag(ChartType.XYScatter) && cell.Tag is List<ChartPoint>)  // XYScatter
 			{
 				var points = (List<ChartPoint>)cell.Tag;
-				var minY = Math.Min(0, points.Min(p => p.Y));
+				var minY = Math.Min(0, points.Min(p => double.IsNaN(p.Y) ? 0 : p.Y));
 				var maxY = Math.Max(1, points.Max(p => p.Y));
 				var radius = Math.Min(Math.Max(width / maxPoints / 4, 0.1), 2.0);
 
@@ -1358,7 +1367,8 @@ namespace Zoom
 				SvgRect2(s, 1, left, top + height - Scale(0, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint baseline.
 
 				foreach (var point in points)
-					SvgCircle(s, 1, left + Scale(point.X.Ticks, width, chartMin, chartMax), top + height - Scale(point.Y, height, minY, maxY), radius, point.Color);
+					if (!double.IsNaN(point.Y))
+						SvgCircle(s, 1, left + Scale(point.X.Ticks, width, chartMin, chartMax), top + height - Scale(point.Y, height, minY, maxY), radius, point.Color);
 			}
 		}
 
@@ -1564,9 +1574,14 @@ namespace Zoom
 				sb.Append(WebUtility.HtmlEncode(this[0].Title));
 			sb.Append("</title>");
 
+			sb.Append("\n  <style type=\"text/css\">\n");
+			sb.Append("    .back   { background: #eef; color: black; }\n");
+			sb.Append("    @media (prefers-color-scheme: dark) {\n");
+			sb.Append("      .back { background: #112; color: white; }\n");
+			sb.Append("    }\n");
+
 			if (Bars)
 			{
-				sb.Append("\n  <style type=\"text/css\">\n");
 				sb.Append("    .barcontainer { position:relative }\n");
 				sb.Append("    .bar { padding-bottom: 18px; background-color: #DFDFDF }\n");
 				sb.Append("    .bartext { position: absolute; top: 0px; left: 0px; text-align: right; width: 100% }\n");
@@ -1574,11 +1589,10 @@ namespace Zoom
 				foreach (var c in BarCellColors())
 					sb.AppendFormat("    .bar{0:X2}{1:X2}{2:X2} {{ padding-bottom: 18px; background-color: {3} }}\n", 
 					                c.R, c.G, c.B, System.Drawing.ColorTranslator.ToHtml(c));
-
-				sb.Append("  </style>\n");
 			}
+			sb.Append("  </style>\n");
 
-			sb.Append("</head><body style=\"background-color: #EEF\">\n");
+			sb.Append("</head><body class=\"back\">\n");
 			//sb.Append("");  // TODO: cellstyles.ToHtml here?
 
 			foreach (ZoomReportBase report in this) {

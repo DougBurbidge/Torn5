@@ -1577,7 +1577,7 @@ namespace Torn.Report
 						if (basesThisTeam == 0 && thisDestroyed == 0)
 							baseRatio = new ZCell((string)null);
 						else if (thisDestroyed == 0)
-							baseRatio = new ZCell("\u221E");  // infinity
+							baseRatio = new ZCell(double.PositiveInfinity);
 						else
 							baseRatio = new ZCell(1.0 * basesThisTeam / thisDestroyed, ChartType.Bar, "P0");
 					}
