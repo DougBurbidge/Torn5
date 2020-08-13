@@ -7,37 +7,47 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
 namespace Torn
 {
-	//                      0        1     2      3       4       5     6     7       8      9
-	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange, White };
+	//                      0        1     2      3       4       5     6     7       8      9     10    11   12     13       14       15    16
+	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange, White, Black, Fire, Ice, Earth, Crystal, Rainbow, Cops };
 	public static class ColourExtensions
 	{
 		public static Color ToColor(this Colour colour)
 		{
-			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0xA0, 0xA0), Color.FromArgb(0xA0, 0xD0, 0xFF), 
-				Color.FromArgb(0xA0, 0xFF, 0xA0), Color.FromArgb(0xFF, 0xFF, 0x90), Color.FromArgb(0xC0, 0xA0, 0xFF), 
-				Color.FromArgb(0xFF, 0xA0, 0xF0), Color.FromArgb(0xA0, 0xFF, 0xFF), Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xFF, 0xFF, 0xFF) };
+			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0xA0, 0xA0), Color.FromArgb(0xA0, 0xD0, 0xFF),  // None, Red, Blue,
+				Color.FromArgb(0xA0, 0xFF, 0xA0), Color.FromArgb(0xFF, 0xFF, 0x90), Color.FromArgb(0xC0, 0xA0, 0xFF), Color.FromArgb(0xFF, 0xA0, 0xF0),  // Green, Yellow, Purple, Pink,
+				Color.FromArgb(0xA0, 0xFF, 0xFF), Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xFF, 0xFF, 0xFF), Color.FromArgb(0x90, 0x90, 0x90),  // Cyan, Orange, White, Black,
+				Color.FromArgb(0xFF, 0xB0, 0x90), Color.FromArgb(0xE0, 0xE0, 0xFF), Color.FromArgb(0xD0, 0xD0, 0x80), Color.FromArgb(0xFF, 0xC0, 0xF0),  // Fire, Ice, Earth, Crystal,
+				Color.FromArgb(0xE0, 0xE0, 0xE0), Color.FromArgb(0xB0, 0xC0, 0xFF)  // Rainbow, Cops
+			};
 			return Colors[(int)colour];
 		}
 
 		public static Color ToSaturatedColor(this Colour colour)
 		{
-			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x50, 0x50), Color.FromArgb(0x60, 0x80, 0xFF), 
-				Color.FromArgb(0x20, 0xFF, 0x20), Color.FromArgb(0xFF, 0xFF, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), 
-				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xFF, 0xFF), Color.FromArgb(0xFF, 0x80, 0x50), Color.FromArgb(0xEE, 0xEE, 0xEE) };
+			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x50, 0x50), Color.FromArgb(0x60, 0x80, 0xFF),  // None, Red, Blue,
+				Color.FromArgb(0x20, 0xFF, 0x20), Color.FromArgb(0xFF, 0xFF, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), Color.FromArgb(0xFF, 0x10, 0xB0),  // Green, Yellow, Purple, Pink,
+				Color.FromArgb(0x00, 0xFF, 0xFF), Color.FromArgb(0xFF, 0x80, 0x50), Color.FromArgb(0xEE, 0xEE, 0xEE), Color.FromArgb(0x70, 0x70, 0x70),  // Cyan, Orange, White, Black,
+				Color.FromArgb(0xFF, 0x60, 0x40), Color.FromArgb(0x90, 0x90, 0xFF), Color.FromArgb(0xB0, 0xB0, 0x60), Color.FromArgb(0xFF, 0x40, 0xF0),  // Fire, Ice, Earth, Crystal,
+				Color.FromArgb(0x90, 0x90, 0x90), Color.FromArgb(0x90, 0xA0, 0xFF)  // Rainbow, Cops
+			};
 			return Colors[(int)colour];
 		}
 
 		public static Color ToDarkColor(this Colour colour)
 		{
-			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x40, 0x40), Color.FromArgb(0x40, 0x50, 0xFF), 
-				Color.FromArgb(0x00, 0xA0, 0x00), Color.FromArgb(0xA0, 0xA0, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), 
-				Color.FromArgb(0xFF, 0x10, 0xB0), Color.FromArgb(0x00, 0xC0, 0xC0), Color.FromArgb(0xFF, 0x60, 0x30), Color.FromArgb(0xDD, 0xDD, 0xDD) };
+			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0x40, 0x40), Color.FromArgb(0x40, 0x50, 0xFF),  // None, Red, Blue,
+				Color.FromArgb(0x00, 0xA0, 0x00), Color.FromArgb(0xA0, 0xA0, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), Color.FromArgb(0xFF, 0x10, 0xB0),  // Green, Yellow, Purple, Pink,
+				Color.FromArgb(0x00, 0xC0, 0xC0), Color.FromArgb(0xFF, 0x60, 0x30), Color.FromArgb(0xDD, 0xDD, 0xDD), Color.FromArgb(0x40, 0x40, 0x40),  // Cyan, Orange, White, Black,
+				Color.FromArgb(0xFF, 0x50, 0x30), Color.FromArgb(0x70, 0x70, 0xFF), Color.FromArgb(0xB0, 0xB0, 0x50), Color.FromArgb(0xFF, 0x00, 0xF0),  // Fire, Ice, Earth, Crystal,
+				Color.FromArgb(0x70, 0x70, 0x70), Color.FromArgb(0x70, 0x80, 0xFF)  // Rainbow, Cops
+			};
 			return Colors[(int)colour];
 		}
 
@@ -47,9 +57,9 @@ namespace Torn
 				return Colour.None;
 
 			var dict = new Dictionary<string, Colour> { 
-				{ "red", Colour.Red }, { "blue", Colour.Blue }, { "green", Colour.Green }, { "yellow", Colour.Yellow },
-				{ "purple", Colour.Purple }, { "pink", Colour.Pink }, { "cyan", Colour.Cyan }, { "orange", Colour.Orange }, { "white", Colour.White },
-				{ "blu", Colour.Blue }, { "grn", Colour.Green }, { "yel", Colour.Yellow } 
+				{ "red", Colour.Red }, { "blue", Colour.Blue }, { "blu", Colour.Blue }, { "green", Colour.Green }, { "grn", Colour.Green }, { "yellow", Colour.Yellow }, { "yel", Colour.Yellow },
+				{ "purple", Colour.Purple }, { "pink", Colour.Pink }, { "cyan", Colour.Cyan }, { "orange", Colour.Orange }, { "white", Colour.White }, { "black", Colour.Black },
+				{ "fire", Colour.Fire }, { "ice", Colour.Ice }, { "earth", Colour.Earth }, { "crystal", Colour.Crystal }, { "rainbow", Colour.Rainbow }, { "cops", Colour.Cops }  
 			};
 
 			Colour c;
@@ -84,11 +94,18 @@ namespace Torn
 				case 2: return Colour.Green;
 				case 3: return Colour.Yellow;
 				case 4: return Colour.Blue;
-				case 5: return Colour.Cyan;
+				case 5: return Colour.Cyan;  // Laserforce calls cyan "Aqua".
 				case 6: return Colour.Purple;
 				case 7: return Colour.White;
 				case 8: return Colour.Orange;
 				case 9: return Colour.Pink;
+				case 10: return Colour.Black;
+				case 11: return Colour.Fire;
+				case 12: return Colour.Ice;
+				case 13: return Colour.Earth;
+				case 14: return Colour.Crystal;
+				case 15: return Colour.Rainbow;
+				case 16: return Colour.Cops;
 				default: return Colour.None;
 			}
 		}
@@ -742,7 +759,7 @@ namespace Torn
 					debug.Append(", ");
 				}
 
-				debug.Remove(debug.Length - 2, 2); debug.Append(".\n");
+				debug.Length -= 2; debug.Append(".\n");
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
@@ -1396,16 +1413,23 @@ namespace Torn
 	}
 
 	/// <summary>Represents a game as stored on the laser game server.</summary>
+	[DataContract]
 	public class ServerGame: IComparable<ServerGame>
 	{
+		[DataMember]
 		public int? GameId { get; set; }
+		[DataMember]
 		public string Description { get; set; }
+		[DataMember]
 		public DateTime Time { get; set; }
+		[DataMember]
 		public DateTime EndTime { get; set; }
 		public League League { get; set; }
 		public Game Game { get; set; }
 		public List<ServerPlayer> Players { get; set; }
+		[DataMember]
 		public bool InProgress { get; set; }
+		[DataMember]
 		public bool OnServer { get; set; }
 		public List<Event> Events { get; set; }
 
@@ -1463,7 +1487,7 @@ namespace Torn
 				player.ToJson(sb, indent + 2);
 				sb.Append(",\n");
 			}
-			sb.Remove(sb.Length - 2, 2);
+			sb.Length -= 2;
 			sb.Append('\n');
 			sb.Append('\t', indent + 1);
 			sb.Append("]\n");
@@ -1539,7 +1563,7 @@ namespace Torn
 			Utility.JsonKeyValue(sb, indent + 1, "yellowCards", YellowCards, 0);
 			Utility.JsonKeyValue(sb, indent + 1, "redCards", RedCards, 0);
 
-			sb.Remove(sb.Length - 2, 2);
+			sb.Length -= 2;
 			sb.Append('\n');
 			sb.Append('\t', indent);
 			sb.Append('}');

@@ -306,7 +306,7 @@ namespace Torn.UI
 			this.labelLeagueDetails.Name = "labelLeagueDetails";
 			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 136);
 			this.labelLeagueDetails.TabIndex = 13;
-			this.labelLeagueDetails.Text = "Select a league and its details will appear here.";
+			this.labelLeagueDetails.Text = "\nSelect a league and its details will appear here.";
 			// 
 			// progressBar1
 			// 
@@ -703,6 +703,15 @@ namespace Torn.UI
 			this.imageListPacks.Images.SetKeyName(6, "pink.png");
 			this.imageListPacks.Images.SetKeyName(7, "cyan.png");
 			this.imageListPacks.Images.SetKeyName(8, "orange.png");
+			this.imageListPacks.Images.SetKeyName(9, "white.png");
+			this.imageListPacks.Images.SetKeyName(10, "black.png");
+			this.imageListPacks.Images.SetKeyName(11, "fire.png");
+			this.imageListPacks.Images.SetKeyName(12, "ice.png");
+			this.imageListPacks.Images.SetKeyName(13, "earth.png");
+			this.imageListPacks.Images.SetKeyName(14, "crystal.png");
+			this.imageListPacks.Images.SetKeyName(15, "rainbow.png");
+			this.imageListPacks.Images.SetKeyName(16, "cops.png");
+			this.imageListPacks.Images.SetKeyName(17, "cops.png");
 			// 
 			// timerGame
 			// 

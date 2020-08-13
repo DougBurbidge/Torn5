@@ -593,6 +593,7 @@ namespace Torn.UI
 				logFolder = form.LogFolder;
 				
 				ConnectLaserGameServer();
+				ListViewLeaguesItemSelectionChanged(null, null);
 				timeToNextCheck = TimeSpan.FromSeconds(1);
 				ButtonLatestGameClick(null,null);
 
@@ -897,7 +898,10 @@ namespace Torn.UI
 			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
 			if (listViewLeagues.Items.Count == 0)
-				labelLeagueDetails.Text = "Click New to create a new league file, or Open to open an existing one."; 
+			{
+				labelLeagueDetails.Text = systemType == SystemType.Demo ? "\nClick Leagues » Preferences to choose lasergame server type.\n" : "";
+				labelLeagueDetails.Text += "\nClick New to create a new league file,\nor Open to open an existing one."; 
+			}
 			else if (listViewLeagues.SelectedItems.Count == 1 && e != null)
 			{
 				activeHolder = (Holder)e.Item.Tag;
@@ -915,12 +919,12 @@ namespace Torn.UI
 				          sb.Append(" leagues selected:\n");
 				foreach (ListViewItem item in listViewLeagues.SelectedItems)
 					sb.Append(item.SubItems[1].Text + ",\n");
-				sb.Remove(sb.Length - 2, 2);
+				sb.Length -= 2;
 				labelLeagueDetails.Text = sb.ToString();
 			}
 
 			foreach (var tb in TeamBoxes())
-					tb.League = activeHolder == null ? null : activeHolder.League;
+				tb.League = activeHolder == null ? null : activeHolder.League;
 		}
 
 		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
