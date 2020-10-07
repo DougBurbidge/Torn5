@@ -5,7 +5,7 @@ using System.Data.Common;
 namespace Torn
 {
 	/// <summary>
-	/// Description of Class1.
+	/// DemoServer returns a list of 10 games, each containing pseudorandom players.
 	/// </summary>
 	public class DemoServer: LaserGameServer
 	{
@@ -16,11 +16,22 @@ namespace Torn
 		{
 			adjectives = new string[] { "Actual ", "Battle ", "Cyber ", "Dark ", "Delta ", "Elite ", "Inter ", "Laser ", "Mega ", "Phasor ", "Super ", "Ultra ", "Vector ", "Zone " };
 			nouns = new string[] { "Ace", "Blaster", "Blazer", "Chaser", "Crystal", "Dueller", "Max", "Rogue", "Runner", "Shark", "Star", "Stunner", "Trekker", "Warrior" };
+			connected = true;
+		}
+
+		public override TimeSpan GameTimeElapsed()
+		{
+			DateTime now = DateTime.Now;
+			DateTime start = now.TruncDateTime(new TimeSpan(0, 15, 0));
+			TimeSpan elapsed = now.Subtract(start);
+			return elapsed > new TimeSpan(0, 12, 0) ? TimeSpan.Zero : elapsed;
 		}
 
 		public override List<ServerGame> GetGames()
 		{
 			List<ServerGame> games = new List<ServerGame>();
+
+			DateTime now = DateTime.Now.TruncDateTime(new TimeSpan(0, 15, 0));
 
 			for (int i = 0; i < 10; i++)
 			{
@@ -28,7 +39,7 @@ namespace Torn
                 {
                     GameId = i,
                     Description = "Demo Game",
-                    Time = DateTime.Now.AddMinutes(i * 15 - 150),
+                    Time = now.AddMinutes(i * 15 - 150),
                     OnServer = true
                 };
                 game.EndTime = game.Time.AddMinutes(12);
