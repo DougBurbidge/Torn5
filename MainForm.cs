@@ -15,6 +15,13 @@ using Torn.UI;
 using Zoom;
 
 /*
+Broad architecture:
+* MainForm has more business logic in it than it probably should.
+* timerGame fires once per second, but only does serious work once per minute. It polls the lasergame server for time remaining.
+* There are a variety of classes that descend from LasergameServer, which implement connections to various proprietary systems (P&C Acacia, P&C O-Zone, Laserforce).
+* WebOuput is an important module. It runs the internal web server, allowing others to query us for data in HTML or JSON, and also generates web pages to file for export or upload.
+* Reports.cs contains the code that generates the data for each report type. ZoomReports renders those to various output formats: HTML with tables, HTML with SVG, .csv, etc.
+
 Implemented: load league, save league, delete game from league
 read from P&C server, web server, report to HTML, upload to FTP,
 transfer to team boxes via drag-drop, transfer to team boxes on game selection, set dimensions, persistence
@@ -42,7 +49,7 @@ recalculate scores on Helios
 OTHER:
 league copy from
 Space Marines match play
-read from Ozone server
+read from O-Zone server
 spark lines
 check latest version via REST
 reports and uploads in worker thread
@@ -92,6 +99,11 @@ namespace Torn.UI
 		string password;
 
 		string logFolder;
+
+		DateTime lastChecked = DateTime.MinValue;
+		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
+		TimeSpan timeElapsed = TimeSpan.FromMilliseconds(-1);
+		bool gameInProgress = false;
 
 		PlayersBox playersBox;
 		
@@ -171,7 +183,11 @@ namespace Torn.UI
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress);  break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
-					case SystemType.Torn: laserGameServer = new JsonServer(serverAddress);  break;
+//					case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
+					case SystemType.Torn: 
+						laserGameServer = new JsonServer(serverAddress);
+						timeElapsed = laserGameServer.GameTimeElapsed();
+					break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
 				}
 
@@ -937,20 +953,16 @@ namespace Torn.UI
 				tb.League = activeHolder?.League;
 		}
 
-		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
-		TimeSpan timeElapsed = TimeSpan.FromMilliseconds(-1);
-		bool gameInProgress = false;
-
 		void TimerGameTick(object sender, EventArgs e)
 		{
 			if (timeToNextCheck <= TimeSpan.Zero)
 			{
-				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the database server.
+				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the lasergame server.
 
 				if (timeElapsed > TimeSpan.FromSeconds(1))
-					timeToNextCheck = TimeSpan.FromSeconds(61 - timeElapsed.TotalSeconds % 60);  // Set the next query to be one second after an integer number of minutes elapsed. This way, we will query one second after the game finishes.
+					timeToNextCheck = TimeSpan.FromSeconds(61 - timeElapsed.TotalSeconds % 60);  // Set the next query to be one second after an integer number of minutes of game time elapsed. This way, we will query one second after the game finishes.
 				else
-					timeToNextCheck = TimeSpan.FromMinutes(1);  // Only query the database for time elapsed once per minute. Outside that, dead-reckon.
+					timeToNextCheck = TimeSpan.FromMinutes(1);  // Only query the lasergame server for time elapsed once per minute. Outside that, dead-reckon.
 			}
 			else
 			{
@@ -962,7 +974,7 @@ namespace Torn.UI
 			UpdateNow();
 
 			if (timeToNextCheck <= TimeSpan.Zero)
-				webOutput.MostRecentServerGame = MostRecent();  // This also queries the database server.
+				webOutput.MostRecentServerGame = MostRecent();  // This also queries the lasergame server.
 
 			if (timeElapsed > TimeSpan.Zero && !gameInProgress)
 			{
@@ -984,7 +996,14 @@ namespace Torn.UI
 				return -3;
 			else if (!laserGameServer.Connected)
 				return -2;
-			else if (timeElapsed == TimeSpan.Zero)
+
+			if (DateTime.Now.Subtract(lastChecked) >= new TimeSpan(0, 0, 20) && laserGameServer is JsonServer)  // This handles the case where a JsonServer is querying itself for debugging or demo purposes.
+			{
+				timeElapsed = laserGameServer.GameTimeElapsed();
+				lastChecked = DateTime.Now;
+			}
+
+			if (timeElapsed == TimeSpan.Zero)
 				return -1;
 			else
 				return (int)timeElapsed.TotalSeconds;
@@ -1003,12 +1022,17 @@ namespace Torn.UI
 				labelTime.Text = "Not connected";
 			else if (timeElapsed == TimeSpan.Zero)
 				labelTime.Text = "Idle";
+			else if (timeElapsed < new TimeSpan(0, 0, -1))
+				labelTime.Text = timeElapsed.ToString();
 			else if (timeElapsed.TotalHours < 1)
 				labelTime.Text = "+" + timeElapsed.ToString("m\\:ss");
 			else
 				labelTime.Text = "+" + timeElapsed.ToString();
 
-			labelNow.Text = webOutput.NowText();
+			if (!string.IsNullOrEmpty(laserGameServer.Status))
+				labelNow.Text = laserGameServer.Status;
+			else
+				labelNow.Text = webOutput.NowText();
 		}
 
 		void NumericPortValueChanged(object sender, EventArgs e)

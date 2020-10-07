@@ -39,6 +39,12 @@ namespace Torn
 			return date.ToShortDateString() + " " + date.ToString(s);
 		}
 
+		/// https://stackoverflow.com/questions/10100088/is-there-a-simple-function-for-rounding-a-datetime-down-to-the-nearest-30-minute
+		public static DateTime TruncDateTime(this DateTime dateTime, TimeSpan delta)
+		{
+			return new DateTime((dateTime.Ticks / delta.Ticks) * delta.Ticks);
+		}
+
 /*		static string Rot13(string s)
 		{
 			var sb = new StringBuilder();
@@ -55,8 +61,8 @@ namespace Torn
 		static char Base62(int i)
 		{
 			return i < 10 ? (char)(i + '0') :
-				   i < 36 ? (char)(i + 'a' - 10) :
-				            (char)(i + 'A' - 36);
+					i < 36 ? (char)(i + 'a' - 10) :
+							(char)(i + 'A' - 36);
 		}
 */
 		public static string GetString(this XmlNode node, string name, string defaultValue = null)
