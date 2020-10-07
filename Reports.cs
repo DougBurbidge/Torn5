@@ -1416,7 +1416,7 @@ namespace Torn.Report
 					row.Add(new ZCell("Game ??", color));
 				else
 				{
-					var gameCell = new ZCell((game.Title + " " + Utility.ShortDateTime(game.Time)).Trim(), color);  // Game time
+					var gameCell = new ZCell((game.Title + " " + game.Time.ShortDateTime()).Trim(), color);  // Game time
 					gameCell.Hyper = gameHyper(game);
 					row.Add(gameCell);
 				}

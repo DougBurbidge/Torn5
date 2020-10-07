@@ -372,7 +372,7 @@ namespace Torn.Report
 
 			var game = serverGames.Find(g => g.Time.ToString("s") == gameTime);
 			if (game == null)
-				return JsonSerializer.Serialize(new Error { Message = "Game " + gameTime + "not found." });
+				return JsonSerializer.Serialize(new Error { Message = "Game " + gameTime + " not found." });
 
 			PopulateGame(game);
 			return JsonSerializer.Serialize<ServerGame>(game);
