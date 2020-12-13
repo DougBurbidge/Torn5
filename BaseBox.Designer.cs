@@ -46,10 +46,11 @@ namespace Torn.UI
 			this.listView1.FullRowSelect = true;
 			this.listView1.Location = new System.Drawing.Point(0, 0);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(327, 150);
+			this.listView1.Size = new System.Drawing.Size(327, 162);
 			this.listView1.TabIndex = 0;
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			this.listView1.View = System.Windows.Forms.View.Details;
+			this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.ListView1ColumnClick);
 			this.listView1.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.ListView1ItemDrag);
 			this.listView1.SizeChanged += new System.EventHandler(this.ListView1SizeChanged);
 			this.listView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.ListView1DragDrop);
@@ -70,15 +71,16 @@ namespace Torn.UI
 			// 
 			this.colScore.Text = "Score";
 			this.colScore.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.colScore.Width = 50;
+			this.colScore.Width = 58;
 			// 
 			// BaseBox
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 14F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.listView1);
+			this.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.Name = "BaseBox";
-			this.Size = new System.Drawing.Size(327, 150);
+			this.Size = new System.Drawing.Size(327, 162);
 			this.ResumeLayout(false);
 		}
 		private System.Windows.Forms.ColumnHeader colScore;

@@ -94,6 +94,7 @@ namespace Torn.UI
 			this.textSearch.Name = "textSearch";
 			this.textSearch.Size = new System.Drawing.Size(120, 20);
 			this.textSearch.TabIndex = 0;
+			this.textSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextSearchKeyDown);
 			this.textSearch.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TextSearchKeyUp);
 			// 
 			// textId
@@ -119,6 +120,7 @@ namespace Torn.UI
 			this.Controls.Add(this.buttonOK);
 			this.Controls.Add(this.listViewPlayers);
 			this.Name = "FormPlayer";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Select Player";
 			this.Shown += new System.EventHandler(this.FormPlayerShown);
 			this.ResumeLayout(false);

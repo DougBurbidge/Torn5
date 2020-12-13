@@ -38,7 +38,9 @@ namespace Torn.UI
 			{
 				if (leagueTeam == null && value != null && value.Handicap == null)
 					value.Handicap = handicap;
-				leagueTeam = value;				
+				leagueTeam = value;
+				GameTeam.TeamId = leagueTeam == null ? (int?)null : leagueTeam.TeamId;
+				ListView.Columns[1].Text = leagueTeam == null ? "Players" : leagueTeam.Name;
 			}
 		}
 
@@ -66,6 +68,7 @@ namespace Torn.UI
 			//
 			InitializeComponent();
 			ListView.ContextMenuStrip = contextMenuStrip1;
+			SetSort(2, SortOrder.Descending);  // Default to sorting by score.
 			GameTeam = new GameTeam();
 		}
 
@@ -79,6 +82,7 @@ namespace Torn.UI
 			LeagueTeam = null;
 			GameTeam = new GameTeam();
 			handicap = new Handicap();
+			ListView.Columns[1].Text = "Players";
 			ListView.Columns[2].Text = "Score";
 		}
 
@@ -95,23 +99,26 @@ namespace Torn.UI
 			}
 
 			var tempTeam = GameTeam.Clone();
+
 			tempTeam.Players.Clear();
 			tempTeam.Players.AddRange(Players());
-			score = League.CalculateScore(tempTeam);
-			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
-				(GameTeam.Adjustment == 0 ? "" : "*");
-				
-
-			var ids = new List<string>();
-			foreach (var listPlayer in Players())
-				ids.Add(listPlayer.PlayerId);
 
 			if (guessTeam && League != null)
-				LeagueTeam = League.GuessTeam(ids);
+			{
+				var ids = new List<string>();
+				foreach (var listPlayer in Players())
+					ids.Add(listPlayer.PlayerId);
 
-			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
+				LeagueTeam = League.GuessTeam(ids);
+				if (LeagueTeam != null)
+					tempTeam.TeamId = LeagueTeam.TeamId;
+			}
+
+			score = League == null ? 0 : League.CalculateScore(tempTeam);
+			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
+				(GameTeam.Adjustment == 0 ? "" : "*");
 		}
-		
+
 		LeaguePlayer LeaguePlayer(ListViewItem item)
 		{
 			return item.Tag is ServerPlayer && League.LeaguePlayer((ServerPlayer)item.Tag) != null ? League.LeaguePlayer((ServerPlayer)item.Tag) : null;
@@ -172,23 +179,34 @@ namespace Torn.UI
 					FindMenu(team.Name).DropDownItems.Add(item);
 				}
 			}
+
+			if (ListView.SelectedItems.Count == 1)
+			{
+				var item = ListView.SelectedItems[0];
+				var subIndex = item.SubItems.Count == 0 || string.IsNullOrEmpty(item.SubItems[1].Text) ? 0 : 1;
+				menuIdentifyPlayer.Text = "Identify " + item.SubItems[subIndex].Text.Trim() + "...";
+			}
+			else
+				menuIdentifyPlayer.Text = "Identify";
 		}
 
 		void MenuAdjustTeamScoreClick(object sender, EventArgs e)
 		{
-			GameTeam.Adjustment = InputDialog.GetInteger("Adjustment", "Set team score adjustment", GameTeam.Adjustment);
+			double a = GameTeam.Adjustment == 0 ? -1000 : GameTeam.Adjustment;
+			if (InputDialog.GetDouble("Adjustment", "Set team score adjustment", ref a))
+				GameTeam.Adjustment = a;
 			Recalculate(false);
 		}
 
 		void MenuAdjustVictoryPointsClick(object sender, EventArgs e)
 		{
-			GameTeam.PointsAdjustment = InputDialog.GetDouble("Victory Points Adjustment", "Set team victory points adjustment", GameTeam.PointsAdjustment);
+			GameTeam.PointsAdjustment = (double)InputDialog.GetDouble("Victory Points Adjustment", "Set team victory points adjustment", GameTeam.PointsAdjustment);
 			Recalculate(false);
 		}
 
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , (double)Handicap.Value);
+			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , Handicap.Value);
 			Recalculate(false);
 		}
 
@@ -208,22 +226,25 @@ namespace Torn.UI
 		{
 			if (LeagueTeam == null || MessageBox.Show("This box already has a team (" + LeagueTeam.Name + "). Create a new team anyway?",
 													  "Create new team", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+				RememberTeam();
+		}
+
+		public void RememberTeam()
+		{
+			LeagueTeam = new LeagueTeam();
+			foreach (var serverPlayer in Players())
 			{
-				LeagueTeam = new LeagueTeam();
-				foreach (var serverPlayer in Players())
+				var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
+				if (leaguePlayer == null)
 				{
-					var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
-					if (leaguePlayer == null)
-					{
-						leaguePlayer = new LeaguePlayer();
-						leaguePlayer.Name = serverPlayer.Alias;
-						leaguePlayer.Id = serverPlayer.PlayerId;
-						League.Players.Add(leaguePlayer);
-					}
-					LeagueTeam.Players.Add(leaguePlayer);
+					leaguePlayer = new LeaguePlayer();
+					leaguePlayer.Name = serverPlayer.Alias;
+					leaguePlayer.Id = serverPlayer.PlayerId;
+					League.Players.Add(leaguePlayer);
 				}
-				League.Teams.Add(LeagueTeam);
+				LeagueTeam.Players.Add(leaguePlayer);
 			}
+			League.AddTeam(LeagueTeam);
 		}
 
 		void MenuSortTeamsClick(object sender, EventArgs e)
@@ -253,8 +274,13 @@ namespace Torn.UI
 		{
 			var player = (ServerPlayer)ListView.SelectedItems[0].Tag;
 			FormPlayer.PlayerId = player.PlayerId;
+			FormPlayer.PlayerAlias = player.Alias;
 			if (FormPlayer.ShowDialog() == DialogResult.OK)
+			{
 				player.PlayerId = FormPlayer.PlayerId;
+				player.Alias = FormPlayer.PlayerAlias;
+				ListView.SelectedItems[0].SubItems[1].Text = player.Alias;
+			}
 		}
 
 		void MenuHandicapPlayerClick(object sender, EventArgs e)
@@ -273,7 +299,7 @@ namespace Torn.UI
 		int IComparer.Compare(object x, object y)
 		{
 			return (x is ListViewItem && y is ListViewItem && ((ListViewItem)x).Tag is ServerPlayer && ((ListViewItem)y).Tag is ServerPlayer) ?
-				((ServerPlayer)((ListViewItem)y).Tag).Score - ((ServerPlayer)((ListViewItem)x).Tag).Score :
+				((ServerPlayer)((ListViewItem)y).Tag).Score.CompareTo(((ServerPlayer)((ListViewItem)x).Tag).Score) :
 				0;
 		}
 	}

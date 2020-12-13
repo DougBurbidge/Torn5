@@ -37,6 +37,8 @@ namespace Torn.UI
 			{
 				listBoxReportType.SelectedIndex = (int)ReportTemplate.ReportType - 1;
 
+				title.Text = ReportTemplate.Title;
+
 				foreach (Control c in this.Controls)
 					if (c is CheckBox && c.Tag != null)
 						((CheckBox)c).Checked = ReportTemplate.Settings.Contains((string)c.Tag);
@@ -94,6 +96,8 @@ namespace Torn.UI
 
 				ReportTemplate.ReportType = (ReportType)(listBoxReportType.SelectedIndex + 1);
 
+				ReportTemplate.Title = title.Text;
+
 				ReportTemplate.Settings.Clear();
 				foreach (Control c in this.Controls)
 					if (c.Enabled && c is CheckBox && ((CheckBox)c).Checked && !string.IsNullOrEmpty((string)c.Tag))
@@ -126,10 +130,21 @@ namespace Torn.UI
 					ReportTemplate.Settings.Add("AtLeastN=" + numericUpDownAtLeastN.Value.ToString(CultureInfo.InvariantCulture));
 
 				if (orderBy.Enabled)
-					ReportTemplate.Settings.Add("OrderBy=" + orderBy.Text);
+					ReportTemplate.Settings.Add("OrderBy=" + orderByText());
 
 				ReportTemplate.From = dateFrom.Checked ? datePickerFrom.Value.Add(timePickerFrom.Value.TimeOfDay) : (DateTime?)null;
 				ReportTemplate.To = dateTo.Checked ? datePickerTo.Value.Add(timePickerTo.Value.TimeOfDay) : (DateTime?)null;
+			}
+		}
+
+		string orderByText()
+		{
+			switch (orderBy.SelectedIndex) {
+				case 0: return "score";
+				case 1: return "score ratio";
+				case 2: return "scaled score";
+				case 3: return "scaled score ratio";
+				default: return "";
 			}
 		}
 
@@ -154,6 +169,7 @@ namespace Torn.UI
 			orderBy.Enabled = i == 0 || i == 2;
 			labelOrderBy.Enabled = i == 0 || i == 2;
 			description.Enabled = true;
+			longitudinal.Enabled = i == 0 || i == 2 || i == (int)ReportType.Packs - 1;
 
 			labelTopWhat.Text = i == 2 ? "players" : "teams";
 		}
@@ -171,6 +187,28 @@ namespace Torn.UI
 		void DropGamesCheckedChanged(object sender, EventArgs e)
 		{
 			groupBoxDrops.Enabled = dropGames.Checked;
+		}
+		
+		void ShowTopNCheckedChanged(object sender, EventArgs e)
+		{
+			numericUpDownTopN.Enabled = showTopN.Checked;
+		}
+		
+		void AtLeastNCheckedChanged(object sender, EventArgs e)
+		{
+			numericUpDownAtLeastN.Enabled = atLeastN.Checked;
+		}
+		
+		void ScaleGamesCheckedChanged(object sender, EventArgs e)
+		{
+			if (scaleGames.Checked && orderBy.Items.Count == 2)
+				orderBy.Items.AddRange(new string[] { "scaled victory points then score", "scaled victory points then score ratio" } );
+
+			else if (!scaleGames.Checked && orderBy.Items.Count == 4)
+			{
+				orderBy.Items.RemoveAt(3);
+				orderBy.Items.RemoveAt(2);
+			}
 		}
 	}
 }

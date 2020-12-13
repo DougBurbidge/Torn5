@@ -1,0 +1,168 @@
+<html><head><title>Torn 5 Help</title></head><body>
+<div style="max-width:800px; margin:auto">
+<h1>Torn 5</h1>
+<p>
+Torn 5 is a ground-up rewrite of Torn 4. It is a tournament scores manager, and can read data from Nexus, Helios and Laserforce systems. It requires .NET Framework 4.0. Note that Torn 5 is currently in a Beta state &mdash; it mostly works, but not all features are complete, and there may be bugs. If you are using it to open Torn 4 files, I recommend keeping a safe backup of those .Torn files elsewhere, just in case.
+<h2>Changes from Torn 4</h2>
+<p>
+If you're familiar with Torn 4, here's the very quick guide:
+<ul><li>Torn 4 and Torn 5 can read each others' .Torn files.</li>
+<li>Torn 5 can have several leagues (i.e. .Torn files) open at once.</li>
+<li>The Games drop-down "combo box" is now an always-visible Games list.</li>
+<li>Reports are different.</li>
+<li>There are no menus &mdash; everything is on toolbar buttons for improved visibility. Occasional and advanced functions are on drop-down "menu" buttons.</li>
+<li>Torn 5 acts as a web server so that players can get up-to-the-minute reports without you having to click anything other than Commit.</li></ul>
+</p>
+<h2>Quick Start</h2>
+</p><p>
+Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. For P&amp;C systems, this is the name or IP address of the database server machine. For Laserforce, this is probably lf-main\lf6. (Depending on firewall and SQl Server configuration, you may need to run Torn 5 on the database PC.) If you don't have a lasergame system, just leave it at Demo.
+</p><p>
+Click OK. Click Latest. This will cause Torn to query the server. A list of games should appear.
+</p><p>
+On the Leagues toolbar, click New or Open. Torn 5 can open Torn 4 .Torn files. When it save those files it will write extra information. The latest version of Torn 4 will ignore all that extra information, so you <em>should</em> be able to open the file in one, make changes, then open it in the other, and then back again. (But after Torn 4 has opened the file, made changes and saved it again, the extra Torn 5 data will be missing.) For your new (or newly opened) .Torn file, click in the Tag cell at the left of the .Torn file's row in the Leagues list. Enter a tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
+</p><p>
+If you like, you can open more league files. This is a difference between Torn 4 and Torn 5 &mdash; Torn 5 allows you to have several league files open at once.
+</p><p>
+Click a game to see its packs/players. Now you can do all the usual Torn things &mdash; right-click on a team box and Remember that team, Commit the game, Edit the league, etc.
+</p><p>
+Because the games listing is now an always-visible list instead of being a drop-down "combo box", you can now select multiple games. Some features work on all selected games &mdash; e.g. Forget will remove all the selected games from whatever league they had been committed to. Set Description lets you title committed games or groups of games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
+Games present in the game server are shown in white. Games only present in Torn files are shown slightly greyed.
+</p><p>
+Reporting is different in Torn 5 &mdash; click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
+</p><p>
+If you select multiple leagues (select one then hold down the ctrl key as you select more) and click Export, all the selected leagues will have reports exported.
+</p><p>
+If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a machine called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
+</p><p>
+For P&amp;C systems, for games that have been committed during this run of Torn 5, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
+</p><p>
+Things not yet implemented: fixture generation, pushing scores to a scoreboard, setting up pyramid rounds, and a variety of other bits and bobs.
+</p>
+<h2>The Main Window</h2>
+<p>
+Torn's window is divided into several areas. At the top are the toolbars. Note that the left-most on each toolbar is a drop-down menu button. Toolbars can be torn off and floated, or docked at different edges of the window.
+</p><p>
+At the left is the Leagues list, showing the currently open leagues, with details on the currently focused league shown below it. 
+</p><p>
+To the right of the Leagues list is the Games list showing all the games Torn knows about (because they exist in an open .Torn file, or in the lasergame server database, or both). Clicking a game will show its details to the right.
+</p><p>
+To the right of the games list is the unallocated players box: players who are in the game focused in the games list but not yet allocated to a team will show here.
+</p><p>
+To the right of this are the team boxes. These hold players from a single team. If you need more team boxes, Click Add Row or Ad Column in the Teams toolbar. Right-click on team box for a variety of functions, including changing the identity of the team or of a player, or applying a handicap.</p>
+<h2>Leagues</h2>
+<p>
+To Torn, a league is a collection of games, teams, players and scores. Each league is saved as a .Torn file.
+</p><p>
+<strong>New</strong>: create a new league and its coresponding .Torn file. Once you've done this you'll likely want to click in the Tag cell in the Leagues list and give this league a Tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
+</p><p>
+<strong>Open</strong>: Open one or more existing .Torn files. (This dialog supports multi-select.)
+</p><p>
+<strong>Close</strong>: Remove the selected leagues from the Leagues list. (Of course, you can re-Open them later.)
+</p><p>
+<strong>Edit</strong>: Here you can set a title for the league file, edit team names and player line-ups, and set victory points for the league. (Victory points options are not yet quite as rich as those in Torn 4.)
+</p><p>
+<strong>Leagues &#x25b8 Preferences</strong>: brings up the Preferences dialog. These preferences are global to all of Torn, and are not specific to a league.
+</p><p>
+<strong>Leagues &#x25b8 Save</strong>: Commit the .Torn file to disk. Most of the time you don't need this button: if you Commit a game, Edit the league, etc., your changes will be automatically saved.
+</p><p>
+<strong>Leagues &#x25b8 Set up Pyramid round</strong>: not yet implemented.
+</p><p>
+<strong>Leagues &#x25b8 Set up Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
+</p><p>
+The Fixtures dialog has four tabs: Teams, Games as a list, Games as a gri, and Graphic. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
+</p><p>
+The Games as a list page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
+</p><p>
+The Games as a grid page is similar. Each row is a team; each column is a game.
+</p><p>
+The Graphics page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
+</p><p>
+At the bottom of the grid is a number showing how many teams are in each ame. At the right are numbers showing how many games each team plays. To the right of that is a difficulty number, calculated by averaging the difficulty of all the teams this team plays against, plus a graph plotting those difficulties. To the right of that is the who-plays-who grid. When you click a square in the main grid, the who-plays-who grid highlights the selected team in silver, and the teams this team plays against in this game in the relevant colours.
+</p><p>
+At bottom right is a control for the size of the grid: set this larger to make grid squares larger.
+</p><p>
+At the moment the Graphics page assumes that teams are contiguously numbered &mdash; if you have deleted teams, thus leaving gaps in the numbering, this display may get a little out of whack.
+</p><p>
+<strong>Leagues &#x25b8 Match</strong>: not yet implemented. This is intended for things like Laserforce Space Marines, where two games form a match.
+</p><p>
+<strong>Leagues &#x25b8 Help</strong>: this document.
+</p><p>
+<strong>Leagues &#x25b8 About</strong>: a brief About dialog.
+</p><p>
+</p>
+<h2>Games</h2>
+<p>
+<strong>Latest</strong>: clicking this button re-queries the lasergame server, and selects the most recent game in the list.
+</p><p>
+<strong>Commit</strong>: this button commits the details of this game, as shown in the team boxes at the right, to Torn's list of remembered games.
+</p><p>
+<strong>Games &#x25b8 Create</strong>: not yet implemented.
+</p><p>
+<strong>Games &#x25b8 Edit</strong>: not yet implemented.
+</p><p>
+<strong>Games &#x25b8 Set Description</strong>: lets you title committed games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
+</p><p>
+<strong>Games &#x25b8 Forget</strong>: removes the selected games from the league.
+</p><p>
+</p>
+<h2>Teams</h2>
+<p>
+<strong>Add Row</strong>: Adds a row of team boxes.
+</p><p>
+<strong> Remove Row</strong>: Removes a row of team boxes.
+</p><p>
+<strong>Add Column</strong>: Adds a column of team boxes.
+</p><p>
+<strong>Remove Column</strong>: Removes a column of team boxes.
+</p><p>
+<strong>Teams &#x25b8 Remember All Teams</strong>:  list.
+</p><p>
+</p>
+<h2>Reports</h2>
+<p>
+<strong>Set Folder</strong>: lets you set a folder that reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
+</p><p>
+<strong>Report</strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used: a team ladder, a games list, a games pyramid or games grid, and a solo ladder. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
+</p><p>
+<strong>Upload</strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
+</p><p>
+<strong>Configure</strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
+</p><p>
+<strong>Reports &#x25b8 Ad Hoc Report</strong>: not yet implemented.
+</p><p>
+<strong>Reports &#x25b8 Pack Report</strong>: see below.
+</p><p>
+<strong>Reports &#x25b8 Update Scoreboard</strong>: not yet implemented.
+</p><p>
+<strong>Reports &#x25b8 Export Fixtures</strong>: exports any fixtures you have set up in Leagues &#x25b8 Set up Fixtures, as HTML.
+</p>
+<h3>Pack Report</h3>
+<p>
+The pack report endeavours to tell you how "good" or "bad" packs are. It does this via <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Student's t-test</a>.
+</p><p>
+Select one or more leagues (hold down the ctrl key to select additional leagues), then click Reports &#x25b8 Pack Report. The report will be generated and saved to the folder you set under Set Destination, as packreport.html.
+</p><p>
+View the report in your favourite web browser. You'll see several sets of columns, and you should ignore all but one. 
+</p><p>
+If Torn 5 has hit data, it will fill in columns for tag ratios and tag differences. 
+Here's how those are calculated: first we generate a solo ladder showing how "good" each player is. Then, for each pack in each game, we scale the number of tags that pack scored against other players by the "goodness" of the player waering it: if the pack scored 50 hits in a game but was being worn by a player who was 125% as good as the average player, we scale that to 50 / 1.25 = 40 hits. Then we take the ratio of that to the number of tags the pack received during the game.
+For tag difference we do the same thing, but we subtract the two numbers instead of dividing them. Differences are theoretically better than ratios because differences should be normally distributed, whereas ratios are not. But ratios are probably still better for our use case.
+</p><p>
+If Torn 5 does <em>not</em> have hit data (because this is Laserforce data, or because this is a Torn 4 file), you'll have to look at the score ratio instead. This is calculated in exactly the same way as tag ratio. Score ratio isn't as good as tag ratio, because we're interested here in how good the pack is at tagging other packs versus how good it is at getting tagged, but if you don't have tag data it's a reasonable proxy.
+</p><p>
+You'll see t values and p values. The t value is how many standard deviations this pack is from the mean. Look at the p value &mdash; when this is very small, there's a high chance that this pack is "good" or "bad".
+Any p value greater than 0.01 can be ignored &mdash; it's likely due to change, or to that pack being a favourite of particular players, etc. (You often see a level of p &lt; 0.05 being used, but this is only appropriate when we're testing a single variable. Here we're testing one variable for each pack. The description at the bottom of the report offers a conservative p value threshold for the number of packs shown.)
+</p><p>
+Very small p values will be highlighted in red. These packs are of concern &mdash; a "good" pack might have some faulty sensors; a "bad" pack might have weak IR, etc.
+</p><p>
+If pack hardware has been re-arranged (e.g. you've swapped guns between packs) or renumbered midway through data collection (e.g. you re-ID'ed packs to prevent players from picking favourites), these things will of course limit data quality.
+</p><p>
+You can try different chart options, set date ranges, etc. &mdash; on the Reports toolbar click Customise, add a Pack Report, and choose options.
+</p><p>
+If you label Round Robin games as Roud Robin, and/or Round 1 games as Round 1, Torn 5 will use only those games for deciding how "good" players are.
+</p>
+<h2>Download</h2>
+<p>
+Torn 5 can be downloaded from <a href="http://dougburbidge.com/Apps/index.html">my Apps page</a>. The source code is available from <a href="https://github.com/DougBurbidge/Torn5">my GitHub page</a>.
+</div>
+</body>

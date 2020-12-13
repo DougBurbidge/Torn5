@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Torn.Report;
+using Zoom;
 
 namespace Torn.UI
 {
@@ -28,18 +29,25 @@ namespace Torn.UI
 			//
 			formReport = new FormReport();
 		}
-		
+
 		public FormReports(Holder holder): this()
 		{
 			Holder = holder;
-			if (Holder.League.AllGames.Count > 0)
+			if (Holder.League.AllGames.Any())
 			{
 				formReport.From = Holder.League.AllGames.First().Time.Date;
 				formReport.To = Holder.League.AllGames.Last().Time.Date;
 			}
 			RefreshListView();
+			
+			switch (Holder.ReportTemplates.OutputFormat) {
+				case OutputFormat.Svg:       radioSvg.Checked = true;    break;
+				case OutputFormat.HtmlTable: radioTables.Checked = true; break;
+				case OutputFormat.Tsv:       radioTsv.Checked = true;    break;
+				case OutputFormat.Csv:       radioCsv.Checked = true;    break;
+			}
 		}
-		
+
 		/// <summary>Rebuild the list view from the ReportTemplates collection.</summary>
 		void RefreshListView()
 		{
@@ -54,6 +62,7 @@ namespace Torn.UI
 			foreach(ReportTemplate reportTemplate in Holder.ReportTemplates)
 			{
 				ListViewItem item = new ListViewItem(reportTemplate.ReportType.ToString());
+				item.SubItems.Add(reportTemplate.Title);
 				item.SubItems.Add(reportTemplate.ToString());
 				item.Tag = reportTemplate;
 				listViewReports.Items.Add(item);
@@ -66,7 +75,7 @@ namespace Torn.UI
 
 			listViewReports.Focus();
 		}
-		
+
 		void ButtonAddClick(object sender, EventArgs e)
 		{
 			formReport.ReportTemplate = null;
@@ -78,7 +87,7 @@ namespace Torn.UI
 				RefreshListView();
 			}
 		}
-		
+
 		void FormReportsShown(object sender, EventArgs e)
 		{
 			Text = "Reports for " + Holder.League.Title;
@@ -132,6 +141,11 @@ namespace Torn.UI
 			Holder.ReportTemplates[b] = temp;
 
 			RefreshListView();
+		}
+		
+		void RadioCheckedChanged(object sender, EventArgs e)
+		{
+			Holder.ReportTemplates.OutputFormat = (OutputFormat)((Control)sender).Tag;
 		}
 	}
 }

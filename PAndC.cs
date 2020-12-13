@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using MySql.Data;
+using MySql.Data;  // To install: https://dev.mysql.com/doc/visual-studio/en/visual-studio-install.html
 using MySql.Data.MySqlClient;
 
 namespace Torn
@@ -15,15 +15,17 @@ namespace Torn
 	public class PAndC: LaserGameServer
 	{
 		MySqlConnection connection;
-		int heliosType;  // This is the database schema version.
+		protected int heliosType;  // This is the database schema version.
+		protected string _server;
+
+		protected PAndC() {}
 
 		public PAndC(string server)
 		{
 			try
 			{
-				connection = new MySqlConnection("server=" + server + ";user=root;database=ng_system;port=3306;password=password");
-				connection.Open();
-				Connected = true;
+				_server = server;
+				Connect();
 
 				var cmd = new MySqlCommand("SELECT Int_Data_1 FROM ng_registry WHERE Registry_ID = 0", connection);
 				using (var reader = cmd.ExecuteReader())
@@ -34,34 +36,36 @@ namespace Torn
 			}
 			catch
 			{
-				Connected = false;
+				connected = false;
 				throw;
 			}
 		}
 
+		protected override bool GetConnected() { return connected && connection != null && connection.State == ConnectionState.Open; }
+
 		public override void Dispose()
 		{
-			if (Connected)
+			if (connected)
 			{
 				connection.Close();
-				Connected = false;
+				connected = false;
 			}
 		}
 
 		public override TimeSpan GameTimeElapsed()
 		{
-			if (!Connected)
+			if (!EnsureConnected())
 				return TimeSpan.Zero;
 			try
 			{
-				string sql = "SELECT Event_Type, Time_Logged, CURRENT_TIMESTAMP FROM ng_game_log ORDER BY Time_Logged DESC";
+				string sql = "SELECT Event_Type, Time_Logged, CURRENT_TIMESTAMP FROM ng_game_log ORDER BY Time_Logged DESC LIMIT 1";
 				MySqlCommand cmd = new MySqlCommand(sql, connection);
 				using (var reader = cmd.ExecuteReader())
 				{
 					if (reader.Read())
 					{
 						if (reader.GetUInt32("Event_Type") == 0)  // 0 is 'Game Started'.
-							return reader.GetDateTime("CURRENT_TIMESTAMP") - reader.GetDateTime("Time_Logged");
+							return GetDateTime(reader, "CURRENT_TIMESTAMP") - GetDateTime(reader, "Time_Logged");
 						else
 							return TimeSpan.Zero;
 					}
@@ -78,141 +82,137 @@ namespace Torn
 		public override List<ServerGame> GetGames()
 		{
 			List<ServerGame> games = new List<ServerGame>();
+			GetMoreGames(games);
+			return games;
+		}
 
-			if (!Connected)
-				return games;
+		public override void GetMoreGames(List<ServerGame> games)
+		{
+			string where = games.Count == 0 ? "" : "WHERE S.Start_Time > \"" + games.Last().EndTime.ToString("YYYY-MM-DD HH:mm:ss") + "\"";
 
-			string sql = "SELECT S.Game_ID, S.Start_Time, P.Profile_Description AS Description " +
-                         "FROM ng_game_stats S " +
-                         "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
-                         "ORDER BY Start_Time";
+			string sql = "SELECT S.Game_ID, S.Start_Time, S.Finish_Time, P.Profile_Description AS Description " +
+			             "FROM ng_game_stats S " +
+			             "JOIN ng_profiles P ON S.Profile_ID = P.Profile_ID " +
+			             where +
+			             " ORDER BY Start_Time";
+			FillGames(sql, games);
+		}
+
+		void FillGames(string sql, List<ServerGame> games)
+		{
+			if (!EnsureConnected())
+				return;
+
 			MySqlCommand cmd = new MySqlCommand(sql, connection);
 			using (var reader = cmd.ExecuteReader())
 			{
 				while (reader.Read())
 				{
-					ServerGame game = new ServerGame();
-					game.GameId = GetInt(reader, "Game_ID");
-					game.Description = GetString(reader, "Description");
-					game.Time = reader.GetDateTime("Start_Time");
-					game.OnServer = true;
+					ServerGame game = new ServerGame
+					{
+						GameId = GetInt(reader, "Game_ID"),
+						Description = GetString(reader, "Description"),
+						Time = GetDateTime(reader, "Start_Time"),
+						EndTime = GetDateTime(reader, "Finish_Time"),
+						OnServer = true
+					};
+					game.InProgress = game.EndTime == default;
 					games.Add(game);
 				}
 			}
-
-			return games;
 		}
 
-		class Event
+		protected virtual string GameDetailSql(int? gameId)
 		{
-			public int PandCPlayerId;  // ID of shooter
-			public int PandCPlayerTeamId;  // team of shooter
-			public int Event_Type;  // see below
-			public int Score;  // points gained by shooter
-			public int HitPlayer;  // ID of shootee
-			public int HitTeam;  // team of shootee
-			public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
-			public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
-
-// EventType:
-//  0..6:   tagged foe (in various hit locations: chest, back, left shoulder, right shoulder, other, other, laser);
-//  7..13:  tagged ally;
-//  14..20: tagged by foe;
-//  21..27: tagged by ally;
-//  28: warning;
-//  29: termination;
-//  30: hit base;
-//  31: destroyed base;
-//  32: eliminated;
-//  33: hit by base;
-//  34: hit by mine;
-//  35: trigger pressed;
-//  36: game state (whatever that means);
-//  37..46: player tagged target (whatever that means);
-//  1402: score denial points.
-//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
-
-			public override string ToString()
-			{
-				return "Event Type " + Event_Type.ToString();
-			}
- 
+			return "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
+			    "FROM ng_player_event_log EL " +
+			    "LEFT JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
+			    "LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
+			    "WHERE EL.Game_ID = " + gameId.ToString() +
+			    " GROUP BY Player_ID " +
+			    "ORDER BY Score DESC";
 		}
 
 		public override void PopulateGame(ServerGame game)
 		{
-			if (!Connected)
+			if (!EnsureConnected() || !game.GameId.HasValue)
 				return;
 
-			var events = new List<Event>();
-			string sql = "SELECT Player_ID, Player_Team_ID, Event_Type, Score, Result_Data_1, Result_Data_2, Result_Data_3, Result_Data_4 " +
-				"FROM ng_player_event_log " +
-				"WHERE Game_ID = " + game.GameId.ToString();
+			// Get game end time. Determine if game is in progress.
+			string sql = "SELECT S.Finish_Time " +
+                         "FROM ng_game_stats S " +
+                         "WHERE S.Start_Time = \"" + game.Time.ToString("yyyy-MM-dd HH:mm:ss") + "\"";
 			MySqlCommand cmd = new MySqlCommand(sql, connection);
 			using (var reader = cmd.ExecuteReader())
 			{
-				while (reader.Read())
+				if (reader.Read())
 				{
-					var oneEvent = new Event();
-					oneEvent.PandCPlayerId = GetInt(reader, "Player_ID");
-					oneEvent.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
-					oneEvent.Event_Type = GetInt(reader, "Event_Type");
-					oneEvent.Score = GetInt(reader, "Score");
-					oneEvent.HitPlayer = GetInt(reader, "Result_Data_1");
-					oneEvent.HitTeam = GetInt(reader, "Result_Data_2");
-					oneEvent.PointsLostByDeniee = GetInt(reader, "Result_Data_3");
-					oneEvent.ShotsDenied = GetInt(reader, "Result_Data_4");
-					events.Add(oneEvent);
+					game.EndTime = GetDateTime(reader, "Finish_Time");
+					game.InProgress = game.EndTime == default;
+					game.OnServer = true;
 				}
 			}
 
-			game.Players = new List<ServerPlayer>();
-
-			sql = "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, QRCode AS Button_ID, M.Alias " +
-                "FROM ng_player_event_log EL " +
-                "LEFT JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
-                "LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
-				"WHERE EL.Game_ID = " + game.GameId.ToString() +
-                " GROUP BY Player_ID " +
-                "ORDER BY Score DESC";
+			sql = "SELECT Time_Logged, Player_ID, Player_Team_ID, Event_Type, Score, Result_Data_1, Result_Data_2, Result_Data_3, Result_Data_4 " +
+				"FROM ng_player_event_log " +
+				"WHERE Game_ID = " + game.GameId.ToString();
 			cmd = new MySqlCommand(sql, connection);
+			using (var reader = cmd.ExecuteReader())
+			{
+				if (reader.HasRows)
+					game.Events.Clear();
+
+				while (reader.Read())
+				{
+					var oneEvent = new Event
+					{
+						Time = GetDateTime(reader, "Time_Logged"),
+						ServerPlayerId = GetString(reader, "Player_ID"),
+						ServerTeamId = GetInt(reader, "Player_Team_ID"),
+						Event_Type = GetInt(reader, "Event_Type"),
+						Score = GetInt(reader, "Score"),
+						OtherPlayer = GetString(reader, "Result_Data_1"),
+						PointsLostByDeniee = GetInt(reader, "Result_Data_3"),
+						ShotsDenied = GetInt(reader, "Result_Data_4")
+					};
+					oneEvent.OtherTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
+					game.Events.Add(oneEvent);
+				}
+			}
+
+			game.Players.Clear();
+
+			cmd = new MySqlCommand(GameDetailSql(game.GameId), connection);
 			using (var reader = cmd.ExecuteReader())
 			{
 				while (reader.Read())
 				{
-					ServerPlayer player = new ServerPlayer();
+					ServerPlayer player = new ServerPlayer
+					{
+						ServerPlayerId = GetString(reader, "Player_ID"),
+						ServerTeamId = GetInt(reader, "Player_Team_ID")
+					};
 
-					player.PandCPlayerId = GetInt(reader, "Player_ID");
-					player.PandCPlayerTeamId = GetInt(reader, "Player_Team_ID");
-					player.Colour = (Colour)(player.PandCPlayerTeamId + 1);
+					if (0 <= player.ServerTeamId && player.ServerTeamId < 8)
+						player.Colour = (Colour)(player.ServerTeamId + 1);
+					else
+						player.Colour = Colour.None;
+
 					player.Score = GetInt(reader, "Score");
-					player.PackName = GetString(reader, "Pack_Name");
+					player.Pack = GetString(reader, "Pack_Name");
 					player.PlayerId = GetString(reader, "Button_ID");
 					player.Alias = GetString(reader, "Alias");
-
-					player.HitsBy = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
-					                               (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
-					player.HitsOn = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && 
-					                               (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
-					player.BaseHits = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 30);
-					player.BaseDestroys = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 31);
-					player.BaseDenies = events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 1402).Sum(x => x.ShotsDenied);
-					player.BaseDenied = events.FindAll(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 1404).Sum(x => x.ShotsDenied);
-					player.YellowCards = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 28);
-					player.RedCards = events.Count(x => x.PandCPlayerId == player.PandCPlayerId && x.Event_Type == 29);
+					player.Populate(game.Events);
 
 					game.Players.Add(player);
 				}
 			}
 		}
 
-		public override IEnumerable<Dto.Player> GetPlayers(string mask)
+		protected virtual string PlayersSql()
 		{
-//			Acacia: "SELECT Player_Alias AS Alias, First_Name + ' ' + Last_Name AS Name, User_ID FROM MEMBERS WHERE User_ID <> ''"
-//			Nexus: "SELECT Alias AS Alias, '' AS Name, Button_ID AS User_ID FROM members"
-
+			return heliosType < 47 ? 
 			// Less than 47 is the old schema, with QRCode in demographics.customer table.
-			string sql = heliosType < 47 ? 
 				"SELECT M.Alias AS Alias, C.First_Name + ' ' + C.Last_Name AS Name, C.QRCode AS User_ID " +
 				"FROM members M " +
 				"LEFT JOIN demographics.customers C on C.Customer_ID = M.member_ID " +
@@ -221,12 +221,18 @@ namespace Torn
 			// 47 or greater is the new schema, with QRCode in members table.
 				"SELECT Alias AS Alias, '' AS Name, QRCode AS User_ID " +
 				"FROM members M " +
-				"WHERE SUBSTRING(M.QRCode, 1, 5) <> '00005' AND Alias LIKE @mask ORDER BY Alias";
+				"WHERE SUBSTRING(M.QRCode, 1, 5) <> '00005' AND Alias LIKE @mask ORDER BY Alias LIMIT 1000";
+		}
 
-			using (var cmd = new MySqlCommand(sql, connection))
+		public override List<LaserGamePlayer> GetPlayers(string mask)
+		{
+			if (!EnsureConnected())
+				return null;
+
+			using (var cmd = new MySqlCommand(PlayersSql(), connection))
 			{
 				cmd.Parameters.AddWithValue("@mask", "%" + mask + "%");
-                using (var reader = cmd.ExecuteReader()) 
+				return ReadPlayers(cmd.ExecuteReader());
                 {
                     while (reader.Read())
                     {
@@ -246,16 +252,85 @@ namespace Torn
 			return heliosType < 47;
 		}
 
-		string GetString(MySqlDataReader reader, string column)
+		protected void Connect()
 		{
-			int i = reader.GetOrdinal(column);
-			return reader.IsDBNull(i) ? null : reader.GetString(i);
+			if (connection != null)
+				connection.Close();
+
+			connection = new MySqlConnection("server=" + _server + ";user=root;database=ng_system;port=3306;password=password;Convert Zero Datetime=True");
+			try
+			{
+				connection.Open();
+				connected = true;
+			}
+			catch
+			{
+				connected = false;
+			}
+		}
+
+		bool EnsureConnected()
+		{
+			if (!Connected)
+				Connect();
+			return Connected;
+		}
+
+		DateTime GetDateTime(MySqlDataReader reader, string column)
+		{
+			try {
+				int i = reader.GetOrdinal(column);
+				return reader.IsDBNull(i) ? default : reader.GetDateTime(i);
+			} catch (Exception) {
+				return default;
+			}
 		}
 
 		int GetInt(MySqlDataReader reader, string column)
 		{
 			int i = reader.GetOrdinal(column);
 			return reader.IsDBNull(i) ? -1 : reader.GetInt32(i);
+		}
+
+		string GetString(MySqlDataReader reader, string column)
+		{
+			int i = reader.GetOrdinal(column);
+			return reader.IsDBNull(i) ? null : reader.GetString(i);
+		}
+	}
+
+	public class PAndCNexusWithIButton: PAndC
+	{
+		public PAndCNexusWithIButton(string server)
+		{
+			try
+			{
+				_server = server;
+				Connect();
+				heliosType = -1;
+			}
+			catch
+			{
+				connected = false;
+				throw;
+			}
+		}
+
+		override protected string GameDetailSql(int? gameId)
+		{
+			return "SELECT Player_ID, Player_Team_ID, SUM(Score) AS Score, Pack_Name, Button_ID, Alias " +
+				"FROM ng_player_event_log EL " +
+				"JOIN ng_player_stats S ON EL.Game_ID = S.Game_ID AND EL.Player_ID = S.Pack_ID " +
+				"LEFT JOIN members M ON S.Member_ID = M.Member_ID " +
+				"WHERE EL.Game_ID = " + gameId.ToString() +
+				" GROUP BY Player_ID " +
+				"ORDER BY Score DESC";
+		}
+
+		override protected string PlayersSql()
+		{
+			return "SELECT TRIM(Alias) AS Alias, '' AS Name, Button_ID AS User_ID FROM members " +
+				"WHERE TRIM(Alias) LIKE @mask ORDER BY Alias LIMIT 1000";
 		}
 	}
 }

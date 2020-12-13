@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 using Torn;
+using Zoom;
 
 namespace Torn.Report
 {
-	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, Ascension, Pyramid, Packs, Everything };
+	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, Ascension, Pyramid, PyramidCondensed,
+		                     ColourPerformance, Packs, Everything, PageBreak };
 
 	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate
 	{
 		public ReportType ReportType { get; set; }
+		public string Title { get; set; }
 		public List<string> Settings { get; private set; }
 		public Drops Drops { get; set; }
 		public DateTime? From { get; set; }
@@ -56,13 +61,15 @@ namespace Torn.Report
 					else
 						Drops.CountBest = int.Parse(drops.Substring(index + " best ".Length, drops.IndexOf(' ', index) - index - " best ".Length));
 				}
+
+				Settings.RemoveAll(s => s.StartsWith("Drop "));
 			}
 		}
 
 		public string Setting(string name)
 		{
 			int index = Settings.FindIndex(s => s.StartsWith(name));
-			return index > -1 ? Settings[index].Substring(name.Length + 1) : null;
+			return index > -1 ? Settings[index].Substring(name.Length + 1) : "";
 		}
 
 		public override string ToString()
@@ -111,7 +118,7 @@ namespace Torn.Report
 				sb.Append(((DateTime)To).ToString("yyyy-MM-dd HH:mm"));
 				sb.Append(", ");
 			}
-			sb.Remove(sb.Length - 2, 2);
+			sb.Length -= 2;
 			return sb.ToString();
 		}
 
@@ -138,6 +145,111 @@ namespace Torn.Report
 				Drops = null;
 		}
 
+		void AppendNode(XmlDocument doc, XmlNode parent, string name, string value)
+		{
+			if (!string.IsNullOrEmpty(value))
+			{
+				XmlNode node = doc.CreateElement(name);
+				node.AppendChild(doc.CreateTextNode(value));
+				parent.AppendChild(node);
+			}
+		}
+
+		void AppendSetting(XmlDocument doc, XmlNode parent, string setting)
+		{
+			if (setting.Contains("="))
+			{
+				string[] split = setting.Split(new char[] { '=' }, 2);
+				AppendNode(doc, parent, split[0], split[1]);
+			}
+			else if (!string.IsNullOrEmpty(setting))
+				parent.AppendChild(doc.CreateElement(setting));
+		}
+
+		void SetAttribute(XmlDocument doc, XmlNode node, string key, string value)
+		{
+			if (node.Attributes[key] != null)
+                node.Attributes[key].Value = value;
+            else
+            {
+				XmlAttribute attr = doc.CreateAttribute(key);
+				attr.Value = value;
+				node.Attributes.Append(attr);
+            }
+		}
+
+		public void ToXml(XmlDocument doc, XmlNode node)
+		{
+			XmlNode reportTemplateNode = doc.CreateElement("reporttemplate");
+			node.AppendChild(reportTemplateNode);
+			AppendNode(doc, reportTemplateNode, "type", ReportType.ToString());
+			AppendNode(doc, reportTemplateNode, "title", Title);
+
+			foreach (var setting in Settings)
+				AppendSetting(doc, reportTemplateNode, setting);
+
+			if (Drops != null && Drops.HasDrops())
+			{
+				XmlNode dropsNode = doc.CreateElement("drops");
+				reportTemplateNode.AppendChild(dropsNode);
+
+				if (Drops.CountWorst > 0)
+					AppendNode(doc, dropsNode, "worst", Drops.CountWorst.ToString());
+				else if (Drops.PercentWorst > 0)
+					AppendNode(doc, dropsNode, "percentworst", Drops.PercentWorst.ToString());
+
+				if (Drops.CountBest > 0)
+					AppendNode(doc, dropsNode, "best", Drops.CountBest.ToString());
+				else if (Drops.PercentBest > 0)
+					AppendNode(doc, dropsNode, "percentbest", Drops.PercentBest.ToString());
+			}
+
+			if (From.HasValue)
+				AppendNode(doc, reportTemplateNode, "from", ((DateTime)From).ToString("yyyy-MM-dd HH:mm"));
+
+			if (To.HasValue)
+				AppendNode(doc, reportTemplateNode, "to", ((DateTime)To).ToString("yyyy-MM-dd HH:mm"));
+		}
+
+		static int XmlInt(XmlNode node, string name)
+		{
+			var child = node.SelectSingleNode(name);
+			return child == null ? 0 : int.Parse(child.InnerText, CultureInfo.InvariantCulture);
+		}
+
+		public void FromXml(XmlDocument doc, XmlNode node)
+		{
+			foreach (XmlNode x in node.ChildNodes)
+				switch (x.Name)
+				{
+					case "type":
+						ReportType = (ReportType)Enum.Parse(typeof(ReportType), x.InnerText);
+						break;
+					case "title":
+						Title = x.InnerText;
+						break;
+					case "drops":
+						Drops = new Drops();
+						Drops.CountWorst = XmlInt(x, "worst");
+						Drops.PercentWorst = XmlInt(x, "percentworst");
+						Drops.CountBest = XmlInt(x, "best");
+						Drops.PercentBest = XmlInt(x, "percentbest");
+						break;
+					case "from":
+						From = DateTime.Parse(x.InnerText);
+						break;
+					case "to":
+						To = DateTime.Parse(x.InnerText);
+						break;
+					default:
+						if (string.IsNullOrEmpty(x.InnerText))
+							Settings.Add(x.Name);
+						else
+							Settings.Add(x.Name + "=" + x.InnerText);
+						break;
+				}
+		}
+
 		DateTime? ParseDateSetting(string name)
 		{
 			int index = Settings.FindIndex(s => s.StartsWith(name));
@@ -154,6 +266,8 @@ namespace Torn.Report
 	
 	public class ReportTemplates: List<ReportTemplate>
 	{
+		public OutputFormat OutputFormat { get; set; }
+		
 		public void Parse(string s)
 		{
 			string[] ss = s.Split('&');
@@ -169,6 +283,25 @@ namespace Torn.Report
 		public override string ToString()
 		{
 			return string.Join("&", this);
+		}
+
+		public void ToXml(XmlDocument doc, XmlNode node)
+		{
+			XmlNode reportTemplatesNode = doc.CreateElement("reporttemplates");
+			node.AppendChild(reportTemplatesNode);
+
+			foreach (var reportTemplate in this)
+				reportTemplate.ToXml(doc, reportTemplatesNode);
+		}
+
+		public void FromXml(XmlDocument doc, XmlNode node)
+		{
+			foreach (XmlNode x in node.ChildNodes)
+			{
+				var reportTemplate = new ReportTemplate();
+				reportTemplate.FromXml(doc, x);
+				Add(reportTemplate);
+			}
 		}
 	}
 
@@ -241,17 +374,23 @@ namespace Torn.Report
 			League = league;
 
 			foreach (LeagueTeam lt in League.Teams)
-			{
-				FixtureTeam ft = new FixtureTeam();
-				ft.Id = Fixture.Teams.Count + 1;
-				ft.LeagueTeam = lt;
-				Fixture.Teams.Add(ft);
-			}
+				if (!Fixture.Teams.Exists(ft => ft.LeagueTeam == lt))
+				{
+					FixtureTeam ft = new FixtureTeam();
+					ft.LeagueTeam = lt;
+					ft.Name = lt.Name;
+					Fixture.Teams.Add(ft);
+				}
 		}
 
 		void OnFileChanged(object sender, FileSystemEventArgs e)
 		{
 			League.Load(fileName);
+		}
+
+		public override string ToString()
+		{
+			return Key + " : " + League == null ? "holder" : League.Title;
 		}
 	}
 }
