@@ -379,7 +379,7 @@ namespace Zoom
 		public string ToOutput(OutputFormat outputFormat)
 		{
 			switch (outputFormat) {
-				case OutputFormat.Svg: return ToSvg(0);
+				case OutputFormat.Svg: return ToSvg();
 				case OutputFormat.HtmlTable: return ToHtml();
 				case OutputFormat.Tsv: return ToCsv('\t');
 				case OutputFormat.Csv: return ToCsv(',');
@@ -391,7 +391,8 @@ namespace Zoom
 		/// <summary>Export to an HTML table.</summary>
 		public abstract string ToHtml();
 		/// <summary>Export to an HTML SVG element.</summary>
-		public abstract string ToSvg(int table);
+		public abstract string ToSvg(bool pure = false);
+		public abstract void ToSvg(StringBuilder sb, bool pure = false);
 		public abstract IEnumerable<Color> BarCellColors();
 	}
 
@@ -850,9 +851,9 @@ namespace Zoom
 			s.Append('\n');
 		}
 
-		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell)
+		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell, bool pure)
 		{
-			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, cell.Hyper);
+			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, pure ? null : cell.Hyper);
 
 			int decimals = 0;
 			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
@@ -893,7 +894,7 @@ namespace Zoom
 					for (int i = (int)Math.Log10(Math.Abs(magnitude)); i >= 0; i--)
 						s.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
 			}
-			SvgEndText(s, cell.Hyper);
+			SvgEndText(s, pure ? null : cell.Hyper);
 		}
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null)
@@ -1082,22 +1083,31 @@ namespace Zoom
 		}
 
 		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
-		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max)
+		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max, bool pure)
 		{
-			s.AppendFormat("<div><svg viewBox=\"0 0 {0} {1}\" width=\"{2}\" align=\"center\">\n", width, height, Math.Min(width, 960));  // width=\"{0}\" height=\"{1}\"
+			if (!pure)
+				s.AppendFormat("<div>");
+
+			s.AppendFormat("<svg viewBox=\"0 0 {0} {1}\" width=\"{2}\" align=\"center\">\n", width, height, Math.Min(width, 960));
 
 			SvgRect(s, 1, 1, 1, width - 1, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
-			// Add '-' and '+' zoom button text.
-			s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&nbsp;+&nbsp;</text>\n");
-			s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&nbsp;-&nbsp;</text>\n");
+			if (!pure)
+			{
+				// Add '-' and '+' zoom button text.
+				s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;+&#160;</text>\n");
+				s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;-&#160;</text>\n");
+			}
 
-			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, TitleHyper);  // Paint title "row" text.
+			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, pure ? null : TitleHyper);  // Paint title "row" text.
 			s.Append('\n');
 
-			// Add '-' and '+' zoom buttons (with transparent text, so the text added above appears behind the report title text).
-			s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&nbsp;+&nbsp;</text>\n");
-			s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&nbsp;-&nbsp;</text>\n");
+			if (!pure)
+			{
+				// Add '-' and '+' zoom buttons (with transparent text, so the text added above appears behind the report title text).
+				s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&#160;+&#160;</text>\n");
+				s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n");
+			}
 
 			int rowTop = rowHeight * 2 + 2;
 			if (hasgroupheadings)
@@ -1141,14 +1151,14 @@ namespace Zoom
 				// Draw text inside parallelgram.
 				for (int col = 0; col < Columns.Count; col++)
 				{
-					//if (string.IsNullOrEmpty(hyper))
+					//if (pure || string.IsNullOrEmpty(hyper))
 						s.Append("  ");
 					//else
 					//	AppendStrings(s, "  <a xlink:href=\"", hyper, "\">");
 	
 					s.Append("<text ");
 	
-					//if (!string.IsNullOrEmpty(hyper))
+					//if (!pure && !string.IsNullOrEmpty(hyper))
 					//	s.Append("text-decoration=\"underline\" ");
 	
 					s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(45 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
@@ -1159,7 +1169,7 @@ namespace Zoom
 					s.Append(WebUtility.HtmlEncode(Columns[col].Text));
 					s.Append("</text>");
 	
-					//if (!string.IsNullOrEmpty(hyper))
+					//if (!pure && !string.IsNullOrEmpty(hyper))
 					//	s.Append("</a>");
 	
 					s.Append('\n');
@@ -1171,7 +1181,7 @@ namespace Zoom
 				for (int col = 0; col < Columns.Count; col++)
 				{
 					SvgRectText(s, 1, x, rowTop, widths[col], rowHeight,
-					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, Columns[col].Alignment, Columns[col].Text, null, Columns[col].Hyper);  // Paint column heading.
+					        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, Columns[col].Alignment, Columns[col].Text, null, pure ? null : Columns[col].Hyper);  // Paint column heading.
 					x += widths[col] + 1;
 				}
 				s.Append('\n');
@@ -1373,7 +1383,7 @@ namespace Zoom
 		}
 
 		// Write a single table row.
-		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int MaxPoints, int width, ZRow row, bool odd)
+		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int MaxPoints, int width, ZRow row, bool odd, bool pure)
 		{
 			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(odd));  // Paint the background for the whole row.
 
@@ -1407,15 +1417,22 @@ namespace Zoom
 			float x = 1;
 			for (int col = 0; col < Columns.Count && col < row.Count; col++)
 			{
-				SvgText(s, 1, (int)x, top, (int)widths[col], height, Columns[col], row[col]);  // Write a data cell.
+				SvgText(s, 1, (int)x, top, (int)widths[col], height, Columns[col], row[col], pure);  // Write a data cell.
 
 				x += widths[col] + 1;
 			}
 			s.Append('\n');
 		}
 
+		public override string ToSvg(bool pure = false)
+		{
+			StringBuilder sb = new StringBuilder();
+			ToSvg(sb, pure);
+			return sb.ToString();
+		}
+
 		// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
-		public override string ToSvg(int table)
+		public override void ToSvg(StringBuilder sb, bool pure = false)
 		{
 			bool hasgroupheadings = false;
 			foreach (ZColumn col in Columns)
@@ -1441,16 +1458,14 @@ namespace Zoom
 				height += (int)(widest / Math.Sqrt(2) + 10 - rowHeight);
 			}
 
-			StringBuilder s = new StringBuilder();
-
-			int rowTop = SvgHeader(s, hasgroupheadings, rowHeight, height, widths, maxs, width, max);
+			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, height, widths, maxs, width, max, pure);
 			int ribbonTop = rowTop;
 
 			bool odd = true;
 
 			foreach (ZRow row in Rows)
 			{
-				SvgRow(s, rowTop, rowHeight, widths, mins, maxs, maxPoints, width, row, odd);
+				SvgRow(sb, rowTop, rowHeight, widths, mins, maxs, maxPoints, width, row, odd, pure);
 
 				rowTop += rowHeight + 1;
 				odd = !odd;
@@ -1458,15 +1473,14 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 				if (Columns[col] is ZRibbonColumn)
-					SvgRibbon(s, 1, (ZRibbonColumn)Columns[col], widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
+					SvgRibbon(sb, 1, (ZRibbonColumn)Columns[col], widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
 
-			s.Append("</svg>\n");
+			sb.Append("</svg>\n");
 
-			if (!string.IsNullOrEmpty(Description))
-		    	AppendStrings(s, "<p>", Description, "</p>\n");
-			s.Append("</div>");
-
-			return s.ToString();
+			if (!pure && !string.IsNullOrEmpty(Description))
+		    	AppendStrings(sb, "<p>", Description, "</p>\n");
+			if (!pure)
+				sb.Append("</div>");
 		}
 	}
 
@@ -1480,7 +1494,9 @@ namespace Zoom
 
 		public override string ToHtml() { return Literal; }
 
-		public override string ToSvg(int table) { return Literal; }
+		public override string ToSvg(bool pure = false) { return Literal; }
+
+		public override void ToSvg(StringBuilder sb, bool pure = false) { sb.Append(Literal); }
 
 		public override IEnumerable<Color> BarCellColors() { return new List<Color>(); }
 	}
@@ -1622,7 +1638,7 @@ namespace Zoom
 				sb.Append("<div style=\"display: flex; flex-flow: row wrap; justify-content: space-around;\">\n");
 
 			for (int i = 0; i < Count; i++)
-				sb.Append(this[i].ToSvg(i));
+				this[i].ToSvg(sb);
 
 			sb.Append(@"</div>
 <script>

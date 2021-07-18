@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Svg;
 using Torn;
 using Torn.Report;
 using Torn.UI;
@@ -171,6 +172,7 @@ namespace Torn.UI
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress);  break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
+					case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
 					case SystemType.Torn: laserGameServer = new JsonServer(serverAddress);  break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
 				}
@@ -446,6 +448,13 @@ namespace Torn.UI
 				}
 				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
 			}
+		}
+
+		private void buttonAdHocReport_Click(object sender, EventArgs e)
+		{
+			Holder holder = SelectedLeagues().FirstOrDefault();
+			if (holder != null)
+				new FormAdhoc { Report = (ZoomReport)ReportPages.OverviewReports(holder, IncludeSecret(), null)[0] }.Show();
 		}
 
 		void ButtonExportFixturesClick(object sender, EventArgs e)
@@ -1003,12 +1012,17 @@ namespace Torn.UI
 				labelTime.Text = "Not connected";
 			else if (timeElapsed == TimeSpan.Zero)
 				labelTime.Text = "Idle";
+			else if (timeElapsed < new TimeSpan(0, 0, 0))
+				labelTime.Text = timeElapsed.ToString();
 			else if (timeElapsed.TotalHours < 1)
 				labelTime.Text = "+" + timeElapsed.ToString("m\\:ss");
 			else
 				labelTime.Text = "+" + timeElapsed.ToString();
 
-			labelNow.Text = webOutput.NowText();
+			if (!string.IsNullOrEmpty(laserGameServer.Status))
+				labelNow.Text = laserGameServer.Status;
+			else
+				labelNow.Text = webOutput.NowText();
 		}
 
 		void NumericPortValueChanged(object sender, EventArgs e)

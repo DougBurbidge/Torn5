@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -7,11 +8,8 @@ using Torn;
 using Torn.Report;
 using Zoom;
 
-//using System.Runtime.Serialization.Json;
-
-//  Json in System.Web.Helpers, JsonQueryStringConverter in System.ServiceModel.Web, JavascriptSerializer in System.Web.Script.Serialization,
-//	DataContractJsonSerializer in System.Runtime.Serialization.Json
-//  Json.NET, System.Json, JsonValue in Windows.Data.Json
+// When setting up a new machine to compile Torn5: if you get 'Could not locate the assembly "NUnit.Framework"',
+// go to Solution Explorer, click Switch View to Torn.sln, right-click References, Manage NuGet Packages, Browse for NUnit, install.
 
 namespace TornWeb
 {
@@ -394,3 +392,4 @@ namespace TornWeb
 		}
     }
 }
+*/

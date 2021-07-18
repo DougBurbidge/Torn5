@@ -43,11 +43,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Fizzler, Version=1.2.0.0, Culture=neutral, PublicKeyToken=4ebff4844e382110, processorArchitecture=MSIL">
+      <HintPath>packages\Fizzler.1.2.0\lib\netstandard2.0\Fizzler.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <HintPath>..\..\mysql-connector\v4.0\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg, Version=3.2.0.0, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
+      <HintPath>packages\Svg.3.2.3\lib\net461\Svg.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -86,6 +92,7 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -93,11 +100,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JsonServer.cs" />
-    <Compile Include="MainForm.Designer1.cs">
-      <DependentUpon>MainForm.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
+    <Compile Include="Forms\FormAdhoc.cs">
+      <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FormAdhoc.Designer.cs">
+      <DependentUpon>FormAdhoc.cs</DependentUpon>
+    </Compile>
+    <Compile Include="JsonServer.cs" />
+    <Compile Include="Forms\MainForm1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MainForm.resx</DependentUpon>
+    </Compile>
+    <Compile Include="OZone.cs" />
     <Compile Include="Properties\TornWeb.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -105,54 +120,54 @@
     </Compile>
     <Compile Include="Utility.cs" />
     <Compile Include="DemoServer.cs" />
-    <Compile Include="FormPlayer.cs">
+    <Compile Include="Forms\FormPlayer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormPlayer.Designer.cs">
+    <Compile Include="Forms\FormPlayer.Designer.cs">
       <DependentUpon>FormPlayer.cs</DependentUpon>
     </Compile>
     <Compile Include="Test1.cs" />
     <Compile Include="WebOutput.cs" />
-    <Compile Include="FormLeague.cs">
+    <Compile Include="Forms\FormLeague.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormLeague.Designer.cs">
+    <Compile Include="Forms\FormLeague.Designer.cs">
       <DependentUpon>FormLeague.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputDialog.cs">
+    <Compile Include="Forms\InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InputDialog.Designer.cs">
+    <Compile Include="Forms\InputDialog.Designer.cs">
       <DependentUpon>InputDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="LaserGameServer.cs" />
     <Compile Include="Persistence.cs" />
-    <Compile Include="FormPreferences.cs">
+    <Compile Include="Forms\FormPreferences.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormPreferences.Designer.cs">
+    <Compile Include="Forms\FormPreferences.Designer.cs">
       <DependentUpon>FormPreferences.cs</DependentUpon>
     </Compile>
     <Compile Include="Laserforce.cs" />
     <Compile Include="Fixture.cs" />
-    <Compile Include="FormFixture.cs">
+    <Compile Include="Forms\FormFixture.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormFixture.Designer.cs">
+    <Compile Include="Forms\FormFixture.Designer.cs">
       <DependentUpon>FormFixture.cs</DependentUpon>
     </Compile>
     <Compile Include="PAndC.cs" />
     <Compile Include="ReportTemplates.cs" />
-    <Compile Include="FormReports.cs">
+    <Compile Include="Forms\FormReports.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormReports.Designer.cs">
+    <Compile Include="Forms\FormReports.Designer.cs">
       <DependentUpon>FormReports.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormReport.cs">
+    <Compile Include="Forms\FormReport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormReport.Designer.cs">
+    <Compile Include="Forms\FormReport.Designer.cs">
       <DependentUpon>FormReport.cs</DependentUpon>
     </Compile>
     <Compile Include="League.cs" />
@@ -161,29 +176,29 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Reports.cs" />
-    <Compile Include="BaseBox.cs">
+    <Compile Include="Controls\BaseBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="BaseBox.Designer.cs">
+    <Compile Include="Controls\BaseBox.Designer.cs">
       <DependentUpon>BaseBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="PlayersBox.cs">
+    <Compile Include="Controls\PlayersBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PlayersBox.Designer.cs">
+    <Compile Include="Controls\PlayersBox.Designer.cs">
       <DependentUpon>PlayersBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="TeamBox.cs">
+    <Compile Include="Controls\TeamBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="TeamBox.Designer.cs">
+    <Compile Include="Controls\TeamBox.Designer.cs">
       <DependentUpon>TeamBox.cs</DependentUpon>
     </Compile>
     <Compile Include="WebServer.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -191,36 +206,39 @@
     <Compile Include="ZoomReport.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="BaseBox.resx">
+    <EmbeddedResource Include="Controls\BaseBox.resx">
       <DependentUpon>BaseBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormLeague.resx">
+    <EmbeddedResource Include="Forms\FormAdhoc.resx">
+      <DependentUpon>FormAdhoc.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormLeague.resx">
       <DependentUpon>FormLeague.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormPlayer.resx">
+    <EmbeddedResource Include="Forms\FormPlayer.resx">
       <DependentUpon>FormPlayer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormPreferences.resx">
+    <EmbeddedResource Include="Forms\FormPreferences.resx">
       <DependentUpon>FormPreferences.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormFixture.resx">
+    <EmbeddedResource Include="Forms\FormFixture.resx">
       <DependentUpon>FormFixture.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormReport.resx">
+    <EmbeddedResource Include="Forms\FormReport.resx">
       <DependentUpon>FormReport.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormReports.resx">
+    <EmbeddedResource Include="Forms\FormReports.resx">
       <DependentUpon>FormReports.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="InputDialog.resx">
+    <EmbeddedResource Include="Forms\InputDialog.resx">
       <DependentUpon>InputDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>MainForm.Designer1.cs</LastGenOutput>
+      <LastGenOutput>MainForm1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="TeamBox.resx">
+    <EmbeddedResource Include="Controls\TeamBox.resx">
       <DependentUpon>TeamBox.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
@@ -235,6 +253,7 @@
   <ItemGroup>
     <Content Include="TornIcon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
