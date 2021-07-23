@@ -16,6 +16,11 @@ namespace Torn
 		protected virtual void SetConnected(bool value) { connected = value; }
 		public bool Connected { get { return GetConnected(); } protected set { SetConnected(value); } }
 
+		protected string status;
+		protected virtual string GetStatus() { return status; }
+		protected virtual void SetStatus(string value) { status = value; }
+		public string Status { get { return GetStatus(); } protected set { SetStatus(value); } }
+
 		public LaserGameServer() {}
 
 		public virtual void Dispose() {}

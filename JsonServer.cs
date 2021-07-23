@@ -13,7 +13,7 @@ namespace Torn
 	/// </summary>
 	public class JsonServer: LaserGameServer
 	{
-        readonly WebClient webClient;
+        readonly WebClient webClient;  // TODO: remove WebClient and replace with HttpClient. (A single HttpClient handles multiple requests in parallel.)
         readonly DemoServer demoServer;
         readonly string _server;
 
@@ -21,35 +21,57 @@ namespace Torn
 		{
 			webClient = new WebClient();
 			demoServer = new DemoServer();
+
+			if (!server.Contains("://"))
+				server = "http://" + server;
+			if (!server.Substring(7).Contains(":"))
+				server += ":8080";
+
 			_server = server;
 		}
 
-		bool gameTimeElapsedReentrant = false;
-		public override TimeSpan GameTimeElapsed()
+		string DownloadString(ref bool reentrant, string query)
 		{
-			if (gameTimeElapsedReentrant)
-				return TimeSpan.FromSeconds(-4);
-
-			gameTimeElapsedReentrant = true;
+			reentrant = true;
 			try
 			{
-				try
-				{
-					return TimeSpan.FromSeconds(JsonSerializer.Deserialize<int>(webClient.DownloadString(_server + "/elapsed")));
-				}
-				catch
-				{
-					return TimeSpan.FromSeconds(-5);
-				}
+				connected = true;
+				WebClient wc = webClient.IsBusy ? new WebClient() : webClient;
+				return wc.DownloadString(_server + query);
+			}
+			catch (Exception e)
+			{
+				status = e.Message;
+				connected = false;
+				return null;
 			}
 			finally
 			{
-				gameTimeElapsedReentrant = false;
+				reentrant = false;
 			}
 		}
 
 		// These reentrant flags are to allow Torn5 to call itself for results: configure Torn5 to use JsonServer, and point it at localhost:8080.
 		// When this happens, it will return results from DemoServer, rather than infinite looping. This is handy for testing, and for when users accidentally misconfigure.
+		bool gameTimeElapsedReentrant = false;
+
+		public override TimeSpan GameTimeElapsed()
+		{
+			if (gameTimeElapsedReentrant)
+				return demoServer.GameTimeElapsed();
+
+			try
+			{
+				string s = DownloadString(ref gameTimeElapsedReentrant, "/elapsed");
+				return TimeSpan.FromSeconds(JsonSerializer.Deserialize<int>(s));
+			}
+			catch (Exception e)
+			{
+				status = e.Message;
+				return TimeSpan.FromSeconds(-5);
+			}
+		}
+
 		bool getGamesReentrant = false;
 
 		public override List<ServerGame> GetGames()
@@ -57,21 +79,15 @@ namespace Torn
 			if (getGamesReentrant)
 				return demoServer.GetGames();
 
-			getGamesReentrant = true;
-            try
-            {
-				try
-				{
-					return JsonSerializer.Deserialize<List<ServerGame>>(webClient.DownloadString(_server + "/games"));
-				}
-				catch
-				{
-					return null;
-				}
-			}
-			finally
+			try
 			{
-				getGamesReentrant = false;
+				string s = DownloadString(ref getGamesReentrant, "/games");
+				return JsonSerializer.Deserialize<List<ServerGame>>(s);
+			}
+			catch (Exception e)
+			{
+				status = e.Message;
+				return new List<ServerGame>();
 			}
 		}
 
@@ -85,15 +101,21 @@ namespace Torn
 				return;
 			}
 
-			populateGameReentrant = true;
 			try
-            {
-				ServerGame game2 = JsonSerializer.Deserialize<ServerGame>(webClient.DownloadString(_server + "/game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture)));
-				game.Description = game2.Description;
+			{
+				string s = DownloadString(ref populateGameReentrant, "/game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture));
+				ServerGame game2 = JsonSerializer.Deserialize<ServerGame>(s);
+				game.Description = s.IndexOf("{\"error\":") == 0 ? s.Substring(9) :  game2.Description;
+				game.EndTime = game2.EndTime;
+				game.InProgress = game2.InProgress;
+				game.OnServer = game2.OnServer;
+				game.GameId = game2.GameId;
+				game.Events = game2.Events;
+				game.Players = game2.Players;
 			}
-			finally
-            {
-				populateGameReentrant = false;
+			catch (Exception e)
+			{
+				status = e.Message;
 			}
 		}
 
@@ -104,16 +126,16 @@ namespace Torn
 			if (getPlayersReentrant)
 				return demoServer.GetPlayers(mask);
 
-			getPlayersReentrant = true;
 			try
 			{
-				var players = new List<LaserGamePlayer>();
-
+				string s = DownloadString(ref getPlayersReentrant, "/players");
+				var players = JsonSerializer.Deserialize<List<LaserGamePlayer>>(s);
 				return players;
 			}
-			finally
+			catch (Exception e)
 			{
-				getPlayersReentrant = false;
+				status = e.Message;
+				return new List<LaserGamePlayer>();
 			}
 		}
 	}
