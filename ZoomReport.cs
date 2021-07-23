@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
 
 namespace Zoom
 {
@@ -121,10 +119,11 @@ namespace Zoom
 		public List<ZRibbonEnd> To { get; set; }  // Cells in the column to the right of the ribbon to draw to.
 		public Color Color { get; set; }
 		
-		public ZRibbonColumn()
+		public ZRibbonColumn(string groupHeading = null)
 		{
 			From = new List<ZRibbonEnd>();
 			To = new List<ZRibbonEnd>();
+			GroupHeading = groupHeading;
 		}
 
 		public double MaxWidth()
@@ -371,7 +370,7 @@ namespace Zoom
 	{
 		/// <summary>Title for the whole report.</summary>
 		public string Title { get; set; }
-		/// <summary>If threport title contains text which links to another report, put the URL of that report here.</summary>
+		/// <summary>If the report title contains text which links to another report, put the URL of that report here.</summary>
 		public virtual string TitleHyper { get; set; }
 		public ZReportColors Colors { get; set; }
 

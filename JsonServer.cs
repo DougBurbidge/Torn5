@@ -105,7 +105,7 @@ namespace Torn
 			{
 				string s = DownloadString(ref populateGameReentrant, "/game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture));
 				ServerGame game2 = JsonSerializer.Deserialize<ServerGame>(s);
-				game.Description = s.IndexOf("{\"error\":") == 0 ? s.Substring(9) :  game2.Description;
+				game.Description = s.IndexOf("{\"error\":") == 0 ? s.Substring(9) : game2.Description;
 				game.EndTime = game2.EndTime;
 				game.InProgress = game2.InProgress;
 				game.OnServer = game2.OnServer;

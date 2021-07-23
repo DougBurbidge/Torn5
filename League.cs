@@ -15,8 +15,8 @@ using System.Xml;
 
 namespace Torn
 {
-	//                      0        1     2      3       4       5     6     7       8      9     10    11   12     13       14       15    16
-	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange, White, Black, Fire, Ice, Earth, Crystal, Rainbow, Cops };
+	//                       0       1     2      3       4       5     6     7       8      9     10    11   12     13       14       15    16       17
+	public enum Colour { None = 0, Red, Blue, Green, Yellow, Purple, Pink, Cyan, Orange, White, Black, Fire, Ice, Earth, Crystal, Rainbow, Cops, Referee };
 	public static class ColourExtensions
 	{
 		public static Color ToColor(this Colour colour)
@@ -25,7 +25,7 @@ namespace Torn
 				Color.FromArgb(0xA0, 0xFF, 0xA0), Color.FromArgb(0xFF, 0xFF, 0x90), Color.FromArgb(0xC0, 0xA0, 0xFF), Color.FromArgb(0xFF, 0xA0, 0xF0),  // Green, Yellow, Purple, Pink,
 				Color.FromArgb(0xA0, 0xFF, 0xFF), Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xFF, 0xFF, 0xFF), Color.FromArgb(0x90, 0x90, 0x90),  // Cyan, Orange, White, Black,
 				Color.FromArgb(0xFF, 0xB0, 0x90), Color.FromArgb(0xE0, 0xE0, 0xFF), Color.FromArgb(0xD0, 0xD0, 0x80), Color.FromArgb(0xFF, 0xC0, 0xF0),  // Fire, Ice, Earth, Crystal,
-				Color.FromArgb(0xE0, 0xE0, 0xE0), Color.FromArgb(0xB0, 0xC0, 0xFF)  // Rainbow, Cops
+				Color.FromArgb(0xE0, 0xE0, 0xE0), Color.FromArgb(0xB0, 0xC0, 0xFF), Color.FromArgb(0xE0, 0xE0, 0xE0)  // Rainbow, Cops, Referee
 			};
 			return Colors[(int)colour];
 		}
@@ -36,7 +36,7 @@ namespace Torn
 				Color.FromArgb(0x20, 0xFF, 0x20), Color.FromArgb(0xFF, 0xFF, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), Color.FromArgb(0xFF, 0x10, 0xB0),  // Green, Yellow, Purple, Pink,
 				Color.FromArgb(0x00, 0xFF, 0xFF), Color.FromArgb(0xFF, 0x80, 0x50), Color.FromArgb(0xEE, 0xEE, 0xEE), Color.FromArgb(0x70, 0x70, 0x70),  // Cyan, Orange, White, Black,
 				Color.FromArgb(0xFF, 0x60, 0x40), Color.FromArgb(0x90, 0x90, 0xFF), Color.FromArgb(0xB0, 0xB0, 0x60), Color.FromArgb(0xFF, 0x40, 0xF0),  // Fire, Ice, Earth, Crystal,
-				Color.FromArgb(0x90, 0x90, 0x90), Color.FromArgb(0x90, 0xA0, 0xFF)  // Rainbow, Cops
+				Color.FromArgb(0x90, 0x90, 0x90), Color.FromArgb(0x90, 0xA0, 0xFF), Color.FromArgb(0xD0, 0xD0, 0xD0)  // Rainbow, Cops, Referee
 			};
 			return Colors[(int)colour];
 		}
@@ -47,7 +47,7 @@ namespace Torn
 				Color.FromArgb(0x00, 0xA0, 0x00), Color.FromArgb(0xA0, 0xA0, 0x00), Color.FromArgb(0x80, 0x00, 0xFF), Color.FromArgb(0xFF, 0x10, 0xB0),  // Green, Yellow, Purple, Pink,
 				Color.FromArgb(0x00, 0xC0, 0xC0), Color.FromArgb(0xFF, 0x60, 0x30), Color.FromArgb(0xDD, 0xDD, 0xDD), Color.FromArgb(0x40, 0x40, 0x40),  // Cyan, Orange, White, Black,
 				Color.FromArgb(0xFF, 0x50, 0x30), Color.FromArgb(0x70, 0x70, 0xFF), Color.FromArgb(0xB0, 0xB0, 0x50), Color.FromArgb(0xFF, 0x00, 0xF0),  // Fire, Ice, Earth, Crystal,
-				Color.FromArgb(0x70, 0x70, 0x70), Color.FromArgb(0x70, 0x80, 0xFF)  // Rainbow, Cops
+				Color.FromArgb(0x70, 0x70, 0x70), Color.FromArgb(0x70, 0x80, 0xFF), Color.FromArgb(0xD0, 0xD0, 0xD0)  // Rainbow, Cops, Referee
 			};
 			return Colors[(int)colour];
 		}
@@ -60,7 +60,7 @@ namespace Torn
 			var dict = new Dictionary<string, Colour> { 
 				{ "red", Colour.Red }, { "blue", Colour.Blue }, { "blu", Colour.Blue }, { "green", Colour.Green }, { "grn", Colour.Green }, { "yellow", Colour.Yellow }, { "yel", Colour.Yellow },
 				{ "purple", Colour.Purple }, { "pink", Colour.Pink }, { "cyan", Colour.Cyan }, { "orange", Colour.Orange }, { "white", Colour.White }, { "black", Colour.Black },
-				{ "fire", Colour.Fire }, { "ice", Colour.Ice }, { "earth", Colour.Earth }, { "crystal", Colour.Crystal }, { "rainbow", Colour.Rainbow }, { "cops", Colour.Cops }  
+				{ "fire", Colour.Fire }, { "ice", Colour.Ice }, { "earth", Colour.Earth }, { "crystal", Colour.Crystal }, { "rainbow", Colour.Rainbow }, { "cops", Colour.Cops }, { "referee", Colour.Referee }
 			};
 
 			dict.TryGetValue(s.ToLower(CultureInfo.InvariantCulture), out Colour c);
@@ -73,7 +73,7 @@ namespace Torn
 				{ 'r', Colour.Red }, { 'b', Colour.Blue }, { 'g', Colour.Green }, { 'y', Colour.Yellow },
 				{ 'p', Colour.Purple }, { 'm', Colour.Pink }, { 'c', Colour.Cyan }, { 'o', Colour.Orange }, { 'w', Colour.White },
 				{ '1', Colour.Red }, { '2', Colour.Blue }, { '3', Colour.Green }, { '4', Colour.Yellow },
-				{ '5', Colour.Purple }, { '6', Colour.Pink }, { '7', Colour.Cyan }, { '8', Colour.Orange }, { '9', Colour.White }
+				{ '5', Colour.Purple }, { '6', Colour.Pink }, { '7', Colour.Cyan }, { '8', Colour.Orange }, { '9', Colour.White }, { '!', Colour.Referee }
 			};
 
 			dict.TryGetValue(char.ToLower(ch, CultureInfo.InvariantCulture), out Colour c);
@@ -105,6 +105,7 @@ namespace Torn
 				case 14: return Colour.Crystal;
 				case 15: return Colour.Rainbow;
 				case 16: return Colour.Cops;
+				case 17: return Colour.Referee;
 				default: return Colour.None;
 			}
 		}

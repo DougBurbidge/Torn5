@@ -45,7 +45,8 @@ namespace Torn
 			return new DateTime((dateTime.Ticks / delta.Ticks) * delta.Ticks);
 		}
 
-/*		static string Rot13(string s)
+/*		
+ 		static string Rot13(string s)
 		{
 			var sb = new StringBuilder();
 
