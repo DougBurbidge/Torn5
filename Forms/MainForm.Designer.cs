@@ -631,7 +631,7 @@ namespace Torn.UI
 			this.buttonAdHocReport.Name = "buttonAdHocReport";
 			this.buttonAdHocReport.Size = new System.Drawing.Size(180, 22);
 			this.buttonAdHocReport.Text = "Ad Hoc Report...";
-			this.buttonAdHocReport.Click += new System.EventHandler(this.buttonAdHocReport_Click);
+			this.buttonAdHocReport.Click += new System.EventHandler(this.ButtonAdHocReportClick);
 			// 
 			// buttonPackReport
 			// 

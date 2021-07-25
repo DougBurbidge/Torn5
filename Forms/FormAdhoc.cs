@@ -25,7 +25,7 @@ namespace Torn.UI
 				Text = report.Title;
 				aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
 
-				timerRedraw_Tick(null, null);
+				TimerRedrawTick(null, null);
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace Torn.UI
 			timerRedraw.Enabled = true;  // If the window has resized larger, we want to redraw at higher res. But we don't weant to redraw _lots_ of times, so only do it once per second. If window has resized smaller: meh. Redraw it anyway.
 		}
 
-		private void timerRedraw_Tick(object sender, EventArgs e)
+		private void TimerRedrawTick(object sender, EventArgs e)
 		{
 			document.Width = new SvgUnit(SvgUnitType.Pixel, Width);
 			document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(Width / aspectRatio));

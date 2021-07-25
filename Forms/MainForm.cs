@@ -184,8 +184,8 @@ namespace Torn.UI
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress);  break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
-//					case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
-					case SystemType.Torn: 
+					case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
+					case SystemType.Torn:
 						laserGameServer = new JsonServer(serverAddress);
 						timeElapsed = laserGameServer.GameTimeElapsed();
 					break;
@@ -465,11 +465,21 @@ namespace Torn.UI
 			}
 		}
 
-		private void buttonAdHocReport_Click(object sender, EventArgs e)
+		ReportTemplate adhocReportTemplate;
+		private void ButtonAdHocReportClick(object sender, EventArgs e)
 		{
 			Holder holder = SelectedLeagues().FirstOrDefault();
 			if (holder != null)
-				new FormAdhoc { Report = (ZoomReport)ReportPages.OverviewReports(holder, IncludeSecret(), null)[0] }.Show();
+			{
+				if (adhocReportTemplate == null)
+					adhocReportTemplate = new ReportTemplate { ReportType = ReportType.TeamLadder };
+
+				var formReport = new FormReport();
+				formReport.ReportTemplate = adhocReportTemplate;
+
+				if (formReport.ShowDialog() == DialogResult.OK)
+					new FormAdhoc { Report = ReportPages.Report(holder.League, IncludeSecret(), adhocReportTemplate) }.Show();
+			}
 		}
 
 		void ButtonExportFixturesClick(object sender, EventArgs e)

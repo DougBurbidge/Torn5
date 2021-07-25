@@ -64,29 +64,37 @@ namespace Torn.Report
 			}
 			else
 				foreach (ReportTemplate rt in holder.ReportTemplates)
-			{
-				bool description = rt.Settings.Contains("Description");
-				switch (rt.ReportType)
-				{
-					case ReportType.TeamLadder:   reports.Add(Reports.TeamLadder(holder.League, includeSecret, rt)); break;
-					case ReportType.TeamsVsTeams: reports.Add(Reports.TeamsVsTeams(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
-					case ReportType.ColourPerformance: reports.Add(Reports.ColourReport(holder.League, includeSecret, rt)); break;
-					case ReportType.SoloLadder:   reports.Add(Reports.SoloLadder(holder.League, includeSecret, rt)); break;
-					case ReportType.GameByGame:   reports.Add(Reports.GamesList(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
-					case ReportType.GameGrid: case ReportType.Ascension: case ReportType.Pyramid: 
-						reports.Add(Reports.GamesGrid(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
-					case ReportType.GameGridCondensed: case ReportType.PyramidCondensed: 
-						reports.Add(Reports.GamesGridCondensed(holder.League, includeSecret, rt, ReportPages.GameHyper)); break;
-					case ReportType.Packs:
-						reports.Add(Reports.PackReport(new List<League> { holder.League }, holder.League.Games(includeSecret), rt.Title, rt.From, rt.To, 
-							ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal")));	break;
-					case ReportType.Everything: reports.Add(Reports.EverythingReport(holder.League, rt.Title, rt.From, rt.To, description)); break;
-				}
-			}
+					reports.Add(Report(holder.League, includeSecret, rt));
 
 			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"../index.html\">Index</a><div>"));
 
 			return reports;
+		}
+
+		/// <summary>Generate one report. The type of report generated is specified in the ReportTemplate.</summary>
+		public static ZoomReport Report(League league, bool includeSecret, ReportTemplate rt)
+		{
+			bool description = rt.Settings.Contains("Description");
+			switch (rt.ReportType)
+			{
+				case ReportType.TeamLadder: return Reports.TeamLadder(league, includeSecret, rt);
+				case ReportType.TeamsVsTeams: return Reports.TeamsVsTeams(league, includeSecret, rt, ReportPages.GameHyper);
+				case ReportType.ColourPerformance: return Reports.ColourReport(league, includeSecret, rt);
+				case ReportType.SoloLadder: return Reports.SoloLadder(league, includeSecret, rt);
+				case ReportType.GameByGame: return Reports.GamesList(league, includeSecret, rt, ReportPages.GameHyper);
+				case ReportType.GameGrid:
+				case ReportType.Ascension:
+				case ReportType.Pyramid:
+					return Reports.GamesGrid(league, includeSecret, rt, ReportPages.GameHyper);
+				case ReportType.GameGridCondensed:
+				case ReportType.PyramidCondensed:
+					return Reports.GamesGridCondensed(league, includeSecret, rt, ReportPages.GameHyper);
+				case ReportType.Packs:
+					return Reports.PackReport(new List<League> { league }, league.Games(includeSecret), rt.Title, rt.From, rt.To,
+						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal"));
+				case ReportType.Everything: return Reports.EverythingReport(league, rt.Title, rt.From, rt.To, description);
+				default: return null;
+			}
 		}
 
 		public static string OverviewPage(Holder holder, bool includeSecret, GameHyper gameHyper, OutputFormat outputFormat)

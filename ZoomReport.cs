@@ -1433,6 +1433,9 @@ namespace Zoom
 		// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
 		public override void ToSvg(StringBuilder sb, bool pure = false)
 		{
+			if (Colors == null)
+				Colors = new ZReportColors();
+
 			bool hasgroupheadings = false;
 			foreach (ZColumn col in Columns)
 				hasgroupheadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);

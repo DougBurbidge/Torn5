@@ -35,7 +35,7 @@
 			// timerRedraw
 			// 
 			this.timerRedraw.Interval = 1000;
-			this.timerRedraw.Tick += new System.EventHandler(this.timerRedraw_Tick);
+			this.timerRedraw.Tick += new System.EventHandler(this.TimerRedrawTick);
 			// 
 			// FormAdhoc
 			// 
