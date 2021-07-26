@@ -29,6 +29,7 @@ namespace Torn.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.textBoxTeams = new System.Windows.Forms.TextBox();
 			this.buttonImportTeams = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
@@ -57,8 +58,17 @@ namespace Torn.UI
 			this.numericSize = new System.Windows.Forms.NumericUpDown();
 			this.panelGraphic = new System.Windows.Forms.Panel();
 			this.tabFinals = new System.Windows.Forms.TabPage();
+			this.buttonFormatD = new System.Windows.Forms.Button();
+			this.buttonTwoTrack = new System.Windows.Forms.Button();
+			this.numericTeamsPerGame = new System.Windows.Forms.NumericUpDown();
+			this.label9 = new System.Windows.Forms.Label();
+			this.numericTeamsToCut = new System.Windows.Forms.NumericUpDown();
+			this.label8 = new System.Windows.Forms.Label();
+			this.numericTracks = new System.Windows.Forms.NumericUpDown();
+			this.label7 = new System.Windows.Forms.Label();
 			this.panelFinals = new System.Windows.Forms.Panel();
-			this.buttonFinals = new System.Windows.Forms.Button();
+			this.buttonAscension = new System.Windows.Forms.Button();
+			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
 			this.tabControl1.SuspendLayout();
 			this.tabTeams.SuspendLayout();
 			this.tabGamesList.SuspendLayout();
@@ -67,6 +77,9 @@ namespace Torn.UI
 			this.tabGraphic.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).BeginInit();
 			this.tabFinals.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericTracks)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// textBoxTeams
@@ -408,34 +421,166 @@ namespace Torn.UI
 			// 
 			// tabFinals
 			// 
+			this.tabFinals.Controls.Add(this.buttonFormatD);
+			this.tabFinals.Controls.Add(this.buttonTwoTrack);
+			this.tabFinals.Controls.Add(this.numericTeamsPerGame);
+			this.tabFinals.Controls.Add(this.label9);
+			this.tabFinals.Controls.Add(this.numericTeamsToCut);
+			this.tabFinals.Controls.Add(this.label8);
+			this.tabFinals.Controls.Add(this.numericTracks);
+			this.tabFinals.Controls.Add(this.label7);
 			this.tabFinals.Controls.Add(this.panelFinals);
-			this.tabFinals.Controls.Add(this.buttonFinals);
+			this.tabFinals.Controls.Add(this.buttonAscension);
 			this.tabFinals.Location = new System.Drawing.Point(4, 22);
 			this.tabFinals.Name = "tabFinals";
 			this.tabFinals.Size = new System.Drawing.Size(760, 632);
 			this.tabFinals.TabIndex = 4;
 			this.tabFinals.Text = "Finals";
 			this.tabFinals.UseVisualStyleBackColor = true;
+			this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
+			// 
+			// buttonFormatD
+			// 
+			this.buttonFormatD.Location = new System.Drawing.Point(249, 32);
+			this.buttonFormatD.Name = "buttonFormatD";
+			this.buttonFormatD.Size = new System.Drawing.Size(75, 23);
+			this.buttonFormatD.TabIndex = 8;
+			this.buttonFormatD.Text = "Format D";
+			this.buttonFormatD.UseVisualStyleBackColor = true;
+			this.buttonFormatD.Click += new System.EventHandler(this.ButtonFormatDClick);
+			// 
+			// buttonTwoTrack
+			// 
+			this.buttonTwoTrack.Location = new System.Drawing.Point(168, 32);
+			this.buttonTwoTrack.Name = "buttonTwoTrack";
+			this.buttonTwoTrack.Size = new System.Drawing.Size(75, 23);
+			this.buttonTwoTrack.TabIndex = 7;
+			this.buttonTwoTrack.Text = "Two Track";
+			this.buttonTwoTrack.UseVisualStyleBackColor = true;
+			this.buttonTwoTrack.Click += new System.EventHandler(this.ButtonTwoTrackClick);
+			// 
+			// numericTeamsPerGame
+			// 
+			this.numericTeamsPerGame.Location = new System.Drawing.Point(284, 6);
+			this.numericTeamsPerGame.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+			this.numericTeamsPerGame.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericTeamsPerGame.Name = "numericTeamsPerGame";
+			this.numericTeamsPerGame.Size = new System.Drawing.Size(50, 20);
+			this.numericTeamsPerGame.TabIndex = 3;
+			this.numericTeamsPerGame.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+			this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.RefreshFinals);
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(189, 8);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(89, 13);
+			this.label9.TabIndex = 2;
+			this.label9.Text = "Teams per game:";
+			// 
+			// numericTeamsToCut
+			// 
+			this.numericTeamsToCut.Location = new System.Drawing.Point(559, 6);
+			this.numericTeamsToCut.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+			this.numericTeamsToCut.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericTeamsToCut.Name = "numericTeamsToCut";
+			this.numericTeamsToCut.Size = new System.Drawing.Size(50, 20);
+			this.numericTeamsToCut.TabIndex = 5;
+			this.numericTeamsToCut.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericTeamsToCut.ValueChanged += new System.EventHandler(this.RefreshFinals);
+			// 
+			// label8
+			// 
+			this.label8.AutoSize = true;
+			this.label8.Location = new System.Drawing.Point(340, 8);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(213, 13);
+			this.label8.TabIndex = 4;
+			this.label8.Text = "Teams to cut from each bottom-track game:";
+			// 
+			// numericTracks
+			// 
+			this.numericTracks.Location = new System.Drawing.Point(133, 6);
+			this.numericTracks.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+			this.numericTracks.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericTracks.Name = "numericTracks";
+			this.numericTracks.Size = new System.Drawing.Size(50, 20);
+			this.numericTracks.TabIndex = 1;
+			this.numericTracks.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericTracks.ValueChanged += new System.EventHandler(this.RefreshFinals);
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(84, 8);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(43, 13);
+			this.label7.TabIndex = 0;
+			this.label7.Text = "Tracks:";
 			// 
 			// panelFinals
 			// 
 			this.panelFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.panelFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
 			this.panelFinals.Location = new System.Drawing.Point(3, 68);
 			this.panelFinals.Name = "panelFinals";
 			this.panelFinals.Size = new System.Drawing.Size(754, 561);
-			this.panelFinals.TabIndex = 1;
+			this.panelFinals.TabIndex = 9;
+			this.panelFinals.Resize += new System.EventHandler(this.PanelFinalsResize);
 			// 
-			// buttonFinals
+			// buttonAscension
 			// 
-			this.buttonFinals.Location = new System.Drawing.Point(22, 23);
-			this.buttonFinals.Name = "buttonFinals";
-			this.buttonFinals.Size = new System.Drawing.Size(75, 23);
-			this.buttonFinals.TabIndex = 0;
-			this.buttonFinals.Text = "button";
-			this.buttonFinals.UseVisualStyleBackColor = true;
-			this.buttonFinals.Click += new System.EventHandler(this.buttonFinals_Click);
+			this.buttonAscension.Location = new System.Drawing.Point(87, 32);
+			this.buttonAscension.Name = "buttonAscension";
+			this.buttonAscension.Size = new System.Drawing.Size(75, 23);
+			this.buttonAscension.TabIndex = 6;
+			this.buttonAscension.Text = "Ascension";
+			this.buttonAscension.UseVisualStyleBackColor = true;
+			this.buttonAscension.Click += new System.EventHandler(this.ButtonAscensionClick);
+			// 
+			// timerRedraw
+			// 
+			this.timerRedraw.Interval = 1000;
+			this.timerRedraw.Tick += new System.EventHandler(this.timerRedraw_Tick);
 			// 
 			// FormFixture
 			// 
@@ -459,6 +604,10 @@ namespace Torn.UI
 			this.tabGraphic.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).EndInit();
 			this.tabFinals.ResumeLayout(false);
+			this.tabFinals.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericTracks)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -491,6 +640,15 @@ namespace Torn.UI
 		private System.Windows.Forms.TextBox textBoxTeams;
 		private System.Windows.Forms.TabPage tabFinals;
 		private System.Windows.Forms.Panel panelFinals;
-		private System.Windows.Forms.Button buttonFinals;
+		private System.Windows.Forms.Button buttonAscension;
+		private System.Windows.Forms.Timer timerRedraw;
+		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.NumericUpDown numericTeamsPerGame;
+		private System.Windows.Forms.Label label9;
+		private System.Windows.Forms.NumericUpDown numericTeamsToCut;
+		private System.Windows.Forms.Label label8;
+		private System.Windows.Forms.NumericUpDown numericTracks;
+		private System.Windows.Forms.Button buttonFormatD;
+		private System.Windows.Forms.Button buttonTwoTrack;
 	}
 }

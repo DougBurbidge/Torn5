@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Drawing;
-using System.Linq;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Svg;
 using Torn;
+using Zoom;
 
 namespace Torn.UI
 {
@@ -19,6 +21,8 @@ namespace Torn.UI
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
 		bool resizing;
+		SvgDocument document;
+		double aspectRatio = 1.0;
 
 		public FormFixture()
 		{
@@ -283,45 +287,123 @@ namespace Torn.UI
 			for (Colour i = Colour.None; i < Colour.White; i++)
 				FillCell(rows + 2, (int)i, size, i.ToSaturatedColor());
 		}
-/*
-		/// <summary> /// Class containg code for manipulating SVG graphics. /// </summary>
-		public class SVGParser { 
-			/// <summary>The maximum image size supported.</summary> 
-			public static Size MaximumSize { get; set; } 
-			/// <summary>  Converts an SVG file to a Bitmap image.  </summary> 
-			/// <param name="filePath">The full path of the SVG image.</param> 
-			/// <returns>Returns the converted Bitmap image.</returns>
-			public static Bitmap GetBitmapFromSVG(string filePath) 
-			{ 
-				SvgDocument document = GetSvgDocument(filePath); 
-				Bitmap bmp = document.Draw(); 
-				return bmp;
-			}
-			/// <summary>Gets a SvgDocument for manipulation using the path provided.</summary> 
-			/// <param name="filePath">The path of the Bitmap image.</param> 
-			/// <returns>Returns the SVG Document.</returns>
-			public static SvgDocument GetSvgDocument(string filePath) 
-			{ 
-				SvgDocument document=SvgDocument.Open(filePath); 
-				return AdjustSize(document); 
-			}
-			/// <summary>Makes sure that the image does not exceed the maximum size, while preserving aspect ratio.</summary> 
-			/// <param name="document">The SVG document to resize.</param>
-			/// <returns>Returns a resized or the original document depending on the document.</returns>
-			private static SvgDocument AdjustSize(SvgDocument document) 
-			{ 
-				if (document.Height > MaximumSize.Height) 
-				{ 
-					document.Width = (int)((document.Width / (double)document.Height) * MaximumSize.Height); 
-					document.Height = MaximumSize.Height; 
-				} 
-				return document; 
-			} 
-		}
-*/
-		private void buttonFinals_Click(object sender, EventArgs e)
-		{
 
+		void FillColumn(ZoomReport report, int topSpace, int teamsInGame, int teamsCut)
+		{
+			int row = 0;
+			// Add cells for the space above this team's first game (and the ribbons between games).
+			for (int i = 0; i < topSpace; i++, row++)
+			{
+				report.Rows[row].AddCell(new ZCell());
+				report.Rows[row].AddCell(new ZCell());
+			}
+
+			// Add cells for the game (and the ribbons between games).
+			for (int i = 0; i < teamsInGame; i++, row++)
+			{
+				report.Rows[row].AddCell(new ZCell(" ... ", Colour.Referee.ToColor()));
+				report.Rows[row].AddCell(new ZCell());
+			}
+
+			for (int i = 0; i < teamsCut; i++, row++)
+				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
+		}
+
+		private void RefreshFinals(object sender, EventArgs e)
+		{
+			var report = new ZoomReport("Finals");
+
+			report.Columns.Add(new ZColumn("Teams", ZAlignment.Left));
+
+			int numteams = Fixture.Teams.Count;
+			int teamsPerGame = (int)numericTeamsPerGame.Value;
+			int teamsToCut = (int)numericTeamsToCut.Value;
+
+			// Add columns for games.
+			int col;
+			for (col = numteams; col >= teamsPerGame + 1; col -= teamsToCut)
+			{
+				report.Columns.Add(new ZColumn(col.ToString(), ZAlignment.Center, "Games"));
+
+				var ribbon = new ZRibbonColumn("Games");
+				for (int j = 0; j < teamsPerGame; j++)
+				{
+					ribbon.From.Add(new ZRibbonEnd(col - j - 1, 5));
+					ribbon.To.Add(new ZRibbonEnd(col - j - 1, 5));
+				}
+				report.Columns.Add(ribbon);
+			}
+
+			// Add rows to the report.
+			for (int row = 0; row < numteams; row++)
+			{
+				report.Rows.Add(new ZRow());
+				report.Rows[row].AddCell(new ZCell(Fixture.Teams[numteams - row - 1].Name));
+			}
+
+			// Add cells to each column.
+			col = 0;
+			int topSpace = numteams - teamsPerGame;
+			while (topSpace > 0)
+			{
+				FillColumn(report, topSpace, teamsPerGame, col == 0 ? 0 : teamsToCut);
+				topSpace -= teamsToCut;
+				col++;
+			}
+
+			for (int row = teamsPerGame; row < topSpace + teamsPerGame + teamsToCut; row++)
+				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
+
+			// Add columns for grand finals.
+			for (int i = 0; i < teamsPerGame; i++)
+				report.Columns.Add(new ZColumn((teamsPerGame - i).ToString(), ZAlignment.Center, "Finals"));
+
+			// Add grand finals games.
+			for (int i = 0; i < teamsPerGame; i++)
+				for (int j = 0; j < teamsPerGame; j++)
+					report.Rows[i].AddCell(new ZCell(" ... ", ((Colour)((j + teamsPerGame - i) % teamsPerGame + 1)).ToColor()));
+
+			using (StringWriter sw = new StringWriter())
+			{
+				sw.Write(report.ToSvg(true));
+				document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
+				aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
+				timerRedraw_Tick(null, null);
+			}
+		}
+
+		private void PanelFinalsResize(object sender, EventArgs e)
+		{
+			timerRedraw.Enabled = true;
+		}
+
+		private void timerRedraw_Tick(object sender, EventArgs e)
+		{
+			if (document != null)
+			{
+				document.Width = new SvgUnit(SvgUnitType.Pixel, panelFinals.Width);
+				document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(panelFinals.Width / aspectRatio));
+				panelFinals.BackgroundImage = document.Draw();
+			}
+			timerRedraw.Enabled = false;
+		}
+
+		private void ButtonAscensionClick(object sender, EventArgs e)
+		{
+			numericTracks.Value = 1;
+			numericTeamsToCut.Value = 1;
+		}
+
+		private void ButtonTwoTrackClick(object sender, EventArgs e)
+		{
+			numericTracks.Value = 2;
+			numericTeamsToCut.Value = 2;
+		}
+
+		private void ButtonFormatDClick(object sender, EventArgs e)
+		{
+			numericTracks.Value = 3;
+			numericTeamsToCut.Value = 2;
 		}
 
 		void NumericSizeValueChanged(object sender, EventArgs e)
