@@ -288,14 +288,25 @@ namespace Torn.UI
 				FillCell(rows + 2, (int)i, size, i.ToSaturatedColor());
 		}
 
-		void FillColumn(ZoomReport report, int topSpace, int teamsInGame, int teamsCut)
+		void FillColumn(ZoomReport report, int col, int topSpace, int teamsInGame, int teamsCut)
 		{
+			// Add columns for game (and the ribbons between games).
+			var gameCol = new ZColumn((topSpace + teamsInGame).ToString(), ZAlignment.Center, "Games");
+			report.Columns.Add(gameCol);
+			var arrowCol = new ZColumn(null, ZAlignment.Center, "Games");
+			report.Columns.Add(arrowCol);
+			var ribbon = new ZRibbon();
+			arrowCol.Ribbons.Add(ribbon);
+
 			int row = 0;
 			// Add cells for the space above this team's first game (and the ribbons between games).
 			for (int i = 0; i < topSpace; i++, row++)
 			{
 				report.Rows[row].AddCell(new ZCell());
+				gameCol.AddRibbon(row, 5, Color.FromArgb(0xEE, 0xEE, 0xEE));
+
 				report.Rows[row].AddCell(new ZCell());
+				arrowCol.AddRibbon(row, 5, Color.FromArgb(0xEE, 0xEE, 0xEE));
 			}
 
 			// Add cells for the game (and the ribbons between games).
@@ -303,6 +314,9 @@ namespace Torn.UI
 			{
 				report.Rows[row].AddCell(new ZCell(" ... ", Colour.Referee.ToColor()));
 				report.Rows[row].AddCell(new ZCell());
+
+				ribbon.From.Add(new ZRibbonEnd(row, 5));
+				ribbon.To.Add(new ZRibbonEnd(row, 5));
 			}
 
 			for (int i = 0; i < teamsCut; i++, row++)
@@ -312,6 +326,7 @@ namespace Torn.UI
 		private void RefreshFinals(object sender, EventArgs e)
 		{
 			var report = new ZoomReport("Finals");
+			report.Colors.OddColor = report.Colors.BackgroundColor;
 
 			report.Columns.Add(new ZColumn("Teams", ZAlignment.Left));
 
@@ -319,34 +334,19 @@ namespace Torn.UI
 			int teamsPerGame = (int)numericTeamsPerGame.Value;
 			int teamsToCut = (int)numericTeamsToCut.Value;
 
-			// Add columns for games.
-			int col;
-			for (col = numteams; col >= teamsPerGame + 1; col -= teamsToCut)
-			{
-				report.Columns.Add(new ZColumn(col.ToString(), ZAlignment.Center, "Games"));
-
-				var ribbon = new ZRibbonColumn("Games");
-				for (int j = 0; j < teamsPerGame; j++)
-				{
-					ribbon.From.Add(new ZRibbonEnd(col - j - 1, 5));
-					ribbon.To.Add(new ZRibbonEnd(col - j - 1, 5));
-				}
-				report.Columns.Add(ribbon);
-			}
-
 			// Add rows to the report.
 			for (int row = 0; row < numteams; row++)
 			{
 				report.Rows.Add(new ZRow());
-				report.Rows[row].AddCell(new ZCell(Fixture.Teams[numteams - row - 1].Name));
+				report.Rows[row].AddCell(new ZCell(Fixture.Teams[row].Name));
 			}
 
 			// Add cells to each column.
-			col = 0;
+			int col = 0;
 			int topSpace = numteams - teamsPerGame;
 			while (topSpace > 0)
 			{
-				FillColumn(report, topSpace, teamsPerGame, col == 0 ? 0 : teamsToCut);
+				FillColumn(report, col, topSpace, teamsPerGame, col == 0 ? 0 : teamsToCut);
 				topSpace -= teamsToCut;
 				col++;
 			}
@@ -354,14 +354,13 @@ namespace Torn.UI
 			for (int row = teamsPerGame; row < topSpace + teamsPerGame + teamsToCut; row++)
 				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
 
-			// Add columns for grand finals.
-			for (int i = 0; i < teamsPerGame; i++)
-				report.Columns.Add(new ZColumn((teamsPerGame - i).ToString(), ZAlignment.Center, "Finals"));
-
 			// Add grand finals games.
 			for (int i = 0; i < teamsPerGame; i++)
+			{
+				report.Columns.Add(new ZColumn((teamsPerGame - i).ToString(), ZAlignment.Center, "Finals"));
 				for (int j = 0; j < teamsPerGame; j++)
 					report.Rows[i].AddCell(new ZCell(" ... ", ((Colour)((j + teamsPerGame - i) % teamsPerGame + 1)).ToColor()));
+			}
 
 			using (StringWriter sw = new StringWriter())
 			{

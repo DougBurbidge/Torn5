@@ -67,22 +67,11 @@ namespace Zoom
 		public ZAlignment Alignment { get; set; }
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
 		public bool Rotate;
+		public List<ZRibbon> Ribbons { get; }
 
-		protected ZColumn() {}
-
-		public ZColumn(string text)
+		public ZColumn(string text = null, ZAlignment alignment = ZAlignment.Left, string groupHeading = null)
 		{
-			Text = text;
-		}
-
-		public ZColumn(string text, ZAlignment alignment)
-		{
-			Text = text;
-			Alignment = alignment;
-		}
-
-		public ZColumn(string text, ZAlignment alignment, string groupHeading)
-		{
+			Ribbons = new List<ZRibbon>();
 			Text = text;
 			Alignment = alignment;
 			GroupHeading = groupHeading;
@@ -91,6 +80,15 @@ namespace Zoom
 		public override string ToString()
 		{
 			return Text;
+		}
+
+		/// Adds a simple ribbon with one From and one To, both in the specified row and of the specified width.
+		public void AddRibbon(int row, int width, Color color = default)
+		{
+			var ribbon = new ZRibbon { Color = color };
+			Ribbons.Add(ribbon);
+			ribbon.From.Add(new ZRibbonEnd(row, width));
+			ribbon.To.Add(new ZRibbonEnd(row, width));
 		}
 	}
 
@@ -113,17 +111,16 @@ namespace Zoom
 	}
 
 	/// <summary>A Ribbon is a connection between some cells. Cells in the column to the left are "From" entries. Cells in the column to the right are "To". The ribbon will join all these in a pretty way.</summary>
-	public class ZRibbonColumn: ZColumn
+	public class ZRibbon
 	{
 		public List<ZRibbonEnd> From { get; set; } // Cells in the column to the left of the ribbon to draw starting points from.
 		public List<ZRibbonEnd> To { get; set; }  // Cells in the column to the right of the ribbon to draw to.
 		public Color Color { get; set; }
 		
-		public ZRibbonColumn(string groupHeading = null)
+		public ZRibbon()
 		{
 			From = new List<ZRibbonEnd>();
 			To = new List<ZRibbonEnd>();
-			GroupHeading = groupHeading;
 		}
 
 		public double MaxWidth()
@@ -320,6 +317,7 @@ namespace Zoom
 		public Color TitleBackColor { get; set; }
 		public Color TextColor { get; set; }
 		public Color BackgroundColor { get; set; }
+		/// <summary>Colour used for background of odd-numbered rows.</summary>
 		public Color OddColor { get; set; }
 		public Color BarColor { get; set; }
 		/// <summary>Colour used for bars if no cell colours are set.</summary>
@@ -372,7 +370,17 @@ namespace Zoom
 		public string Title { get; set; }
 		/// <summary>If the report title contains text which links to another report, put the URL of that report here.</summary>
 		public virtual string TitleHyper { get; set; }
-		public ZReportColors Colors { get; set; }
+		internal ZReportColors colors;
+		public ZReportColors Colors
+		{
+			get
+			{
+				if (colors == null)
+					colors = new ZReportColors();
+				return colors;
+			}
+			set { colors = value;  } 
+		}
 
 		/// <summary>Export to the specified format.</summary>
 		public string ToOutput(OutputFormat outputFormat)
@@ -523,7 +531,7 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
-				float widest = Columns[col] is ZRibbonColumn ? 15 : 1;
+				float widest = Columns[col].Ribbons.Any() ? 15 : 1;
 				float total = widest;
 				int count = 1;
 				double min = 0.0;
@@ -949,7 +957,7 @@ namespace Zoom
 		enum TopBottomType { Left, Right, Both }; // Does the top of this ribbon have an end from the left? An end to the right? One of each? What about the bottom of the ribbon?
 
 		/// Draw one complete vertical ribbon plus its horizontal ends.
-		void SvgRibbon(StringBuilder s, int indent, ZRibbonColumn ribbon, float left, float width, float top, float height, float rowHeight)
+		void SvgRibbon(StringBuilder s, int indent, ZColumn col, ZRibbon ribbon, float left, float width, float top, float height, float rowHeight, bool smallArrow)
 		{
 			if (ribbon.From.Count == 0 && ribbon.To.Count == 0)
 				return;
@@ -1053,13 +1061,24 @@ namespace Zoom
 					s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfRibbon * 2);
 					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
 				}
-				// Paint a right end, starting at its bottom left: horizontal right, down, up/right, up/left, down, left.
-				s.AppendFormat("H {0:F1} ", left + width - halfRibbon);
-				s.AppendFormat("v {0:F1} ", halfRibbon);
-				s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon * 2, -halfRibbon * 2);
-				s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon * 2);
-				s.AppendFormat("v {0:F1} ", halfRibbon);
-				s.AppendFormat("H {0:F1} ", left + width / 2 + halfRibbonH + halfRibbon);
+				if (smallArrow)
+				{
+					// Paint a right end, starting at its bottom left: horizontal right, up/right, up/left, left.
+					s.AppendFormat("H {0:F1} ", left + width + 1);
+					s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
+					s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon);
+					s.AppendFormat("H {0:F1} ", left + width / 2 + halfRibbonH + halfRibbon);
+				}
+				else
+				{
+					// Paint a right end arrowhead, starting at its bottom left: horizontal right, down, up/right, up/left, down, left.
+					s.AppendFormat("H {0:F1} ", left + width - halfRibbon);
+					s.AppendFormat("v {0:F1} ", halfRibbon);
+					s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon * 2, -halfRibbon * 2);
+					s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon * 2);
+					s.AppendFormat("v {0:F1} ", halfRibbon);
+					s.AppendFormat("H {0:F1} ", left + width / 2 + halfRibbonH + halfRibbon);
+				}
 				if (end.Row != topRow)
 					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfRibbon, -halfRibbon);
 				s.Append('\n');
@@ -1433,9 +1452,6 @@ namespace Zoom
 		// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
 		public override void ToSvg(StringBuilder sb, bool pure = false)
 		{
-			if (Colors == null)
-				Colors = new ZReportColors();
-
 			bool hasgroupheadings = false;
 			foreach (ZColumn col in Columns)
 				hasgroupheadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);
@@ -1474,8 +1490,11 @@ namespace Zoom
 			}
 
 			for (int col = 0; col < Columns.Count; col++)
-				if (Columns[col] is ZRibbonColumn)
-					SvgRibbon(sb, 1, (ZRibbonColumn)Columns[col], widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
+				foreach (var ribbon in Columns[col].Ribbons)
+				{
+					bool smallEnd = col < Columns.Count && ribbon.To.Count == 1 && Columns[col + 1].Ribbons.Exists(r => r.From.Exists(f => f.Row == ribbon.To[0].Row));  // True if there's a ribbon immediately to the right of this ribbon's end.
+					SvgRibbon(sb, 1, Columns[col], ribbon, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1, smallEnd);
+				}
 
 			sb.Append("</svg>\n");
 
@@ -1514,13 +1533,7 @@ namespace Zoom
 		
 //		int HeightUsed { get; set; }
 
-		public ZoomReports()
-		{
-			colors = new ZReportColors();
-			Bars = true;
-		}
-
-		public ZoomReports(string title)
+		public ZoomReports(string title = null)
 		{
 			Title = title;
 			colors = new ZReportColors();
@@ -1530,8 +1543,8 @@ namespace Zoom
 		public new void Add(ZoomReportBase report)
 		{
 			base.Add(report);
-			if (report.Colors == null)
-				report.Colors = colors;
+			if (report.colors == null)
+				report.colors = colors;
 		}
 
 		/// Return a list of colours of bar cells, over all reports.
