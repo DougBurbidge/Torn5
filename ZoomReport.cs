@@ -957,7 +957,7 @@ namespace Zoom
 		enum TopBottomType { Left, Right, Both }; // Does the top of this ribbon have an end from the left? An end to the right? One of each? What about the bottom of the ribbon?
 
 		/// Draw one complete vertical ribbon plus its horizontal ends.
-		void SvgRibbon(StringBuilder s, int indent, ZColumn col, ZRibbon ribbon, float left, float width, float top, float height, float rowHeight, bool smallArrow)
+		void SvgRibbon(StringBuilder s, int indent, ZColumn col, ZColumn nextCol, ZRibbon ribbon, float left, float width, float top, float height, float rowHeight)//, bool smallArrow)
 		{
 			if (ribbon.From.Count == 0 && ribbon.To.Count == 0)
 				return;
@@ -1061,9 +1061,10 @@ namespace Zoom
 					s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfRibbon * 2);
 					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
 				}
-				if (smallArrow)
+
+				if (nextCol != null && nextCol.Ribbons.Exists(r => r.From.Exists(f => f.Row == ribbon.To[i].Row)))  // True if there's a ribbon immediately to the right of this ribbon end.
 				{
-					// Paint a right end, starting at its bottom left: horizontal right, up/right, up/left, left.
+					// Paint a simple right end, starting at its bottom left: horizontal right, up/right, up/left, left.
 					s.AppendFormat("H {0:F1} ", left + width + 1);
 					s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
 					s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon);
@@ -1491,10 +1492,7 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 				foreach (var ribbon in Columns[col].Ribbons)
-				{
-					bool smallEnd = col < Columns.Count && ribbon.To.Count == 1 && Columns[col + 1].Ribbons.Exists(r => r.From.Exists(f => f.Row == ribbon.To[0].Row));  // True if there's a ribbon immediately to the right of this ribbon's end.
-					SvgRibbon(sb, 1, Columns[col], ribbon, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1, smallEnd);
-				}
+					SvgRibbon(sb, 1, Columns[col], col + 1 == Columns.Count ? null : Columns[col + 1], ribbon, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
 
 			sb.Append("</svg>\n");
 
