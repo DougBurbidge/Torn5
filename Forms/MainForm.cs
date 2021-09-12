@@ -184,7 +184,7 @@ namespace Torn.UI
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress);  break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
-					case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
+					//case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
 					case SystemType.Torn:
 						laserGameServer = new JsonServer(serverAddress);
 						timeElapsed = laserGameServer.GameTimeElapsed();
