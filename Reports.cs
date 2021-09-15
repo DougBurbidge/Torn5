@@ -879,6 +879,11 @@ namespace Torn.Report
 			if (rt.Drops != null && rt.Drops.HasDrops())
 				report.AddColumn(new ZColumn("Dropped", ZAlignment.Integer));
 
+			double bestScoreRatio = 0;
+			string bestScoreRatioText = "";
+			double bestTagRatio = 0;
+			string bestTagRatioText = "";
+
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
 			{
@@ -923,6 +928,22 @@ namespace Torn.Report
 							srxTrs.Add(((double)play.Score) / game.TotalScore() * playerCount * tagRatio);
 							pointRatios.Add(new ChartPoint(game.Time, scoreRatio / (scoreRatio + 1), Color.FromArgb(0xFF, 0x33, 0x00)));  // scarlet
 							pointRatios.Add(new ChartPoint(game.Time, tagRatio / (tagRatio + 1), Color.FromArgb(0x3D, 0x42, 0x8B)));  // royal blue
+
+							if (bestScoreRatio == scoreRatio)
+								bestScoreRatioText += ", " + player.Name;
+							else if (bestScoreRatio < scoreRatio)
+							{
+								bestScoreRatio = scoreRatio;
+								bestScoreRatioText = player.Name;
+							}
+
+							if (bestTagRatio == tagRatio)
+								bestTagRatioText += ", " + player.Name;
+							else if (bestTagRatio < tagRatio)
+							{
+								bestTagRatio = tagRatio;
+								bestTagRatioText = player.Name;
+							}
 						}
 					}
 
@@ -967,6 +988,11 @@ namespace Torn.Report
 
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
+
+			if (bestTagRatio > 0)
+				report.Description += string.Format("Best tag ratio was {0:P0} by {1}. ", bestTagRatio, bestTagRatioText);
+			if (bestScoreRatio > 0)
+				report.Description += string.Format("Best score ratio was {0:P0} by {1}. ", bestScoreRatio, bestScoreRatioText);
 
 			if (rt.Settings.Contains("Longitudinal"))
 			{
@@ -1704,9 +1730,24 @@ namespace Torn.Report
 			return report;
 		}
 
+		// https://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
+		static List<Color> boyntonColors = new List<Color>
+		{
+			Color.FromArgb(32, 32, 255),    // Blue
+			Color.FromArgb(255, 0, 0),      // Red
+			Color.FromArgb(0, 224, 0),      // Green
+			Color.FromArgb(128, 160, 0),    // Yellow
+			Color.FromArgb(255, 0, 255),    // Magenta
+			Color.FromArgb(128, 128, 128),  // Gray
+			Color.FromArgb(128, 0, 0),      // Brown
+			Color.FromArgb(255, 128, 128),  // Pink
+			Color.FromArgb(255, 128, 0),    // Orange
+		};
+
 		// Things I'm not doing right in PackReport:
-		// I'm taking the ratio of two things (hits by / hit on). This is wrong -- hits by and hits on are each normally distributed, but a ratio is not. Instead I should convert to a logit: p/(1-p).
-		// (I'm already doing something like this (but I'm not sure if it's exactly this) for Longitudinal.)
+		// I'm taking the ratio of two things (hits by / hit on). This is wrong -- hits by and hits on are each normally distributed, but a ratio is not. Instead I should log() it, because log(hits by / hit on) _is_ normally distributed (I think).
+		// (I'm already doing something like this (but not exactly this) for Longitudinal.)
+		// I'm scaling each pack score ratio and pack tag ratio by the player's tag ratio. Instead, I should do multivariate analysis where player identity is one of the variables.
 		// I'm calculating _n_ different p values, and then dividing the p threshold by _n_ to avoid false positives. But this causes false negatives. See notes below for possible ways around this. 
 		// False discovery rate. multivariate repeated measures. logit = p/(1-p). poisson model. 
 		// Do some histograms of: #hits by each pack, #hits on each pack, #hitsby minus #hitson, ratios of each pack, logits of each pack, and see what's normally distributed.
@@ -1755,12 +1796,8 @@ namespace Torn.Report
 			// Assign each league a color, for longitudinal chart points.
 			var leagueColors = new Dictionary<League, Color>();
 			for (int i = 0; i < leagues.Count; i++)
-			{
-				leagueColors.Add(leagues[i], Color.FromArgb((int)(0x80 + Math.Sin(2 * Math.PI * i / leagues.Count) * 0x7F),
-				                                      (int)(0x80 + Math.Sin(2 * Math.PI * i / leagues.Count + 2.0/3 * Math.PI) * 0x7F),
-				                                      (int)(0x80 + Math.Sin(2 * Math.PI * i / leagues.Count + 4.0/3 * Math.PI) * 0x7F)));
-			}
-			
+				leagueColors.Add(leagues[i], boyntonColors[i % 9]);
+
 			// Build list of games to report on.
 			var games = new List<Game>();
 			var gameColors = new Dictionary<Game, Color>();
@@ -1830,29 +1867,35 @@ namespace Torn.Report
 					{
 						double scale = player.PlayerId != null && soloLadder.ContainsKey(player.PlayerId) ? soloLadder[player.PlayerId] : 1;
 						double scoreRatio = 1.0 * player.Score / (gameTotalScore - player.Score / scale) * (players.Count - 1) / scale;  // Scale this score ratio by this player's scale value, and by the average scaled scores of everyone else in the game.
-						double? tagRatio = (player.HitsOn != 0 ? ((double)player.HitsBy / player.HitsOn / scale) : (double?)null);
+						double logScoreRatio = ClampedLog(scoreRatio);  // I'm pretty sure that converting the ratio to a log makes it normally distributed again.
+						double tagRatio = (double)player.HitsBy / player.HitsOn / scale;
+						double logTagRatio = ClampedLog(tagRatio);
 
 						if (player.Pack == pack)
 						{
-							scoreRatios.Add(scoreRatio);
+							scoreRatios.Add(logScoreRatio);
 							pointScoreRatios.Add(new ChartPoint(game.Time, scoreRatio / (scoreRatio + 1), gameColors[game]));
-							if (tagRatio != null)
-							{
-								tagRatios.Add((double)tagRatio);
-								pointTagRatios.Add(new ChartPoint(game.Time, (double)(tagRatio / (tagRatio + 1)), gameColors[game]));
-							}
 							if (player.HitsBy != 0 || player.HitsOn != 0)
+							{
+								tagRatios.Add(logTagRatio);
+
+								if (player.HitsOn == 0)
+									pointTagRatios.Add(new ChartPoint(game.Time, 1.0, gameColors[game]));
+								else
+									pointTagRatios.Add(new ChartPoint(game.Time, tagRatio / (tagRatio + 1), gameColors[game]));
+
 								tagDifferences.Add(player.HitsBy / scale - player.HitsOn);
+							}
 						}
 						else
 						{
 							n2++;
-							scoreRatio2Sum += scoreRatio;
-							scoreRatio2SquaredSum += scoreRatio * scoreRatio;
-							if (tagRatio != null)
+							scoreRatio2Sum += logScoreRatio;
+							scoreRatio2SquaredSum += logScoreRatio * logScoreRatio;
+							if (player.HitsBy != 0 || player.HitsOn != 0)
 							{
-								tagRatio2Sum += (double)tagRatio;
-								tagRatio2SquaredSum += (double)(tagRatio * tagRatio);
+								tagRatio2Sum += logTagRatio;
+								tagRatio2SquaredSum += logTagRatio * logTagRatio;
 								tagRatio2Count++;
 							}
 							if (player.HitsBy != 0 || player.HitsOn != 0)
@@ -1866,7 +1909,7 @@ namespace Torn.Report
 					}
 				}
 
-				row.AddCell(new ZCell(scoreRatios.Average(), chartType, "P0")).Data.AddRange(scoreRatios);  // 2: Average score ratio.
+				row.AddCell(new ZCell(scoreRatios.Sum(x => Math.Exp(x)) / scoreRatios.Count, chartType, "P0")).Data.AddRange(scoreRatios);  // 2: Average score ratio. Convert log'ed back to un-log'ed for display value in cell.
 
 				double t = tStatistic(scoreRatios.Count, scoreRatios.Sum(), scoreRatios.Sum(x => Math.Pow(x, 2)), n2, scoreRatio2Sum, scoreRatio2SquaredSum);
 				double pValue = 1 - Erf(Math.Abs(t) / Math.Sqrt(2));
@@ -1897,7 +1940,7 @@ namespace Torn.Report
 				}
 				else
 				{
-					row.AddCell(new ZCell(tagRatios.Average(), chartType, "P0")).Data.AddRange(tagRatios);  // 6: Average tag ratio.
+					row.AddCell(new ZCell(tagRatios.Sum(x => Math.Exp(x)) / tagRatios.Count, chartType, "P0")).Data.AddRange(tagRatios);  // 6: Average tag ratio. Convert log'ed back to un-log'ed for display value in cell.
 
 					t = tStatistic(tagRatios.Count, tagRatios.Sum(), tagRatios.Sum(x => Math.Pow(x, 2)), tagRatio2Count, tagRatio2Sum, tagRatio2SquaredSum);
 					pValue = 1 - Erf(Math.Abs(t) / Math.Sqrt(2));
@@ -2072,6 +2115,17 @@ namespace Torn.Report
 			return teamcell;
 		}
 
+		/// <summary>Return the natural log of x. If x is out of bounds, return a "clamped" value instead.</summary>
+		static double ClampedLog(double x)
+		{
+			if (x <= 0)
+				return -3;
+			else if (double.IsInfinity(x))
+				return 3;
+			else
+				return Math.Log(x);
+		}
+
 		static double Erf(double x)
 		{
 			// Abramowitz, M. and Stegun, I. (1964). _Handbook of Mathematical Functions with Formulas, Graphs, and Mathematical Tables_. p.299.
@@ -2079,12 +2133,12 @@ namespace Torn.Report
 			// erf(x) = 1 - 1 / (a1*x + a2*x^2 + a3*x^3 + a4*x^4 + a5*x^5 + a6*x^6) + epsilon(x)
 			// a1 = 0.0705230784; a2 = 0.0422820123; a3 = 0.0092705272; a4 = 0.0001520143; a5 = 0.0002765672; a6 = 0.0000430638
 			// epsilon(x) < 3e-7
-			double a1 = 0.0705230784;
-			double a2 = 0.0422820123;
-			double a3 = 0.0092705272;
-			double a4 = 0.0001520143;
-			double a5 = 0.0002765672;
-			double a6 = 0.0000430638;
+			const double a1 = 0.0705230784;
+			const double a2 = 0.0422820123;
+			const double a3 = 0.0092705272;
+			const double a4 = 0.0001520143;
+			const double a5 = 0.0002765672;
+			const double a6 = 0.0000430638;
 			return 1 - Math.Pow(1 + a1 * x + a2 * Math.Pow(x, 2) + a3 * Math.Pow(x, 3) + a4 * Math.Pow(x, 4) + a5 * Math.Pow(x, 5) + a6 * Math.Pow(x, 6), -16);
 		}
 
