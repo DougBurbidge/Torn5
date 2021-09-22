@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -119,6 +120,7 @@ namespace Torn.UI
 	        	((TextBox)sender).SelectAll();
 		}
 
+		// TODO: turn panelGraphic into a custom control that takes a Fixture as a property, so it can manage its own painting, clicks, etc.
 		void FillCell(int row, int col, int size, Color color)
 		{
 			var g = panelGraphic.CreateGraphics();
@@ -288,10 +290,27 @@ namespace Torn.UI
 				FillCell(rows + 2, (int)i, size, i.ToSaturatedColor());
 		}
 
-		void FillColumn(ZoomReport report, int col, int topSpace, int teamsInGame, int teamsCut)
+		/// Add a cell to a row with a simple ribbon running from left to right in the cell.
+		void AddCell(ZoomReport report, int row, ZColumn col, Color color)
+		{
+			if (col != null)
+			{
+				report.Rows[row].AddCell(new ZCell());
+				col.AddRibbon(row, 5, color);
+			}
+		}
+
+		void AddCells(ZoomReport report, int row, ZColumn col1, ZColumn col2, Color color = default)
+		{
+			AddCell(report, row, col1, color);
+			AddCell(report, row, col2, color);
+		}
+
+		/// Add cells to each row for a column representing this game, plus a ribbon showing arrows leading out of this game.
+		ZColumn FillColumn(ZoomReport report, string gameName, int topSpace, int stepDown, int teamsInGame, int bottomSpace)
 		{
 			// Add columns for game (and the ribbons between games).
-			var gameCol = new ZColumn((topSpace + teamsInGame).ToString(), ZAlignment.Center, "Games");
+			var gameCol = new ZColumn(gameName, ZAlignment.Center, "Games");
 			report.Columns.Add(gameCol);
 			var arrowCol = new ZColumn(null, ZAlignment.Center, "Games");
 			report.Columns.Add(arrowCol);
@@ -299,15 +318,13 @@ namespace Torn.UI
 			arrowCol.Ribbons.Add(ribbon);
 
 			int row = 0;
-			// Add cells for the space above this team's first game (and the ribbons between games).
-			for (int i = 0; i < topSpace; i++, row++)
-			{
-				report.Rows[row].AddCell(new ZCell());
-				gameCol.AddRibbon(row, 5, Color.FromArgb(0xEE, 0xEE, 0xEE));
+			// Add cells for the space above this game (and the ribbons between games).
+			for (int i = 0; i < topSpace && row < report.Rows.Count - teamsInGame; i++, row++)
+				AddCells(report, row, gameCol, arrowCol, Color.FromArgb(0xEE, 0xEE, 0xEE));
 
-				report.Rows[row].AddCell(new ZCell());
-				arrowCol.AddRibbon(row, 5, Color.FromArgb(0xEE, 0xEE, 0xEE));
-			}
+			// Add cells for the space which is above this game but below the teams first game, because this is a lower track.
+			for (int i = 0; i < stepDown && row < report.Rows.Count - teamsInGame; i++, row++)
+				AddCells(report, row, gameCol, arrowCol);
 
 			// Add cells for the game (and the ribbons between games).
 			for (int i = 0; i < teamsInGame; i++, row++)
@@ -319,39 +336,148 @@ namespace Torn.UI
 				ribbon.To.Add(new ZRibbonEnd(row, 5));
 			}
 
-			for (int i = 0; i < teamsCut; i++, row++)
-				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
+			// Add cells for the space below this game (and the ribbons between games), so that lower-track games are placed correctly.
+			for (int i = 0; i < bottomSpace && row < report.Rows.Count; i++, row++)
+				AddCells(report, row, gameCol, arrowCol);
+
+			return gameCol;
 		}
 
-		private void RefreshFinals(object sender, EventArgs e)
+		ZColumn FillColumnNarrow(ZoomReport report, string gameName, int topSpace, int stepDown, int teamsInGame, int bottomSpace, bool narrow = false)
 		{
-			var report = new ZoomReport("Finals");
-			report.Colors.OddColor = report.Colors.BackgroundColor;
+			// Add columns for game (and the ribbons between games).
+			var gameCol = report.Columns.Last();
+			gameCol.Text = gameName;
+			var arrowCol = new ZColumn(null, ZAlignment.Center, "Games");
+			report.Columns.Add(arrowCol);
+			var ribbon = new ZRibbon();
+			arrowCol.Ribbons.Add(ribbon);
 
-			report.Columns.Add(new ZColumn("Teams", ZAlignment.Left));
+			int row = 0;
+			// Add cells for the space above this game (and the ribbons between games).
+			for (int i = 0; i < topSpace && row < report.Rows.Count - teamsInGame; i++, row++)
+				AddCells(report, row, null, arrowCol, Color.FromArgb(0xEE, 0xEE, 0xEE));
 
-			int numteams = Fixture.Teams.Count;
-			int teamsPerGame = (int)numericTeamsPerGame.Value;
-			int teamsToCut = (int)numericTeamsToCut.Value;
+			// Add cells for the space which is above this game but below the teams first game, because this is a lower track.
+			for (int i = 0; i < stepDown && row < report.Rows.Count - teamsInGame; i++, row++)
+				AddCells(report, row, null, arrowCol);
 
-			// Add rows to the report.
-			for (int row = 0; row < numteams; row++)
+			// Add cells for the game (and the ribbons between games).
+			for (int i = 0; i < teamsInGame; i++, row++)
 			{
-				report.Rows.Add(new ZRow());
-				report.Rows[row].AddCell(new ZCell(Fixture.Teams[row].Name));
+				report.Rows[row].RemoveAt(report.Rows[row].Count - 1);
+				var dupRibbon = gameCol.Ribbons.Find(r => r.From[0].Row == row);
+				if (dupRibbon != null)
+					gameCol.Ribbons.Remove(dupRibbon);
+
+				report.Rows[row].AddCell(new ZCell(" ... ", Colour.Referee.ToColor()));
+				report.Rows[row].AddCell(new ZCell());
+
+				ribbon.From.Add(new ZRibbonEnd(row, 5));
+				ribbon.To.Add(new ZRibbonEnd(row, 5));
 			}
 
-			// Add cells to each column.
-			int col = 0;
-			int topSpace = numteams - teamsPerGame;
-			while (topSpace > 0)
+			// Add cells for the space below this game (and the ribbons between games), so that lower-track games are placed correctly.
+			for (int i = 0; i < bottomSpace && row < report.Rows.Count; i++, row++)
+				AddCells(report, row, null, arrowCol);
+
+			return gameCol;
+		}
+
+		string GameName(int game)
+		{
+			if (game < 26)
+				return ((char)((int)'A' + game)).ToString();  // "A", "B", etc.
+			if (game < 52)
+				return new String(((char)((int)'a' + game - 26)), 2);  // "aa", "bb", etc.
+			return (game + 1).ToString();
+		}
+
+		void TwoTrack(ZoomReport report, int numTeams, int teamsPerGame, int teamsToCut, int freeRides)
+		{
+			// Add columns for games.
+			int game = 0;
+			int topSpace;
+			var games = new List<ZColumn>();
+
+			if ((numTeams - teamsPerGame - freeRides) % teamsToCut == 0)
 			{
-				FillColumn(report, col, topSpace, teamsPerGame, col == 0 ? 0 : teamsToCut);
+				topSpace = numTeams - teamsPerGame;  // Start the first track at the bottom.
+				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, 0));
+				game++;
+				topSpace -= teamsToCut;
+				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, 1));
+				game++;
+				topSpace -= teamsToCut;
+			}
+			else
+			{
+				topSpace = numTeams - 2 * teamsPerGame + teamsToCut;  // Start the first track, with the lowest teams we can while still allowing for lower tracks.
+				topSpace += (topSpace + freeRides) % teamsToCut;  // Ensure topSpace is a multiple of teamsToCut, so we will line up properly when we get to finals. If not, move upwards so that it is a whole multiple.
+				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, 1));
+				game++;
+				topSpace = numTeams - 2 * teamsPerGame;
+			}
+
+			for ( ; topSpace >= freeRides; game += 2)
+			{
+				if (game <= 2)
+					games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, teamsPerGame));
+				else
+					games.Add(FillColumnNarrow(report, GameName(game), topSpace, 0, teamsPerGame, teamsPerGame));
+				games.Add(FillColumnNarrow(report, GameName(game + 1), topSpace, teamsPerGame, teamsPerGame, 0));
+				topSpace -= teamsToCut;
+			}
+			games.Add(FillColumn(report, GameName(game), 0, teamsPerGame - teamsToCut, teamsPerGame, 0));
+
+			for (int row = teamsPerGame; row < numTeams; row++)
+				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
+
+			// Add grand finals games.
+			for (int i = 0; i < teamsPerGame; i++)
+			{
+				var finalCol = new ZColumn((teamsPerGame - i).ToString(), ZAlignment.Center, "Finals");
+				report.Columns.Add(finalCol);
+				games.Add(finalCol);
+				for (int j = 0; j < teamsPerGame; j++)
+					report.Rows[i].AddCell(new ZCell(" ... ", ((Colour)((j + teamsPerGame - i) % teamsPerGame + 1)).ToColor()));
+			}
+
+			report.SameWidths.Add(games);
+		}
+		void GeneralAscension(ZoomReport report, int numTeams, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
+		{
+			// Add columns for games.
+			int col = 0;
+			int game = 0;
+			int topSpace;
+			if (tracks == 1)
+			{
+				topSpace = numTeams - teamsPerGame;
+				topSpace += (topSpace + freeRides) % teamsToCut;
+			}
+			else
+			{
+				topSpace = numTeams - teamsPerGame - (tracks - 1) * (teamsPerGame - teamsToCut);  // Start the first track, with the lowest teams we can while still allowing for lower tracks.
+				topSpace += (topSpace + freeRides) % teamsToCut;  // Ensure topSpace is a multiple of teamsToCut, so we will line up properly when we get to finals. If not, move upwards so that it is a whole multiple.
+			}
+
+			bool bottom = false;  // True if the bottom-most team has played a game.
+			while (topSpace >= freeRides)
+			{
+				for (int track = 0; track < tracks; track++)
+					if (!bottom || topSpace + teamsPerGame + track * teamsToCut <= numTeams)
+					{
+						string gameName = tracks == 1 ? (topSpace + teamsPerGame).ToString() : GameName(game);
+						FillColumn(report, gameName, topSpace, track * (teamsPerGame - teamsToCut), teamsPerGame, (tracks - track - 1) * teamsToCut);
+						game++;
+						bottom |= topSpace + teamsPerGame + track * teamsToCut >= numTeams;
+					}
 				topSpace -= teamsToCut;
 				col++;
 			}
 
-			for (int row = teamsPerGame; row < topSpace + teamsPerGame + teamsToCut; row++)
+			for (int row = teamsPerGame; row < numTeams; row++)
 				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
 
 			// Add grand finals games.
@@ -361,6 +487,26 @@ namespace Torn.UI
 				for (int j = 0; j < teamsPerGame; j++)
 					report.Rows[i].AddCell(new ZCell(" ... ", ((Colour)((j + teamsPerGame - i) % teamsPerGame + 1)).ToColor()));
 			}
+		}
+
+		private void RefreshFinals(object sender, EventArgs e)
+		{
+			var report = new ZoomReport("Finals");
+			report.Colors.OddColor = report.Colors.BackgroundColor;
+
+			report.Columns.Add(new ZColumn("Teams", ZAlignment.Left));
+
+			// Add rows to the report.
+			for (int row = 0; row < Fixture.Teams.Count; row++)
+			{
+				report.Rows.Add(new ZRow());
+				report.Rows[row].AddCell(new ZCell(Fixture.Teams[row].Name));
+			}
+
+			if (numericTracks.Value == 2 && Fixture.Teams.Count > 4)
+				TwoTrack(report, Fixture.Teams.Count, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericFreeRides.Value);
+			else
+				GeneralAscension(report, Fixture.Teams.Count, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
 
 			using (StringWriter sw = new StringWriter())
 			{
@@ -391,18 +537,21 @@ namespace Torn.UI
 		{
 			numericTracks.Value = 1;
 			numericTeamsToCut.Value = 1;
+			numericFreeRides.Value = 1;
 		}
 
 		private void ButtonTwoTrackClick(object sender, EventArgs e)
 		{
 			numericTracks.Value = 2;
 			numericTeamsToCut.Value = 2;
+			numericFreeRides.Value = 0;
 		}
 
 		private void ButtonFormatDClick(object sender, EventArgs e)
 		{
 			numericTracks.Value = 3;
 			numericTeamsToCut.Value = 2;
+			numericFreeRides.Value = 0;
 		}
 
 		void NumericSizeValueChanged(object sender, EventArgs e)
