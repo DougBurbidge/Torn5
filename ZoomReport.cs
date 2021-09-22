@@ -429,6 +429,8 @@ namespace Zoom
 		public bool MultiColumnOK { get; set; }
 		/// <summary>True if HTML tables should show bar charts.</summary>
 		public bool Bars { get; set; }
+		/// <summary>Add groups of columns that should be rendered with the same width here.</summary>
+		public List<List<ZColumn>> SameWidths { get; private set; }
 
 		//OnCalcBar: TCalcBar;
 		//OnPaintBar: TPaintBar;
@@ -437,6 +439,7 @@ namespace Zoom
 		{
 			Columns = new List<ZColumn>();
 			Rows = new List<ZRow>();
+			SameWidths = new List<List<ZColumn>>();
 
 			Title = title;
 
@@ -589,6 +592,16 @@ namespace Zoom
 						       widest);
 				mins.Add(min);
 				maxs.Add(max);
+			}
+
+			foreach (var sw in SameWidths)
+			{
+				float widestInGroup = 0;
+				foreach (var c in sw)
+					widestInGroup = Math.Max(widestInGroup, widths[Columns.IndexOf(c)]);
+
+				foreach (var c in sw)
+					widths[Columns.IndexOf(c)] = widestInGroup;
 			}
 		}
 
