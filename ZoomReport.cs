@@ -67,11 +67,11 @@ namespace Zoom
 		public ZAlignment Alignment { get; set; }
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
 		public bool Rotate;
-		public List<ZRibbon> Ribbons { get; }
+		public List<Arrow> Arrows { get; }
 
 		public ZColumn(string text = null, ZAlignment alignment = ZAlignment.Left, string groupHeading = null)
 		{
-			Ribbons = new List<ZRibbon>();
+			Arrows = new List<Arrow>();
 			Text = text;
 			Alignment = alignment;
 			GroupHeading = groupHeading;
@@ -82,23 +82,23 @@ namespace Zoom
 			return Text;
 		}
 
-		/// Adds a simple ribbon with one From and one To, both in the specified row and of the specified width.
-		public void AddRibbon(int row, int width, Color color = default)
+		/// Adds a simple arrow with one From and one To, both in the specified row and of the specified width.
+		public void AddArrow(int row, int width, Color color = default)
 		{
-			var ribbon = new ZRibbon { Color = color };
-			Ribbons.Add(ribbon);
-			ribbon.From.Add(new ZRibbonEnd(row, width));
-			ribbon.To.Add(new ZRibbonEnd(row, width));
+			var arrow = new Arrow { Color = color };
+			Arrows.Add(arrow);
+			arrow.From.Add(new ZArrowEnd(row, width));
+			arrow.To.Add(new ZArrowEnd(row, width));
 		}
 	}
 
-	/// <summary>Start or end of a ribbon. A ribbon can have multiple starts and multiple ends.</summary>
-	public class ZRibbonEnd: IComparable
+	/// <summary>Start or end of an Arrow. An Arrow can have multiple starts and multiple ends.</summary>
+	public class ZArrowEnd: IComparable
 	{
 		public int Row { get; set; }
 		public double Width { get; set; }
 
-		public ZRibbonEnd(int row, double width)
+		public ZArrowEnd(int row, double width)
 		{
 			Row = row;
 			Width = width;
@@ -106,21 +106,21 @@ namespace Zoom
 
 		int IComparable.CompareTo(object obj)
 		{
-			return Row - ((ZRibbonEnd)obj).Row;
+			return Row - ((ZArrowEnd)obj).Row;
 		}
 	}
 
-	/// <summary>A Ribbon is a connection between some cells. Cells in the column to the left are "From" entries. Cells in the column to the right are "To". The ribbon will join all these in a pretty way.</summary>
-	public class ZRibbon
+	/// <summary>An Arrow is a connection between some cells. Cells in the column to the left are "From" entries. Cells in the column to the right are "To". The arrow will join all these in a pretty way.</summary>
+	public class Arrow
 	{
-		public List<ZRibbonEnd> From { get; set; } // Cells in the column to the left of the ribbon to draw starting points from.
-		public List<ZRibbonEnd> To { get; set; }  // Cells in the column to the right of the ribbon to draw to.
+		public List<ZArrowEnd> From { get; set; } // Cells in the column to the left of the arrow to draw starting points from.
+		public List<ZArrowEnd> To { get; set; }  // Cells in the column to the right of the arrow to draw to.
 		public Color Color { get; set; }
 		
-		public ZRibbon()
+		public Arrow()
 		{
-			From = new List<ZRibbonEnd>();
-			To = new List<ZRibbonEnd>();
+			From = new List<ZArrowEnd>();
+			To = new List<ZArrowEnd>();
 		}
 
 		public double MaxWidth()
@@ -534,7 +534,7 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
-				float widest = Columns[col].Ribbons.Any() ? 15 : 1;
+				float widest = Columns[col].Arrows.Any() ? 15 : 1;
 				float total = widest;
 				int count = 1;
 				double min = 0.0;
@@ -967,76 +967,76 @@ namespace Zoom
 			}
 		}
 
-		enum TopBottomType { Left, Right, Both }; // Does the top of this ribbon have an end from the left? An end to the right? One of each? What about the bottom of the ribbon?
+		enum TopBottomType { Left, Right, Both }; // Does the top of this arrow have an end from the left? An end to the right? One of each? What about the bottom of the arrow?
 
-		/// Draw one complete vertical ribbon plus its horizontal ends.
-		void SvgRibbon(StringBuilder s, int indent, ZColumn col, ZColumn nextCol, ZRibbon ribbon, float left, float width, float top, float height, float rowHeight)//, bool smallArrow)
+		/// Draw one complete vertical arrow plus its horizontal ends.
+		void SvgArrow(StringBuilder s, int indent, ZColumn col, ZColumn nextCol, Arrow arrow, float left, float width, float top, float height, float rowHeight)
 		{
-			if (ribbon.From.Count == 0 && ribbon.To.Count == 0)
+			if (arrow.From.Count == 0 && arrow.To.Count == 0)
 				return;
 
-			Color c = ribbon.Color == default(Color) ? Color.Gray : ribbon.Color;
-			ribbon.From.Sort();
-			ribbon.To.Sort();
+			Color c = arrow.Color == default(Color) ? Color.Gray : arrow.Color;
+			arrow.From.Sort();
+			arrow.To.Sort();
 
-			var topRow = Math.Min(ribbon.From.Count == 0 ? 999 : ribbon.From.First().Row, ribbon.To.Count == 0 ? 999 : ribbon.To.First().Row);
-			var bottomRow = Math.Max(ribbon.From.Count == 0 ? 0 : ribbon.From.Last().Row, ribbon.To.Count == 0 ? 0 : ribbon.To.Last().Row);
+			var topRow = Math.Min(arrow.From.Count == 0 ? 999 : arrow.From.First().Row, arrow.To.Count == 0 ? 999 : arrow.To.First().Row);
+			var bottomRow = Math.Max(arrow.From.Count == 0 ? 0 : arrow.From.Last().Row, arrow.To.Count == 0 ? 0 : arrow.To.Last().Row);
 
 			TopBottomType topType;
 			TopBottomType bottomType;
 
-			// Determine types of top and bottom of ribbon.
-			if (!ribbon.From.Any())
+			// Determine types of top and bottom of arrow.
+			if (!arrow.From.Any())
 			{
 				topType = TopBottomType.Right;
 				bottomType = TopBottomType.Right;
 			}
-			else if (!ribbon.To.Any())
+			else if (!arrow.To.Any())
 			{
 				topType = TopBottomType.Left;
 				bottomType = TopBottomType.Left;
 			}
 			else
 			{
-				topType = ribbon.From.First().Row == ribbon.To.First().Row ? TopBottomType.Both : ribbon.From.First().Row < ribbon.To.First().Row ? TopBottomType.Left : TopBottomType.Right;
-				bottomType = ribbon.From.Last().Row == ribbon.To.Last().Row ? TopBottomType.Both : ribbon.From.Last().Row > ribbon.To.Last().Row ? TopBottomType.Left : TopBottomType.Right;
+				topType = arrow.From.First().Row == arrow.To.First().Row ? TopBottomType.Both : arrow.From.First().Row < arrow.To.First().Row ? TopBottomType.Left : TopBottomType.Right;
+				bottomType = arrow.From.Last().Row == arrow.To.Last().Row ? TopBottomType.Both : arrow.From.Last().Row > arrow.To.Last().Row ? TopBottomType.Left : TopBottomType.Right;
 			}
 
-			//var ribbonWidthH = ribbon.MaxWidth();  // In unscaled units.
-			var halfScaleWidth = ribbon.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled ribbon width into half a scaled ribbon width. 
-			var halfRibbonH = ribbon.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the ribbon, in output SVG units.
+			//var arrowWidthH = arrow.MaxWidth();  // In unscaled units.
+			var halfScaleWidth = arrow.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled arrow width into half a scaled arrow width. 
+			var halfArrowH = arrow.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the arrow, in output SVG units.
 
 			if (topType == TopBottomType.Right)
 			{
 				// Start in the horizontal middle, draw the top left corner arc. 
-				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 + halfRibbonH, RowMid(top, ribbon.To.First().Row, rowHeight) - ribbon.To.First().Width * halfScaleWidth);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{0:F1} ", halfRibbonH * 2, -halfRibbonH * 2);
-				if (!ribbon.From.Any())
-					s.AppendFormat("V {2:F1}\n", RowMid(top, ribbon.To.Last().Row, rowHeight) + ribbon.To.Last().Width * halfScaleWidth);
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 + halfArrowH, RowMid(top, arrow.To.First().Row, rowHeight) - arrow.To.First().Width * halfScaleWidth);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{0:F1} ", halfArrowH * 2, -halfArrowH * 2);
+				if (!arrow.From.Any())
+					s.AppendFormat("V {2:F1}\n", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth);
 			}
 			else  // Move cursor to top right end of first arrow.
-				s.AppendFormat("<path d=\"M {0:F1},{1:F1}\n", left + width / 2 - halfRibbonH, RowMid(top, topRow, rowHeight) - ribbon.From.First().Width * halfScaleWidth);
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1}\n", left + width / 2 - halfArrowH, RowMid(top, topRow, rowHeight) - arrow.From.First().Width * halfScaleWidth);
 
 			// Draw left-side "From" ends.
-			for (int i = 0; i < ribbon.From.Count; i++)
+			for (int i = 0; i < arrow.From.Count; i++)
 			{
-				var end = ribbon.From[i];
-				var halfRibbon = end.Width * halfScaleWidth;
+				var end = arrow.From[i];
+				var halfArrow = end.Width * halfScaleWidth;
 
 				s.Append('\t', indent + 1);
 				if (end.Row != topRow)
 				{
-					s.AppendFormat("V {0:F1} ", RowMid(top, end.Row, rowHeight) - halfRibbon * 2);
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{0:F1} ", halfRibbon, -halfRibbon);
+					s.AppendFormat("V {0:F1} ", RowMid(top, end.Row, rowHeight) - halfArrow * 2);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{0:F1} ", halfArrow, -halfArrow);
 				}
 				// Paint a left end: horizontal left, diagonal in / diagonal out, horizontal right.
 				s.AppendFormat("H {0:F1} ", left);
-				s.AppendFormat("l {0:F1},{0:F1} ", halfRibbon);
-				s.AppendFormat("l {0:F1},{1:F1} ", -halfRibbon, halfRibbon);
+				s.AppendFormat("l {0:F1},{0:F1} ", halfArrow);
+				s.AppendFormat("l {0:F1},{1:F1} ", -halfArrow, halfArrow);
 				if (end.Row != bottomRow)
 				{
-					s.AppendFormat("H {0:F1} ", left + width / 2 - halfRibbonH - halfRibbon);
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{0:F1} ", halfRibbon);
+					s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH - halfArrow);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{0:F1} ", halfArrow);
 				}
 				s.Append('\n');
 			}
@@ -1045,56 +1045,56 @@ namespace Zoom
 			if (bottomType == TopBottomType.Left)
 			{
 				s.Append('\t', indent + 1);
-				s.AppendFormat("H {0:F1} ", left + width / 2 - halfRibbonH);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{1:F1} \n", halfRibbonH * 2, -halfRibbonH * 2);
+				s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{1:F1} \n", halfArrowH * 2, -halfArrowH * 2);
 			}
 			else if (bottomType == TopBottomType.Both)
 			{
 				s.Append('\t', indent + 1);
-				s.AppendFormat("H {0:F1} ", left + width / 2 - halfRibbonH);
-				if (ribbon.From.Last().Width != ribbon.To.Last().Width)
-					s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1}\n", halfRibbonH, halfRibbonH * 2, (ribbon.To.Last().Width - ribbon.From.Last().Width) / 2);
+				s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
+				if (arrow.From.Last().Width != arrow.To.Last().Width)
+					s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1}\n", halfArrowH, halfArrowH * 2, (arrow.To.Last().Width - arrow.From.Last().Width) / 2);
 			}
 			else if (bottomType == TopBottomType.Right)
 			{
 				s.Append('\t', indent + 1);
-				s.AppendFormat("V {0:F1} ", RowMid(top, ribbon.To.Last().Row, rowHeight) + ribbon.To.Last().Width * halfScaleWidth - halfRibbonH * 2);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{0:F1} \n", halfRibbonH * 2);
+				s.AppendFormat("V {0:F1} ", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth - halfArrowH * 2);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{0:F1} \n", halfArrowH * 2);
 			}
 
 			// Draw right-side "To" ends.
-			for (int i = ribbon.To.Count - 1; i >= 0; i--)
+			for (int i = arrow.To.Count - 1; i >= 0; i--)
 			{
-				var end = ribbon.To[i];
-				var halfRibbon = end.Width * halfScaleWidth;
+				var end = arrow.To[i];
+				var halfArrow = end.Width * halfScaleWidth;
 
 				s.Append('\t', indent + 1);
 				if (end.Row != bottomRow)
 				{
-					s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfRibbon * 2);
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
+					s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfArrow * 2);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfArrow, -halfArrow);
 				}
 
-				if (nextCol != null && nextCol.Ribbons.Exists(r => r.From.Exists(f => f.Row == ribbon.To[i].Row)))  // True if there's a ribbon immediately to the right of this ribbon end.
+				if (nextCol != null && nextCol.Arrows.Exists(r => r.From.Exists(f => f.Row == arrow.To[i].Row)))  // True if there's a arrow immediately to the right of this arrow end.
 				{
 					// Paint a simple right end, starting at its bottom left: horizontal right, up/right, up/left, left.
 					s.AppendFormat("H {0:F1} ", left + width + 1);
-					s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon, -halfRibbon);
-					s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon);
-					s.AppendFormat("H {0:F1} ", left + width / 2 + halfRibbonH + halfRibbon);
+					s.AppendFormat("l {0:F1},{1:F1} ", halfArrow, -halfArrow);
+					s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow);
+					s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
 				}
 				else
 				{
 					// Paint a right end arrowhead, starting at its bottom left: horizontal right, down, up/right, up/left, down, left.
-					s.AppendFormat("H {0:F1} ", left + width - halfRibbon);
-					s.AppendFormat("v {0:F1} ", halfRibbon);
-					s.AppendFormat("l {0:F1},{1:F1} ", halfRibbon * 2, -halfRibbon * 2);
-					s.AppendFormat("l {0:F1},{0:F1} ", -halfRibbon * 2);
-					s.AppendFormat("v {0:F1} ", halfRibbon);
-					s.AppendFormat("H {0:F1} ", left + width / 2 + halfRibbonH + halfRibbon);
+					s.AppendFormat("H {0:F1} ", left + width - halfArrow);
+					s.AppendFormat("v {0:F1} ", halfArrow);
+					s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
+					s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
+					s.AppendFormat("v {0:F1} ", halfArrow);
+					s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
 				}
 				if (end.Row != topRow)
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfRibbon, -halfRibbon);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfArrow, -halfArrow);
 				s.Append('\n');
 			}
 
@@ -1103,11 +1103,11 @@ namespace Zoom
 			// Bring us back to top right and finish off.
 			if (topType == TopBottomType.Left)
 			{
-				s.AppendFormat("V {0:F1} ", top + (ribbon.From.First().Row + 0.5) * rowHeight - ribbon.From.First().Width * halfScaleWidth + halfRibbonH * 2);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{1:F1} ", halfRibbonH * 2, -halfRibbonH * 2);
+				s.AppendFormat("V {0:F1} ", top + (arrow.From.First().Row + 0.5) * rowHeight - arrow.From.First().Width * halfScaleWidth + halfArrowH * 2);
+				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{1:F1} ", halfArrowH * 2, -halfArrowH * 2);
 			}
-			else if (topType == TopBottomType.Both && ribbon.From.First().Width != ribbon.To.First().Width)
-				s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1} ", -halfRibbonH, -halfRibbonH * 2, (ribbon.To.First().Width - ribbon.From.First().Width) / 2);
+			else if (topType == TopBottomType.Both && arrow.From.First().Width != arrow.To.First().Width)
+				s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1} ", -halfArrowH, -halfArrowH * 2, (arrow.To.First().Width - arrow.From.First().Width) / 2);
 
 			s.Append("Z\" fill=\"");
 			s.Append(System.Drawing.ColorTranslator.ToHtml(c));
@@ -1491,7 +1491,7 @@ namespace Zoom
 			}
 
 			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, height, widths, maxs, width, max, pure);
-			int ribbonTop = rowTop;
+			int arrowTop = rowTop;
 
 			bool odd = true;
 
@@ -1504,8 +1504,8 @@ namespace Zoom
 			}
 
 			for (int col = 0; col < Columns.Count; col++)
-				foreach (var ribbon in Columns[col].Ribbons)
-					SvgRibbon(sb, 1, Columns[col], col + 1 == Columns.Count ? null : Columns[col + 1], ribbon, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, ribbonTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
+				foreach (var arrow in Columns[col].Arrows)
+					SvgArrow(sb, 1, Columns[col], col + 1 == Columns.Count ? null : Columns[col + 1], arrow, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, arrowTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
 
 			sb.Append("</svg>\n");
 

@@ -290,13 +290,13 @@ namespace Torn.UI
 				FillCell(rows + 2, (int)i, size, i.ToSaturatedColor());
 		}
 
-		/// Add a cell to a row with a simple ribbon running from left to right in the cell.
+		/// Add a cell to a row with a simple arrow running from left to right in the cell.
 		void AddCell(ZoomReport report, int row, ZColumn col, Color color)
 		{
 			if (col != null)
 			{
 				report.Rows[row].AddCell(new ZCell());
-				col.AddRibbon(row, 5, color);
+				col.AddArrow(row, 5, color);
 			}
 		}
 
@@ -307,20 +307,20 @@ namespace Torn.UI
 		}
 
 		/// <summary>
-		/// Add column and cells representing this game, plus a ribbon showing arrows leading out of this game.
+		/// Add column and cells representing this game, plus a riarrowbbon showing arrows leading out of this game.
 		/// </summary>
 		/// <param name="report">The report template we're adding a column to.</param>
 		/// <param name="gameName">Title for the column.</param>
-		/// <param name="topSpace">Space above this game to fill with pale horizontal ribbons representing teams that haven't played their first game yet.</param>
-		/// <param name="stepDown">Space above this game to fill with _dark_ horizontal ribbons, representing teams that have played their first game, but aren't in this game.</param>
+		/// <param name="topSpace">Space above this game to fill with pale horizontal arrows representing teams that haven't played their first game yet.</param>
+		/// <param name="stepDown">Space above this game to fill with _dark_ horizontal arrows, representing teams that have played their first game, but aren't in this game.</param>
 		/// <param name="teamsInGame">Teams that are actually playing in this game.</param>
-		/// <param name="bottomSpace">Space below this game to fill with dark horizontal ribbons, representing teams that have played their first game, but aren't in this game.</param>
-		/// <param name="narrow">If true, add just one column, and just one columns worth of cells, with the game cells going in the column just to the left of the one we're adding. If false, add two columns, with the second being for ribbons.</param>
+		/// <param name="bottomSpace">Space below this game to fill with dark horizontal arrows, representing teams that have played their first game, but aren't in this game.</param>
+		/// <param name="narrow">If true, add just one column, and just one columns worth of cells, with the game cells going in the column just to the left of the one we're adding. If false, add two columns, with the second being for arrows.</param>
 		/// <returns>The column that contains the game cells.</returns>
 		ZColumn FillColumn(ZoomReport report, string gameName, int topSpace, int stepDown, int teamsInGame, int bottomSpace, bool narrow = false)
 		{
 			ZColumn gameCol;
-			// Add columns for game (and the ribbons between games).
+			// Add columns for game (and the arrows between games).
 			if (narrow)
 			{
 				gameCol = report.Columns.Last();
@@ -334,11 +334,11 @@ namespace Torn.UI
 
 			var arrowCol = new ZColumn(null, ZAlignment.Center, "Games");
 			report.Columns.Add(arrowCol);
-			var ribbon = new ZRibbon();
-			arrowCol.Ribbons.Add(ribbon);
+			var arrow = new Arrow();
+			arrowCol.Arrows.Add(arrow);
 
 			int row = 0;
-			// Add cells for the space above this game (and the ribbons between games).
+			// Add cells for the space above this game (and the arrows between games).
 			for (int i = 0; i < topSpace && row < report.Rows.Count - teamsInGame; i++, row++)
 				AddCells(report, row, narrow ? null : gameCol, arrowCol, Color.FromArgb(0xEE, 0xEE, 0xEE));
 
@@ -346,25 +346,25 @@ namespace Torn.UI
 			for (int i = 0; i < stepDown && row < report.Rows.Count - teamsInGame; i++, row++)
 				AddCells(report, row, narrow ? null : gameCol, arrowCol);
 
-			// Add cells for the game (and the ribbons between games).
+			// Add cells for the game (and the arrows between games).
 			for (int i = 0; i < teamsInGame; i++, row++)
 			{
 				if (narrow)
 				{
 					report.Rows[row].RemoveAt(report.Rows[row].Count - 1);
-					var dupRibbon = gameCol.Ribbons.Find(r => r.From[0].Row == row);
-					if (dupRibbon != null)
-						gameCol.Ribbons.Remove(dupRibbon);
+					var dupArrow = gameCol.Arrows.Find(r => r.From[0].Row == row);
+					if (dupArrow != null)
+						gameCol.Arrows.Remove(dupArrow);
 				}
 
 				report.Rows[row].AddCell(new ZCell(" ... ", Colour.Referee.ToColor()));
 				report.Rows[row].AddCell(new ZCell());
 
-				ribbon.From.Add(new ZRibbonEnd(row, 5));
-				ribbon.To.Add(new ZRibbonEnd(row, 5));
+				arrow.From.Add(new ZArrowEnd(row, 5));
+				arrow.To.Add(new ZArrowEnd(row, 5));
 			}
 
-			// Add cells for the space below this game (and the ribbons between games), so that lower-track games are placed correctly.
+			// Add cells for the space below this game (and the arrows between games), so that lower-track games are placed correctly.
 			for (int i = 0; i < bottomSpace && row < report.Rows.Count; i++, row++)
 				AddCells(report, row, narrow ? null : gameCol, arrowCol);
 
