@@ -58,6 +58,8 @@ namespace Torn.UI
 			this.numericSize = new System.Windows.Forms.NumericUpDown();
 			this.panelGraphic = new System.Windows.Forms.Panel();
 			this.tabFinals = new System.Windows.Forms.TabPage();
+			this.numericFreeRides = new System.Windows.Forms.NumericUpDown();
+			this.label10 = new System.Windows.Forms.Label();
 			this.buttonFormatD = new System.Windows.Forms.Button();
 			this.buttonTwoTrack = new System.Windows.Forms.Button();
 			this.numericTeamsPerGame = new System.Windows.Forms.NumericUpDown();
@@ -69,6 +71,7 @@ namespace Torn.UI
 			this.panelFinals = new System.Windows.Forms.Panel();
 			this.buttonAscension = new System.Windows.Forms.Button();
 			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
+			this.labelTeamsToSendUp = new System.Windows.Forms.Label();
 			this.tabControl1.SuspendLayout();
 			this.tabTeams.SuspendLayout();
 			this.tabGamesList.SuspendLayout();
@@ -77,6 +80,7 @@ namespace Torn.UI
 			this.tabGraphic.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).BeginInit();
 			this.tabFinals.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTracks)).BeginInit();
@@ -421,6 +425,9 @@ namespace Torn.UI
 			// 
 			// tabFinals
 			// 
+			this.tabFinals.Controls.Add(this.labelTeamsToSendUp);
+			this.tabFinals.Controls.Add(this.numericFreeRides);
+			this.tabFinals.Controls.Add(this.label10);
 			this.tabFinals.Controls.Add(this.buttonFormatD);
 			this.tabFinals.Controls.Add(this.buttonTwoTrack);
 			this.tabFinals.Controls.Add(this.numericTeamsPerGame);
@@ -439,9 +446,31 @@ namespace Torn.UI
 			this.tabFinals.UseVisualStyleBackColor = true;
 			this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
 			// 
+			// numericFreeRides
+			// 
+			this.numericFreeRides.Location = new System.Drawing.Point(472, 29);
+			this.numericFreeRides.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+			this.numericFreeRides.Name = "numericFreeRides";
+			this.numericFreeRides.Size = new System.Drawing.Size(50, 20);
+			this.numericFreeRides.TabIndex = 11;
+			this.numericFreeRides.ValueChanged += new System.EventHandler(this.RefreshFinals);
+			// 
+			// label10
+			// 
+			this.label10.AutoSize = true;
+			this.label10.Location = new System.Drawing.Point(266, 31);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(200, 13);
+			this.label10.TabIndex = 10;
+			this.label10.Text = "Teams that get a free ride to grand finals:";
+			// 
 			// buttonFormatD
 			// 
-			this.buttonFormatD.Location = new System.Drawing.Point(249, 32);
+			this.buttonFormatD.Location = new System.Drawing.Point(175, 29);
 			this.buttonFormatD.Name = "buttonFormatD";
 			this.buttonFormatD.Size = new System.Drawing.Size(75, 23);
 			this.buttonFormatD.TabIndex = 8;
@@ -451,7 +480,7 @@ namespace Torn.UI
 			// 
 			// buttonTwoTrack
 			// 
-			this.buttonTwoTrack.Location = new System.Drawing.Point(168, 32);
+			this.buttonTwoTrack.Location = new System.Drawing.Point(94, 29);
 			this.buttonTwoTrack.Name = "buttonTwoTrack";
 			this.buttonTwoTrack.Size = new System.Drawing.Size(75, 23);
 			this.buttonTwoTrack.TabIndex = 7;
@@ -461,7 +490,7 @@ namespace Torn.UI
 			// 
 			// numericTeamsPerGame
 			// 
-			this.numericTeamsPerGame.Location = new System.Drawing.Point(284, 6);
+			this.numericTeamsPerGame.Location = new System.Drawing.Point(210, 3);
 			this.numericTeamsPerGame.Maximum = new decimal(new int[] {
             99,
             0,
@@ -480,12 +509,12 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.RefreshFinals);
+			this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.numericTeamsPerGame_ValueChanged);
 			// 
 			// label9
 			// 
 			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(189, 8);
+			this.label9.Location = new System.Drawing.Point(115, 5);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(89, 13);
 			this.label9.TabIndex = 2;
@@ -493,7 +522,7 @@ namespace Torn.UI
 			// 
 			// numericTeamsToCut
 			// 
-			this.numericTeamsToCut.Location = new System.Drawing.Point(559, 6);
+			this.numericTeamsToCut.Location = new System.Drawing.Point(472, 3);
 			this.numericTeamsToCut.Maximum = new decimal(new int[] {
             99,
             0,
@@ -508,7 +537,7 @@ namespace Torn.UI
 			this.numericTeamsToCut.Size = new System.Drawing.Size(50, 20);
 			this.numericTeamsToCut.TabIndex = 5;
 			this.numericTeamsToCut.Value = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             0});
@@ -517,15 +546,15 @@ namespace Torn.UI
 			// label8
 			// 
 			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(340, 8);
+			this.label8.Location = new System.Drawing.Point(266, 5);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(213, 13);
+			this.label8.Size = new System.Drawing.Size(188, 13);
 			this.label8.TabIndex = 4;
-			this.label8.Text = "Teams to cut from each bottom-track game:";
+			this.label8.Text = "Teams to send down from each game:";
 			// 
 			// numericTracks
 			// 
-			this.numericTracks.Location = new System.Drawing.Point(133, 6);
+			this.numericTracks.Location = new System.Drawing.Point(59, 3);
 			this.numericTracks.Maximum = new decimal(new int[] {
             99,
             0,
@@ -540,7 +569,7 @@ namespace Torn.UI
 			this.numericTracks.Size = new System.Drawing.Size(50, 20);
 			this.numericTracks.TabIndex = 1;
 			this.numericTracks.Value = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             0});
@@ -549,7 +578,7 @@ namespace Torn.UI
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(84, 8);
+			this.label7.Location = new System.Drawing.Point(10, 5);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(43, 13);
 			this.label7.TabIndex = 0;
@@ -569,7 +598,7 @@ namespace Torn.UI
 			// 
 			// buttonAscension
 			// 
-			this.buttonAscension.Location = new System.Drawing.Point(87, 32);
+			this.buttonAscension.Location = new System.Drawing.Point(13, 29);
 			this.buttonAscension.Name = "buttonAscension";
 			this.buttonAscension.Size = new System.Drawing.Size(75, 23);
 			this.buttonAscension.TabIndex = 6;
@@ -581,6 +610,15 @@ namespace Torn.UI
 			// 
 			this.timerRedraw.Interval = 1000;
 			this.timerRedraw.Tick += new System.EventHandler(this.timerRedraw_Tick);
+			// 
+			// labelTeamsToSendUp
+			// 
+			this.labelTeamsToSendUp.AutoSize = true;
+			this.labelTeamsToSendUp.Location = new System.Drawing.Point(528, 5);
+			this.labelTeamsToSendUp.Name = "labelTeamsToSendUp";
+			this.labelTeamsToSendUp.Size = new System.Drawing.Size(174, 13);
+			this.labelTeamsToSendUp.TabIndex = 12;
+			this.labelTeamsToSendUp.Text = "Teams to send up from each game:";
 			// 
 			// FormFixture
 			// 
@@ -605,6 +643,7 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).EndInit();
 			this.tabFinals.ResumeLayout(false);
 			this.tabFinals.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTracks)).EndInit();
@@ -650,5 +689,8 @@ namespace Torn.UI
 		private System.Windows.Forms.NumericUpDown numericTracks;
 		private System.Windows.Forms.Button buttonFormatD;
 		private System.Windows.Forms.Button buttonTwoTrack;
+		private System.Windows.Forms.NumericUpDown numericFreeRides;
+		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.Label labelTeamsToSendUp;
 	}
 }
