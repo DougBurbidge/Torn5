@@ -450,7 +450,7 @@ namespace Torn.UI
 			// 
 			this.numericFreeRides.Location = new System.Drawing.Point(472, 29);
 			this.numericFreeRides.Maximum = new decimal(new int[] {
-            99,
+            2,
             0,
             0,
             0});
@@ -524,7 +524,7 @@ namespace Torn.UI
 			// 
 			this.numericTeamsToCut.Location = new System.Drawing.Point(472, 3);
 			this.numericTeamsToCut.Maximum = new decimal(new int[] {
-            99,
+            2,
             0,
             0,
             0});

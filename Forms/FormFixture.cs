@@ -384,38 +384,34 @@ namespace Torn.UI
 		{
 			// Add columns for games.
 			int game = 0;
-			int topSpace;
 			var games = new List<ZColumn>();
 
-			// Add one or two "startup" games to get things rolling.
-			if ((numTeams - teamsPerGame - freeRides) % teamsToCut == 0)
+			int topSpace = freeRides;
+			while (topSpace + 2 * teamsPerGame <= numTeams)
+				topSpace += teamsToCut;
+
+			// Ensure the bottom team(s) gets a game.
+			if (topSpace + 2 * teamsPerGame < numTeams + teamsToCut)
 			{
-				topSpace = numTeams - teamsPerGame;  // Start the first track at the bottom.
-				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, 0));
+				games.Add(FillColumn(report, GameName(game), numTeams - teamsPerGame, 0, teamsPerGame, 0));
 				game++;
-				topSpace -= teamsToCut;
-				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, teamsPerGame - 2));
-				game++;
-				topSpace -= teamsToCut;
 			}
-			else
-			{
-				topSpace = numTeams - 2 * teamsPerGame + teamsToCut;  // Start the first track, with the lowest teams we can while still allowing for lower tracks.
-				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, teamsPerGame - 2));
-				game++;
-				topSpace = numTeams - 2 * teamsPerGame;
-			}
+
+			// Add a "startup" games to get things rolling.
+			games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, teamsPerGame - teamsToCut));
+			game++;
+			topSpace -= teamsToCut;
 
 			// Add all the "regular" games in the middle. Note narrow = true because these are back-to-back games: no team from these games plays in the immediately previous game.
-			for ( ; topSpace >= freeRides; game += 2)
+			for ( ; topSpace >= freeRides; topSpace -= teamsToCut, game += 2)
 			{
-				games.Add(FillColumn(report, GameName(game), topSpace, 0, teamsPerGame, teamsPerGame, game > 2));
+				games.Add(FillColumn(report, GameName(game),     topSpace, 0,            teamsPerGame, teamsPerGame, game > 2));
 				games.Add(FillColumn(report, GameName(game + 1), topSpace, teamsPerGame, teamsPerGame, 0, true));
-				topSpace -= teamsToCut;
 			}
 
-			// Add the "golden game" just before finals.
-			games.Add(FillColumn(report, GameName(game), freeRides, teamsPerGame - teamsToCut, teamsPerGame, 0));
+			// Add the "golden games" just before finals.
+			for (int stepDown = teamsPerGame - teamsToCut; stepDown > 0; stepDown -= teamsToCut, game++)
+				games.Add(FillColumn(report, GameName(game), freeRides, stepDown, teamsPerGame, 0));
 
 			for (int row = teamsPerGame; row < numTeams; row++)
 				report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
