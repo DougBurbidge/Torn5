@@ -85,7 +85,7 @@ namespace Torn.Report
 
 			List<Game> games = league.Games(includeSecret);
 
-			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct();
+			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct().OrderBy(c => c);
 			var colourTotals = new Dictionary<Colour, List<int>>();
 
 			if (showColours)
@@ -429,13 +429,8 @@ namespace Torn.Report
 
 			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct();
 			var colourTotals = new Dictionary<Colour, List<int>>();
-
 			foreach (Colour c in coloursUsed)
-			{
-				report.AddColumn(new ZColumn(c.ToString(), ZAlignment.Integer));
-
 				colourTotals.Add(c, new List<int>());
-			}
 
 			foreach (Game game in games)
 				foreach (GameTeam gameTeam in game.Teams)  // Roll through this team's games.
@@ -448,26 +443,30 @@ namespace Torn.Report
 							colourTotals[gameTeam.Colour].Add(0);
 						colourTotals[gameTeam.Colour][rank]++;
 					}
-			
+
+			coloursUsed = coloursUsed.OrderBy(c => -colourTotals[c][0]);
+
+			foreach (Colour c in coloursUsed)
+				report.AddColumn(new ZColumn(c.ToString(), ZAlignment.Integer));
+
 			int maxRank = games.Max(g => g.Teams.Count);
 
  			for (int rank = 0; rank < maxRank; rank++)
  			{
 				ZRow row = new ZRow();
 				report.Rows.Add(row);
-				switch (rank) 
-				{
-					case 0:  row.Add(new ZCell("1st"));  break;
-					case 1:  row.Add(new ZCell("2nd"));  break;
-					case 2:  row.Add(new ZCell("3rd"));  break;
-					default: row.Add(new ZCell((rank + 1).ToString() + "th"));  break;
-				}
+				row.Add(new ZCell(Utility.Ordinate(rank + 1)));
 
 				foreach (Colour c in coloursUsed)
 					if (colourTotals[c].Count > rank)
 						row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, c.ToColor()));
 					else
 						row.Add(new ZCell("", c.ToColor()));
+
+				var sameWidths = new List<ZColumn>();
+				for (int i = 1; i < report.Columns.Count; i++)
+					sameWidths.Add(report.Columns[i]);
+				report.SameWidths.Add(sameWidths);
 			}
 
 			if (rt.Settings.Contains("Description"))
