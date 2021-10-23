@@ -83,9 +83,13 @@ namespace Torn.Report
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladder" : rt.Title, "Rank,Team", "center,left");
 			report.MaxChartByColumn = true;
 
-	 		var colourTotals = new Dictionary<Colour, List<int>>();
+			List<Game> games = league.Games(includeSecret);
+
+			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct();
+			var colourTotals = new Dictionary<Colour, List<int>>();
+
 			if (showColours)
-		 		for (Colour c = Colour.Red; c <= Colour.White; c++)
+				foreach (Colour c in coloursUsed)
 				{
 					report.AddColumn(new ZColumn("1st", ZAlignment.Integer, c.ToString()));
 					report.AddColumn(new ZColumn("2nd", ZAlignment.Integer, c.ToString()));
@@ -102,8 +106,6 @@ namespace Torn.Report
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
 				report.AddColumn(new ZColumn("Dropped", ZAlignment.Integer));
-
-			List<Game> games = league.Games(includeSecret);
 
 			ZCell barCell = null;
 			double scoreTotal = 0;
@@ -122,7 +124,7 @@ namespace Torn.Report
 				double points = 0;
 
 				var colourCounts = new Dictionary<Colour, List<int>>();
-				for (Colour c = Colour.Red; c <= Colour.White; c++)
+				foreach (Colour c in coloursUsed)
 					colourCounts.Add(c, new List<int>());
 
 				List<double> scoreList = new List<double>();  // Holds either scores or score ratios.
@@ -160,7 +162,7 @@ namespace Torn.Report
 				}
 
 				if (showColours)
-					for (Colour c = Colour.Red; c <= Colour.White; c++)
+					foreach (Colour c in coloursUsed)
 						for (int rank = 0; rank < 3; rank++)
 							if (colourCounts[c].Count > rank && colourCounts[c][rank] > 0)
 							row.Add(new ZCell(colourCounts[c][rank], ChartType.Bar, "N0", c.ToColor()));
@@ -212,9 +214,9 @@ namespace Torn.Report
 
 				if (showColours)
 				{
-					for (int i = 2; i < 25; i++)
+					for (int i = 2; i < coloursUsed.Count() * 3 + 1; i++)
 						row[i].ChartCell = row[i];
-					for (int i = 26; i < row.Count; i++)
+					for (int i = coloursUsed.Count() * 3 + 2; i < row.Count; i++)
 						row[i].ChartCell = barCell;
 				}
 				else
@@ -305,8 +307,8 @@ namespace Torn.Report
 				row.Add(new ZCell("", Color.Gray));  // Blank rank.
 				row.Add(new ZCell("Totals", Color.Gray));  // "Team" name.
 
-		 		for (Colour c = Colour.Red; c <= Colour.White; c++)
-		 			for (int rank = 0; rank < 3; rank++)
+				foreach (Colour c in coloursUsed)
+					for (int rank = 0; rank < 3; rank++)
 		 			{
 		 			Color dark = Color.FromArgb((c.ToColor().R + Color.Gray.R) / 2, (c.ToColor().G + Color.Gray.G) / 2, (c.ToColor().B + Color.Gray.B) / 2);
 		 				if (colourTotals[c].Count > rank)
@@ -327,16 +329,6 @@ namespace Torn.Report
 
 				if (rt.Drops != null && rt.Drops.HasDrops())
 					row.Add(new ZCell(""));  // games dropped
-
-				// Clear groups of three columns that contain only '0's.
-				for (int i = 23; i > 0; i -= 3)
-					if (report.ColumnZeroOrNaN(i) && report.ColumnZeroOrNaN(i + 1) && report.ColumnZeroOrNaN(i + 2))
-					{
-						report.RemoveColumn(i + 2);
-						report.RemoveColumn(i + 1);
-						report.RemoveColumn(i);
-					}
-
 			}
 
 			for (int i = 0; i < report.Rows.Count; i++)
@@ -366,9 +358,9 @@ namespace Torn.Report
 				FinishReport(league, report, games, rt);
 
 			return report;
-		}  // BuildTeamLadder()
+		}  // TeamLadder
 
-		/// <summary>Build a square tale showing how many times each team has played (and beaten) each other team.</summary>
+		/// <summary>Build a square table showing how many times each team has played (and beaten) each other team.</summary>
 		public static ZoomReport TeamsVsTeams(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Teams vs Teams" : rt.Title, "Team", "left");
@@ -433,15 +425,17 @@ namespace Torn.Report
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Colour Performance" : rt.Title, "Rank", "center");
 
-	 		var colourTotals = new Dictionary<Colour, List<int>>();
-	 		for (Colour c = Colour.Red; c <= Colour.White; c++)
+			List<Game> games = league.Games(includeSecret);
+
+			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct();
+			var colourTotals = new Dictionary<Colour, List<int>>();
+
+			foreach (Colour c in coloursUsed)
 			{
 				report.AddColumn(new ZColumn(c.ToString(), ZAlignment.Integer));
 
 				colourTotals.Add(c, new List<int>());
 			}
-
-			List<Game> games = league.Games(includeSecret);
 
 			foreach (Game game in games)
 				foreach (GameTeam gameTeam in game.Teams)  // Roll through this team's games.
@@ -469,17 +463,12 @@ namespace Torn.Report
 					default: row.Add(new ZCell((rank + 1).ToString() + "th"));  break;
 				}
 
-		 		for (Colour c = Colour.Red; c <= Colour.White; c++)
+				foreach (Colour c in coloursUsed)
 					if (colourTotals[c].Count > rank)
 						row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, c.ToColor()));
 					else
 						row.Add(new ZCell("", c.ToColor()));
 			}
-
-			// Clear columns that contain only '0's.
-			for (int i = report.Columns.Count; i > 0; i--)
-				if (report.ColumnZeroOrNaN(i) && report.ColumnZeroOrNaN(i + 1) && report.ColumnZeroOrNaN(i + 2))
-					report.RemoveColumn(i);
 
 			if (rt.Settings.Contains("Description"))
 				report.Description = "This report shows the total number of firsts, seconds and thirds that were scored by each colour.";
@@ -1731,7 +1720,7 @@ namespace Torn.Report
 		}
 
 		// https://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
-		static List<Color> boyntonColors = new List<Color>
+		static List<Color> BoyntonColors = new List<Color>
 		{
 			Color.FromArgb(32, 32, 255),    // Blue
 			Color.FromArgb(255, 0, 0),      // Red
@@ -1796,7 +1785,7 @@ namespace Torn.Report
 			// Assign each league a color, for longitudinal chart points.
 			var leagueColors = new Dictionary<League, Color>();
 			for (int i = 0; i < leagues.Count; i++)
-				leagueColors.Add(leagues[i], boyntonColors[i % 9]);
+				leagueColors.Add(leagues[i], BoyntonColors[i % 9]);
 
 			// Build list of games to report on.
 			var games = new List<Game>();
