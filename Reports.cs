@@ -1525,9 +1525,9 @@ namespace Torn.Report
 			if (league.IsPoints())
 				report.AddColumn(new ZColumn("Pts", ZAlignment.Float, "Score"));
 
-			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Conceded,Ratio,Denies,Denied,Yellow,Red", 
-			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
-			                  ",Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Base,Base,Penalties,Penalties");
+			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Conceded,Ratio,Denies,Denied,Yellow,Red,Played", 
+			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,left",
+			                  ",Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Base,Base,Penalties,Penalties,");
 
 			// TODO: add columns for total points for/against, total team tags for/against, total team denials for/against (from game.ServerGame.Events?)
 
@@ -1598,6 +1598,10 @@ namespace Torn.Report
 					}
 					gameRow.Insert(gameRow.Count - 4, basesConceded);
 					gameRow.Insert(gameRow.Count - 4, baseRatio);
+
+					var playedAgainst = game.Teams.Select(gt => league.LeagueTeam(gt)).ToList();
+					playedAgainst.Remove(league.LeagueTeam(gameTeam));
+					gameRow.Add(new ZCell(string.Join(", ", playedAgainst)));
 
 					previousGameDate = game.Time.Date;
 				}  // if from..to; for Played
