@@ -180,24 +180,24 @@ namespace Torn.UI
 			// numericUpDownTopN
 			// 
 			this.numericUpDownTopN.Increment = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
+            10,
+            0,
+            0,
+            0});
 			this.numericUpDownTopN.Location = new System.Drawing.Point(129, 535);
 			this.numericUpDownTopN.Maximum = new decimal(new int[] {
-									1000,
-									0,
-									0,
-									0});
+            1000,
+            0,
+            0,
+            0});
 			this.numericUpDownTopN.Name = "numericUpDownTopN";
 			this.numericUpDownTopN.Size = new System.Drawing.Size(50, 20);
 			this.numericUpDownTopN.TabIndex = 13;
 			this.numericUpDownTopN.Value = new decimal(new int[] {
-									40,
-									0,
-									0,
-									0});
+            40,
+            0,
+            0,
+            0});
 			// 
 			// numericUpDownAtLeastN
 			// 
@@ -206,18 +206,18 @@ namespace Torn.UI
 			this.numericUpDownAtLeastN.Size = new System.Drawing.Size(50, 20);
 			this.numericUpDownAtLeastN.TabIndex = 16;
 			this.numericUpDownAtLeastN.Value = new decimal(new int[] {
-									7,
-									0,
-									0,
-									0});
+            7,
+            0,
+            0,
+            0});
 			// 
 			// orderBy
 			// 
 			this.orderBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.orderBy.FormattingEnabled = true;
 			this.orderBy.Items.AddRange(new object[] {
-									"victory points then score",
-									"victory points then score ratio"});
+            "victory points then score",
+            "victory points then score ratio"});
 			this.orderBy.Location = new System.Drawing.Point(73, 592);
 			this.orderBy.Name = "orderBy";
 			this.orderBy.Size = new System.Drawing.Size(189, 21);
@@ -394,23 +394,24 @@ namespace Torn.UI
 			// 
 			this.listBoxReportType.FormattingEnabled = true;
 			this.listBoxReportType.Items.AddRange(new object[] {
-									"Team ladder",
-									"Teams vs teams",
-									"Solo ladder",
-									"Game by game (good for 3 team games)",
-									"Game grid (good for many team games)",
-									"Game grid condensed",
-									"Ascension",
-									"Pyramid",
-									"Pyramid condensed",
-									"Colours",
-									"Packs",
-									"Everything"});
+            "Team ladder",
+            "Teams vs teams",
+            "Solo ladder",
+            "Game by game (good for 3 team games)",
+            "Game grid (good for many team games)",
+            "Game grid condensed",
+            "Ascension",
+            "Pyramid",
+            "Pyramid condensed",
+            "Colours",
+            "Packs",
+            "Everything"});
 			this.listBoxReportType.Location = new System.Drawing.Point(62, 12);
 			this.listBoxReportType.Name = "listBoxReportType";
-			this.listBoxReportType.Size = new System.Drawing.Size(211, 147);
+			this.listBoxReportType.Size = new System.Drawing.Size(211, 134);
 			this.listBoxReportType.TabIndex = 1;
 			this.listBoxReportType.SelectedIndexChanged += new System.EventHandler(this.ListBoxReportTypeSelectedIndexChanged);
+			this.listBoxReportType.DoubleClick += new System.EventHandler(this.listBoxReportType_DoubleClick);
 			// 
 			// description
 			// 
@@ -437,15 +438,15 @@ namespace Torn.UI
 			this.chartType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.chartType.FormattingEnabled = true;
 			this.chartType.Items.AddRange(new object[] {
-									"none",
-									"bar",
-									"rug plot",
-									"bar with rug",
-									"box plot",
-									"box plot with rug",
-									"histogram",
-									"kernel density estimate",
-									"kernel density estimate with rug"});
+            "none",
+            "bar",
+            "rug plot",
+            "bar with rug",
+            "box plot",
+            "box plot with rug",
+            "histogram",
+            "kernel density estimate",
+            "kernel density estimate with rug"});
 			this.chartType.Location = new System.Drawing.Point(73, 499);
 			this.chartType.Name = "chartType";
 			this.chartType.Size = new System.Drawing.Size(189, 21);
@@ -462,7 +463,7 @@ namespace Torn.UI
 			// title
 			// 
 			this.title.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.title.Location = new System.Drawing.Point(62, 170);
 			this.title.Name = "title";
 			this.title.Size = new System.Drawing.Size(211, 20);
@@ -525,6 +526,7 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownBest)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
 		}
 		private System.Windows.Forms.CheckBox longitudinal;
 		private System.Windows.Forms.TextBox title;

@@ -30,9 +30,9 @@ namespace Torn.UI
 		private void InitializeComponent()
 		{
 			this.listViewReports = new System.Windows.Forms.ListView();
-			this.colReport = new System.Windows.Forms.ColumnHeader();
-			this.colTitle = new System.Windows.Forms.ColumnHeader();
-			this.colOptions = new System.Windows.Forms.ColumnHeader();
+			this.colReport = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colOptions = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.buttonAdd = new System.Windows.Forms.Button();
 			this.buttonDelete = new System.Windows.Forms.Button();
 			this.buttonUp = new System.Windows.Forms.Button();
@@ -45,18 +45,19 @@ namespace Torn.UI
 			this.radioTsv = new System.Windows.Forms.RadioButton();
 			this.radioTables = new System.Windows.Forms.RadioButton();
 			this.radioSvg = new System.Windows.Forms.RadioButton();
+			this.buttonDefaults = new System.Windows.Forms.Button();
 			this.groupBoxOutputFormat.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// listViewReports
 			// 
 			this.listViewReports.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.listViewReports.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-									this.colReport,
-									this.colTitle,
-									this.colOptions});
+            this.colReport,
+            this.colTitle,
+            this.colOptions});
 			this.listViewReports.FullRowSelect = true;
 			this.listViewReports.HideSelection = false;
 			this.listViewReports.Location = new System.Drawing.Point(12, 41);
@@ -66,6 +67,7 @@ namespace Torn.UI
 			this.listViewReports.UseCompatibleStateImageBehavior = false;
 			this.listViewReports.View = System.Windows.Forms.View.Details;
 			this.listViewReports.DoubleClick += new System.EventHandler(this.ButtonEditClick);
+			this.listViewReports.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listViewReports_KeyDown);
 			// 
 			// colReport
 			// 
@@ -87,7 +89,7 @@ namespace Torn.UI
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.Size = new System.Drawing.Size(75, 23);
 			this.buttonAdd.TabIndex = 0;
-			this.buttonAdd.Text = "Add";
+			this.buttonAdd.Text = "&Add";
 			this.buttonAdd.UseVisualStyleBackColor = true;
 			this.buttonAdd.Click += new System.EventHandler(this.ButtonAddClick);
 			// 
@@ -98,7 +100,7 @@ namespace Torn.UI
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.Size = new System.Drawing.Size(75, 23);
 			this.buttonDelete.TabIndex = 2;
-			this.buttonDelete.Text = "Delete Reports";
+			this.buttonDelete.Text = "&Delete";
 			this.buttonDelete.UseVisualStyleBackColor = true;
 			this.buttonDelete.Click += new System.EventHandler(this.ButtonDeleteClick);
 			// 
@@ -131,14 +133,14 @@ namespace Torn.UI
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.Size = new System.Drawing.Size(75, 23);
 			this.buttonEdit.TabIndex = 1;
-			this.buttonEdit.Text = "Edit";
+			this.buttonEdit.Text = "&Edit";
 			this.buttonEdit.UseVisualStyleBackColor = true;
 			this.buttonEdit.Click += new System.EventHandler(this.ButtonEditClick);
 			// 
 			// groupBoxOutputFormat
 			// 
 			this.groupBoxOutputFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBoxOutputFormat.Controls.Add(this.label2);
 			this.groupBoxOutputFormat.Controls.Add(this.label1);
 			this.groupBoxOutputFormat.Controls.Add(this.radioCsv);
@@ -216,11 +218,22 @@ namespace Torn.UI
 			this.radioSvg.UseVisualStyleBackColor = true;
 			this.radioSvg.CheckedChanged += new System.EventHandler(this.RadioCheckedChanged);
 			// 
+			// buttonDefaults
+			// 
+			this.buttonDefaults.Location = new System.Drawing.Point(514, 12);
+			this.buttonDefaults.Name = "buttonDefaults";
+			this.buttonDefaults.Size = new System.Drawing.Size(104, 23);
+			this.buttonDefaults.TabIndex = 7;
+			this.buttonDefaults.Text = "Add default reports";
+			this.buttonDefaults.UseVisualStyleBackColor = true;
+			this.buttonDefaults.Click += new System.EventHandler(this.buttonDefaults_Click);
+			// 
 			// FormReports
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(632, 442);
+			this.Controls.Add(this.buttonDefaults);
 			this.Controls.Add(this.groupBoxOutputFormat);
 			this.Controls.Add(this.buttonEdit);
 			this.Controls.Add(this.buttonDown);
@@ -233,6 +246,7 @@ namespace Torn.UI
 			this.Shown += new System.EventHandler(this.FormReportsShown);
 			this.groupBoxOutputFormat.ResumeLayout(false);
 			this.ResumeLayout(false);
+
 		}
 		private System.Windows.Forms.RadioButton radioSvg;
 		private System.Windows.Forms.RadioButton radioTables;
@@ -250,5 +264,6 @@ namespace Torn.UI
 		private System.Windows.Forms.Button buttonDelete;
 		private System.Windows.Forms.Button buttonAdd;
 		private System.Windows.Forms.ListView listViewReports;
+		private System.Windows.Forms.Button buttonDefaults;
 	}
 }

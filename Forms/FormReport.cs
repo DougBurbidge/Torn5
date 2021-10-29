@@ -210,5 +210,11 @@ namespace Torn.UI
 				orderBy.Items.RemoveAt(2);
 			}
 		}
+
+		private void listBoxReportType_DoubleClick(object sender, EventArgs e)
+		{
+			DialogResult = DialogResult.OK;
+			Close();
+		}
 	}
 }
