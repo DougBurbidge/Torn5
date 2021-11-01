@@ -501,6 +501,11 @@ namespace Torn
 		   return DateTime.Compare(this.Time, g.Time);
 		}
 
+		public DateTime EndTime()
+		{
+			return ServerGame == null || ServerGame.EndTime == default ? Time.AddMinutes(12) : ServerGame.EndTime;
+		}
+
 		/// <summary>True if any team in this game has victory points.</summary>
 		public bool IsPoints()
 		{
@@ -566,7 +571,7 @@ namespace Torn
 	{
 		public DateTime? MostRecent()
 		{
-			return (this.Count == 0) ? (DateTime?)null : this.Select(x => x.Time).Max();
+			return this.Any() ? this.Select(x => x.Time).Max() : (DateTime?)null;
 		}
 	}
 
@@ -822,7 +827,7 @@ namespace Torn
 
 		public LeagueTeam GuessTeam(List<string> ids)
 		{
-			if (teams.Count == 0 || ids.Count == 0)
+			if (!teams.Any() || !ids.Any())
 				return null;
 
 			LeagueTeam bestTeam = null;
@@ -1333,7 +1338,7 @@ namespace Torn
 		public string GameString(ServerGame serverGame)
 		{
 			var leagueTeams = GuessTeams(serverGame);
-			return leagueTeams.Count == 0 ? "?" : string.Join(", ", leagueTeams);
+			return leagueTeams.Any() ? string.Join(", ", leagueTeams) : "?";
 		}
 
 		public double AverageScore(LeagueTeam leagueTeam, bool includeSecret)
@@ -1344,7 +1349,7 @@ namespace Torn
 		public double AveragePoints(LeagueTeam leagueTeam, bool includeSecret)
 		{
 			var p = Played(leagueTeam, includeSecret);
-			return p.Count == 0 ? 0  : p.Average(x => x.Points);
+			return p.Any() ? p.Average(x => x.Points) : 0;
 		}
 
 		public double CalculateScore(GameTeam gameTeam)
