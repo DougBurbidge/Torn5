@@ -217,7 +217,7 @@ namespace Torn.Report
 			return child == null ? 0 : int.Parse(child.InnerText, CultureInfo.InvariantCulture);
 		}
 
-		public void FromXml(XmlDocument doc, XmlNode node)
+		public void FromXml(XmlNode node)
 		{
 			foreach (XmlNode x in node.ChildNodes)
 				switch (x.Name)
@@ -229,11 +229,13 @@ namespace Torn.Report
 						Title = x.InnerText;
 						break;
 					case "drops":
-						Drops = new Drops();
-						Drops.CountWorst = XmlInt(x, "worst");
-						Drops.PercentWorst = XmlInt(x, "percentworst");
-						Drops.CountBest = XmlInt(x, "best");
-						Drops.PercentBest = XmlInt(x, "percentbest");
+						Drops = new Drops
+						{
+							CountWorst = XmlInt(x, "worst"),
+							PercentWorst = XmlInt(x, "percentworst"),
+							CountBest = XmlInt(x, "best"),
+							PercentBest = XmlInt(x, "percentbest")
+						};
 						break;
 					case "from":
 						From = DateTime.Parse(x.InnerText);
@@ -255,8 +257,7 @@ namespace Torn.Report
 			int index = Settings.FindIndex(s => s.StartsWith(name));
 			if (index > 0)
 			{
-				DateTime dt;
-				DateTime.TryParse(Settings[index].Substring(name.Length), out dt);
+				DateTime.TryParse(Settings[index].Substring(name.Length), out DateTime dt);
 				Settings.RemoveAt(index);
 				return dt;
 			}
@@ -273,9 +274,8 @@ namespace Torn.Report
 			string[] ss = s.Split('&');
 			foreach (string s1 in ss)
 			{
-				ReportType reportType;
 				string[] s2 = s1.Split(',');
-				if (s2.Length > 0 && Enum.TryParse(s2[0], out reportType))
+				if (s2.Length > 0 && Enum.TryParse(s2[0], out ReportType reportType))
 					Add(new ReportTemplate(reportType, s2));
 			}
 		}
@@ -294,12 +294,12 @@ namespace Torn.Report
 				reportTemplate.ToXml(doc, reportTemplatesNode);
 		}
 
-		public void FromXml(XmlDocument doc, XmlNode node)
+		public void FromXml(XmlNode node)
 		{
 			foreach (XmlNode x in node.ChildNodes)
 			{
 				var reportTemplate = new ReportTemplate();
-				reportTemplate.FromXml(doc, x);
+				reportTemplate.FromXml(x);
 				Add(reportTemplate);
 			}
 		}
@@ -359,9 +359,11 @@ namespace Torn.Report
 		public Holder()
 		{
 			ReportTemplates = new ReportTemplates();
-			
-			Watcher = new FileSystemWatcher();
-			Watcher.NotifyFilter = NotifyFilters.LastWrite;// | NotifyFilters.CreationTime | NotifyFilters.Size;
+
+			Watcher = new FileSystemWatcher
+			{
+				NotifyFilter = NotifyFilters.LastWrite// | NotifyFilters.CreationTime | NotifyFilters.Size;
+			};
 			Watcher.Changed += new FileSystemEventHandler(OnFileChanged);
 			
 			Fixture = new Fixture();
@@ -375,12 +377,12 @@ namespace Torn.Report
 
 			foreach (LeagueTeam lt in League.Teams)
 				if (!Fixture.Teams.Exists(ft => ft.LeagueTeam == lt))
-				{
-					FixtureTeam ft = new FixtureTeam();
-					ft.LeagueTeam = lt;
-					ft.Name = lt.Name;
-					Fixture.Teams.Add(ft);
-				}
+					Fixture.Teams.Add(new FixtureTeam
+						{
+							LeagueTeam = lt,
+							Name = lt.Name
+						}
+					);
 		}
 
 		void OnFileChanged(object sender, FileSystemEventArgs e)

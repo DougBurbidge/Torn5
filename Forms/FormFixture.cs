@@ -98,10 +98,12 @@ namespace Torn.UI
 				if (Fixture.Teams.Count == 0)
 					foreach (var lt in League.Teams)
 					{
-						var ft = new FixtureTeam();
-						ft.LeagueTeam = lt;
-						ft.Name = lt.Name;
-						Fixture.Teams.Add(ft);
+						Fixture.Teams.Add(new FixtureTeam
+							{
+								LeagueTeam = lt,
+								Name = lt.Name
+							}
+						);
 					}
 
 				textBoxTeams.Text = Fixture.Teams.ToString();
@@ -250,8 +252,6 @@ namespace Torn.UI
 		// Paint coloured cells onto grid to show teams in games.
 		void PaintCells(int size)
 		{
-			var g = panelGraphic.CreateGraphics();
-
 			for (int col = 0; col < Fixture.Games.Count; col++)
 			{
 				var fg = Fixture.Games[col];

@@ -1338,7 +1338,7 @@ namespace Torn.UI
 
 				var xtemplates = xleague.SelectSingleNode("reporttemplates");
 				if (xtemplates != null)
-					holder.ReportTemplates.FromXml(doc, xtemplates);
+					holder.ReportTemplates.FromXml(xtemplates);
 
 				holder.Fixture.Teams.Parse(holder.League);
 				var xfixtures = xleague.SelectSingleNode("fixtures");

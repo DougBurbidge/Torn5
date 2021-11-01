@@ -229,14 +229,14 @@ namespace Zoom
 		[System.ComponentModel.TypeConverter(typeof(System.ComponentModel.StringConverter))]
 		public object Tag { get; set; }
 
-		public ZCell(string text = "", Color color = default(Color), ZCell barCell = null)
+		public ZCell(string text = "", Color color = default, ZCell barCell = null)
 		{
 			Text = text;
 			Color = color;
 			ChartCell = barCell;
 		}
 
-		public ZCell(double? number, ChartType chartType = ChartType.None, string numberFormat = "", Color color = default(Color))
+		public ZCell(double? number, ChartType chartType = ChartType.None, string numberFormat = "", Color color = default)
 		{
 			Number = number;
 			NumberFormat = numberFormat;
@@ -552,15 +552,14 @@ namespace Zoom
 							min = Math.Min(min, Rows[row][col].Data.Min());
 							max = Math.Max(max, Rows[row][col].Data.Max());
 						}
-						else if (Rows[row][col].Tag is List<ChartPoint> && ((List<ChartPoint>)Rows[row][col].Tag).Any())
+						else if (Rows[row][col].Tag is List<ChartPoint> points && points.Any())
 						{
 							if (min == 0.0)
 								min = double.MaxValue; // For most data types we want an all-positive data series to have a  min of 0, not its actual series minimum. But for chart points, where X is a date/time, that starts the chart at 1900, which is bad. So one-off setting the min to MaxValue means we'll end with a min of the earliest time in the series. 
 							hasNumber = true;
-							var points = (List<ChartPoint>)Rows[row][col].Tag;
 							min = Math.Min(min, points.Min(p => p.X.Ticks));
 							max = Math.Max(max, points.Max(p => p.X.Ticks));
-							maxPoints = Math.Max(maxPoints, points.Count);
+							maxPoints = Math.Max(maxPoints, (int)points.Count);
 						}
 						else if (Rows[row][col].Number.HasValue && !double.IsNaN((double)Rows[row][col].Number))
 						{
@@ -617,8 +616,6 @@ namespace Zoom
 
 			if (!string.IsNullOrEmpty(Title))
 				AppendStrings(s, Title, "\n");
-
-			List<ZColumn> columns = Columns;
 
 			bool hasgroupheadings = false;
 			foreach (ZColumn col in Columns)
@@ -970,12 +967,12 @@ namespace Zoom
 		enum TopBottomType { Left, Right, Both }; // Does the top of this arrow have an end from the left? An end to the right? One of each? What about the bottom of the arrow?
 
 		/// Draw one complete vertical arrow plus its horizontal ends.
-		void SvgArrow(StringBuilder s, int indent, ZColumn col, ZColumn nextCol, Arrow arrow, float left, float width, float top, float height, float rowHeight)
+		void SvgArrow(StringBuilder s, int indent, ZColumn nextCol, Arrow arrow, float left, float width, float top, float rowHeight)
 		{
 			if (arrow.From.Count == 0 && arrow.To.Count == 0)
 				return;
 
-			Color c = arrow.Color == default(Color) ? Color.Gray : arrow.Color;
+			Color c = arrow.Color == default ? Color.Gray : arrow.Color;
 			arrow.From.Sort();
 			arrow.To.Sort();
 
@@ -1115,7 +1112,7 @@ namespace Zoom
 		}
 
 		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
-		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, List<double> maxs, int width, double max, bool pure)
+		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, int width, bool pure)
 		{
 			if (!pure)
 				s.AppendFormat("<div>");
@@ -1337,8 +1334,10 @@ namespace Zoom
 
 				int n = width < 100 ? (int)width * 10 : (int)width * 10 / (int)(width / 50);  // Number of points in curve for our kernel density estimate polygon.
 
-				var points = new List<Tuple<double, double>>();
-				points.Add(new Tuple<double, double>(left, 0));
+				var points = new List<Tuple<double, double>>
+				{
+					new Tuple<double, double>(left, 0)
+				};
 				double yMax = 0;
 				for (double xx = chartMin; xx < chartMax; xx += (chartMax - chartMin) / n)
 				{
@@ -1387,8 +1386,10 @@ namespace Zoom
 
 			if (cell.ChartType.HasFlag(ChartType.Area))  // Area
 			{
-				var points = new List<Tuple<double, double>>();
-				points.Add(new Tuple<double, double>(left, 0));
+				var points = new List<Tuple<double, double>>
+				{
+					new Tuple<double, double>(left, 0)
+				};
 				for (int i = 0; i < count; i++)
 					points.Add(new Tuple<double, double>(left + Scale(i, width, 0, count - 1), cell.Data[i]));
 				points.Add(new Tuple<double, double>(left + width, 0));
@@ -1397,18 +1398,17 @@ namespace Zoom
 				SvgRect2(s, 1, left, top + height - Scale(0.5, height, chartMin, chartMax), width, 0.1, backColor); // Paint mean stripe.
 			}
 
-			if (cell.ChartType.HasFlag(ChartType.XYScatter) && cell.Tag is List<ChartPoint>)  // XYScatter
+			if (cell.ChartType.HasFlag(ChartType.XYScatter) && cell.Tag is List<ChartPoint> points2)  // XYScatter
 			{
-				var points = (List<ChartPoint>)cell.Tag;
-				var minY = Math.Min(0, points.Min(p => double.IsNaN(p.Y) ? 0 : p.Y));
-				var maxY = Math.Max(1, points.Max(p => p.Y));
+				var minY = Math.Min(0, points2.Min(p => double.IsNaN(p.Y) ? 0 : p.Y));
+				var maxY = Math.Max(1, points2.Max(p => p.Y));
 				var radius = Math.Min(Math.Max(width / maxPoints / 4, 0.1), 2.0);
 
 				SvgRect2(s, 1, left, top + height - Scale(1, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint "full height" stripe. (Points will actually appear above this line because scaling.)
 				SvgRect2(s, 1, left, top + height - Scale(0.5, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint mean stripe.
 				SvgRect2(s, 1, left, top + height - Scale(0, height, minY, maxY) - 0.05, width, 0.1, chartColor); // Paint baseline.
 
-				foreach (var point in points)
+				foreach (var point in points2)
 					if (!double.IsNaN(point.Y))
 						SvgCircle(s, 1, left + Scale(point.X.Ticks, width, chartMin, chartMax), top + height - Scale(point.Y, height, minY, maxY), radius, point.Color);
 			}
@@ -1473,8 +1473,7 @@ namespace Zoom
 			var widths = new List<float>();  // Width of each column in pixels. "float", because MeasureString().Width returns a float.
 			var mins = new List<double>();   // Minimum numeric value in each column, or if all numbers are positive, 0.
 			var maxs = new List<double>();   // Maximum numeric value in each column.
-			int maxPoints;
-			Widths(widths, mins, maxs, out maxPoints);
+			Widths(widths, mins, maxs, out int maxPoints);
 			int width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
 			double max = maxs.DefaultIfEmpty(1).Max();
 
@@ -1490,7 +1489,7 @@ namespace Zoom
 				height += (int)(widest / Math.Sqrt(2) + 10 - rowHeight);
 			}
 
-			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, height, widths, maxs, width, max, pure);
+			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, height, widths, width, pure);
 			int arrowTop = rowTop;
 
 			bool odd = true;
@@ -1505,7 +1504,7 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 				foreach (var arrow in Columns[col].Arrows)
-					SvgArrow(sb, 1, Columns[col], col + 1 == Columns.Count ? null : Columns[col + 1], arrow, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, arrowTop - 0.5F, (rowHeight + 1) * Rows.Count, rowHeight + 1);
+					SvgArrow(sb, 1, col + 1 == Columns.Count ? null : Columns[col + 1], arrow, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, arrowTop - 0.5F, rowHeight + 1);
 
 			sb.Append("</svg>\n");
 
@@ -1563,10 +1562,10 @@ namespace Zoom
 		{
 			var result = new List<Color>();
 			foreach (var report in this)
-				if (report is ZoomReport)
+				if (report is ZoomReport zoomReport)
 				{
 					bool odd = true;
-					foreach (var row in ((ZoomReport)report).Rows)
+					foreach (var row in zoomReport.Rows)
 					{
 						foreach (var cell in row)
 							if (!result.Contains(cell.GetBarColor(colors.GetBackColor(odd))))

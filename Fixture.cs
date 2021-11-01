@@ -42,15 +42,12 @@ namespace Torn
 			}
 
 			score = bestScore;
-			return bestMatch != null ? bestMatch :
-				games.Any() ? games.First() : 
-				null;
+			return bestMatch ?? (games.Any() ? games.First() : null);
 		}
 		
 		public FixtureGame BestMatch(Game game)
 		{
-			double score;
-			return BestMatch(game, out score);
+			return BestMatch(game, out _);
 		}
 
 		/// Rate how well a game and a fixture game match. 0.0 is no match; 1.0 is perfect match.
@@ -93,16 +90,19 @@ namespace Torn
 			string[] lines = s.Split(new string[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < lines.Length; i++)
 			{
-				FixtureTeam ft = new FixtureTeam();
-
-				ft.Name = lines[i];
+				FixtureTeam ft = new FixtureTeam
+				{
+					Name = lines[i]
+				};
 				if (league != null)
 				{
 					ft.LeagueTeam = league.Teams.Find(x => x.Name == ft.Name);
 					if (ft.LeagueTeam == null)
 					{
-						var team = new LeagueTeam();
-						team.Name = ft.Name;
+						var team = new LeagueTeam
+						{
+							Name = ft.Name
+						};
 						league.AddTeam(team);
 						ft.LeagueTeam = team;
 					}
@@ -118,14 +118,12 @@ namespace Torn
 		{
 			foreach (LeagueTeam lt in league.Teams)
 				if (!Exists(ft => ft.Name == lt.Name))
-				{
-					FixtureTeam ft = new FixtureTeam();
-	
-					ft.Name = lt.Name;
-					ft.LeagueTeam = lt;
-	
-					Add(ft);
-				}
+					Add(new FixtureTeam
+						{
+							Name = lt.Name,
+							LeagueTeam = lt
+						}
+					);
 		}
 
 		public override string ToString()
@@ -177,17 +175,17 @@ namespace Torn
 					if (!string.IsNullOrEmpty(fields[i]))
 					{
 						FixtureTeam ft;
-						int teamnum;
-						if (int.TryParse(fields[i], out teamnum))
+						if (int.TryParse(fields[i], out int teamnum))
 							ft = teams.Find(x => x.Id() == teamnum);
 						else
 							ft = teams.Find(x => x.LeagueTeam != null && x.LeagueTeam.Name == fields[i]);
 
 						if (ft == null)
-						{
-							ft = new FixtureTeam();
-							ft.Name = "Team " + fields[i];
-						}
+							ft = new FixtureTeam
+							{
+								Name = "Team " + fields[i]
+							};
+
 						if (!fg.Teams.ContainsKey(ft))
 						{
 							if (fields.Length <= 5)  // If there are five or less teams per game,
@@ -206,9 +204,10 @@ namespace Torn
 		{
 			foreach (Game lg in league.Games(false))
 			{
-				FixtureGame fg = new FixtureGame();
-
-				fg.Time = lg.Time;
+				FixtureGame fg = new FixtureGame
+				{
+					Time = lg.Time
+				};
 
 				foreach (GameTeam gt in lg.Teams)
 				{
@@ -343,7 +342,7 @@ namespace Torn
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("FixtureGame: ");
-			if (Time != default(DateTime))
+			if (Time != default)
 			{
 				sb.Append(Time);
 				sb.Append('\t');
