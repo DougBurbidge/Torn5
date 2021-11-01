@@ -789,14 +789,37 @@ namespace Torn.Report
 					titleCount.Add("", maxCount);
 			}
 
+			// Figure out if this set of games ends in a finals series. It's a finals series if all the teams in the last game are in the second-last game, all the teams in the second-last are in the third-last, etc.
+			var finals = new List<Game>();
+			if (titles.Count == 1)
+			{
+				finals.Add(games.Last());
+				int current = games.Count - 2;
+
+				bool matched = true;
+				while (current >= 0 && matched)
+				{
+					foreach (var game in finals)
+						foreach (var team in game.Teams)  // Check that every team in "game" is in "current". ("current" can be a superset of "game" if e.g. a team has dropped out due to injury.)
+							matched &= games[current].Teams.Any(t => t.TeamId == team.TeamId);
+
+					if (matched)  // If all teams in this game are in all subsequent finals games,
+						finals.Add(games[current]); // add this game to finals.
+
+					current--;
+				}
+
+				finals.Sort();
+			}
+
 			// Create columns.
 			foreach (var tc in titleCount)
-				for (int i = 0; i < tc.Value; i++)
-				{
-					report.AddColumn(new ZColumn("Time") { GroupHeading = tc.Key } );
-					report.AddColumn(new ZColumn("Score", ZAlignment.Right) { GroupHeading = tc.Key } );
-					report.AddColumn(new ZColumn(league.IsPoints() ? "Pts" : "Rank", ZAlignment.Right) { GroupHeading = tc.Key } );
-				}
+			for (int i = 0; i < tc.Value; i++)
+			{
+				report.AddColumn(new ZColumn("Time") { GroupHeading = tc.Key } );
+				report.AddColumn(new ZColumn("Score", ZAlignment.Right) { GroupHeading = tc.Key } );
+				report.AddColumn(new ZColumn(league.IsPoints() ? "Pts" : "Rank", ZAlignment.Right) { GroupHeading = tc.Key } );
+			}
 
 			int averageCol = report.Columns.Count();
 			int pointsCol = averageCol + 1;
@@ -845,12 +868,25 @@ namespace Torn.Report
 					}  // foreach game in title
 
 					// Fill in blanks to the end of this title.
+					int finalsGames = finals.Count(g => g.Teams.Any(t => t.TeamId == leagueTeam.TeamId));
+					if (finals.Count > 1 && finalsGames > 0)
+					{
+						int insertAt = col - finalsGames * 3;
+						while (col < report.Columns.Count + (finalsGames - finals.Count) * 3)
+						{
+							row.Insert(insertAt, new ZCell(""));
+							row.Insert(insertAt, new ZCell(""));
+							row.Insert(insertAt, new ZCell(""));
+							col += 3;
+						}
+					}
+
 					while (col < report.Columns.Count && report.Columns[col].GroupHeading == gameTitle)
 					{
-	 					row.Add(new ZCell(""));
-	 					row.Add(new ZCell(""));
-	 					row.Add(new ZCell(""));
-	 					col += 3;
+						row.Add(new ZCell(""));
+						row.Add(new ZCell(""));
+						row.Add(new ZCell(""));
+						col += 3;
 					}
 				}
 
@@ -2557,7 +2593,7 @@ namespace Torn.Report
 		public void DoColor(ZoomReport report)
 		{
 			foreach (ZRow row in report.Rows)
-				for (int i = 0; i < row.Count && groups.IndexOf(Columns[i].GroupHeading) <= (int)row[lastGroupIndex].Number; i++)
+				for (int i = 0; i < row.Count && i< Columns.Count && groups.IndexOf(Columns[i].GroupHeading) <= (int)row[lastGroupIndex].Number; i++)
 					if (!string.IsNullOrEmpty(Columns[i].GroupHeading) && groups.IndexOf(Columns[i].GroupHeading) % 2 == 0 && row[i].Color == Color.Empty)
 						row[i].Color = Color.FromArgb(0xF0, 0xF0, 0xFF);
 		}
