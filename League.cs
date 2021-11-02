@@ -1343,7 +1343,8 @@ namespace Torn
 
 		public double AverageScore(LeagueTeam leagueTeam, bool includeSecret)
 		{
-			return Played(leagueTeam, includeSecret).Average(x => x.Score);
+			var p = Played(leagueTeam, includeSecret);
+			return p.Any() ? p.Average(x => x.Score) : 0;
 		}
 
 		public double AveragePoints(LeagueTeam leagueTeam, bool includeSecret)
