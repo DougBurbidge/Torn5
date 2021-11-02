@@ -45,26 +45,18 @@ namespace Torn.Report
 		public static ZoomReports OverviewReports(Holder holder, bool includeSecret, GameHyper gameHyper)
 		{
 			ZoomReports reports = new ZoomReports(holder.League.Title);
-			
+
+			ReportTemplates reportTemplates;
 			if (holder.ReportTemplates == null || holder.ReportTemplates.Count == 0)
 			{
-				var rt = new ReportTemplate(ReportType.None, new string[] { "ChartType=bar with rug", "description" });
-				reports.Add(Reports.TeamLadder(holder.League, includeSecret, rt));
-				reports.Add(Reports.GamesList(holder.League, includeSecret, rt, ReportPages.GameHyper));
-
-				if (!string.IsNullOrEmpty(holder.League.Title) && (holder.League.Title.Contains("Solo") || holder.League.Title.Contains("solo") || holder.League.Title.Contains("oubles") ||
-				                                                   holder.League.Title.Contains("riples") || holder.League.Title.Contains("ripples") || holder.League.Title.Contains("rippples")))
-					rt.ReportType = ReportType.Pyramid;
-				else
-					rt.ReportType = ReportType.GameGrid;
-
-				reports.Add(Reports.GamesGrid(holder.League, includeSecret, rt, ReportPages.GameHyper));
-
-				reports.Add(Reports.SoloLadder(holder.League, includeSecret, rt));
+				reportTemplates = new ReportTemplates();
+				reportTemplates.AddDefaults(holder.League);
 			}
 			else
-				foreach (ReportTemplate rt in holder.ReportTemplates)
-					reports.Add(Report(holder.League, includeSecret, rt));
+				reportTemplates = holder.ReportTemplates;
+
+			foreach (ReportTemplate rt in reportTemplates)
+				reports.Add(Report(holder.League, includeSecret, rt));
 
 			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"../index.html\">Index</a><div>"));
 

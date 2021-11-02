@@ -150,37 +150,7 @@ namespace Torn.UI
 
 		private void buttonDefaults_Click(object sender, EventArgs e)
 		{
-			string title = Holder.League.Title.ToLower();
-			double teamsPerGame = Holder.League.Games(true).Average(g => g.Teams.Count);
-
-			if (title.Contains("solo") || title.Contains("double") || title.Contains("triple") || title.Contains("tripple") || title.Contains("trippple") || title.Contains("lotr") || title.Contains("lord of the ring"))
-			{
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.Pyramid, new string[] { "ChartType=bar", "description" }));
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.PyramidCondensed, new string[] { "ChartType=bar", "description" }));
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.SoloLadder, new string[] { "ChartType=bar with rug", "description" }));
-			}
-			else
-			{
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.TeamLadder, new string[] { "ChartType=bar with rug", "description" }));
-
-				if (teamsPerGame <= 5)
-					Holder.ReportTemplates.Add(new ReportTemplate(ReportType.GameByGame, new string[] { "ChartType=bar", "description" }));
-				else
-					Holder.ReportTemplates.Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
-
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.TeamsVsTeams, new string[] { "ChartType=bar with rug", "description" }));
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.ColourPerformance, new string[] { "ChartType=bar with rug", "description" }));
-
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.Ascension, new string[] { "ChartType=bar with rug", "description" }));
-				Holder.ReportTemplates.Last().From = Holder.League.Games(false).Last().Time.Date;
-
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar with rug", "description" }));
-				Holder.ReportTemplates.Last().From = Holder.League.Games(true).Last().Time.Date;
-
-				Holder.ReportTemplates.Add(new ReportTemplate(ReportType.SoloLadder, new string[] { "ChartType=bar with rug", "description" }));
-			}
-
+			Holder.ReportTemplates.AddDefaults(Holder.League);
 			RefreshListView();
 		}
 		private void listViewReports_KeyDown(object sender, KeyEventArgs e)

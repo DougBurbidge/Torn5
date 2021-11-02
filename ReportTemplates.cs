@@ -269,6 +269,48 @@ namespace Torn.Report
 	{
 		public OutputFormat OutputFormat { get; set; }
 		
+		/// Add a suitable set of default reports. This may result in duplicates.
+		public void AddDefaults(League league)
+		{
+			string title = league.Title.ToLower();
+			double teamsPerGame = league.Games(true).Any() ? league.Games(true).Average(g => g.Teams.Count) : 0;
+
+			if (title.Contains("solo") || title.Contains("double") || title.Contains("triple") || title.Contains("tripple") || title.Contains("trippple") || title.Contains("lotr") || title.Contains("lord of the ring"))
+			{
+				Add(new ReportTemplate(ReportType.Pyramid, new string[] { "ChartType=bar", "description" }));
+				Add(new ReportTemplate(ReportType.PyramidCondensed, new string[] { "ChartType=bar", "description" }));
+			}
+			else
+			{  // Team tournament, league, etc.
+				Add(new ReportTemplate(ReportType.TeamLadder, new string[] { "ChartType=bar with rug", "description" }));
+
+				if (teamsPerGame <= 5)
+					Add(new ReportTemplate(ReportType.GameByGame, new string[] { "ChartType=bar", "description" }));
+				else
+					Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
+
+				Add(new ReportTemplate(ReportType.TeamsVsTeams, new string[] { "ChartType=bar with rug", "description" }));
+
+				int coloursUsed = league.Games(true).SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct().Count();
+				if (!league.Games(true).Any() || coloursUsed > 1)
+					Add(new ReportTemplate(ReportType.ColourPerformance, new string[] { "ChartType=bar with rug", "description" }));
+
+				if (teamsPerGame < league.Teams.Count - 1)  // Unless nearly every team is in nearly every game, add an Ascension for the user to set From and To dates on later.
+				{
+					Add(new ReportTemplate(ReportType.Ascension, new string[] { "ChartType=bar with rug", "description" }));
+					this.Last().From = league.Games(false).Last().Time.Date;
+				}
+			}
+
+			if (league.Games(true).Max(g => g.Teams.Count) < league.Teams.Count)  // If there's no game with all teams, then add a GameGrid which the user can adjust the From date on to show finals.
+			{
+				Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
+				this.Last().From = league.Games(true).Last().Time.Date;
+			}
+
+			Add(new ReportTemplate(ReportType.SoloLadder, new string[] { "ChartType=bar with rug", "description" }));
+		}
+
 		public void Parse(string s)
 		{
 			string[] ss = s.Split('&');
