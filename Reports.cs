@@ -1670,8 +1670,11 @@ namespace Torn.Report
 					gameRow.Insert(gameRow.Count - 4, baseRatio);
 
 					var playedAgainst = game.Teams.Select(gt => league.LeagueTeam(gt)).ToList();
-					playedAgainst.Remove(league.LeagueTeam(gameTeam));
-					gameRow.Add(new ZCell(string.Join(", ", playedAgainst)));
+					if (playedAgainst.Count <= 10)
+					{
+						playedAgainst.Remove(league.LeagueTeam(gameTeam));
+						gameRow.Add(new ZCell(string.Join(", ", playedAgainst)));
+					}
 
 					previousGameDate = game.Time.Date;
 				}  // if from..to; for Played
@@ -1687,7 +1690,10 @@ namespace Torn.Report
 //			TODO: replace the above line with report.OnCalcBar = KombiReportCalcBar; TeamLadderCalcBar;
 
 			if (description)
-				report.Description = "This report shows the team " + team.Name +" and its players.  Each row is one game.";
+				if (team.Players.Count == 1 && team.Name.Trim().ToLower() == team.Players[0].Name.Trim().ToLower())
+					report.Description = "This report shows the team and player " + team.Name + ".  Each row is one game.";
+				else
+					report.Description = "This report shows the team " + team.Name + " and its players.  Each row is one game.";
 
 			report.RemoveColumn(report.Columns.IndexOf(report.Columns.Find(c => c.Text == "Score again")));
 			report.RemoveZeroColumns();
