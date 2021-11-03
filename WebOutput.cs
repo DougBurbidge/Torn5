@@ -569,10 +569,11 @@ namespace Torn.Report
 			playerReports.Colors.OddColor = Color.Empty;
 
 			foreach (var pt in playerTeams)
-			{
-				playerReports.Add(new ZoomHtmlInclusion("<a name=\"player" + pt.Key.Id + "\">"));
-				playerReports.Add(Reports.OnePlayer(league, pt.Key, pt.Value, ReportPages.GameHyper));
-			}
+				if (league.Played(pt.Key).Any())
+				{
+					playerReports.Add(new ZoomHtmlInclusion("<a name=\"player" + pt.Key.Id + "\">"));
+					playerReports.Add(Reports.OnePlayer(league, pt.Key, pt.Value, ReportPages.GameHyper));
+				}
 
 			playerReports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
 
