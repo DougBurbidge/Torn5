@@ -264,7 +264,7 @@ namespace Torn.Report
 			return null;
 		}
 	}
-	
+
 	public class ReportTemplates: List<ReportTemplate>
 	{
 		public OutputFormat OutputFormat { get; set; }
@@ -273,7 +273,8 @@ namespace Torn.Report
 		public void AddDefaults(League league)
 		{
 			string title = league.Title.ToLower();
-			double teamsPerGame = league.Games(true).Any() ? league.Games(true).Average(g => g.Teams.Count) : 0;
+			double gameCount = league.Games(true).Count;
+			double teamsPerGame = gameCount > 0 ? league.Games(true).Average(g => g.Teams.Count) : 0;
 
 			if (title.Contains("solo") || title.Contains("double") || title.Contains("triple") || title.Contains("tripple") || title.Contains("trippple") || title.Contains("lotr") || title.Contains("lord of the ring"))
 			{
@@ -282,7 +283,8 @@ namespace Torn.Report
 			}
 			else
 			{  // Team tournament, league, etc.
-				Add(new ReportTemplate(ReportType.TeamLadder, new string[] { "ChartType=bar with rug", "description" }));
+				if (teamsPerGame <= 5 && (gameCount == 0 || gameCount >= 10))
+					Add(new ReportTemplate(ReportType.TeamLadder, new string[] { "ChartType=bar with rug", "description" }));
 
 				if (teamsPerGame <= 5)
 					Add(new ReportTemplate(ReportType.GameByGame, new string[] { "ChartType=bar", "description" }));
@@ -292,7 +294,7 @@ namespace Torn.Report
 				Add(new ReportTemplate(ReportType.TeamsVsTeams, new string[] { "ChartType=bar with rug", "description" }));
 
 				int coloursUsed = league.Games(true).SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct().Count();
-				if (!league.Games(true).Any() || coloursUsed > 1)
+				if (gameCount == 0 || coloursUsed > 1)
 					Add(new ReportTemplate(ReportType.ColourPerformance, new string[] { "ChartType=bar with rug", "description" }));
 
 				if (teamsPerGame < league.Teams.Count - 1)  // Unless nearly every team is in nearly every game, add an Ascension for the user to set From and To dates on later.
