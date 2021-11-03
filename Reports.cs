@@ -1468,9 +1468,9 @@ namespace Torn.Report
 		public static ZoomReport OnePlayer(League league, LeaguePlayer player, List<LeagueTeam> teams, GameHyper gameHyper)
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(player.Name) ? "Player " + player.Id : player.Name,
-			                                   "Time,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
-			                                   "left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
-			                                   ",,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,");
+			                                   "Time,Rank,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
+			                                   "left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
+			                                   ",,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,");
 
 			report.Title += " \u2014 " + string.Join(", ", teams.Select(t => t.Name));
 			if (teams.Count == 1)
@@ -1501,7 +1501,9 @@ namespace Torn.Report
 					};  // Game time
 					row.Add(gameCell);
 				}
-				
+
+				row.Add(new ZCell(gamePlayer.Rank, ChartType.Bar, "N0", color));
+
 				if (teams.Count > 1)
 					row.Add(TeamCell(league.LeagueTeam(gamePlayer)));
 
@@ -1532,9 +1534,15 @@ namespace Torn.Report
 
 			var played = league.Played(player);
 			if (played.Any())
+			{
+				totalRow.Add(new ZCell(league.Played(player).Average(gp => gp.Rank), ChartType.Bar, "N1"));
 				totals.Score /= played.Count;
+			}
 			else
+			{
+				totalRow.Add(new ZCell(""));
 				totals.Score = 0;
+			}
 
 			FillDetails(totalRow, totals, default, (double)totalScore / totalCount);
 
