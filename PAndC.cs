@@ -255,6 +255,7 @@ namespace Torn
 			catch
 			{
 				connected = false;
+				throw;
 			}
 		}
 
