@@ -107,7 +107,6 @@ namespace Torn
 						ft.LeagueTeam = team;
 					}
 				}
-				
 
 				Add(ft);
 			}

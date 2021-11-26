@@ -11,6 +11,7 @@ namespace Torn.UI
 		SvgDocument document;
 		ZoomReport report;
 		double aspectRatio = 1.0;
+
 		public ZoomReport Report
 		{
 			get { return report; }
