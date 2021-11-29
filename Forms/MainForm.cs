@@ -34,7 +34,7 @@ read from demo "server"
 read from laserforce server
 
 TODO for BOTH:
-output to screen and printer
+output to printer
 send to scoreboard (web browser)
 on commit auto-update scoreboard
 right-click handicap player, merge player
@@ -508,23 +508,26 @@ namespace Torn.UI
 			if (listViewGames.SelectedItems.Count == 0)
 				return;
 
-			var changed = new List<League>();
+			var updatedLeagues = new List<League>();
 
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 				if (item.Tag is ServerGame serverGame && serverGame.Game != null)
 				{
-					var holder = leagues.Find(h => h.League.AllGames.Contains(serverGame.Game));
-					if (holder != null)
+					var holders = leagues.FindAll(h => h.League.AllGames.Any(g => g.Time == serverGame.Time));
+					foreach (Holder holder in holders)
 					{
-						holder.League.AllGames.Remove(serverGame.Game);
+						holder.League.AllGames.RemoveAll(g => g.Time == serverGame.Time);
 						item.SubItems[1].Text = null;
-						if (!changed.Contains(holder.League))
-						    changed.Add(holder.League);
+						item.SubItems[2].Text = serverGame.Description;
+
+						if (!updatedLeagues.Contains(holder.League))
+							updatedLeagues.Add(holder.League);
 					}
 					serverGame.Game = null;
+					serverGame.League = null;
 				}
 
-			foreach (var league in changed)
+			foreach (var league in updatedLeagues)
 				league.Save();
 
 			playersBox.Clear();
@@ -1047,7 +1050,7 @@ namespace Torn.UI
 			else
 				labelTime.Text = "+" + timeElapsed.ToString();
 
-			if (!string.IsNullOrEmpty(laserGameServer.Status))
+			if (!string.IsNullOrEmpty(laserGameServer?.Status))
 				labelNow.Text = laserGameServer.Status;
 			else
 				labelNow.Text = webOutput.NowText();
