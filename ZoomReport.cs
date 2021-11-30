@@ -196,20 +196,17 @@ namespace Zoom
 			set { text = value; }
 		}
 
+		/// <summary>If set, the text in this cell will be a hyperlink, and Hyper will be the destination.</summary>
 		public string Hyper { get; set; }
+
+		/// <summary>Like Text, but can contain markup.</summary>
+		public string Html { get; set; }
+
+		/// <summary>Like Text, but can contain markup.</summary>
+		public string Svg { get; set; }
 
 		/// <summary>For multiple classes, separate each class with a space. (Blame CSS.)</summary>
 		public string CssClass { get; set; }
-
-		public bool Empty()
-		{
-			return string.IsNullOrEmpty(text) && Number == null;
-		}
-
-		public bool EmptyOrNaN()
-		{
-			return string.IsNullOrEmpty(text) && (Number == null || double.IsNaN((double)Number));
-		}
 
 		/// <summary>If this cell contains a number, put it here.</summary>
 		public double? Number { get; set; }
@@ -243,6 +240,16 @@ namespace Zoom
 			Color = color;
 			ChartType = chartType;
 			Data = new List<double>();
+		}
+
+		public bool Empty()
+		{
+			return string.IsNullOrEmpty(text) && Number == null;
+		}
+
+		public bool EmptyOrNaN()
+		{
+			return string.IsNullOrEmpty(text) && (Number == null || double.IsNaN((double)Number));
 		}
 
 		public Color GetBarColor(Color? rowBackground = null, Color? barNone = null)
@@ -767,10 +774,12 @@ namespace Zoom
 						s.Append(">");
 					}
 
+					string text = row[col].Html ?? WebUtility.HtmlEncode(row[col].Text);
+
 					if (string.IsNullOrEmpty(row[col].Hyper))
-						s.Append(WebUtility.HtmlEncode(row[col].Text));
+						s.Append(text);
 					else
-						AppendStrings(s, "<a href=\"", row[col].Hyper, "\">", WebUtility.HtmlEncode(row[col].Text), "</a>");
+						AppendStrings(s, "<a href=\"", row[col].Hyper, "\">", text, "</a>");
 
 					if (Bars && /*!oneBar &&*/ row[col].Number != null && (row[col].ChartType != ChartType.None || row[col].ChartCell == row[col]))
 						s.Append("</div>");
@@ -879,7 +888,7 @@ namespace Zoom
 			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
 			    Math.Abs((double)cell.Number) > 0.0001)
 			{
-				var numberAsText = WebUtility.HtmlEncode(cell.Text);
+				var numberAsText = cell.Svg ?? WebUtility.HtmlEncode(cell.Text);
 				s.Append(numberAsText);
 				
 				// Now right-pad it, with a decimal-sized space if there's no decimal, and digit-sized spaces if there's not enough digits after the decimal.
