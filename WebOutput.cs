@@ -549,7 +549,21 @@ namespace Torn.Report
 						}
 					}
 					if (heatMap)
-						reports.Add(new ZoomHtmlInclusion("</div><p>\u25cb and \u2b24 are hit and destroyed bases.<br/>\u2300 and &olcross; are one- and two-shot denies;<br/>\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>\u25af and \u25ae are warning and termination.<br/>Tags+ includes shots on bases and teammates.</p><div>"));
+					{
+						var eventsUsed = dayGames.Where(g => g.ServerGame != null).SelectMany(g => g.ServerGame.Events.Select(e => e.Event_Type)).Distinct();
+						var sb = new StringBuilder("</div><p>");
+						if (eventsUsed.Contains(30) || eventsUsed.Contains(31)) sb.Append("\u25cb and \u2b24 are hit and destroyed bases.<br/>");
+						if (eventsUsed.Contains(1403) || eventsUsed.Contains(1404)) sb.Append("\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>");
+						if (eventsUsed.Contains(1401) || eventsUsed.Contains(1402)) sb.Append("\u2300 and \u29bb are denied another player.<br/>");
+						if (eventsUsed.Contains(28)) sb.Append("\U0001f7e8 is warning (yellow card). ");
+						if (eventsUsed.Contains(28) && !eventsUsed.Contains(29)) sb.Append("<br/>");
+						if (eventsUsed.Contains(29)) sb.Append("\U0001f7e5 is termination (red card).<br/>");
+						if (eventsUsed.Contains(32)) sb.Append("\U0001f480 is player eliminated.<br/>");
+						if (eventsUsed.Contains(33) && !eventsUsed.Contains(34) && !eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base.<br/>");
+						if (eventsUsed.Contains(34) || eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base or mine, or player tagged target.<br/>");
+						sb.Append("\u00B7 shows each minute elapsed.<br/>Tags+ includes shots on bases and teammates.</p><div>");
+						reports.Add(new ZoomHtmlInclusion(sb.ToString()));
+					}
 
 					reports.Add(new ZoomHtmlInclusion("</div><a href=\"index.html\">Index</a><div>"));
 					if (reports.Count > 1)  // There were games this day.
