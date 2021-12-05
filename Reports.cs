@@ -783,27 +783,7 @@ namespace Torn.Report
 			}
 
 			// Figure out if this set of games ends in a finals series. It's a finals series if all the teams in the last game are in the second-last game, all the teams in the second-last are in the third-last, etc.
-			var finals = new List<Game>();
-			if (titles.Count == 1)
-			{
-				finals.Add(games.Last());
-				int current = games.Count - 2;
-
-				bool matched = true;
-				while (current >= 0 && matched)
-				{
-					foreach (var game in finals)
-						foreach (var team in game.Teams)  // Check that every team in "game" is in "current". ("current" can be a superset of "game" if e.g. a team has dropped out due to injury.)
-							matched &= games[current].Teams.Any(t => t.TeamId == team.TeamId);
-
-					if (matched)  // If all teams in this game are in all subsequent finals games,
-						finals.Add(games[current]); // add this game to finals.
-
-					current--;
-				}
-
-				finals.Sort();
-			}
+			var finals = titles.Count == 1 ? Finals(games) : new List<Game>();
 
 			// Create columns.
 			foreach (var tc in titleCount)
@@ -1367,13 +1347,11 @@ namespace Torn.Report
 			return (float)(value.Subtract(scaleMin).TotalMilliseconds / scaleMax.Subtract(scaleMin).TotalMilliseconds * outputRange);
 		}
 
-		// If i > 1000, show i / 1000 + "K". If i > 1E6, show i / 1E6 + "M".
+		// If i > 10000, show i / 1000 + "K". If i > 1E6, show i / 1E6 + "M".
 		static string ToK(double i)
 		{
-			if (Math.Abs(i) < 1999)
-				return i.ToString("F0");
 			if (Math.Abs(i) < 9999)
-				return (i / 1000.0).ToString("F1") + "K";
+				return i.ToString("F0");
 			if (Math.Abs(i) < 999999)
 				return (i / 1000.0).ToString("F0") + "K";
 			if (Math.Abs(i) < 9999999)
@@ -2285,7 +2263,7 @@ namespace Torn.Report
 			return 1 - Math.Pow(1 + a1 * x + a2 * Math.Pow(x, 2) + a3 * Math.Pow(x, 3) + a4 * Math.Pow(x, 4) + a5 * Math.Pow(x, 5) + a6 * Math.Pow(x, 6), -16);
 		}
 
-		// Used for t-test. https://en.wikipedia.org/wiki/T-statistic
+		/// Used for t-test. https://en.wikipedia.org/wiki/T-statistic
 		static double tStatistic(double n1, double sum1, double squaredSum1, double n2, double sum2, double squaredSum2)
 		{
 			double v1 = (squaredSum1 - (sum1 * sum1 / n1)) / (n1 - 1);  // Variance.
@@ -2339,6 +2317,32 @@ namespace Torn.Report
 			return ladder;
 		}
 
+		/// Figure out if this set of games ends in a finals series. It's a finals series if all the teams in the last game are in the second-last game, all the teams in the second-last are in the third-last, etc.
+		static List<Game> Finals(List<Game> games)
+		{
+			var finals = new List<Game>
+			{
+				games.Last()
+			};
+			int current = games.Count - 2;
+
+			bool matched = true;
+			while (current >= 0 && matched)
+			{
+				foreach (var game in finals)
+					foreach (var team in game.Teams)  // Check that every team in "game" is in "current". ("current" can be a superset of "game" if e.g. a team has dropped out due to injury.)
+						matched &= games[current].Teams.Any(t => t.TeamId == team.TeamId);
+
+				if (matched)  // If all teams in this game are in all subsequent finals games,
+					finals.Add(games[current]); // add this game to finals.
+
+				current--;
+			}
+
+			finals.Sort();
+
+			return finals;
+		}
 		static string FromTo(List<Game> games, DateTime? from, DateTime? to)
 		{
 			if (games.Count == 0)
@@ -2485,9 +2489,6 @@ namespace Torn.Report
 					}
 
 					report.RemoveColumn(report.Columns.Count - 1);  // Last game index
-					report.RemoveColumn(report.Columns.Count - 1);  // Average
-					if (league.IsPoints(games))
-						report.RemoveColumn(report.Columns.Count - 1);  // Pts
 					break;
 				
 				case ReportType.Pyramid: case ReportType.PyramidCondensed:
