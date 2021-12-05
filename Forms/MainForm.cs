@@ -367,7 +367,6 @@ namespace Torn.UI
 		{
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 			{
-				ServerGame serverGame = item.Tag is ServerGame game ? game : null;
 
 				var teamDatas = new List<GameTeamData>();
 				var teamBoxes = TeamBoxes();
@@ -382,6 +381,8 @@ namespace Torn.UI
 
 				if (teamDatas.Any())
 				{
+					ServerGame serverGame = item.Tag as ServerGame;
+
 					activeHolder.League.CommitGame(serverGame, teamDatas, groupPlayersBy);
 
 					foreach (TeamBox teamBox in teamBoxes)
@@ -1173,12 +1174,11 @@ namespace Torn.UI
 				{
 					ListViewItem item = new ListViewItem
 					{
-						Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDate()) + serverGame.Time.ToString(" HH:mm")
+						Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDate()) + serverGame.Time.ToString(" HH:mm"),
+						Tag = serverGame
 					};
-
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
 					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
-					item.Tag = serverGame;
 					if (!serverGame.OnServer)
 						item.BackColor = SystemColors.ControlLight;
 					listViewGames.Items.Add(item);
@@ -1254,23 +1254,26 @@ namespace Torn.UI
 		
 		void RefreshInProgressGame()
 		{
-			foreach(ListViewItem item in listViewGames.Items)
-				if (((ServerGame)item.Tag).InProgress)
+			foreach (ListViewItem item in listViewGames.Items)
+			{
+				var serverGame = (ServerGame)item.Tag;
+				if (serverGame.InProgress)
 				{
-					var serverGame = (ServerGame)item.Tag;
 					laserGameServer.PopulateGame(serverGame);
 					item.SubItems.Clear();
 					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
-					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
+											   serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
 				}
+			}
 		}
 
 		/// <summary>Pull Event data from ServerGames and put it into GamePlayers in league Games.</summary>
 		bool FillEvents(League league)
 		{
 			bool any = false;
-			foreach (Game game in league.AllGames)
+			var games = league.AllGames.ToList();  // Have to clone this by calling ToList. Without this, it sometimes complains that the collection has been modified partway through the foreach, and I don't know why.
+			foreach (Game game in games)
 				any |= game.PopulateEvents();
 			return any;
 		}
