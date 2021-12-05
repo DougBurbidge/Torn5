@@ -82,7 +82,7 @@ namespace Torn
 
 		public static char ToChar(this Colour c)
 		{
-			return "xRBGYPMCOW"[(int)c];
+			return "xRBGYPMCOWbfiecrcr"[(int)c];
 		}
 
 		public static Colour ToColour(int i) // Converts from a Laserforce colour index number.
@@ -745,7 +745,6 @@ namespace Torn
 		public string CommitGame(ServerGame serverGame, List<GameTeamData> teamDatas, GroupPlayersBy groupPlayersBy)
 		{
 			var debug = new StringBuilder();
-			Game game;
 			if (serverGame.Game == null)
 			{
 				serverGame.Game = new Game
@@ -757,7 +756,7 @@ namespace Torn
 				debug.Append(serverGame.Time.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.CurrentCulture));
 				debug.Append(".\n");
 			}
-			game = serverGame.Game;
+			Game game = serverGame.Game;
 
 			game.Teams.Clear();
 			foreach (var teamData in teamDatas)
@@ -785,6 +784,7 @@ namespace Torn
 
 			if (!AllGames.Contains(game))
 			{
+				AllGames.RemoveAll(g => g.Time == game.Time);
 				AllGames.Add(game);
 				AllGames.Sort();
 			}
@@ -1208,6 +1208,19 @@ namespace Torn
 			foreach (var game in AllGames)
 			{
 				GameTeam gameTeam = includeSecret || !game.Secret ? game.Teams.Find(gt => gt.TeamId == leagueTeam.TeamId) : null;
+				if (gameTeam != null)
+					played.Add(gameTeam);
+			}
+
+			return played;
+		}
+
+		public List<GameTeam> Played(List<Game> games, LeagueTeam leagueTeam)
+		{
+			var played = new List<GameTeam>();
+			foreach (var game in games)
+			{
+				GameTeam gameTeam = game.Teams.Find(gt => gt.TeamId == leagueTeam.TeamId);
 				if (gameTeam != null)
 					played.Add(gameTeam);
 			}
