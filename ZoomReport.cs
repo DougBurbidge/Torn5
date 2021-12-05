@@ -1540,7 +1540,20 @@ namespace Zoom
 
 		public override IEnumerable<Color> BarCellColors() { return new List<Color>(); }
 	}
-	
+
+	public class ZoomSeparator : ZoomReportBase
+	{
+		public override string ToCsv(char separator) { return "\n\n----\n\n"; }
+
+		public override string ToHtml() { return "\n<br/>\n\n"; }
+
+		public override string ToSvg(bool pure = false) { return "</div>\n<div style=\"display: flex; flex-flow: row wrap; justify-content: space-around;\">\n"; }
+
+		public override void ToSvg(StringBuilder sb, bool pure = false) { sb.Append(ToSvg(pure)); }
+
+		public override IEnumerable<Color> BarCellColors() { return new List<Color>(); }
+	}
+
 	public class ZoomReports: List<ZoomReportBase>
 	{
 		string Title { get; set; }
@@ -1647,7 +1660,6 @@ namespace Zoom
 
 			foreach (ZoomReportBase report in this) {
 				sb.Append(report.ToHtml());
-		 		sb.Append("\n<br/>\n\n");
 			}
 
 			sb.Append("</body>\n");

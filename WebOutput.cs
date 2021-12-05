@@ -527,9 +527,16 @@ namespace Torn.Report
 
 					var rt = new ReportTemplate() { From = date, To = date.AddSeconds(86399) };
 					reports.Add(Reports.GamesToc(league, false, rt, ReportPages.GameHyper));
+					string gameTitle = "";
 
 					foreach (Game game in dayGames)
 					{
+						if (gameTitle != game.Title)
+						{
+							reports.Add(new ZoomSeparator());
+							gameTitle = game.Title;
+						}
+
 						reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
 						reports.Add(Reports.OneGame(league, game));
 						if (game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress)
