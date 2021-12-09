@@ -537,7 +537,7 @@ namespace Torn.Report
 						row.Add(new ZCell(""));
 				}  // foreach gameTeam
 
-				if (league.VictoryPointsHighScore != 0 && game.Players().Any() && league.LeaguePlayer(game.Players().First()) != null)  // there is a highscore entry at the end of each row
+				if (league.VictoryPointsHighScore != 0 && game.Players().Any() && league.LeaguePlayer(game.SortedPlayers().First()) != null)  // there is a highscore entry at the end of each row
 				{
 					for (int i = game.Teams.Count; i < mostTeams; i++)
 					{
@@ -546,7 +546,7 @@ namespace Torn.Report
 						row.Add(new ZCell());
 					}
 
-					var highPlayer = game.Players().First();
+					var highPlayer = game.SortedPlayers().First();
 
 					row.Add(new ZCell(""));
 					Color highScoreColor = Color.Empty;
@@ -1032,7 +1032,7 @@ namespace Torn.Report
 			if (gamePlayer.HitsOn == 0 && gamePlayer.HitsBy == 0)  // Tag ratio
 				row.Add(new ZCell("", color));
 			else if (gamePlayer.HitsOn == 0)
-				row.Add(new ZCell("infinite", color));
+				row.Add(new ZCell("\u221e", color));
 			else
 				row.Add(new ZCell((double)gamePlayer.HitsBy / gamePlayer.HitsOn, ChartType.Bar, "P0", color));
 
@@ -2172,7 +2172,7 @@ namespace Torn.Report
 			{
 				var gameTotal = new GamePlayer();
 
-				foreach (var player in game.Players().OrderByDescending(p => p.Score))
+				foreach (var player in game.SortedPlayers())
 				{
 					var playerRow = new ZRow();
 

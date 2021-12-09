@@ -492,7 +492,12 @@ namespace Torn
 
 		public List<GamePlayer> Players()
 		{
-			return Teams.SelectMany(t => t.Players).Union(UnallocatedPlayers).ToList(); //.OrderByDescending(p => p.Score);
+			return Teams.SelectMany(t => t.Players).Union(UnallocatedPlayers).ToList();
+		}
+
+		public List<GamePlayer> SortedPlayers()
+		{
+			return Players().OrderByDescending(p => p.Score).ToList();
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -547,7 +552,7 @@ namespace Torn
 
 		public int Rank(string playerId)
 		{
-			return Players().FindIndex(x => x.PlayerId == playerId) + 1;
+			return SortedPlayers().FindIndex(x => x.PlayerId == playerId) + 1;
 		}
 
 		public override string ToString()
@@ -778,7 +783,7 @@ namespace Torn
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
 			}
 
-			var players = game.Players().OrderByDescending(p => p.Score).ToList();
+			var players = game.SortedPlayers();
 			for (int i = 0; i < players.Count; i++)
 				players[i].Rank = (uint)i + 1;
 
