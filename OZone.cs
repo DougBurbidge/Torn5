@@ -5,6 +5,8 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -28,14 +30,24 @@ namespace Torn
 
 		public override List<ServerGame> GetGames()
 		{
-			var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + _server);
-			httpWebRequest.ContentType = "application/json";
-			httpWebRequest.Method = "POST";
+			const int PORT_NO = 12121;
+			string textToSend = "{\"command\": \"list\"}";
 
-			new StreamWriter(httpWebRequest.GetRequestStream()).Write("{ \"command\": \"list\" }");
+			//---create a TCPClient object at the IP and port no.---
+			TcpClient client = new TcpClient(_server, PORT_NO);
+			NetworkStream nwStream = client.GetStream();
+			byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
 
-			var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-			var result = new StreamReader(httpResponse.GetResponseStream()).ReadToEnd();
+			ReadFromOzone(client, nwStream);
+
+			//---send the text---
+			Console.WriteLine("Sending : " + textToSend);
+			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
+
+			//---read back the text---
+			var result = ReadFromOzone(client, nwStream);
+
+			Console.WriteLine(result);
 
 			List<ServerGame> games = new List<ServerGame>();
 
@@ -49,12 +61,44 @@ namespace Torn
 					var game = new ServerGame();
 					if (jgame.TryGetProperty("gamenum",   out JsonElement gameNum))   game.GameId = gameNum.GetInt32();
 					if (jgame.TryGetProperty("gamename",  out JsonElement gameName))  game.Description = gameName.GetString();
-					if (jgame.TryGetProperty("starttime", out JsonElement startTime)) game.Time = startTime.GetDateTime();
-					if (jgame.TryGetProperty("endtime",   out JsonElement endTime))   game.EndTime = endTime.GetDateTime();
-					if (jgame.TryGetProperty("valid",     out JsonElement valid))     game.OnServer = valid.GetBoolean();
+					if (jgame.TryGetProperty("starttime", out JsonElement startTime)) 
+					{ 
+						string dateTimeStr = startTime.GetString();
+						game.Time = DateTime.Parse(dateTimeStr,
+						  System.Globalization.CultureInfo.InvariantCulture);
+					}
+					if (jgame.TryGetProperty("endtime",   out JsonElement endTime))
+					{
+						try
+						{
+							string dateTimeStr = endTime.GetString();
+							game.EndTime = DateTime.Parse(dateTimeStr,
+							  System.Globalization.CultureInfo.InvariantCulture);
+						} catch
+                        {
+							string dateTimeStr = startTime.GetString();
+							game.EndTime = DateTime.Parse(dateTimeStr,
+							  System.Globalization.CultureInfo.InvariantCulture);
+						}
+					}
+					if (jgame.TryGetProperty("valid", out JsonElement valid))
+					{
+						int isValid = valid.GetInt16();
+						if (isValid > 0) game.OnServer = true;
+						else game.OnServer = false;
+					}
+					games.Add(game);
 				}
 			}
+			System.Console.WriteLine(games);
 			return games;
+		}
+
+		string ReadFromOzone(TcpClient client, NetworkStream nwStream)
+        {
+			byte[] bytesToRead = new byte[client.ReceiveBufferSize];
+			int bytesRead = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+			return Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
 		}
 
 		void FillGames(string sql, List<ServerGame> games)
