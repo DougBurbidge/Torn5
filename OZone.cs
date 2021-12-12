@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace Torn
 {
@@ -37,6 +38,7 @@ namespace Torn
 			TcpClient client = new TcpClient(_server, PORT_NO);
 			NetworkStream nwStream = client.GetStream();
 			byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
+			Thread.Sleep(1);
 
 			ReadFromOzone(client, nwStream);
 
@@ -46,6 +48,8 @@ namespace Torn
 
 			//---read back the text---
 			var result = ReadFromOzone(client, nwStream);
+
+			client.Close();
 
 			Console.WriteLine(result);
 
@@ -128,6 +132,7 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
+			Console.WriteLine(game);
 			if (!EnsureConnected() || !game.GameId.HasValue)
 				return;
 
