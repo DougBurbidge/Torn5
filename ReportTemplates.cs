@@ -382,17 +382,7 @@ namespace Torn.Report
 	public class Holder
 	{
 		public string Key { get; set; }  // This is the same as the first column in the list view -- it's the folder we'll bulk-export the league to.
-		string fileName;
-		public string FileName { 
-			get { return fileName; } 
-			set 
-			{
-				fileName = value;
-				Watcher.Path = new FileInfo(fileName).Directory.FullName;//Path.GetDirectoryName(fileName);
-				Watcher.Filter = Path.GetFileName(fileName);
-				Watcher.EnableRaisingEvents = true;
-			}
-		}
+		public string FileName { get; set; }
 
 		//[NonSerialized]
 		public League League { get; set; }
@@ -403,13 +393,6 @@ namespace Torn.Report
 		public Holder()
 		{
 			ReportTemplates = new ReportTemplates();
-
-			Watcher = new FileSystemWatcher
-			{
-				NotifyFilter = NotifyFilters.LastWrite// | NotifyFilters.CreationTime | NotifyFilters.Size;
-			};
-			Watcher.Changed += new FileSystemEventHandler(OnFileChanged);
-			
 			Fixture = new Fixture();
 		}
 		
@@ -427,11 +410,6 @@ namespace Torn.Report
 							Name = lt.Name
 						}
 					);
-		}
-
-		void OnFileChanged(object sender, FileSystemEventArgs e)
-		{
-			League.Load(fileName);
 		}
 
 		public override string ToString()

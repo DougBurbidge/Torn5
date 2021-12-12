@@ -468,11 +468,14 @@ namespace Torn
 	{
 		public string Title { get; set; }
 		public DateTime Time { get; set; }
-		public bool Secret { get; set; }  // If true, don't serve this game from our internal webserver, or include it in any webserver reports.
+		/// If true, don't serve this game from our internal webserver, or include it in any webserver reports.
+		public bool Secret { get; set; }
 		public List<GameTeam> Teams { get; private set; }
-		public List<GamePlayer> UnallocatedPlayers { get; private set; }  // players not yet put onto a GameTeam.
+		/// Players not yet placed onto a GameTeam.
+		public List<GamePlayer> UnallocatedPlayers { get; private set; }
 		public ServerGame ServerGame { get; set; }
-		public bool Reported { get; set; }  // Use Reported to decide whether to emit various report pages.
+		/// Use Reported to decide whether to emit various report pages. Managed by caller.
+		public bool Reported { get; set; }
 
 		int? hits = null;
 		public int Hits { get 
@@ -597,7 +600,22 @@ namespace Torn
 	public class League
 	{
 		public string Title { get; set; }
-		string file;
+
+		/// Watch our .Torn file. If another process writes it, reload.
+		FileSystemWatcher Watcher { get; set; }
+
+		string fileName;
+		public string FileName
+		{
+			get { return fileName; }
+			set
+			{
+				fileName = value;
+				Watcher.Path = new FileInfo(fileName).Directory.FullName;
+				Watcher.Filter = Path.GetFileName(fileName);
+				Watcher.EnableRaisingEvents = true;
+			}
+		}
 
 		public int GridHigh { get; set; }
 		public int GridWide { get; set; }
@@ -625,7 +643,13 @@ namespace Torn
 			players = new List<LeaguePlayer>();
 			AllGames = new Games();
 			victoryPoints = new Collection<double>();
-			
+
+			Watcher = new FileSystemWatcher
+			{
+				NotifyFilter = NotifyFilters.LastWrite
+			};
+			Watcher.Changed += new FileSystemEventHandler(OnFileChanged);
+
 			GridHigh = 3;
 			GridWide = 1;
 			GridPlayers = 6;
@@ -635,7 +659,7 @@ namespace Torn
 		public League(string fileName): this()
 		{
 			Clear();
-			file = fileName;
+			FileName = fileName;
 			Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
 		}
 
@@ -663,7 +687,7 @@ namespace Torn
 			League clone = new League
 			{
 				Title = Title,
-				file = file,
+				fileName = fileName,
 
 				GridHigh = GridHigh,
 				GridWide = GridWide,
@@ -874,6 +898,11 @@ namespace Torn
 			return teams.Any() ? teams.Max(x => x.TeamId) + 1 : 1;
 		}
 
+		void OnFileChanged(object sender, FileSystemEventArgs e)
+		{
+			Load(fileName);
+		}
+
 		/// <summary>Load a .Torn file from disk.</summary>
 		public void Load(string fileName)
 		{
@@ -1018,7 +1047,7 @@ namespace Torn
 			AllGames.Sort();
 			LinkThings();
 
-			file = fileName;
+			FileName = fileName;
 		}
 
 		/// <summary>
@@ -1054,9 +1083,6 @@ namespace Torn
 		/// <summary>Save a .Torn file to disk.</summary>
 		public void Save(string fileName = "")
 		{
-			if (!string.IsNullOrEmpty(fileName))
-				file = fileName;
-
 			XmlDocument doc = new XmlDocument();
 			XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
 			doc.AppendChild(docNode);
@@ -1168,11 +1194,23 @@ namespace Torn
 					doc.AppendNode(playerNode, "colour", ((int)player.Colour) - 1);
 				}
 			}
-			if (File.Exists(file + "5Backup"))
-				File.Delete(file + "5Backup");  // Delete old backup file, if any.
-			if (File.Exists(file))
-				File.Move(file, file + "5Backup");  // Rename the old league file before we save over it, by changing its extension to ".Torn5Backup".
-			doc.Save(file);
+
+			if (!string.IsNullOrEmpty(fileName))
+				FileName = fileName;
+
+			Watcher.EnableRaisingEvents = false;
+			try
+			{
+				if (File.Exists(this.fileName + "5Backup"))
+					File.Delete(this.fileName + "5Backup");  // Delete old backup file, if any.
+				if (File.Exists(this.fileName))
+					File.Move(this.fileName, this.fileName + "5Backup");  // Rename the old league file before we save over it, by changing its extension to ".Torn5Backup".
+				doc.Save(this.fileName);
+			}
+			finally
+			{
+				Watcher.EnableRaisingEvents = true;
+			}
 		}
 
 		public override string ToString()
