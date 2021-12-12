@@ -1,4 +1,5 @@
 bin
 obj
-/.vs/Torn
-/packages
+packages
+.vs/Torn
+publish
