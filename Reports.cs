@@ -611,40 +611,58 @@ namespace Torn.Report
 			if (dates.Count == 1)
 				report.Title += ": Games on " + dates[0].ToShortDateString();
 
+			var gameGroups = new List<List<Game>>(); // Groups of games. Games in a group will all be on the same day and have the same title. No group is empty.
+
+			// Populate gameGroups.
 			foreach (var date in dates)
 			{
 				var dayGames = league.AllGames.Where(g => g.Time.Date == date);
 				if (dayGames.Any())
 				{
-					ZRow dateRow = new ZRow();  // create a row
-					report.Rows.Add(dateRow);
-					if (dates.Count == 1)
-						dateRow.Add(new ZCell(dayGames.First().Title));  // to show the title.
-					else
-						dateRow.Add(new ZCell(date.ToShortDateString()));  // to show the new date.
-					int gamesThisRow = 0;
 					var lastGame = dayGames.First();
+					gameGroups.Add(new List<Game>());
 					
 					foreach (var game in dayGames)
 					{
-						if (gamesThisRow > 15 || lastGame.EndTime().AddHours(0.5) < game.Time || lastGame.Title != game.Title)  // If this row is too long, or if there's a 0.5 hour break between games, or the title has changed,
-						{
-							dateRow = new ZRow();  // start a new row.
-							report.Rows.Add(dateRow);
-							dateRow.Add(new ZCell(game.Title));
-							gamesThisRow = 0;
-						}
-						ZCell dateCell = new ZCell((game.Time.ToShortTimeString()).Trim())
-						{
-							Hyper = gameHyper(game)
-						};
-						dateRow.Add(dateCell);
-						gamesThisRow++;
+						if (lastGame.EndTime().AddHours(0.5) < game.Time || lastGame.Title != game.Title)  // If there's at least a 0.5 hour break between games, or the title has changed,
+							gameGroups.Add(new List<Game>());  // it's time for a new group.
+
+						gameGroups.Last().Add(game);
 						lastGame = game;
 					}
 				}
 			}
-			
+
+			foreach (var group in gameGroups)
+			{
+				int rows = (int)Math.Ceiling((decimal)group.Count / 16);  // If there are more than 16 games in this group, we want to spread the group over multiple rows.
+				int gamesPerRow = (int)Math.Ceiling((decimal)group.Count / rows);
+				int game = 0;
+				for (int i = 0; i < rows; i++)
+				{
+					ZRow row = new ZRow();  // create a row
+					report.Rows.Add(row);
+					if (string.IsNullOrEmpty(group.First().Title))  // No titles?
+						row.Add(new ZCell(group.First().Time.Date.ToShortDateString()));  // Show the date.
+					else
+						row.Add(new ZCell(group.First().Title));  // Show the title.
+
+					for (int j = 0; j < gamesPerRow; j++)
+					{
+						if (game >= group.Count)
+							break;
+
+						row.Add(new ZCell((group[game].Time.ToShortTimeString()).Trim())
+							{
+								Hyper = gameHyper(group[game])
+							}
+						);
+
+						game++;
+					}
+				}
+			}
+
 			int columns = report.Rows.Max(r => r.Count());
 			for (; report.Columns.Count < columns; )
 				report.AddColumn(new ZColumn("Game"));
@@ -1230,7 +1248,7 @@ namespace Torn.Report
 						{
 							ZCell cell;
 							if (player1 == player2)
-								cell = new ZCell("\u2572", Color.Gray);
+								cell = new ZCell("\u2572", Color.Gray);  // Diagonal Upper Left to Lower Right.
 							else if (player1 is ServerPlayer && player2 is ServerPlayer)
 							{
 								int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == ((ServerPlayer)player1).ServerPlayerId && x.OtherPlayer == ((ServerPlayer)player2).ServerPlayerId && x.Event_Type < 14);
@@ -1299,7 +1317,7 @@ namespace Torn.Report
 			return report;
 		}
 
-		/// Append the specified symbol to the StringBuilder. If the current colour has changed, emit <tspan> or </tspan> as appropriate.
+		/// Append the specified symbol to the StringBuilders. If the current colour has changed, emit <div> and <tspan> or </div> and </tspan> as appropriate.
 		static void ColourSymbol(StringBuilder text, StringBuilder html, StringBuilder svg, ref Colour currentColour, Colour newColour, string symbol)
 		{
 			string c = ColorTranslator.ToHtml(newColour.ToDarkColor());
