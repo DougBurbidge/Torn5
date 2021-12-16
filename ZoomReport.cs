@@ -1122,20 +1122,20 @@ namespace Zoom
 		}
 
 		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
-		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, int height, List<float> widths, int width, bool pure)
+		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, List<float> widths, int width, bool pure)
 		{
 			if (!pure)
 				s.AppendFormat("<div>");
 
-			s.AppendFormat("<svg viewBox=\"0 0 {0} {1}\" width=\"{2}\" align=\"center\">\n", width, height, Math.Min(width, 960));
+			s.AppendFormat("<svg viewBox=\"0 0 {0} <<<<<<<<\" width=\"{1}\" align=\"center\">\n", width, Math.Min(width, 960));  // The "<<<<<<<<" will be replaced later with the height, when we know what that height is.
 
 			SvgRect(s, 1, 1, 1, width - 1, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
 			if (!pure)
 			{
 				// Add '-' and '+' zoom button text.
-				s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;+&#160;</text>\n");
-				s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;-&#160;</text>\n");
+				s.Append("\t<text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;+&#160;</text>\n");
+				s.Append("\t<text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;-&#160;</text>\n");
 			}
 
 			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, pure ? null : TitleHyper);  // Paint title "row" text.
@@ -1144,11 +1144,17 @@ namespace Zoom
 			if (!pure)
 			{
 				// Add '-' and '+' zoom buttons (with transparent text, so the text added above appears behind the report title text).
-				s.Append("  <text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&#160;+&#160;</text>\n");
-				s.Append("  <text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n");
+				s.Append("\t<text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&#160;+&#160;</text>\n");
+				s.Append("\t<text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n");
 			}
 
 			int rowTop = rowHeight * 2 + 2;
+			if (!Columns.Exists(col => !string.IsNullOrWhiteSpace(col.Text)))
+				return rowTop;
+
+			float x = 1;
+			bool rotate = Columns.Exists(col => col.Rotate);
+
 			if (hasgroupheadings)
 			{
 				int start = 0;
@@ -1158,30 +1164,65 @@ namespace Zoom
 					while (end < Columns.Count - 1 && Columns[start].GroupHeading == Columns[end + 1].GroupHeading)
 						end++;
 
-					SvgRectText(s, 1, widths.Take(start).Sum() + start + 1, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
-						        Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
+					if (!string.IsNullOrWhiteSpace(Columns[start].GroupHeading))
+						SvgRectText(s, 1, widths.Take(start).Sum() + start + 1, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
+									Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
 
 					start = end + 1;
 				}
-				
+
 				rowTop += rowHeight + 1;
 				s.Append('\n');
-			}
 
-			float x = 1;
-			if (Columns.Exists(col => col.Rotate))  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
+				if (rotate)
+				{
+					var graphics = Graphics.FromImage(new Bitmap(1000, 20));
+					var font = new Font("Arial", 11);
+					float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
+					double headerHeight = widest;
+
+					for (int col = 0; col < Columns.Count; col++)
+					{
+						var column = Columns[col];
+						int upset = string.IsNullOrWhiteSpace(Columns[col].GroupHeading) ? rowHeight + 1 : 0;
+						SvgRect(s, 1, x, rowTop - upset, widths[col], headerHeight + upset, Colors.TitleBackColor);  // Paint column heading rectangle.
+
+						if (column.Rotate)
+						{
+							s.Append("\t<text alignment-baseline=\"middle\" ");
+
+							s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(90 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
+										   x + widths[col] / 2, rowTop + headerHeight - 3, headerHeight, Math.Min(rowHeight * 3 / 4, widths[col]));
+							s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
+							s.Append("\">");
+
+							s.Append(WebUtility.HtmlEncode(column.Text));
+							s.Append("</text>\n");
+						}
+						else
+							SvgText(s, 1, (int)x, rowTop + (int)headerHeight - rowHeight, (int)widths[col], rowHeight,
+								Colors.TitleFontColor, column.Alignment, column.Text, null, pure ? null : column.Hyper);
+
+						x += widths[col] + 1;
+					}
+
+					rowTop += (int)headerHeight + 1;
+				}
+			}
+			else if (rotate)  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
 			{
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
 				var font = new Font("Arial", 11);
-
 				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
 				double headerHeight = (widest + rowHeight) / Math.Sqrt(2);
+
 				for (int col = 0; col < Columns.Count; col++)
 				{
+					var column = Columns[col];
 					bool nextRotated = col < Columns.Count - 1 && Columns[col + 1].Rotate;
 
 					// Paint background for column heading.
-					if (Columns[col].Rotate && !nextRotated)  // This column heading is rotated but next column heading is flat.
+					if (column.Rotate && !nextRotated)  // This column heading is rotated but next column heading is flat.
 					{
 						// Paint a trapezoid. Start at top left, then go right, down by headerHeight, left by widths[col], then let it close itself.
 						s.AppendFormat("\t<polygon points=\"{0:F0},{1:F0} {3:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:",
@@ -1189,7 +1230,7 @@ namespace Zoom
 						s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor));
 						s.Append("\" />\n");
 					}
-					else if (Columns[col].Rotate)
+					else if (column.Rotate)
 					{
 						// Paint a parallelogram. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself.
 						s.AppendFormat("\t<polygon points=\"{0:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:",
@@ -1211,7 +1252,7 @@ namespace Zoom
 					}
 
 					// Paint column heading text.
-					if (Columns[col].Rotate)
+					if (column.Rotate)
 					{
 						s.Append("\t");
 
@@ -1229,7 +1270,7 @@ namespace Zoom
 						s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
 						s.Append("\">");
 
-						s.Append(WebUtility.HtmlEncode(Columns[col].Text));
+						s.Append(WebUtility.HtmlEncode(column.Text));
 						s.Append("</text>");
 
 						//if (!pure && !string.IsNullOrEmpty(hyper))
@@ -1238,19 +1279,21 @@ namespace Zoom
 					}
 					else
 						SvgText(s, 1, (int)x, rowTop + (int)headerHeight - rowHeight, (int)widths[col] - (nextRotated ? rowHeight : 0), rowHeight,
-							Colors.TitleFontColor, Columns[col].Alignment, Columns[col].Text, null, pure ? null : Columns[col].Hyper);
+							Colors.TitleFontColor, column.Alignment, column.Text, null, pure ? null : column.Hyper);
 
 					x += widths[col] + 1;
 				}
-				rowTop += (int)headerHeight;
+				rowTop += (int)headerHeight + 1;
 			}
-			else // No Rotate. Write out (column.Heading)s in the boring way.
+
+			if (!rotate) // No Rotate. Write out (column.Heading)s in the boring way.
 			{
 				for (int col = 0; col < Columns.Count; col++)
 				{
-					if (!Columns[col].Rotate)
-						SvgRectText(s, 1, x, rowTop, widths[col], rowHeight,
-							Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, Columns[col].Alignment, Columns[col].Text, null, pure ? null : Columns[col].Hyper);  // Paint column heading.
+					int upset = hasgroupheadings && string.IsNullOrWhiteSpace(Columns[col].GroupHeading) ? rowHeight + 1 : 0;
+					SvgRect(s, 1, x, rowTop - upset, widths[col], rowHeight + upset, Colors.TitleBackColor);  // Paint column heading rectangle.
+					SvgText(s, 1, (int)x, rowTop, (int)widths[col], rowHeight,
+						Colors.TitleFontColor, Columns[col].Alignment, Columns[col].Text, null, pure ? null : Columns[col].Hyper);  // Paint column heading.
 					x += widths[col] + 1;
 				}
 				rowTop += rowHeight + 1;
@@ -1517,19 +1560,10 @@ namespace Zoom
 			int width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
 			double max = maxs.DefaultIfEmpty(1).Max();
 
-			int rowHeight = 15;  // This is enough to fit 11-point text.
+			int rowHeight = 22;  // This is enough to fit default-sized text.
 			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (rowHeight + 1);
 
-			if (Columns.Exists(col => col != null && col.Rotate))  // At least one column has Rotate set, so add to height to allow room for those 45 degree headers.
-			{
-				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
-				var font = new Font("Arial", 11);
-
-				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => graphics.MeasureString(col.Text, font, 1000).Width);
-				height += (int)(widest / Math.Sqrt(2) + 10 - rowHeight);
-			}
-
-			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, height, widths, width, pure);
+			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, widths, width, pure);
 			int arrowTop = rowTop;
 
 			bool odd = true;
@@ -1546,6 +1580,7 @@ namespace Zoom
 				foreach (var arrow in Columns[col].Arrows)
 					SvgArrow(sb, 1, col + 1 == Columns.Count ? null : Columns[col + 1], arrow, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, arrowTop - 0.5F, rowHeight + 1);
 
+			sb.Replace("<<<<<<<<", rowTop.ToString());
 			sb.Append("</svg>\n");
 
 			if (!pure && !string.IsNullOrEmpty(Description))
