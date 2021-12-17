@@ -54,6 +54,8 @@ namespace Zoom
 		string Text { get; set; }
 		/// <summary>If this cell or column heading contains text which links to another report, put the URL of that report here.</summary>
 		string Hyper { get; set; }
+		/// <summary>Optional background colour.</summary>
+		Color Color { get; set; }
 	}
 
 	/// This is just the header row(s) and metadata for a column -- does not include the actual cells.
@@ -68,6 +70,8 @@ namespace Zoom
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
 		public bool Rotate;
 		public List<Arrow> Arrows { get; }
+		/// <summary>Optional background colour.</summary>
+		public Color Color { get; set; }
 
 		public ZColumn(string text = null, ZAlignment alignment = ZAlignment.Left, string groupHeading = null)
 		{
@@ -1122,7 +1126,7 @@ namespace Zoom
 		}
 
 		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
-		int SvgHeader(StringBuilder s, bool hasgroupheadings, int rowHeight, List<float> widths, int width, bool pure)
+		int SvgHeader(StringBuilder s, bool hasGroupHeadings, int rowHeight, List<float> widths, int width, bool pure)
 		{
 			if (!pure)
 				s.AppendFormat("<div>");
@@ -1134,8 +1138,8 @@ namespace Zoom
 			if (!pure)
 			{
 				// Add '-' and '+' zoom button text.
-				s.Append("\t<text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;+&#160;</text>\n");
-				s.Append("\t<text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill=\"Black\">&#160;-&#160;</text>\n");
+				s.AppendFormat("\t<text text-anchor=\"middle\" x=\"15\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill=\"Black\">&#160;+&#160;</text>\n" +
+							   "\t<text text-anchor=\"middle\" x=\"45\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill=\"Black\">&#160;-&#160;</text>\n", rowHeight * 3 / 2 + 1, rowHeight * 2);
 			}
 
 			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, pure ? null : TitleHyper);  // Paint title "row" text.
@@ -1144,8 +1148,8 @@ namespace Zoom
 			if (!pure)
 			{
 				// Add '-' and '+' zoom buttons (with transparent text, so the text added above appears behind the report title text).
-				s.Append("\t<text text-anchor=\"middle\" x=\"15\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&#160;+&#160;</text>\n");
-				s.Append("\t<text text-anchor=\"middle\" x=\"45\" y=\"23\" width=\"30\" height=\"30\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n");
+				s.AppendFormat("\t<text text-anchor=\"middle\" x=\"15\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&#160;+&#160;</text>\n" +
+							   "\t<text text-anchor=\"middle\" x=\"45\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n", rowHeight * 3 / 2 + 1, rowHeight * 2);
 			}
 
 			int rowTop = rowHeight * 2 + 2;
@@ -1153,9 +1157,9 @@ namespace Zoom
 				return rowTop;
 
 			float x = 1;
-			bool rotate = Columns.Exists(col => col.Rotate);
+			bool anyRotate = Columns.Exists(col => col.Rotate);
 
-			if (hasgroupheadings)
+			if (hasGroupHeadings)
 			{
 				int start = 0;
 				while (start < Columns.Count)
@@ -1173,133 +1177,86 @@ namespace Zoom
 
 				rowTop += rowHeight + 1;
 				s.Append('\n');
-
-				if (rotate)
-				{
-					var graphics = Graphics.FromImage(new Bitmap(1000, 20));
-					var font = new Font("Arial", 11);
-					float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
-					double headerHeight = widest;
-
-					for (int col = 0; col < Columns.Count; col++)
-					{
-						var column = Columns[col];
-						int upset = string.IsNullOrWhiteSpace(Columns[col].GroupHeading) ? rowHeight + 1 : 0;
-						SvgRect(s, 1, x, rowTop - upset, widths[col], headerHeight + upset, Colors.TitleBackColor);  // Paint column heading rectangle.
-
-						if (column.Rotate)
-						{
-							s.Append("\t<text alignment-baseline=\"middle\" ");
-
-							s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(90 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
-										   x + widths[col] / 2, rowTop + headerHeight - 3, headerHeight, Math.Min(rowHeight * 3 / 4, widths[col]));
-							s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
-							s.Append("\">");
-
-							s.Append(WebUtility.HtmlEncode(column.Text));
-							s.Append("</text>\n");
-						}
-						else
-							SvgText(s, 1, (int)x, rowTop + (int)headerHeight - rowHeight, (int)widths[col], rowHeight,
-								Colors.TitleFontColor, column.Alignment, column.Text, null, pure ? null : column.Hyper);
-
-						x += widths[col] + 1;
-					}
-
-					rowTop += (int)headerHeight + 1;
-				}
 			}
-			else if (rotate)  // At least one column has Rotate set, so do complicated 45 degree stuff accordingly.
+
+			var graphics = Graphics.FromImage(new Bitmap(1000, 20));
+			var font = new Font("Arial", 11);
+			float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
+			double headerHeight = hasGroupHeadings && anyRotate ? widest : !hasGroupHeadings && anyRotate ? (widest + rowHeight) / Math.Sqrt(2) : rowHeight;
+
+			for (int col = 0; col < Columns.Count; col++)
 			{
-				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
-				var font = new Font("Arial", 11);
-				float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
-				double headerHeight = (widest + rowHeight) / Math.Sqrt(2);
+				var column = Columns[col];
+				int upset = hasGroupHeadings && string.IsNullOrWhiteSpace(column.GroupHeading) ? rowHeight + 1 : 0;
+				Color backColor = column.Color == default ? Colors.TitleBackColor : column.Color;
+				Color textColor = column.Color == default ? Colors.TitleFontColor : backColor.GetBrightness() < 0.63 ? Color.White : Color.Black;
+				bool nextRotated = Columns.Valid(col + 1) && Columns[col + 1].Rotate;
 
-				for (int col = 0; col < Columns.Count; col++)
+				// Paint column heading background.
+				if (hasGroupHeadings || (!column.Rotate && !nextRotated))
+					SvgRect(s, 1, x, rowTop - upset, widths[col], headerHeight + upset, backColor);  // Paint column heading rectangle for no rotate or 90 degrees rotate.
+				else  // Various 45 degree rotation cases.
 				{
-					var column = Columns[col];
-					bool nextRotated = col < Columns.Count - 1 && Columns[col + 1].Rotate;
-
-					// Paint background for column heading.
+					string format;
 					if (column.Rotate && !nextRotated)  // This column heading is rotated but next column heading is flat.
-					{
-						// Paint a trapezoid. Start at top left, then go right, down by headerHeight, left by widths[col], then let it close itself.
-						s.AppendFormat("\t<polygon points=\"{0:F0},{1:F0} {3:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:",
-								   x - headerHeight, rowTop, x + widths[col] - headerHeight, x + widths[col], rowTop + headerHeight, x);
-						s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor));
-						s.Append("\" />\n");
-					}
+						format = "\t<polygon points=\"{0:F0},{1:F0} {3:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:";  // Paint a trapezoid. Start at top left, then go right, down by headerHeight, left by widths[col], then let it close itself.
 					else if (column.Rotate)
-					{
-						// Paint a parallelogram. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself.
-						s.AppendFormat("\t<polygon points=\"{0:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:",
-								   x - headerHeight, rowTop, x + widths[col] - headerHeight, x + widths[col], rowTop + headerHeight, x);
-						s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor));
-						s.Append("\" />\n");
-					}
-					else if (nextRotated)  // This column heading is flat but next column heading is rotated.
-					{
-						// Paint a trapezoid. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself up.
-						s.AppendFormat("\t<polygon points=\"{5:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:",
-								   x - headerHeight, rowTop, x + widths[col] - headerHeight, x + widths[col], rowTop + headerHeight, x);
-						s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleBackColor));
-						s.Append("\" />\n");
-					}
-					else  // This column and the next are not rotated.
-					{
-						SvgRect(s, 1, x, rowTop, widths[col], headerHeight, Colors.TitleBackColor);  // Paint column heading rectangle.
-					}
+						format = "\t<polygon points=\"{0:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:";  // Paint a parallelogram. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself.
+					else  // This column heading is flat but next column heading is rotated.
+						format = "\t<polygon points=\"{5:F0},{1:F0} {2:F0},{1:F0} {3:F0},{4:F0} {5:F0},{4:F0}\" style=\"fill:";  // Paint a trapezoid. Start at top left, then go right by widths[col], down and right at 45 degrees by headerHeight,headerHeight, left by widths[col], then let it close itself up.
 
-					// Paint column heading text.
-					if (column.Rotate)
-					{
-						s.Append("\t");
-
-						//if (!pure && !string.IsNullOrEmpty(hyper))
-						//	AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
-
-						// Draw text inside parallelogram.
-						s.Append("<text ");
-
-						//if (!pure && !string.IsNullOrEmpty(hyper))
-						//	s.Append("text-decoration=\"underline\" ");
-
-						s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(45 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
-									   x + (widths[col] - rowHeight) / 2, rowTop + headerHeight - 3, headerHeight * 1.4, rowHeight * 3 / 4);
-						s.Append(System.Drawing.ColorTranslator.ToHtml(Colors.TitleFontColor));
-						s.Append("\">");
-
-						s.Append(WebUtility.HtmlEncode(column.Text));
-						s.Append("</text>");
-
-						//if (!pure && !string.IsNullOrEmpty(hyper))
-						//	s.Append("</a>");
-						s.Append("\n");
-					}
-					else
-						SvgText(s, 1, (int)x, rowTop + (int)headerHeight - rowHeight, (int)widths[col] - (nextRotated ? rowHeight : 0), rowHeight,
-							Colors.TitleFontColor, column.Alignment, column.Text, null, pure ? null : column.Hyper);
-
-					x += widths[col] + 1;
+					s.AppendFormat(format, x - headerHeight, rowTop, x + widths[col] - headerHeight, x + widths[col], rowTop + headerHeight, x);
+					s.Append(System.Drawing.ColorTranslator.ToHtml(backColor));
+					s.Append("\" />\n");
 				}
-				rowTop += (int)headerHeight + 1;
-			}
 
-			if (!rotate) // No Rotate. Write out (column.Heading)s in the boring way.
-			{
-				for (int col = 0; col < Columns.Count; col++)
+				// Paint text.
+				if (hasGroupHeadings && column.Rotate)  // Rotate this column heading text by 90 degrees.
 				{
-					int upset = hasgroupheadings && string.IsNullOrWhiteSpace(Columns[col].GroupHeading) ? rowHeight + 1 : 0;
-					SvgRect(s, 1, x, rowTop - upset, widths[col], rowHeight + upset, Colors.TitleBackColor);  // Paint column heading rectangle.
-					SvgText(s, 1, (int)x, rowTop, (int)widths[col], rowHeight,
-						Colors.TitleFontColor, Columns[col].Alignment, Columns[col].Text, null, pure ? null : Columns[col].Hyper);  // Paint column heading.
-					x += widths[col] + 1;
-				}
-				rowTop += rowHeight + 1;
-			}
-			s.Append('\n');
+					s.Append("\t<text alignment-baseline=\"middle\" ");
 
+					s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(90 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
+									x + widths[col] / 2, rowTop + headerHeight - 3, headerHeight, Math.Min(rowHeight * 3 / 4, widths[col]));
+					s.Append(System.Drawing.ColorTranslator.ToHtml(textColor));
+					s.Append("\">");
+
+					s.Append(WebUtility.HtmlEncode(column.Text));
+					s.Append("</text>\n");
+				}
+				else if (!hasGroupHeadings && column.Rotate)  // Paint column heading text rotated 45 degrees.
+				{
+					s.Append("\t");
+
+					//if (!pure && !string.IsNullOrEmpty(hyper))
+					//	AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
+
+					// Draw text inside parallelogram.
+					s.Append("<text ");
+
+					//if (!pure && !string.IsNullOrEmpty(hyper))
+					//	s.Append("text-decoration=\"underline\" ");
+
+					s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(45 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
+								   x + (widths[col] - rowHeight) / 2, rowTop + headerHeight - 3, headerHeight * 1.4, rowHeight * 3 / 4);
+					s.Append(System.Drawing.ColorTranslator.ToHtml(textColor));
+					s.Append("\">");
+
+					s.Append(WebUtility.HtmlEncode(column.Text));
+					s.Append("</text>");
+
+					//if (!pure && !string.IsNullOrEmpty(hyper))
+					//	s.Append("</a>");
+					s.Append("\n");
+				}
+				else  // Paint column heading text flat.
+					SvgText(s, 1, (int)x, rowTop + (int)headerHeight - rowHeight, (int)widths[col] - (nextRotated && !hasGroupHeadings ? rowHeight : 0), rowHeight,
+						textColor, column.Alignment, column.Text, null, pure ? null : column.Hyper);
+
+				x += widths[col] + 1;
+			}
+
+			rowTop += (int)headerHeight + 1;
+			s.Append('\n');
 			return rowTop;
 		}
 
