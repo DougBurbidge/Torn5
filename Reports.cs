@@ -665,7 +665,7 @@ namespace Torn.Report
 
 			int columns = report.Rows.Max(r => r.Count());
 			for (; report.Columns.Count < columns; )
-				report.AddColumn(new ZColumn("Game"));
+				report.AddColumn(new ZColumn(""));
 
 			if (rt.Settings.Contains("Description"))
 			{
@@ -1102,14 +1102,15 @@ namespace Torn.Report
 		public static ZoomReport OneGame(League league, Game game)
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(),
-											   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
+											   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow Card,Red Card",
 											   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
 											   ",,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties")
 			{
 				MaxChartByColumn = true
 			};
-			//			for (int i = 8; i < report.Columns.Count; i++)
-			//				report.Columns[i].Rotate = true;
+
+			for (int i = 3; i < report.Columns.Count; i++)
+				report.Columns[i].Rotate = true;
 
 			bool solo = 1.0 * game.Players().Count / game.Teams.Count < 1.5;  // True if most "teams" have one player.
 
@@ -1216,6 +1217,11 @@ namespace Torn.Report
 		public static ZoomReport GameHeatMap(League league, Game game)
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(), "Player", "left");
+			report.Colors.TitleBackColor = Color.DarkGray;  // DarkGray is lighter than Gray.
+			report.Colors.TitleFontColor = Color.Black;
+			report.Colors.OddColor = default;
+			report.Colors.BackgroundColor = default;
+
 			bool solo = 1.0 * game.Players().Count / game.Teams.Count < 1.1;  // True if nearly all "teams" have one player.
 			var sameWidths = new List<ZColumn>();
 			report.SameWidths.Add(sameWidths);
@@ -1231,10 +1237,14 @@ namespace Torn.Report
 					Color color = (player1.Colour == Colour.None ? gameTeam.Colour : player1.Colour).ToColor();
 
 					// Add a row and a column for each player on the team.
-					var column = new ZColumn(name);
+					var column = new ZColumn(name)
+					{
+						Alignment = ZAlignment.Integer,
+						Rotate = true,
+						Color = color
+					};
 					if (!solo || gameTeam.Players.Count > 1)
 						column.GroupHeading = leagueTeam == null ? "Team ??" : leagueTeam.Name;
-					column.Alignment = ZAlignment.Integer;
 					report.AddColumn(column);
 					sameWidths.Add(column);
 
