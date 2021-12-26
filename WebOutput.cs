@@ -523,7 +523,7 @@ namespace Torn.Report
 					reports.Colors.BackgroundColor = Color.Empty;
 					reports.Colors.OddColor = Color.Empty;
 					league.AllGames.Sort();
-					bool heatMap = false;
+					bool detailed = false;
 
 					var rt = new ReportTemplate() { From = date, To = date.AddSeconds(86399) };
 					reports.Add(Reports.GamesToc(league, false, rt, ReportPages.GameHyper));
@@ -537,11 +537,10 @@ namespace Torn.Report
 							gameTitle = game.Title;
 						}
 
-						reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">"));
+						reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\"><div style=\"display: flex; flex-flow: row wrap; justify-content: space-around; \">\n"));
 						reports.Add(Reports.OneGame(league, game));
 						if (game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress)
 						{
-							reports.Add(Reports.GameHeatMap(league, game));
 							string imageName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
 							string imagePath = Path.Combine(path, holder.Key, imageName);
 							if (!game.Reported || !File.Exists(imagePath))
@@ -550,12 +549,12 @@ namespace Torn.Report
 								if (bitmap != null && (bitmap.Height > 1 || !File.Exists(imagePath)))
 									bitmap.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
 							}
-							reports.Add(new ZoomHtmlInclusion("<img src=\"" + imageName + "\">"));
+							reports.Add(new ZoomHtmlInclusion("\n<div><p> </p></div><div><p> </p></div>\n<div><img src=\"" + imageName + "\"></div></div>\n"));
 							game.Reported = true;
-							heatMap = true;
+							detailed = true;
 						}
 					}
-					if (heatMap)
+					if (detailed)
 					{
 						var eventsUsed = dayGames.Where(g => g.ServerGame != null).SelectMany(g => g.ServerGame.Events.Select(e => e.Event_Type)).Distinct();
 						var sb = new StringBuilder("</div><p>");

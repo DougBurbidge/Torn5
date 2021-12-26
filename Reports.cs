@@ -1102,12 +1102,19 @@ namespace Torn.Report
 		public static ZoomReport OneGame(League league, Game game)
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(),
-											   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow Card,Red Card",
-											   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
-											   ",,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties")
+											   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow Card,Red Card,ID",
+											   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,left",
+											   ",,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties,")
 			{
 				MaxChartByColumn = true
 			};
+			report.Colors.TitleBackColor = Color.DarkGray;  // DarkGray is lighter than Gray.
+			report.Colors.TitleFontColor = Color.Black;
+			report.Colors.OddColor = default;
+			report.Colors.BackgroundColor = default;
+
+			var sameWidths = new List<ZColumn>();
+			report.SameWidths.Add(sameWidths);
 
 			for (int i = 3; i < report.Columns.Count; i++)
 				report.Columns[i].Rotate = true;
@@ -1138,6 +1145,7 @@ namespace Torn.Report
 					}
 
 					FillDetails(playerRow, gamePlayer, color, (double)game.TotalScore() / game.Players().Count);
+					playerRow.Add(new ZCell(gamePlayer.PlayerId));
 
 					teamTotal.Add(gamePlayer);
 					gameTotal.Add(gamePlayer);
@@ -1211,20 +1219,6 @@ namespace Torn.Report
 			report.Rows.Add(gameRow);
 
 			report.RemoveZeroColumns();
-			return report;
-		}  // OneGame
-
-		public static ZoomReport GameHeatMap(League league, Game game)
-		{
-			ZoomReport report = new ZoomReport(game.LongTitle(), "Player", "left");
-			report.Colors.TitleBackColor = Color.DarkGray;  // DarkGray is lighter than Gray.
-			report.Colors.TitleFontColor = Color.Black;
-			report.Colors.OddColor = default;
-			report.Colors.BackgroundColor = default;
-
-			bool solo = 1.0 * game.Players().Count / game.Teams.Count < 1.1;  // True if nearly all "teams" have one player.
-			var sameWidths = new List<ZColumn>();
-			report.SameWidths.Add(sameWidths);
 
 			foreach (var gameTeam in game.Teams)
 			{
@@ -1247,83 +1241,86 @@ namespace Torn.Report
 						column.GroupHeading = leagueTeam == null ? "Team ??" : leagueTeam.Name;
 					report.AddColumn(column);
 					sameWidths.Add(column);
-
-					var row = new ZRow
-					{
-						new ZCell(name, color)
-					};
-
-					foreach (var gameTeam2 in game.Teams)
-						foreach (var player2 in gameTeam2.Players)
-						{
-							ZCell cell;
-							if (player1 == player2)
-								cell = new ZCell("\u2572", Color.Gray);  // Diagonal Upper Left to Lower Right.
-							else if (player1 is ServerPlayer && player2 is ServerPlayer)
-							{
-								int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == ((ServerPlayer)player1).ServerPlayerId && x.OtherPlayer == ((ServerPlayer)player2).ServerPlayerId && x.Event_Type < 14);
-								cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? color : Color.Empty);
-								if (gameTeam != gameTeam2)
-									cell.BarColor = ZReportColors.Darken(color);
-							}
-							else
-								cell = new ZCell("");
-
-							row.Add(cell);
-						}
-
-					var text = new StringBuilder();
-					var html = new StringBuilder();
-					var svg = new StringBuilder();
-					var startTime = game.ServerGame.Events.FirstOrDefault().Time;
-					int minutes = 0;  // How many whole minutes into the game are we?
-					Colour currentColour = Colour.None;
-					if (player1 is ServerPlayer player1sp)
-					{
-						foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == player1sp.ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) || (x.Event_Type >= 37 && x.Event_Type <= 1404))))
-						{
-							int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
-							if (now - minutes > 1)
-							{
-								ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', now - minutes));  // Add one dot for each whole minute of the game.
-								minutes = now;
-							}
-
-							Colour otherTeam = (Colour)(eevent.OtherTeam + 1);
-							switch (eevent.Event_Type)
-							{
-								case 28: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e8"); break;  // warning: yellow square.
-								case 29: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e5"); break;  // terminated: red square.
-								case 30: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u25cb"); break;  // hit base: open circle
-								case 31: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2b24"); break;  // destroyed base: filled circle.
-								case 32: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\U0001f480"); break;  // eliminated: skull
-								case 33: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "!"); break;  // hit by base
-								case 34: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // hit by mine
-								case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // player tagged target
-								case 1401: case 1402:  // score denial points: circle with cross, circle with slash
-									ColourSymbol(text, html, svg, ref currentColour, otherTeam, new string('\u29bb', eevent.ShotsDenied / 2));  // If this is a game where you can deny for many shots (e.g. 10 shots to destroy a base or whatever) show a double-deny mark for each two shots denied.
-									if (eevent.ShotsDenied % 2 == 1) ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2300");  // Show remaining one deny hit if necessary.
-									break;
-								case 1403: case 1404: ColourSymbol(text, html, svg, ref currentColour, Colour.None, eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
-								default:
-									ColourSymbol(text, html, svg, ref currentColour, Colour.None, "?"); break;
-							}
-						}
-					}
-					ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes) + ".");  // Add one dot for each whole minute of the game.
-					row.Add(new ZCell(text.ToString())
-						{
-							Html = html.ToString(),
-							Svg = svg.ToString()
-						}
-					);
-
-					report.Rows.Add(row);
 				}
 			}
 
-			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
+			var idCol = report.Columns.FindIndex(c => c.Text == "ID");
+			foreach (var row in report.Rows.Where(r => r.Valid(idCol)))
+			{
+				var player1 = game.Players().Find(p => p.PlayerId == row[idCol].Text);
+				if (player1 == null)
+					continue;
 
+				var gameTeam = player1.GameTeam(league);
+				foreach (var gameTeam2 in game.Teams)
+					foreach (var player2 in gameTeam2.Players)
+					{
+						ZCell cell;
+						if (player1 == player2)
+							cell = new ZCell("\u2572", row[0].Color);  // Diagonal Upper Left to Lower Right.
+						else if (player1 is ServerPlayer && player2 is ServerPlayer)
+						{
+							int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == ((ServerPlayer)player1).ServerPlayerId && x.OtherPlayer == ((ServerPlayer)player2).ServerPlayerId && x.Event_Type < 14);
+							cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? row[0].Color : Color.Empty);
+							if (gameTeam != gameTeam2)
+								cell.BarColor = ZReportColors.Darken(row[0].Color);
+						}
+						else
+							cell = new ZCell("");
+
+						row.Add(cell);
+					}
+
+				var text = new StringBuilder();
+				var html = new StringBuilder();
+				var svg = new StringBuilder();
+				var startTime = game.ServerGame.Events.FirstOrDefault().Time;
+				int minutes = 0;  // How many whole minutes into the game are we?
+				Colour currentColour = Colour.None;
+				if (player1 is ServerPlayer player1sp)
+				{
+					foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == player1sp.ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) || (x.Event_Type >= 37 && x.Event_Type <= 1404))))
+					{
+						int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
+						if (now - minutes > 1)
+						{
+							ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', now - minutes));  // Add one dot for each whole minute of the game.
+							minutes = now;
+						}
+
+						Colour otherTeam = (Colour)(eevent.OtherTeam + 1);
+						switch (eevent.Event_Type)
+						{
+							case 28: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e8"); break;  // warning: yellow square.
+							case 29: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e5"); break;  // terminated: red square.
+							case 30: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u25cb"); break;  // hit base: open circle
+							case 31: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2b24"); break;  // destroyed base: filled circle.
+							case 32: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\U0001f480"); break;  // eliminated: skull
+							case 33: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "!"); break;  // hit by base
+							case 34: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // hit by mine
+							case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // player tagged target
+							case 1401:
+							case 1402:  // score denial points: circle with cross, circle with slash
+								ColourSymbol(text, html, svg, ref currentColour, otherTeam, new string('\u29bb', eevent.ShotsDenied / 2));  // If this is a game where you can deny for many shots (e.g. 10 shots to destroy a base or whatever) show a double-deny mark for each two shots denied.
+								if (eevent.ShotsDenied % 2 == 1) ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2300");  // Show remaining one deny hit if necessary.
+								break;
+							case 1403: case 1404: ColourSymbol(text, html, svg, ref currentColour, Colour.None, eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
+							default:
+								ColourSymbol(text, html, svg, ref currentColour, Colour.None, "?"); break;
+						}
+					}
+				}
+				ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes) + ".");  // Add one dot for each whole minute of the game.
+				row.Add(new ZCell(text.ToString())
+					{
+						Html = html.ToString(),
+						Svg = svg.ToString()
+					}
+					);
+			}
+
+			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
+			report.RemoveColumn(idCol);
 			return report;
 		}
 
@@ -1444,6 +1441,8 @@ namespace Torn.Report
 				if (id != null)
 					playerTeams.Add(id, game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == game.ServerGame.Players.Find(sp => sp.ServerPlayerId == id).PlayerId)));
 
+			bool teamsByColour = game.Teams.All(t => t.Players.All(p => p.Colour == t.Colour)) && game.Teams.Select(t => t.Colour).Distinct().Count() == game.Teams.Count;  // true if each team has players only of a single colour, and all teams are different colours.
+
 			var currents = new Dictionary<GameTeam, KeyValuePair<DateTime, int>>();  // Dictionary of gameTeam -> <time, team score>.
 			
 			foreach (var gameTeam in game.Teams)
@@ -1456,47 +1455,46 @@ namespace Torn.Report
 				if (oneEvent.Score != 0)
 				{
 					var serverPlayer = game.ServerGame.Players.Find(sp => sp.ServerPlayerId == oneEvent.ServerPlayerId);
+
+					GameTeam gameTeam = null;
 					if (serverPlayer != null)
+						gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
+
+					if (gameTeam == null && teamsByColour)
+						gameTeam = game.Teams.Find(t => t.Colour == (Colour)(oneEvent.ServerTeamId + 1));
+
+					if (gameTeam == null)
+						continue;
+
+					var pen = new Pen(gameTeam.Colour.ToSaturatedColor(), 3);
+					var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds));
+					currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
+					float y = height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds);
+					yMin = Math.Min(y, yMin);
+					yMax = Math.Max(y, yMax);
+					var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), y);
+
+					if (oneEvent.Event_Type == 30) // Base hit: show in the base's colour not the player's colour.
+						pen.Color = ((Colour)(oneEvent.OtherTeam + 1)).ToSaturatedColor();
+
+					graphics.DrawLine(pen, oldPoint, newPoint);  // Show the hit.
+
+					if (oneEvent.Event_Type == 31) // Base destroyed.
 					{
-						var gameTeam = game.Teams.Find(t => t.Players.Exists(gp => gp.PlayerId == serverPlayer.PlayerId));
-						if (gameTeam == null)
-							continue;
+						// Show the hit in a dashed line, half player colour, half base colour.
+						var dashPen = new Pen(((Colour)(oneEvent.OtherTeam + 1)).ToSaturatedColor(), 3);
+						float baseHeight = Math.Abs(oldPoint.Y - newPoint.Y);
+						dashPen.DashPattern = new float[] { baseHeight * 0.11F, baseHeight * 0.22F };
+						dashPen.DashOffset = baseHeight * -0.11F;
+						graphics.DrawLine(dashPen, oldPoint, newPoint);
 
-						var pen = new Pen(gameTeam.Colour.ToSaturatedColor(), 3);
-						var oldPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds));
-						currents[gameTeam] = new KeyValuePair<DateTime, int>(oneEvent.Time, currents[gameTeam].Value + oneEvent.Score);
-						float y = height - Scale(currents[gameTeam].Value, height, minScore, maxScore) + (float)(skew * currents[gameTeam].Key.Subtract(game.Time).TotalSeconds);
-						yMin = Math.Min(y, yMin);
-						yMax = Math.Max(y, yMax);
-						var newPoint = new PointF(Scale(currents[gameTeam].Key, duration, game.Time, game.ServerGame.EndTime), y);
-
-						if (oneEvent.Event_Type == 30) // Base hit: show in the base's colour not the player's colour.
-							pen.Color = ((Colour)(oneEvent.OtherTeam + 1)).ToSaturatedColor();
-
-						graphics.DrawLine(pen, oldPoint, newPoint);  // Show the hit.
-
-						if (oneEvent.Event_Type == 31) // Base destroyed.
-						{
-							// Show the hit in a dashed line, half player colour, half base colour.
-							var dashPen = new Pen(((Colour)(oneEvent.OtherTeam + 1)).ToSaturatedColor(), 3);
-							float baseHeight = Math.Abs(oldPoint.Y - newPoint.Y);
-							dashPen.DashPattern = new float[] { baseHeight * 0.11F, baseHeight * 0.22F };
-							dashPen.DashOffset = baseHeight * -0.11F;
-							graphics.DrawLine(dashPen, oldPoint, newPoint);
-
-							// Show the alias of the player who destroyed the base.
-							var gamePlayer = game.Players().Find(gp => gp.PlayerId  == serverPlayer.PlayerId);
-							var leaguePlayer = league.LeaguePlayer(gamePlayer);
-							if (leaguePlayer != null)
-							{
-								var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
+						// Show the alias of the player who destroyed the base.
+						var brush = new SolidBrush(gameTeam.Colour.ToDarkColor());
 	
-								if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
-									graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X - graphics.MeasureString(leaguePlayer.Name, font).Width, newPoint.Y);
-								else
-									graphics.DrawString(leaguePlayer.Name, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
-							}
-						}
+						if (currents.Max(x => x.Value.Value) == currents[gameTeam].Value)
+							graphics.DrawString(serverPlayer.Alias, font, brush, newPoint.X - graphics.MeasureString(serverPlayer.Alias, font).Width, newPoint.Y);
+						else
+							graphics.DrawString(serverPlayer.Alias, font, brush, newPoint.X, (oldPoint.Y + newPoint.Y) / 2);
 					}
 				}
 
