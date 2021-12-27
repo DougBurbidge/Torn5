@@ -14,7 +14,30 @@ using Zoom;
 
 namespace Torn.Report
 {
-	public delegate void Progress (double progress, string status = "");
+	public delegate void ShowProgress (double progress, string status = "");
+
+	public class Progress
+	{
+		public double Numerator { get; set; }
+		public double Denominator { get; set; }
+		public ShowProgress ShowProgress { get; set; }
+
+		public Progress()
+		{
+			Numerator = 0;
+		}
+
+		public void Increment(string status = "")
+		{
+			Advance(1.0, status);
+		}
+
+		public void Advance(double value, string status = "")
+		{
+			Numerator += value;
+			ShowProgress?.Invoke(Math.Min(Numerator / Denominator, 1.0), status);
+		}
+	}
 
 	/// <summary>Build web pages for WebOutput and ExportPages.</summary>
 	public class ReportPages
@@ -467,22 +490,17 @@ namespace Torn.Report
 	/// <summary>Generates web pages to file for export or upload.</summary>
 	public class ExportPages
 	{
-		static void DummyProgress(double progress, string status = "") {}
-
 		/// <summary>Generate reports for the selected leagues, and write them to disk.</summary>
-		public static void ExportReports(string path, bool includeSecret, List<Holder> selected, Progress progress = null)
+		public static void ExportReports(string path, bool includeSecret, List<Holder> selected, ShowProgress progress = null)
 		{
 			if (path != null)
 			{
-				int denominator = selected.Count * 4 + 1;
-				double numerator = 0.0;
-				if (progress == null)
-					progress = DummyProgress;
+				Progress myProgress = new Progress() { Denominator = selected.Count * 4 + 1, ShowProgress = progress };
 
 				if (selected.Any())
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, "index." + selected[0].ReportTemplates.OutputFormat.ToExtension())))
 						sw.Write(ReportPages.RootPage(selected));
-				progress(++numerator / denominator, "Root page exported.");
+				myProgress.Increment("Root page exported.");
 
 				foreach (Holder holder in selected)
 				{
@@ -490,23 +508,23 @@ namespace Torn.Report
 
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index." + holder.ReportTemplates.OutputFormat.ToExtension())))
 						sw.Write(ReportPages.OverviewPage(holder, includeSecret, ReportPages.GameHyper, holder.ReportTemplates.OutputFormat));
-					progress(++numerator / denominator, "Overview page exported.");
+					myProgress.Increment("Overview page exported.");
 
 					ExportPlayers(holder, path);
-					progress(++numerator / denominator, "Players pages exported.");
+					myProgress.Increment("Players pages exported.");
 
 					foreach (LeagueTeam leagueTeam in holder.League.Teams)
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + "." + holder.ReportTemplates.OutputFormat.ToExtension())))
 							sw.Write(ReportPages.TeamPage(holder.League, includeSecret, leagueTeam, ReportPages.GameHyper, holder.ReportTemplates.OutputFormat));
-					progress(++numerator / denominator, "Team pages exported.");
+					myProgress.Increment("Team pages exported.");
 
-					ExportGames(holder, path);
-					progress(++numerator / denominator, "Games pages exported.");
+					ExportGames(holder, path, myProgress);
+					myProgress.Advance(0, "Games pages exported.");
 				}
 			}
 		}
 
-		static void ExportGames(Holder holder, string path)
+		static void ExportGames(Holder holder, string path, Progress progress)
 		{
 			League league = holder.League;
 
@@ -575,6 +593,8 @@ namespace Torn.Report
 					if (reports.Count > 1)  // There were games this day.
 						using (StreamWriter sw = File.CreateText(fileName))
 							sw.Write(reports.ToOutput(holder.ReportTemplates.OutputFormat));
+
+					progress.Advance(1.0 / dates.Count, "Exported games for " + date.ToShortDateString());
 				}
 			}
 		}
@@ -622,21 +642,19 @@ namespace Torn.Report
 		}
 
 		/// <summary>Upload files from the named path via FTP to the internet.</summary>
-		public static void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, bool includeSecret, List<Holder> selected, Progress progress = null)
+		public static void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, bool includeSecret, List<Holder> selected, ShowProgress progress = null)
 		{
+
+			string url = uploadMethod + "://" + uploadSite;
+			if (url.Last() != '/')
+				url += '/';
+
 			Cursor.Current = Cursors.WaitCursor;
 			try
 			{
 				using (WebClient client = new WebClient())
 				{
 					client.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
-
-					string url = uploadMethod + "://" + uploadSite;
-					if (url.Last() != '/')
-						url += '/';
-
-					if (progress == null)
-						progress = DummyProgress;
 
 					UploadFile(client, url, localPath, "index.html");
 
@@ -656,7 +674,7 @@ namespace Torn.Report
 						for (int i = 0; i < files.Count(); i++)
 						{
 							UploadFile(client, url, Path.Combine(localPath, key), files[i].Name);
-							progress((1.0 * i / files.Count() + h) / selected.Count, "Uploaded " + files[i].Name);
+							progress?.Invoke((1.0 * i / files.Count() + h) / selected.Count, "Uploaded " + files[i].Name);
 						}
 					}
 				}

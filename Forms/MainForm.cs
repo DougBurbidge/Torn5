@@ -458,11 +458,17 @@ namespace Torn.UI
 		{
 			if (GetExportFolder() != null)
 			{
+				Cursor.Current = Cursors.WaitCursor;
 				progressBar1.Value  = 0;
 				try {
 					ExportPages.ExportReports(exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
 				}
-				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
+				finally
+				{
+					progressBar1.Visible = false;
+					labelStatus.Text = "";
+					Cursor.Current = Cursors.Default;
+				}
 			}
 		}
 
