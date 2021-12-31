@@ -54,7 +54,7 @@ namespace Zoom
 		string Text { get; set; }
 		/// <summary>If this cell or column heading contains text which links to another report, put the URL of that report here.</summary>
 		string Hyper { get; set; }
-		/// <summary>Optional background colour.</summary>
+		/// <summary>Optional background color.</summary>
 		Color Color { get; set; }
 	}
 
@@ -279,6 +279,8 @@ namespace Zoom
 	public class ZRow: List<ZCell>
 	{
 		public string CssClass { get; set; }
+		/// <summary>Optional background color.</summary>
+		public Color Color { get; set; }
 
 		///<summary>Just like Add(), but returns the added cell.</summary> 
 		public ZCell AddCell(ZCell cell)
@@ -345,14 +347,11 @@ namespace Zoom
 			BarNone = Color.FromArgb(255, 192, 160);
 		}
 
-		public Color GetBackColor(bool odd)
+		public Color GetBackColor(ZRow row, bool odd, Color color = default)
 		{
-			return odd ? OddColor : BackgroundColor;
-		}
-		
-		public Color GetBackColor(bool odd, Color color)
-		{
-			return color == Color.Empty ? (odd ? OddColor : BackgroundColor) : color;
+			return color != Color.Empty ? color : 
+				row.Color != Color.Empty ? row.Color : 
+				odd ? OddColor : BackgroundColor;
 		}
 
 		public static Color Darken(Color color)
@@ -557,13 +556,14 @@ namespace Zoom
 				{
 					if (col < Rows[row].Count)
 					{
-						if (Rows[row][col].Data != null && Rows[row][col].Data.Any())
+						var cell = Rows[row][col];
+						if (cell.Data != null && cell.Data.Any())
 						{
 							hasNumber = true;
-							min = Math.Min(min, Rows[row][col].Data.Min());
-							max = Math.Max(max, Rows[row][col].Data.Max());
+							min = Math.Min(min, cell.Data.Min());
+							max = Math.Max(max, cell.Data.Max());
 						}
-						else if (Rows[row][col].Tag is List<ChartPoint> points && points.Any())
+						else if (cell.Tag is List<ChartPoint> points && points.Any())
 						{
 							if (min == 0.0)
 								min = double.MaxValue; // For most data types we want an all-positive data series to have a  min of 0, not its actual series minimum. But for chart points, where X is a date/time, that starts the chart at 1900, which is bad. So one-off setting the min to MaxValue means we'll end with a min of the earliest time in the series. 
@@ -572,22 +572,22 @@ namespace Zoom
 							max = Math.Max(max, points.Max(p => p.X.Ticks));
 							maxPoints = Math.Max(maxPoints, (int)points.Count);
 						}
-						else if (Rows[row][col].Number.HasValue && !double.IsNaN((double)Rows[row][col].Number))
+						else if (cell.Number.HasValue && !double.IsNaN((double)cell.Number) && !double.IsInfinity((double)cell.Number))
 						{
 							hasNumber = true;
-							min = Math.Min(min, Math.Abs((double)Rows[row][col].Number));
-							max = Math.Max(max, Math.Abs((double)Rows[row][col].Number));
+							min = Math.Min(min, Math.Abs((double)cell.Number));
+							max = Math.Max(max, Math.Abs((double)cell.Number));
 						}
-						else if (!string.IsNullOrEmpty(Rows[row][col].Text))
+						else if (!string.IsNullOrEmpty(cell.Text))
 						{
-							float width = graphics.MeasureString(Rows[row][col].Text, font, 1000).Width;
+							float width = graphics.MeasureString(cell.Text, font, 1000).Width;
 							total += width;
 							count++;
 							widest = Math.Max(widest, width);
 						}
 
-						if (hasNumber && !string.IsNullOrEmpty(Rows[row][col].NumberFormat))
-							numberFormat = Rows[row][col].NumberFormat;
+						if (hasNumber && !string.IsNullOrEmpty(cell.NumberFormat))
+							numberFormat = cell.NumberFormat;
 					}
 				}
 
@@ -739,7 +739,7 @@ namespace Zoom
 			foreach (ZRow row in Rows)
 			{
 		        // Write the <tr> tag that begins the row.
-				AppendStrings(s, "    <tr style=\"background-color: ", System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(odd)), "\"");
+				AppendStrings(s, "    <tr style=\"background-color: ", System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(row, odd)), "\"");
 
 				if (!string.IsNullOrEmpty(row.CssClass))
 					AppendStrings(s, " class=\"", row.CssClass, "\"");
@@ -755,7 +755,7 @@ namespace Zoom
 					if (row[col].Color == Color.Empty)
 						cellColor = "";
 					else
-						cellColor = " style=\"background-color: " + System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(odd, row[col].Color)) + '"';
+						cellColor = " style=\"background-color: " + System.Drawing.ColorTranslator.ToHtml(Colors.GetBackColor(row, odd, row[col].Color)) + '"';
 
 					if (Bars && /*!oneBar &&*/ row[col].Number != null && (row[col].ChartType != ChartType.None || row[col].ChartCell == row[col]))
 					{
@@ -763,7 +763,7 @@ namespace Zoom
 //						thisbar = MaxBarByColumn ? FMaxBars[col] :
 //								  MaxBarByRow    ? FMaxBars[j] : FMaxBar;
 						
-						var barColor = row[col].GetBarColor(Colors.GetBackColor(odd), Colors.BarNone);
+						var barColor = row[col].GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone);
 
 						AppendStrings(s, "      <td class=\"barcontainer\"", cellColor, ">\n");
 						s.AppendFormat("        <div class=\"bar{0:X2}{1:X2}{2:X2}\" style=\"width: {3}%\" />\n", 
@@ -805,11 +805,9 @@ namespace Zoom
 		}
 
 		// Write a <rect> tag, and a <text> tag on top of it.
-		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, double? bar = null)
+		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null)
 		{
 			SvgRect(s, indent, x, y, width, height, backColor);
-			if (bar != null)
-				SvgRect(s, indent, x, y, width * (double)bar, height, barColor);
 			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text, cssClass, hyper);
 		}
 
@@ -1457,7 +1455,7 @@ namespace Zoom
 		// Write a single table row.
 		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int MaxPoints, int width, ZRow row, bool odd, bool pure)
 		{
-			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(odd));  // Paint the background for the whole row.
+			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(row, odd));  // Paint the background for the whole row.
 
 			// Ensure ChartCells point to themselves, where they're part of a multi-cell chart.
 			foreach (var cell in row)
@@ -1480,7 +1478,7 @@ namespace Zoom
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
 					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
 					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), MaxPoints,
-					         Colors.GetBackColor(odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(odd), Colors.BarNone), sourceCell, barSource);
+					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, barSource);
 
 				start = end + 1;
 			}
@@ -1544,6 +1542,11 @@ namespace Zoom
 		    	AppendStrings(sb, "<p>", Description, "</p>\n");
 			if (!pure)
 				sb.Append("</div>");
+		}
+
+		public override string ToString()
+		{
+			return "ZoomReport " + Title + ": " + Rows.Count.ToString() + " rows.";
 		}
 	}
 
@@ -1613,8 +1616,8 @@ namespace Zoom
 					foreach (var row in zoomReport.Rows)
 					{
 						foreach (var cell in row)
-							if (!result.Contains(cell.GetBarColor(colors.GetBackColor(odd))))
-							    result.Add(cell.GetBarColor(colors.GetBackColor(odd)));
+							if (!result.Contains(cell.GetBarColor(colors.GetBackColor(row, odd))))
+							    result.Add(cell.GetBarColor(colors.GetBackColor(row, odd)));
 						odd = !odd;
 					}
 				}
@@ -1698,7 +1701,16 @@ namespace Zoom
 				sb.Append(WebUtility.HtmlEncode(Title));
 			else if (Count > 0)
 				sb.Append(WebUtility.HtmlEncode(this[0].Title));
-			sb.Append("</title></head><body style=\"background-color: #EEF\">\n");
+			sb.Append("</title>");
+
+			sb.Append("\n  <style type=\"text/css\">\n");
+			sb.Append("    .back   { background: #eef; color: black; }\n");
+			sb.Append("    @media (prefers-color-scheme: dark) {\n");
+			sb.Append("      .back { background: #112; color: white; }\n");
+			sb.Append("    }\n");
+			sb.Append("  </style>\n");
+
+			sb.Append("</head><body class=\"back\">\n");
 			//sb.Append("");  // TODO: cellstyles.ToHtml here?
 
 			if (Count == 1)
