@@ -130,11 +130,20 @@ namespace Torn.Report
 		/// <summary>Generate a page with results for a team.</summary>
 		public static string TeamPage(League league, bool includeSecret, LeagueTeam leagueTeam, GameHyper gameHyper, OutputFormat outputFormat)
 		{
-			return new ZoomReports
+			ZoomReports reports = new ZoomReports(leagueTeam.Name)
 			{
-				Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true, ReportPages.GameHyper),
-				new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>")
-			}.ToOutput(outputFormat);
+				Reports.OneTeam(league, includeSecret, leagueTeam, DateTime.MinValue, DateTime.MaxValue, true, ReportPages.GameHyper)
+			};
+
+			foreach (var player in leagueTeam.Players)
+			{
+				reports.Add(new ZoomHtmlInclusion("<a name=\"player" + player.Id + "\">"));
+				reports.Add(Reports.OnePlayer(league, player, new List<LeagueTeam>() { leagueTeam }, gameHyper));
+			}
+
+			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"fixture.html?team=" + leagueTeam.TeamId.ToString(CultureInfo.InvariantCulture) + "\">Fixture</a><br/><a href=\"index.html\">Index</a><div>"));
+
+			return reports.ToOutput(outputFormat);
 		}
 
 		/// <summary>Display fixtures for a league, both as a list and as a grid.</summary>
@@ -495,7 +504,7 @@ namespace Torn.Report
 		{
 			if (path != null)
 			{
-				Progress myProgress = new Progress() { Denominator = selected.Count * 4 + 1, ShowProgress = progress };
+				Progress myProgress = new Progress() { Denominator = selected.Count * 3 + 1, ShowProgress = progress };
 
 				if (selected.Any())
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, "index." + selected[0].ReportTemplates.OutputFormat.ToExtension())))
@@ -508,15 +517,15 @@ namespace Torn.Report
 
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index." + holder.ReportTemplates.OutputFormat.ToExtension())))
 						sw.Write(ReportPages.OverviewPage(holder, includeSecret, ReportPages.GameHyper, holder.ReportTemplates.OutputFormat));
-					myProgress.Increment("Overview page exported.");
-
-					ExportPlayers(holder, path);
-					myProgress.Increment("Players pages exported.");
+					myProgress.Increment(holder.League.Title + " Overview page exported.");
 
 					foreach (LeagueTeam leagueTeam in holder.League.Teams)
+					{
 						using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "team" + leagueTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + "." + holder.ReportTemplates.OutputFormat.ToExtension())))
 							sw.Write(ReportPages.TeamPage(holder.League, includeSecret, leagueTeam, ReportPages.GameHyper, holder.ReportTemplates.OutputFormat));
-					myProgress.Increment("Team pages exported.");
+						myProgress.Advance(1 / holder.League.Teams.Count, "Team " + leagueTeam.Name + " page exported.");
+					}
+					myProgress.Advance(0, "Team pages exported.");
 
 					ExportGames(holder, path, myProgress);
 					myProgress.Advance(0, "Games pages exported.");
@@ -583,8 +592,8 @@ namespace Torn.Report
 						if (eventsUsed.Contains(28) && !eventsUsed.Contains(29)) sb.Append("<br/>");
 						if (eventsUsed.Contains(29)) sb.Append("\U0001f7e5 is termination (red card).<br/>");
 						if (eventsUsed.Contains(32)) sb.Append("\U0001f480 is player eliminated.<br/>");
-						if (eventsUsed.Contains(33) && !eventsUsed.Contains(34) && !eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base.<br/>");
-						if (eventsUsed.Contains(34) || eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base or mine, or player tagged target.<br/>");
+						if (eventsUsed.Contains(33) && !eventsUsed.Contains(34) && !eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base, or player self-denied.<br/>");
+						if (eventsUsed.Contains(34) || eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base or mine, or player self-denied, or player tagged target.<br/>");
 						sb.Append("\u00B7 shows each minute elapsed.<br/>Tags+ includes shots on bases and teammates.</p><div>");
 						reports.Add(new ZoomHtmlInclusion(sb.ToString()));
 					}
@@ -597,29 +606,6 @@ namespace Torn.Report
 					progress.Advance(1.0 / dates.Count, "Exported games for " + date.ToShortDateString());
 				}
 			}
-		}
-
-		static void ExportPlayers(Holder holder, string path)
-		{
-			League league = holder.League;
-
-			var playerTeams = league.BuildPlayerTeamList();
-			ZoomReports playerReports = new ZoomReports("Players in " + league.Title);
-			playerReports.Colors.BackgroundColor = Color.Empty;
-			playerReports.Colors.OddColor = Color.Empty;
-
-			foreach (var pt in playerTeams)
-				if (league.Played(pt.Key).Any())
-				{
-					playerReports.Add(new ZoomHtmlInclusion("<a name=\"player" + pt.Key.Id + "\">"));
-					playerReports.Add(Reports.OnePlayer(league, pt.Key, pt.Value, ReportPages.GameHyper));
-				}
-
-			playerReports.Add(new ZoomHtmlInclusion("<br/><a href=\"index.html\">Index</a>"));
-
-			if (playerReports.Count > 1)
-				using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "players." + holder.ReportTemplates.OutputFormat.ToExtension())))
-					sw.Write(playerReports.ToOutput(holder.ReportTemplates.OutputFormat));
 		}
 
 		/// <summary>Write out fixtures for the selected leagues.</summary>

@@ -374,7 +374,7 @@ namespace Torn.Report
 			{
 				var column = new ZColumn(team1.Name, ZAlignment.Center)
 				{
-					Hyper = "team" + team1.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html",
+					Hyper = TeamHyper(team1),
 					Rotate = true
 				};
 				report.AddColumn(column);
@@ -932,7 +932,7 @@ namespace Torn.Report
 					ZRow row = new ZRow();
 					report.Rows.Add(row);
 					row.Add(new ZCell(0, ChartType.None, "N0"));  // Temporary rank
-					row.AddCell(new ZCell(player.Name)).Hyper = "players.html#player" + player.Id;  // Player alias
+					row.AddCell(new ZCell(player.Name)).Hyper = PlayerHyper(pt.Value[0], player);  // Player alias
 
 					if (pt.Value.Count() == 1)
 						row.Add(TeamCell(pt.Value.First()));
@@ -1110,8 +1110,8 @@ namespace Torn.Report
 			};
 			report.Colors.TitleBackColor = Color.DarkGray;  // DarkGray is lighter than Gray.
 			report.Colors.TitleFontColor = Color.Black;
-			report.Colors.OddColor = default;
 			report.Colors.BackgroundColor = default;
+			report.Colors.OddColor = default;
 
 			var sameWidths = new List<ZColumn>();
 			report.SameWidths.Add(sameWidths);
@@ -1141,7 +1141,7 @@ namespace Torn.Report
 					else						
 					{
 						var leaguePlayer = league.LeaguePlayer(gamePlayer);
-						playerRow.AddCell(new ZCell(leaguePlayer.Name, color)).Hyper = "players.html#player" + leaguePlayer.Id;
+						playerRow.AddCell(new ZCell(leaguePlayer.Name, color)).Hyper = PlayerHyper(league.LeagueTeam(gameTeam), leaguePlayer);
 					}
 
 					FillDetails(playerRow, gamePlayer, color, (double)game.TotalScore() / game.Players().Count);
@@ -1529,7 +1529,7 @@ namespace Torn.Report
 
 			report.Title += " \u2014 " + string.Join(", ", teams.Select(t => t.Name));
 			if (teams.Count == 1)
-				report.TitleHyper = "team" + teams[0].TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+				report.TitleHyper = "team" + TeamHyper(teams[0]);
 			else
 				report.Columns.Insert(1, new ZColumn("Team"));
 
@@ -1582,7 +1582,7 @@ namespace Torn.Report
 			// Add an overall average row.
 			ZRow totalRow = new ZRow
 			{
-				new ZCell("Average")  // Game time
+				new ZCell("Average of " + league.Played(player).Count().ToString() + " games")
 			};
 			if (teams.Count > 1)
 				totalRow.Add(new ZCell(""));  // Team name
@@ -1611,6 +1611,12 @@ namespace Torn.Report
 		public static ZoomReport OneTeam(League league, bool includeSecret, LeagueTeam team, DateTime from, DateTime to, bool description, GameHyper gameHyper)
 		{
 			ZoomReport report = new ZoomReport(team.Name);
+
+			var evenColor = report.Colors.BackgroundColor;
+			var oddColor = report.Colors.OddColor;
+
+			report.Colors.BackgroundColor = default;
+			report.Colors.OddColor = default;
 
 			report.AddColumn(new ZColumn("Game", ZAlignment.Left));
 
@@ -1646,25 +1652,30 @@ namespace Torn.Report
 			List<LeaguePlayer> players = new List<LeaguePlayer>();
 			foreach (var x in averagesList)
 				players.Add(x.Key);
-			
+
+			team.Players.Clear();
+			team.Players.AddRange(players);
+
 			// Add a column for each player on this team.
 			foreach (LeaguePlayer leaguePlayer in players)
 			{
-				report.AddColumn(new ZColumn(leaguePlayer.Name, ZAlignment.Integer, "Players")).Hyper = "players.html#player" + leaguePlayer.Id;
+				report.AddColumn(new ZColumn(leaguePlayer.Name, ZAlignment.Integer, "Players")).Hyper = PlayerHyper(team, leaguePlayer);
 			}
 			report.AddColumn(new ZColumn("Total", ZAlignment.Integer, "Score"));
 			if (league.IsPoints())
 				report.AddColumn(new ZColumn("Pts", ZAlignment.Float, "Score"));
 
-			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Conceded,Ratio,Denies,Denied,Yellow,Red,Played", 
+			report.AddColumns("Score again,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Conceded,Ratio,Denies,Denied,Yellow,Red,Played Against", 
 			                  "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,left",
 			                  ",Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Base,Base,Penalties,Penalties,");
 
 			// TODO: add columns for total points for/against, total team tags for/against, total team denials for/against (from game.ServerGame.Events?)
 
+			List<GameTeam> played = league.Played(team, includeSecret);
 			DateTime previousGameDate = DateTime.MinValue;
+
 			// Add a row for each of this team's games. Fill in values for team score and player scores.
-			foreach (GameTeam gameTeam in league.Played(team, includeSecret).OrderBy(gt => league.Game(gt).Time))
+			foreach (GameTeam gameTeam in played.OrderBy(gt => league.Game(gt).Time))
 				if (from < league.Game(gameTeam).Time && league.Game(gameTeam).Time < to)
 				{
 					var game = league.Game(gameTeam); 
@@ -1675,7 +1686,10 @@ namespace Torn.Report
 						dateRow.Add(new ZCell(game.Time.ToShortDateString()));  // to show the new date.
 					}
 
-					ZRow gameRow = new ZRow();
+					ZRow gameRow = new ZRow()
+					{
+						Color = report.Rows.Count % 2 == 0 ? evenColor : oddColor
+					};
 					report.Rows.Add(gameRow);
 					var timeCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
 					{
@@ -1742,11 +1756,20 @@ namespace Torn.Report
 					previousGameDate = game.Time.Date;
 				}  // if from..to; for Played
 
-			ZRow averageRow = new ZRow
+			ZRow averageRow = new ZRow()
 			{
-				new ZCell("Average")
+				new ZCell("Average of " + played.Count.ToString() + " games")
 			};
+			averageRow.Color = report.Rows.Count % 2 == 0 ? evenColor : oddColor;
 			FillAverages(report, averageRow);
+
+			DoRatio(report, averageRow, "Tags +", "Tags -", "Tag Ratio");
+			double averageTotalScore = played.Average(gt => league.Game(gt).TotalScore() / league.Game(gt).Teams.Count);
+			if (averageTotalScore != 0)
+				report.Cell(averageRow, "Score Ratio").Number = played.Average(gt => gt.Score) / averageTotalScore;
+			report.Cell(averageRow, "TR\u00D7SR").Number = report.Cell(averageRow, "Tag Ratio").Number * report.Cell(averageRow, "Score Ratio").Number;
+			DoRatio(report, averageRow, "Destroys", "Conceded", "Ratio");
+
 			report.Rows.Add(averageRow);
 
 			report.MaxChartByColumn = true;
@@ -1763,6 +1786,13 @@ namespace Torn.Report
 			return report;
 		}  // OneTeam
 
+		static void DoRatio(ZoomReport report, ZRow row, string numerator, string denominator, string result)
+		{
+			double? numeratorValue = report.Cell(row, numerator)?.Number;
+			double? denominatorValue = report.Cell(row, denominator)?.Number;
+			if (numeratorValue != null && denominatorValue != null && !double.IsInfinity((double)denominatorValue))
+				report.Cell(row, result).Number = numeratorValue / denominatorValue;
+		}
 		/// <summary>Each row is a game. CSS stuff is consumed by Javascript added in WebOutput.cs' ReportPages.FixturePage.</summary>
 		public static ZoomReport FixtureList(Fixture fixture, League league, GameHyper gameHyper)
 		{
@@ -2204,7 +2234,7 @@ namespace Torn.Report
 
 					Color color = player.Colour.ToColor();
 					playerRow.AddCell(new ZCell(league.LeaguePlayer(player) == null ? player.PlayerId : league.LeaguePlayer(player).Name))
-						.Hyper = "players.html#player" + player.PlayerId;;
+						.Hyper = PlayerHyper(league.LeagueTeam(player), league.LeaguePlayer(player));
 					playerRow.Add(new ZCell(player.Pack));
 					playerRow.Add(new ZCell(league.GameTeamFromPlayer(player) == null ? " " : league.LeagueTeam(league.GameTeamFromPlayer(player)).Name));
 					playerRow.Add(new ZCell(player.Rank));
@@ -2257,9 +2287,22 @@ namespace Torn.Report
 
 			ZCell teamcell = new ZCell(leagueTeam.Name, color)
 			{
-				Hyper = "team" + leagueTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html"
+				Hyper = TeamHyper(leagueTeam)
 			};
 			return teamcell;
+		}
+
+		public static string TeamHyper(LeagueTeam leagueTeam)
+		{
+			if (leagueTeam == null)
+				return "team_not_found.html";
+			else
+				return "team" + leagueTeam.TeamId.ToString("D2", CultureInfo.InvariantCulture) + ".html";
+		}
+
+		static string PlayerHyper(LeagueTeam leagueTeam, LeaguePlayer leaguePlayer)
+		{
+			return TeamHyper(leagueTeam) + "#player" + leaguePlayer.Id;
 		}
 
 		/// <summary>Return the natural log of x. If x is out of bounds, return a "clamped" value instead.</summary>
