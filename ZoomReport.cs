@@ -1129,7 +1129,7 @@ namespace Zoom
 			if (!pure)
 				s.AppendFormat("<div>");
 
-			s.AppendFormat("<svg viewBox=\"0 0 {0} <<<<<<<<\" width=\"{1}\" align=\"center\">\n", width, Math.Min(width, 960));  // The "<<<<<<<<" will be replaced later with the height, when we know what that height is.
+			s.AppendFormat("<svg viewBox=\"0 0 {0} <<<<<<<<\" width=\"{0}\" align=\"center\">\n", width);  // The "<<<<<<<<" will be replaced later with the height, when we know what that height is.
 
 			SvgRect(s, 1, 1, 1, width - 1, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
@@ -1146,7 +1146,7 @@ namespace Zoom
 			if (!pure)
 			{
 				// Add '-' and '+' zoom buttons (with transparent text, so the text added above appears behind the report title text).
-				s.AppendFormat("\t<text text-anchor=\"middle\" x=\"15\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') * 1.42)\">&#160;+&#160;</text>\n" +
+				s.AppendFormat("\t<text text-anchor=\"middle\" x=\"15\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', Math.min(this.parentNode.getAttribute('width') * 1.42, document.documentElement.clientWidth - 2))\">&#160;+&#160;</text>\n" +
 							   "\t<text text-anchor=\"middle\" x=\"45\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n", rowHeight * 3 / 2 + 1, rowHeight * 2);
 			}
 
@@ -1722,15 +1722,23 @@ namespace Zoom
 				this[i].ToSvg(sb);
 
 			sb.Append(@"</div>
+
 <script>
-window.onload = function() {
-  var texts = document.querySelectorAll('text');
-  for (i = 0; i < texts.length; i++) {
-    var fit = texts[i].getComputedTextLength() / (texts[i].getAttribute('width') - 2);
-    if (fit > 1)
-      texts[i].setAttribute('font-size', texts[i].getAttribute('font-size') / fit);
-  }
+function setwidths() {
+  for (const svg of  document.querySelectorAll('svg'))
+    if (svg.getAttribute('width') > document.documentElement.clientWidth)
+      svg.setAttribute('width', document.documentElement.clientWidth - 2);
 }
+
+window.onload = function() {
+  for (const text of document.querySelectorAll('text')) {
+    var fit = text.getComputedTextLength() / (text.getAttribute('width') - 2);
+    if (fit > 1)
+      text.setAttribute('font-size', text.getAttribute('font-size') / fit);
+  }
+  setwidths();
+}
+window.onresize = setwidths;
 </script>
 ");
 
