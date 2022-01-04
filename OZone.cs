@@ -48,10 +48,10 @@ namespace Torn
 				{
 					var game = new ServerGame();
 					if (jgame.TryGetProperty("gamenum",   out JsonElement gameNum))   game.GameId = gameNum.GetInt32();
-					if (jgame.TryGetProperty("gamename",  out JsonElement gameName))  game.Description = gameNum.GetString();
+					if (jgame.TryGetProperty("gamename",  out JsonElement gameName))  game.Description = gameName.GetString();
 					if (jgame.TryGetProperty("starttime", out JsonElement startTime)) game.Time = startTime.GetDateTime();
-					if (jgame.TryGetProperty("endtime",   out JsonElement endTime))   game.EndTime = gameNum.GetDateTime();
-					if (jgame.TryGetProperty("valid",     out JsonElement valid))     game.OnServer = gameNum.GetBoolean();
+					if (jgame.TryGetProperty("endtime",   out JsonElement endTime))   game.EndTime = endTime.GetDateTime();
+					if (jgame.TryGetProperty("valid",     out JsonElement valid))     game.OnServer = valid.GetBoolean();
 				}
 			}
 			return games;
