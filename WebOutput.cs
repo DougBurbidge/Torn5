@@ -65,7 +65,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Generate a page full of reports for a league. If no ReportTemplates, use a default set of reports.</summary>
-		public static ZoomReports OverviewReports(Holder holder, bool includeSecret, GameHyper gameHyper)
+		public static ZoomReports OverviewReports(Holder holder, bool includeSecret)
 		{
 			ZoomReports reports = new ZoomReports(holder.League.Title);
 
@@ -112,9 +112,9 @@ namespace Torn.Report
 			}
 		}
 
-		public static string OverviewPage(Holder holder, bool includeSecret, GameHyper gameHyper, OutputFormat outputFormat)
+		public static string OverviewPage(Holder holder, bool includeSecret, OutputFormat outputFormat)
 		{
-			return OverviewReports(holder, includeSecret, ReportPages.GameHyper).ToOutput(outputFormat);
+			return OverviewReports(holder, includeSecret).ToOutput(outputFormat);
 		}
 
 		public static string GamePage(League league, Game game, OutputFormat outputFormat = OutputFormat.Svg)
@@ -338,7 +338,7 @@ namespace Torn.Report
 				if (request.RawUrl == "/")
 				{
 					if (Leagues.Count == 1)
-						return ReportPages.OverviewPage(holder, false, ReportPages.GameHyper, OutputFormat.Svg);
+						return ReportPages.OverviewPage(holder, false, OutputFormat.Svg);
 					else
 						return ReportPages.RootPage(Leagues);
 				}
@@ -361,7 +361,7 @@ namespace Torn.Report
 			else if (holder == null)
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Couldn't find a league key in \"<br>{0}\". Try <a href=\"now.html\">Now Playing</a> instead.</body></html>", rawUrl);
 			else if (lastPart == "index.html")
-				return ReportPages.OverviewPage(holder, false, ReportPages.GameHyper, OutputFormat.Svg);
+				return ReportPages.OverviewPage(holder, false, OutputFormat.Svg);
 			else if (lastPart.StartsWith("game", StringComparison.OrdinalIgnoreCase))
 			{
 				DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 12), "yyyyMMddHHmm", CultureInfo.InvariantCulture);
@@ -516,7 +516,7 @@ namespace Torn.Report
 					Directory.CreateDirectory(Path.Combine(path, holder.Key));
 
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, holder.Key, "index." + holder.ReportTemplates.OutputFormat.ToExtension())))
-						sw.Write(ReportPages.OverviewPage(holder, includeSecret, ReportPages.GameHyper, holder.ReportTemplates.OutputFormat));
+						sw.Write(ReportPages.OverviewPage(holder, includeSecret, holder.ReportTemplates.OutputFormat));
 					myProgress.Increment(holder.League.Title + " Overview page exported.");
 
 					foreach (LeagueTeam leagueTeam in holder.League.Teams)
@@ -584,7 +584,7 @@ namespace Torn.Report
 					if (detailed)
 					{
 						var eventsUsed = dayGames.Where(g => g.ServerGame != null).SelectMany(g => g.ServerGame.Events.Select(e => e.Event_Type)).Distinct();
-						var sb = new StringBuilder("</div><p>");
+						var sb = new StringBuilder("</div>\n<p>");
 						if (eventsUsed.Contains(30) || eventsUsed.Contains(31)) sb.Append("\u25cb and \u2b24 are hit and destroyed bases.<br/>");
 						if (eventsUsed.Contains(1403) || eventsUsed.Contains(1404)) sb.Append("\U0001f61e and \U0001f620 are one- and two-shot denied.<br/>");
 						if (eventsUsed.Contains(1401) || eventsUsed.Contains(1402)) sb.Append("\u2300 and \u29bb are denied another player.<br/>");
@@ -594,7 +594,13 @@ namespace Torn.Report
 						if (eventsUsed.Contains(32)) sb.Append("\U0001f480 is player eliminated.<br/>");
 						if (eventsUsed.Contains(33) && !eventsUsed.Contains(34) && !eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base, or player self-denied.<br/>");
 						if (eventsUsed.Contains(34) || eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base or mine, or player self-denied, or player tagged target.<br/>");
-						sb.Append("\u00B7 shows each minute elapsed.<br/>Tags+ includes shots on bases and teammates.</p><div>");
+						sb.Append("\u00B7 shows each minute elapsed.<br/>Tags+ includes shots on bases and teammates.</p>\n");
+						sb.Append(@"<p>""Worm"" charts show coloured lines for each team. Vertical dashed lines show time in minutes. <br/>
+Sloped dashed lines show lines of constant score: 0 points, 10K points, etc. The slope of these lines shows the average rate of scoring of ""field points"" 
+during the game. Field points are points not derived from shooting bases, getting penalised by a referee, etc. A team whose score line is horizontal is 
+scoring points  at the average field pointing rate for the game. <br/>
+Base hits and destroys are shown with a mark in the colour of the base hit. Base destroys have the alias of the player destroying the base next to them.</p>
+<div>");
 						reports.Add(new ZoomHtmlInclusion(sb.ToString()));
 					}
 
@@ -628,7 +634,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Upload files from the named path via FTP to the internet.</summary>
-		public static void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, bool includeSecret, List<Holder> selected, ShowProgress progress = null)
+		public static void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, List<Holder> selected, ShowProgress progress = null)
 		{
 
 			string url = uploadMethod + "://" + uploadSite;
