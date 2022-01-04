@@ -481,8 +481,10 @@ namespace Torn.UI
 				if (adhocReportTemplate == null)
 					adhocReportTemplate = new ReportTemplate { ReportType = ReportType.TeamLadder };
 
-				var formReport = new FormReport();
-				formReport.ReportTemplate = adhocReportTemplate;
+				var formReport = new FormReport
+				{
+					ReportTemplate = adhocReportTemplate
+				};
 
 				if (formReport.ShowDialog() == DialogResult.OK)
 					new FormAdhoc { Report = ReportPages.Report(holder.League, IncludeSecret(), adhocReportTemplate) }.Show();
@@ -500,15 +502,13 @@ namespace Torn.UI
 			if (listViewLeagues.SelectedItems.Count == 1)
 			{
 				var item = listViewLeagues.SelectedItems[0];
-				using (var form = new FormFixture(((Holder)item.Tag).Fixture, ((Holder)item.Tag).League))
+				using (var form = new FormFixture((Holder)item.Tag))
 				{
 					form.Icon = (Icon)Icon.Clone();
 					form.ShowDialog();
 				}
 			}
 		}
-
-		void ButtonForceClick(object sender, EventArgs e) {}
 
 		void ButtonForgetClick(object sender, EventArgs e)
 		{
@@ -730,7 +730,7 @@ namespace Torn.UI
 			{
 				progressBar1.Value = 0;
 				try {
-					ExportPages.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, IncludeSecret(), SelectedLeagues(), ProgressBar);
+					ExportPages.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, SelectedLeagues(), ProgressBar);
 				}
 				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
 			}

@@ -58,6 +58,7 @@ namespace Torn.UI
 			this.numericSize = new System.Windows.Forms.NumericUpDown();
 			this.panelGraphic = new System.Windows.Forms.Panel();
 			this.tabFinals = new System.Windows.Forms.TabPage();
+			this.labelTeamsToSendUp = new System.Windows.Forms.Label();
 			this.numericFreeRides = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
 			this.buttonFormatD = new System.Windows.Forms.Button();
@@ -71,7 +72,6 @@ namespace Torn.UI
 			this.panelFinals = new System.Windows.Forms.Panel();
 			this.buttonAscension = new System.Windows.Forms.Button();
 			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
-			this.labelTeamsToSendUp = new System.Windows.Forms.Label();
 			this.tabControl1.SuspendLayout();
 			this.tabTeams.SuspendLayout();
 			this.tabGamesList.SuspendLayout();
@@ -446,6 +446,15 @@ namespace Torn.UI
 			this.tabFinals.UseVisualStyleBackColor = true;
 			this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
 			// 
+			// labelTeamsToSendUp
+			// 
+			this.labelTeamsToSendUp.AutoSize = true;
+			this.labelTeamsToSendUp.Location = new System.Drawing.Point(528, 5);
+			this.labelTeamsToSendUp.Name = "labelTeamsToSendUp";
+			this.labelTeamsToSendUp.Size = new System.Drawing.Size(174, 13);
+			this.labelTeamsToSendUp.TabIndex = 12;
+			this.labelTeamsToSendUp.Text = "Teams to send up from each game:";
+			// 
 			// numericFreeRides
 			// 
 			this.numericFreeRides.Location = new System.Drawing.Point(472, 29);
@@ -610,15 +619,6 @@ namespace Torn.UI
 			// 
 			this.timerRedraw.Interval = 1000;
 			this.timerRedraw.Tick += new System.EventHandler(this.timerRedraw_Tick);
-			// 
-			// labelTeamsToSendUp
-			// 
-			this.labelTeamsToSendUp.AutoSize = true;
-			this.labelTeamsToSendUp.Location = new System.Drawing.Point(528, 5);
-			this.labelTeamsToSendUp.Name = "labelTeamsToSendUp";
-			this.labelTeamsToSendUp.Size = new System.Drawing.Size(174, 13);
-			this.labelTeamsToSendUp.TabIndex = 12;
-			this.labelTeamsToSendUp.Text = "Teams to send up from each game:";
 			// 
 			// FormFixture
 			// 
