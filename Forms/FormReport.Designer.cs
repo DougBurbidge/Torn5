@@ -411,7 +411,7 @@ namespace Torn.UI
 			this.listBoxReportType.Size = new System.Drawing.Size(211, 134);
 			this.listBoxReportType.TabIndex = 1;
 			this.listBoxReportType.SelectedIndexChanged += new System.EventHandler(this.ListBoxReportTypeSelectedIndexChanged);
-			this.listBoxReportType.DoubleClick += new System.EventHandler(this.listBoxReportType_DoubleClick);
+			this.listBoxReportType.DoubleClick += new System.EventHandler(this.ListBoxReportType_DoubleClick);
 			// 
 			// description
 			// 

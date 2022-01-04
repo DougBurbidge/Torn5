@@ -40,11 +40,11 @@ namespace Torn.UI
 				title.Text = ReportTemplate.Title;
 
 				foreach (Control c in this.Controls)
-					if (c is CheckBox && c.Tag != null)
-						((CheckBox)c).Checked = ReportTemplate.Settings.Contains((string)c.Tag);
+					if (c is CheckBox checkBox && c.Tag != null)
+						checkBox.Checked = ReportTemplate.Settings.Contains((string)c.Tag);
 
-				radioButtonGames.Checked = ReportTemplate.Drops == null ? false : ReportTemplate.Drops.CountBest > 0 || ReportTemplate.Drops.CountWorst > 0;
-				radioButtonPercent.Checked = ReportTemplate.Drops == null ? false : ReportTemplate.Drops.PercentBest > 0 || ReportTemplate.Drops.PercentWorst > 0;
+				radioButtonGames.Checked = ReportTemplate.Drops != null && (ReportTemplate.Drops.CountBest > 0 || ReportTemplate.Drops.CountWorst > 0);
+				radioButtonPercent.Checked = ReportTemplate.Drops != null && (ReportTemplate.Drops.PercentBest > 0 || ReportTemplate.Drops.PercentWorst > 0);
 				numericUpDownBest.Value = ReportTemplate.Drops == null ? 0 : (Decimal)Math.Max(ReportTemplate.Drops.CountBest, ReportTemplate.Drops.PercentBest);
 				numericUpDownWorst.Value = ReportTemplate.Drops == null ? 0 : (Decimal)Math.Max(ReportTemplate.Drops.CountWorst, ReportTemplate.Drops.PercentWorst);
 
@@ -100,7 +100,7 @@ namespace Torn.UI
 
 				ReportTemplate.Settings.Clear();
 				foreach (Control c in this.Controls)
-					if (c.Enabled && c is CheckBox && ((CheckBox)c).Checked && !string.IsNullOrEmpty((string)c.Tag))
+					if (c.Enabled && c is CheckBox checkBox && checkBox.Checked && !string.IsNullOrEmpty((string)c.Tag))
 						ReportTemplate.Settings.Add((string)c.Tag);
 
 				if (dropGames.Checked)
@@ -130,14 +130,14 @@ namespace Torn.UI
 					ReportTemplate.Settings.Add("AtLeastN=" + numericUpDownAtLeastN.Value.ToString(CultureInfo.InvariantCulture));
 
 				if (orderBy.Enabled)
-					ReportTemplate.Settings.Add("OrderBy=" + orderByText());
+					ReportTemplate.Settings.Add("OrderBy=" + OrderByText());
 
 				ReportTemplate.From = dateFrom.Checked ? datePickerFrom.Value.Add(timePickerFrom.Value.TimeOfDay) : (DateTime?)null;
 				ReportTemplate.To = dateTo.Checked ? datePickerTo.Value.Add(timePickerTo.Value.TimeOfDay) : (DateTime?)null;
 			}
 		}
 
-		string orderByText()
+		string OrderByText()
 		{
 			switch (orderBy.SelectedIndex) {
 				case 0: return "score";
@@ -211,7 +211,7 @@ namespace Torn.UI
 			}
 		}
 
-		private void listBoxReportType_DoubleClick(object sender, EventArgs e)
+		private void ListBoxReportType_DoubleClick(object sender, EventArgs e)
 		{
 			DialogResult = DialogResult.OK;
 			Close();

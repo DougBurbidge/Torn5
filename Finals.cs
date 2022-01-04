@@ -249,13 +249,15 @@ namespace Torn
 
 		public static ZoomReport Ascension(Fixture fixture, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
 		{
-			var f = new Finals();
-			f.Fixture = fixture;
-			f.NumTeams = fixture.Teams.Count;
-			f.TeamsPerGame = teamsPerGame;
-			f.TeamsSentDown = teamsToCut;
-			f.Tracks = tracks;
-			f.FreeRides = freeRides;
+			var f = new Finals
+			{
+				Fixture = fixture,
+				NumTeams = fixture.Teams.Count,
+				TeamsPerGame = teamsPerGame,
+				TeamsSentDown = teamsToCut,
+				Tracks = tracks,
+				FreeRides = freeRides
+			};
 
 			var report = new ZoomReport("Finals");
 			f.Report = report;

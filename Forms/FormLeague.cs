@@ -32,8 +32,10 @@ namespace Torn.UI
 			
 			foreach (var team in League.Teams)
 			{
-				var teamNode = new TreeNode(team.Name);
-				teamNode.Tag = team;
+				var teamNode = new TreeNode(team.Name)
+				{
+					Tag = team
+				};
 				foreach (var player in team.Players)
 				{
 					var playerNode = teamNode.Nodes.Add(player.Name);
@@ -60,10 +62,10 @@ namespace Torn.UI
 		{
 			tabControl1.SelectedTab = scoresPage;
 
-			if (treeView1.SelectedNode.Tag is LeagueTeam)
+			if (treeView1.SelectedNode.Tag is LeagueTeam team)
 			{
 				listViewScores.Items.Clear();
-				foreach (var gameTeam in League.Played((LeagueTeam)treeView1.SelectedNode.Tag))
+				foreach (var gameTeam in League.Played(team))
 				{
 					Game game = League.Game(gameTeam);
 					var item = new ListViewItem(game == null ? "?" : game.Time.ToString());
@@ -74,10 +76,10 @@ namespace Torn.UI
 				}
 				listViewScores.Columns[2].Text = League.IsPoints() ? "Points" : "Rank";
 			}
-			else if (treeView1.SelectedNode.Tag is LeaguePlayer)
+			else if (treeView1.SelectedNode.Tag is LeaguePlayer player)
 			{
 				listViewScores.Items.Clear();
-				foreach (var gamePlayer in League.Played((LeaguePlayer)treeView1.SelectedNode.Tag))
+				foreach (var gamePlayer in League.Played(player))
 				{
 					var item = new ListViewItem(League.Game(gamePlayer).Time.ToString());
 					item.SubItems.Add(gamePlayer.Score.ToString());
@@ -108,12 +110,16 @@ namespace Torn.UI
 			string name = null;
 			if (InputDialog.ConditionalInput("Add Team", "Choose a name for the new team", ref name))
 			{
-				var team = new LeagueTeam();
-				team.Name = name;
+				var team = new LeagueTeam
+				{
+					Name = name
+				};
 				League.AddTeam(team);
 
-				var node = new TreeNode(name);
-				node.Tag = team;
+				var node = new TreeNode(name)
+				{
+					Tag = team
+				};
 				treeView1.Nodes.Add(node);
 				treeView1.SelectedNode = node;
 			}
@@ -121,23 +127,23 @@ namespace Torn.UI
 
 		void ButtonDeleteTeamClick(object sender, EventArgs e)
 		{
-			if (treeView1.SelectedNode.Tag is LeagueTeam && 
-			    MessageBox.Show("Are you sure you want to delete team " + ((LeagueTeam)treeView1.SelectedNode.Tag).Name + "?",
+			if (treeView1.SelectedNode.Tag is LeagueTeam team && 
+			    MessageBox.Show("Are you sure you want to delete team " + team.Name + "?",
 			                    "Delete Team?", MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
-				League.Teams.Remove(((LeagueTeam)treeView1.SelectedNode.Tag));
+				League.Teams.Remove(team);
 				treeView1.Nodes.Remove(treeView1.SelectedNode);
 			}
 		}
 
 		void ButtonRenameTeamClick(object sender, EventArgs e)
 		{
-			if (treeView1.SelectedNode.Tag is LeagueTeam)
+			if (treeView1.SelectedNode.Tag is LeagueTeam team)
 			{
-				string name = ((LeagueTeam)treeView1.SelectedNode.Tag).Name;
+				string name = team.Name;
 			    if (InputDialog.UpdateInput("Rename Team", "Choose a new name for the team", ref name))
 			    {
-			    	((LeagueTeam)treeView1.SelectedNode.Tag).Name = name;
+			    	team.Name = name;
 					treeView1.SelectedNode.Text = name;
 			    }
 			}
@@ -149,12 +155,14 @@ namespace Torn.UI
 			if (teamNode.Tag is LeaguePlayer)
 				teamNode = teamNode.Parent;
 
-			if (teamNode.Tag is LeagueTeam && FormPlayer.ShowDialog() == DialogResult.OK)
+			if (teamNode.Tag is LeagueTeam team && FormPlayer.ShowDialog() == DialogResult.OK)
 			{
-				var player = new LeaguePlayer();
-				player.Id = FormPlayer.PlayerId;
-				player.Name = FormPlayer.PlayerAlias;
-				((LeagueTeam)teamNode.Tag).Players.Add(player);
+				var player = new LeaguePlayer
+				{
+					Id = FormPlayer.PlayerId,
+					Name = FormPlayer.PlayerAlias
+				};
+				team.Players.Add(player);
 
 				var playerNode = teamNode.Nodes.Add(player.Name);
 				playerNode.Tag = player;
@@ -165,11 +173,11 @@ namespace Torn.UI
 
 		void ButtonDeletePlayerClick(object sender, EventArgs e)
 		{
-			if (treeView1.SelectedNode.Tag is LeaguePlayer && 
-			    MessageBox.Show("Are you sure you want to delete player " + ((LeaguePlayer)treeView1.SelectedNode.Tag).Name + " from this team?",
+			if (treeView1.SelectedNode.Tag is LeaguePlayer player && 
+			    MessageBox.Show("Are you sure you want to delete player " + player.Name + " from this team?",
 			                    "Delete Player?", MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
-				((LeagueTeam)treeView1.SelectedNode.Parent.Tag).Players.Remove((LeaguePlayer)treeView1.SelectedNode.Tag);
+				((LeagueTeam)treeView1.SelectedNode.Parent.Tag).Players.Remove(player);
 				treeView1.SelectedNode.Remove();
 			}
 		}
@@ -195,8 +203,8 @@ namespace Torn.UI
 		void RankCheckedChanged(object sender, EventArgs e)
 		{
 			foreach (var c in leaguePage.Controls)
-				if (c is Label && ((Label)c).Text.StartsWith("Points for "))
-					((Control)c).Enabled = victoryPoints.Checked;
+				if (c is Label label && label.Text.StartsWith("Points for "))
+					label.Enabled = victoryPoints.Checked;
 
 			foreach (var v in victory)
 				v.Enabled = victoryPoints.Checked;
@@ -219,31 +227,35 @@ namespace Torn.UI
 		{
 			while (victory.Count <= i)
 			{
-				var label = new Label();
-				label.Text = "Points for " + (victory.Count + 1).Ordinate();
-				label.Left = 32;
-				label.Top = 72 + victory.Count * 26;
-				label.Width = 79;
-				label.Parent = leaguePage;
+				var label = new Label
+				{
+					Text = "Points for " + (victory.Count + 1).Ordinate(),
+					Left = 32,
+					Top = 72 + victory.Count * 26,
+					Width = 79,
+					Parent = leaguePage
+				};
 
-				var victoryBox = new NumericUpDown();
-				victoryBox.Left = 112;
-				victoryBox.Top = 70 + victory.Count * 26;
-				victoryBox.Width = 60;
-				victoryBox.Parent = leaguePage;
-				victoryBox.Tag = i;
-				victoryBox.Value = 0;
-				victoryBox.ValueChanged += victoryPointsChanged;
+				var victoryBox = new NumericUpDown
+				{
+					Left = 112,
+					Top = 70 + victory.Count * 26,
+					Width = 60,
+					Parent = leaguePage,
+					Tag = i,
+					Value = 0
+				};
+				victoryBox.ValueChanged += VictoryPointsChanged;
 				victory.Add(victoryBox);
 			}
 			victory.Last().Value = (decimal)value;
 		}
 
-		void victoryPointsChanged(object sender, EventArgs e)
+		void VictoryPointsChanged(object sender, EventArgs e)
 		{
 			NumericUpDown c = (NumericUpDown)sender;
-			if (c.Tag is int)
-				Force((int)c.Tag, (double)c.Value);
+			if (c.Tag is int @int)
+				Force(@int, (double)c.Value);
 			else
 				Force(int.Parse((string)c.Tag), (double)c.Value);
 			

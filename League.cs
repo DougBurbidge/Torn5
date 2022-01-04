@@ -1596,10 +1596,10 @@ namespace Torn
 
 		public void Populate(List<Event> events)
 		{
-			HitsBy = events.Count(x => x.ServerPlayerId == ServerPlayerId && 
-			                      (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
-			HitsOn = events.Count(x => x.ServerPlayerId == ServerPlayerId && 
-			                      (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
+			HitsBy = events.Count(x => x.ServerPlayerId == ServerPlayerId &&
+								  (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
+			HitsOn = events.Count(x => x.ServerPlayerId == ServerPlayerId &&
+								  (x.Event_Type >= 14 && x.Event_Type <= 27 || x.Event_Type == 33 || x.Event_Type == 34));
 			BaseHits = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 30);
 			BaseDestroys = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 31);
 			BaseDenies = events.FindAll(x => x.ServerPlayerId == ServerPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
