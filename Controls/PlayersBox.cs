@@ -23,7 +23,7 @@ namespace Torn.UI
 			Items.Clear();
 
 			if (serverGame.Players.Count == 0 && serverGame.Game != null)  // ServerGame is a fake, created from game; but ServerGame.Players is not filled in yet, so fill it in.
-				foreach (var player in serverGame.Game.Players())
+				foreach (var player in serverGame.Game.AllPlayers())
 				{
 					var serverPlayer = new ServerPlayer();
 					player.CopyTo(serverPlayer);
