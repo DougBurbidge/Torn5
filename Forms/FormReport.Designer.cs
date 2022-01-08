@@ -405,6 +405,7 @@ namespace Torn.UI
             "Pyramid condensed",
             "Colours",
             "Packs",
+            "Tech",
             "Everything"});
 			this.listBoxReportType.Location = new System.Drawing.Point(62, 12);
 			this.listBoxReportType.Name = "listBoxReportType";
@@ -514,6 +515,7 @@ namespace Torn.UI
 			this.Controls.Add(this.scaleGames);
 			this.Controls.Add(this.labelReport);
 			this.Name = "FormReport";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Report";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormReportFormClosed);
 			this.Shown += new System.EventHandler(this.FormReportShown);

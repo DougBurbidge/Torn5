@@ -47,7 +47,7 @@ namespace Zoom
 		}
 	}
 
-	/// This is the abstract parent of ZColumn and ZCell, holding only a few fields common to "rectangular areas that can contain text".
+	/// <summary>This is the abstract parent of ZColumn and ZCell, holding only a few fields common to "rectangular areas that can contain text".</summary>
 	public interface IBlock
 	{
 		/// <summary>Text to appear in the cell or column header.</summary>
@@ -58,7 +58,7 @@ namespace Zoom
 		Color Color { get; set; }
 	}
 
-	/// This is just the header row(s) and metadata for a column -- does not include the actual cells.
+	/// <summary>This is just the header row(s) and metadata for a column -- does not include the actual cells.</summary>
 	public class ZColumn: IBlock
 	{
 		public string Text { get; set; }
@@ -86,7 +86,7 @@ namespace Zoom
 			return Text;
 		}
 
-		/// Adds a simple arrow with one From and one To, both in the specified row and of the specified width.
+		/// <summary>Adds a simple arrow with one From and one To, both in the specified row and of the specified width.</summary>
 		public void AddArrow(int row, int width, Color color = default)
 		{
 			var arrow = new Arrow { Color = color };
@@ -282,14 +282,14 @@ namespace Zoom
 		/// <summary>Optional background color.</summary>
 		public Color Color { get; set; }
 
-		///<summary>Just like Add(), but returns the added cell.</summary> 
+		/// <summary>Just like Add(), but returns the added cell.</summary> 
 		public ZCell AddCell(ZCell cell)
 		{
 			Add(cell);
 			return cell;
 		}
 
-		///<summary>If there is exactly one chart in this row (because exactly one cell has its ChartType set, or because all the ChartCell 
+		/// <summary>If there is exactly one chart in this row (because exactly one cell has its ChartType set, or because all the ChartCell 
 		/// values specified in this row point to just one cell, return the index of the cell whose value is used for the bar.</summary>
 		public ZCell OneBarCell()
 		{
@@ -562,6 +562,7 @@ namespace Zoom
 							hasNumber = true;
 							min = Math.Min(min, cell.Data.Min());
 							max = Math.Max(max, cell.Data.Max());
+							maxPoints = Math.Max(maxPoints, cell.Data.Count);
 						}
 						else if (cell.Tag is List<ChartPoint> points && points.Any())
 						{
@@ -570,7 +571,7 @@ namespace Zoom
 							hasNumber = true;
 							min = Math.Min(min, points.Min(p => p.X.Ticks));
 							max = Math.Max(max, points.Max(p => p.X.Ticks));
-							maxPoints = Math.Max(maxPoints, (int)points.Count);
+							maxPoints = Math.Max(maxPoints, points.Count);
 						}
 						else if (cell.Number.HasValue && !double.IsNaN((double)cell.Number) && !double.IsInfinity((double)cell.Number))
 						{
@@ -662,7 +663,7 @@ namespace Zoom
 			return s.ToString();
 		}
 
-		/// This writes an HTML fragment -- it does not include <head> or <body> tags etc.
+		/// <summary>Writes an HTML fragment -- it does not include <head> or <body> tags etc.</summary>
 		public override string ToHtml()
 		{
 			List<ZColumn> columns = Columns;
@@ -798,7 +799,7 @@ namespace Zoom
 			s.Append("</tbody></table>\n");
 
 			if (!string.IsNullOrEmpty(Description))
-		    	AppendStrings(s, "<p>", Description, "</p>\n");
+				AppendStrings(s, "<p>", Description.Replace("\n", "<br/>\n"), "</p>\n");
 
 			s.Append("<br /><br />\n\n");
 			return s.ToString();
@@ -813,7 +814,7 @@ namespace Zoom
 
 		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
 		{
-			if (fillColor != Color.Empty)
+			if (fillColor != Color.Empty && width != 0 && height != 0)
 			{
 				s.Append('\t', indent);
 				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
@@ -822,7 +823,7 @@ namespace Zoom
 			}
 		}
 
-		/// Like SvgRect() but with 2 decimal places of precision for x,y,width,height instead of 1.
+		/// <summary>Like SvgRect() but with 2 decimal places of precision for x,y,width,height instead of 1.</summary>
 		void SvgRect2(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
 		{
 			s.Append('\t', indent);
@@ -947,7 +948,7 @@ namespace Zoom
 			}
 		}
 
-		/// points x values are scaled; points y values are unscaled and should be in the range 0 .. yMax. 
+		/// <summary>points x values are scaled; points y values are unscaled and should be in the range 0 .. yMax.</summary>
 		void SvgPolygon(StringBuilder s, int indent, List<Tuple<double, double>> points, double rowTop, double rowHeight, double yMax, Color fillColor)
 		{
 			s.Append('\t', indent);
@@ -978,7 +979,7 @@ namespace Zoom
 
 		enum TopBottomType { Left, Right, Both }; // Does the top of this arrow have an end from the left? An end to the right? One of each? What about the bottom of the arrow?
 
-		/// Draw one complete vertical arrow plus its horizontal ends.
+		/// <summary>Draw one complete vertical arrow plus its horizontal ends.</summary>
 		void SvgArrow(StringBuilder s, int indent, ZColumn nextCol, Arrow arrow, float left, float width, float top, float rowHeight)
 		{
 			if (arrow.From.Count == 0 && arrow.To.Count == 0)
@@ -1123,7 +1124,7 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		/// Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.
+		/// <summary>Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.</summary>
 		int SvgHeader(StringBuilder s, bool hasGroupHeadings, int rowHeight, List<float> widths, int width, bool pure)
 		{
 			if (!pure)
@@ -1258,37 +1259,37 @@ namespace Zoom
 			return rowTop;
 		}
 
-		/// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
+		/// <summary>value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.</summary>
 		double Scale(double value, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return (value - scaleMin) / (scaleMax - scaleMin) * outputWidth;
 		}
 
-		/// value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.
+		/// <summary>value, scaleMin and scaleMax are all in the before-scaling ordinate system. outputWidth gives the range of the after-scaling ordinate system.</summary>
 		double ScaleWidth(double value, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return value / (scaleMax - scaleMin) * outputWidth;
 		}
 
-		/// scaleMin and scaleMax are all in the before-scaling ordinate system. pixelValue and outputWidth are in the after-scaling ordinate system.
+		/// <summary>scaleMin and scaleMax are in the before-scaling ordinate system. pixelValue and outputWidth are in the after-scaling ordinate system.</summary>
 		double AntiScale(double pixelValue, double outputWidth, double scaleMin, double scaleMax)
 		{
 			return (pixelValue / outputWidth * (scaleMax - scaleMin)) + scaleMin;
 		}
 
-		/// Return the y ordinate of the middle of the stated row. top is the top of the top row of the table. row is the 0-based row number. 
+		/// <summary>Return the y ordinate of the middle of the stated row. top is the top of the top row of the table. row is the 0-based row number. </summary>
 		double RowMid(float top, int row, float rowHeight)
 		{
 			return top + (row + 0.5) * rowHeight;
 		}
 
-		/// Return normal distribution value for this x. https://en.wikipedia.org/wiki/Normal_distribution
+		/// <summary>Return normal distribution value for this x. https://en.wikipedia.org/wiki/Normal_distribution </summary>
 		double Gauss(double x, double mean, double variance)
 		{
 			return 1 / Math.Sqrt(2 * Math.PI * variance) * Math.Exp(-Math.Pow(x - mean, 2) / 2 / variance);
 		}
 
-		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, int maxPoints, Color backColor, Color chartColor, ZCell cell, int column)
+		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, int maxPoints, Color backColor, Color chartColor, ZCell cell, int column, bool lastRow)
 		{
 			if (cell.Color != Color.Empty)
 				SvgRect(s, 1, left, top, width, height, backColor);  // Paint chart cell(s) background.
@@ -1331,34 +1332,47 @@ namespace Zoom
 
 			if (cell.ChartType.HasFlag(ChartType.Histogram) && count > 1)  // Histogram
 			{
-				int bins = (int)Math.Ceiling(2 * Math.Pow(count, 1.0/3));  // number of bars our histogram will have, from Rice's Rule.
+				int bins = (int)Math.Ceiling(2 * Math.Pow(maxPoints, 1.0/3));  // number of bars our histogram will have, from Rice's Rule.
 				double binWidth = Math.Round(width / bins + 0.05, 1);  // in "pixels"
 				bins = (int)Math.Round(width / binWidth);
+				var heights = new List<int>();  // Heights of each bar, in counts of values that fall into that bin.
+				double valuesPerBin = (chartMax - chartMin + 1) / bins;  // Width of each bar in source numbering.
 				if (Columns[column].Alignment == ZAlignment.Integer)
 				{
-					bins = Math.Min(bins, (int)(chartMax - chartMin + 1));
+					bins = Math.Min(bins, (int)(chartMax - chartMin + 1));  // Ensure we don't have more bins than integers in our range.
 					bins = (int)((chartMax - chartMin + 1) / Math.Round((chartMax - chartMin + 1) / bins));
+					int intsPerBin = (int)Math.Round(chartMax - chartMin + 1) / bins;
+					valuesPerBin = intsPerBin;
+					for (int j = (int)chartMin; j <= chartMax; j += intsPerBin)
+						heights.Add(cell.Data.Count(d => j <= d && d < j + intsPerBin));
 				}
-				int i = 0; // Index into sourceCell.Data for where we're up to right now.
-				var heights = new List<int>();
-				for (double xx = 0; xx < width; xx += binWidth)
+				else
 				{
-					int binHeight = 0;
-					double binEnd = AntiScale(xx + binWidth, width, chartMin, chartMax);
-					while (i < count && cell.Data[i] < binEnd)
+					int i = 0; // Index into sourceCell.Data for where we're up to right now.
+					for (double xx = 0; xx < width; xx += binWidth)
 					{
-						binHeight++;
-						i++;
+						int binHeight = 0;
+						double binEnd = AntiScale(xx + binWidth, width, chartMin, chartMax);
+						while (i < count && cell.Data[i] < binEnd)
+						{
+							binHeight++;
+							i++;
+						}
+						heights.Add(binHeight);
 					}
-					heights.Add(binHeight);
 				}
-				
-				for (i = 0; i < heights.Count; i++)
-//						for (double xx = chartMin; xx < chartMax; xx += (chartMax - chartMin) / bins)
-				{
+				for (int i = 0; i < heights.Count; i++)
 					if (heights[i] > 0)
 						SvgRect(s, 1, left + width * i / bins, top + height - height * heights[i] / heights.Max(), 
 						        width / bins - 0.1, height * heights[i] / heights.Max(), chartColor);
+
+				SvgRect2(s, 1, left + Scale(cell.Number ?? 0, width, chartMin, chartMax) - 0.05, top, 0.1, height, Color.Gray);  // Paint mean stripe.
+
+				if (lastRow)  // Write some tiny numbers at the bottom of the row, showing the minimum and maximum values within the Data, and the bin size of each bar.
+				{
+					SvgText(s, 1, (int)left, (int)(top + height * 0.8), (int)width, height / 5, Color.Black, ZAlignment.Left, chartMin.ToString());
+					SvgText(s, 1, (int)(left + Math.Min(width * 1 / bins, 2)), (int)(top + height * 0.8), (int)width, height / 5, Color.Black, ZAlignment.Left, valuesPerBin.ToString());
+					SvgText(s, 1, (int)left, (int)(top + height * 0.8), (int)Math.Round(width), height / 5, Color.Black, ZAlignment.Right, chartMax.ToString());
 				}
 			}
 
@@ -1453,7 +1467,7 @@ namespace Zoom
 		}
 
 		// Write a single table row.
-		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int MaxPoints, int width, ZRow row, bool odd, bool pure)
+		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int maxPoints, int width, ZRow row, bool odd, bool pure)
 		{
 			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(row, odd));  // Paint the background for the whole row.
 
@@ -1477,8 +1491,8 @@ namespace Zoom
 
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
 					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
-					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), MaxPoints,
-					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, barSource);
+					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), maxPoints,
+					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, barSource, row == Rows.Last());
 
 				start = end + 1;
 			}
@@ -1539,7 +1553,7 @@ namespace Zoom
 			sb.Append("</svg>\n");
 
 			if (!pure && !string.IsNullOrEmpty(Description))
-		    	AppendStrings(sb, "<p>", Description, "</p>\n");
+		    	AppendStrings(sb, "<p>", Description.Replace("\n", "<br/>\n"), "</p>\n");
 			if (!pure)
 				sb.Append("</div>");
 		}
@@ -1605,7 +1619,7 @@ namespace Zoom
 				report.colors = colors;
 		}
 
-		/// Return a list of colours of bar cells, over all reports.
+		/// <summary>Return a list of colours of bar cells, over all reports.</summary>
 		List<Color> BarCellColors()
 		{
 			var result = new List<Color>();

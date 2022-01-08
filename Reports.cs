@@ -848,7 +848,11 @@ namespace Torn.Report
 						GameTeam gameTeam = game.Teams.Find(x => league.LeagueTeam(x) == leagueTeam);
 		 				if (gameTeam != null)
 		 				{
-		 					row.Add(new ZCell(game.Time.ToShortTimeString()));
+							row.Add(new ZCell(game.Time.ToShortTimeString())
+							{
+								Hyper = gameHyper(game)
+							}
+							);
 		 					row.Add(new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor()));
 		 					row.Add(new ZCell(league.IsPoints() ? gameTeam.Points : game.Teams.IndexOf(gameTeam) + 1, ChartType.None, "", 
 		 					                  gameTeam.Colour.ToColor()));
@@ -2212,6 +2216,101 @@ namespace Torn.Report
 			return report;
 		}  // PackReport
 
+		public static ZoomReport TechReport(List<League> leagues, string title, DateTime? from, DateTime? to, ChartType chartType, bool description)
+		{
+			var games = new List<Game>();
+
+			foreach (var league in leagues)
+				games.AddRange(league.AllGames.Where(g => g.Time > (from ?? DateTime.MinValue) && g.Time < (to ?? DateTime.MaxValue) && g.ServerGame != null));
+
+			var packsUsed = games.Select(g => g.ServerGame).SelectMany(sg => sg.Events.Select(e => e.ServerPlayerId)).Distinct().OrderBy(id => String.Format("{0,3}", id));
+
+			var report = new ZoomReport((string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Tech Report" : title) + FromTo(games, from, to),
+										"Pack,Name, Games,Front,Back,Left,Right,Laser,Total",
+										"center,left,integer,integer,integer,integer,integer,integer,integer,integer",
+										",,,Hits On Per Game,Hits On Per Game,Hits On Per Game,Hits On Per Game,Hits On Per Game,Hits On Per Game")
+			{
+				MaxChartByColumn = true
+			};
+
+			var evenColor = report.Colors.BackgroundColor;
+			var oddColor = report.Colors.OddColor;
+			var barColor = report.colors.BarNone;
+			report.Colors.BackgroundColor = default;
+			report.Colors.OddColor = default;
+
+			// EventType (see P&C ng_event_types):
+			//  14..20: tagged by foe (in various hit locations: laser, front, left shoulder, right shoulder, left back shoulder (never used), right back shoulder (never used), back);
+			//  21..27: tagged by ally.
+
+			foreach (var pack in packsUsed)
+			{
+				var gamesThisPack = games.Where(g => g.Players().Any(p => p is ServerPlayer sp && sp.ServerPlayerId == pack) && g.ServerGame.Events.Any(e => e.ServerPlayerId == pack));
+				int gameCount = gamesThisPack.Count();
+
+				var row = new ZRow
+				{
+					new ZCell(pack),
+					new ZCell(gamesThisPack.First().Players().Find(p => p is ServerPlayer sp && sp.ServerPlayerId == pack).Pack),
+					new ZCell(gameCount),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 15 || e.Event_Type == 22)).ToList(), null, ChartType.Histogram, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 20 || e.Event_Type == 27)).ToList(), null, ChartType.Histogram, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 16 || e.Event_Type == 23)).ToList(), null, ChartType.Histogram, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 17 || e.Event_Type == 24)).ToList(), null, ChartType.Histogram, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 14 || e.Event_Type == 21)).ToList(), null, ChartType.Histogram, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type >= 14 && e.Event_Type <= 27)).ToList(), null, ChartType.Histogram, "N1")
+				};
+
+				report.Rows.Add(row);
+
+				foreach (var cell in row)
+				{
+					cell.Color = report.Rows.Count % 2 == 0 ? evenColor : oddColor;
+					cell.BarColor = barColor;
+				}
+			}
+
+			// Do it all again for a summary row.
+			{
+				var serverGames = games.Select(g => g.ServerGame);
+				int gameCount = serverGames.Count(g => g.Events.Any());
+				var events = serverGames.SelectMany(g => g.Events.Select(e => e.Event_Type));
+
+				var row = new ZRow
+				{
+					new ZCell(""),
+					new ZCell("Total"),
+					new ZCell(gameCount),
+					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 15 || e.Event_Type == 22) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
+					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 20 || e.Event_Type == 27) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
+					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 16 || e.Event_Type == 23) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
+					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 17 || e.Event_Type == 24) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
+					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 14 || e.Event_Type == 21) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
+					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type >= 14 && e.Event_Type <= 27) * 1.0 / g.Players.Count), ChartType.Histogram, "N1")
+				};
+
+				for (int i = 2; i < report.Columns.Count; i++)
+					foreach (var packRow in report.Rows)
+						row[i].Data.Add((double)packRow[i].Number);
+
+				report.Rows.Add(row);
+
+				foreach (var cell in row)
+				{
+					cell.Color = Color.DarkGray;
+					cell.BarColor = barColor;
+				}
+			}
+
+			if (description)
+				report.Description = @"This report shows the proportion of hits on each pack in each location. If a pack is hit less in a location, there may be a fault. Ignore packs with few games.
+Where a large percentage of a pack's games are played by a particular unusual player (a good player, a bad player, a left-hander, etc), this may affect that pack's results.
+Histograms show the count of times each pack got shot in each location in each game. Histograms in the Total row shows the count of packs that had each average.
+Tiny numbers at the bottom of the bottom row show the minimum, bin size, and maximum of each histogram.";
+
+			return report;
+		}
+
 		/// <summary>Every player in every game.</summary>
 		public static ZoomReport EverythingReport(League league, string title, DateTime? from, DateTime? to, bool description)
 		{
@@ -2228,7 +2327,7 @@ namespace Torn.Report
 			{
 				var gameTotal = new GamePlayer();
 
-				foreach (var player in game.SortedPlayers())
+				foreach (var player in game.SortedAllPlayers())
 				{
 					var playerRow = new ZRow();
 
@@ -2274,7 +2373,8 @@ namespace Torn.Report
 		{
 			var dataCell = new ZCell(0, chartType, numberFormat);
 			dataCell.Data.AddRange(dataList);
-			DropScores(dataList, drops);
+			if (drops != null)
+				DropScores(dataList, drops);
 			dataCell.Number = dataList.Where(x => !double.IsNaN(x)).DefaultIfEmpty(0).Average();
 
 			return dataCell;
