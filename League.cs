@@ -493,7 +493,14 @@ namespace Torn
 			UnallocatedPlayers = new List<GamePlayer>();
 		}
 
+		/// <summary>List of players who were assigned onto teams in this game.</summary>
 		public List<GamePlayer> Players()
+		{
+			return Teams.SelectMany(t => t.Players).ToList();
+		}
+
+		/// <summary>All players whose packs started, even players not finally assigned onto a team.</summary>
+		public List<GamePlayer> AllPlayers()
 		{
 			return Teams.SelectMany(t => t.Players).Union(UnallocatedPlayers).ToList();
 		}
@@ -501,6 +508,11 @@ namespace Torn
 		public List<GamePlayer> SortedPlayers()
 		{
 			return Players().OrderByDescending(p => p.Score).ToList();
+		}
+
+		public List<GamePlayer> SortedAllPlayers()
+		{
+			return AllPlayers().OrderByDescending(p => p.Score).ToList();
 		}
 
 		int IComparable.CompareTo(object obj)
@@ -535,7 +547,7 @@ namespace Torn
 		public bool PopulateEvents()
 		{
 			bool any = false;
-			foreach (var player in Players())
+			foreach (var player in AllPlayers())
 				if (player is ServerPlayer serverPlayer && !serverPlayer.IsPopulated())
 				{
 					serverPlayer.Populate(ServerGame.Events);
@@ -751,7 +763,7 @@ namespace Torn
 		{
 			gamePlayer.TeamId = (int)gameTeam.TeamId;
 
-			if (!game.Game.Players().Contains(gamePlayer))
+			if (!game.Game.AllPlayers().Contains(gamePlayer))
 				game.Game.UnallocatedPlayers.Add(gamePlayer);
 
 			var leaguePlayer = LeaguePlayer(gamePlayer);
@@ -796,7 +808,7 @@ namespace Torn
 
 				foreach (var player in teamData.Players)
 				{
-					debug.Append(LinkPlayerToGame(game.Players().Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
+					debug.Append(LinkPlayerToGame(game.AllPlayers().Find(gp => gp.PlayerId == player.PlayerId) ?? player, //.CopyTo(new GamePlayer()),
 					                              teamData.GameTeam, serverGame));
 					debug.Append(", ");
 				}
@@ -807,7 +819,7 @@ namespace Torn
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
 			}
 
-			var players = game.SortedPlayers();
+			var players = game.SortedAllPlayers();
 			for (int i = 0; i < players.Count; i++)
 				players[i].Rank = (uint)i + 1;
 
@@ -1220,7 +1232,7 @@ namespace Torn
 
 		public Game Game(GamePlayer gamePlayer)
 		{
-			return AllGames.Find(g => g.Players().Contains(gamePlayer));
+			return AllGames.Find(g => g.AllPlayers().Contains(gamePlayer));
 		}
 
 		public Game Game(GameTeam gameTeam)
@@ -1461,7 +1473,7 @@ namespace Torn
 		public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
 
 // EventType (see P&C ng_event_types):
-//  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, other, other, back);
+//  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, left back shoulder (never used), right back shoulder (never used), back);
 //  7..13:  tagged ally;
 //  14..20: tagged by foe;
 //  21..27: tagged by ally;
