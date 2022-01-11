@@ -452,6 +452,7 @@ namespace Torn.UI
 			this.chartType.Name = "chartType";
 			this.chartType.Size = new System.Drawing.Size(189, 21);
 			this.chartType.TabIndex = 11;
+			this.chartType.SelectedIndexChanged += new System.EventHandler(this.ChartTypeSelectedIndexChanged);
 			// 
 			// labelTitle
 			// 

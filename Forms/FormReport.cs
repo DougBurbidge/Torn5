@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using Torn.Report;
@@ -17,7 +16,8 @@ namespace Torn.UI
 		public ReportTemplate ReportTemplate { get; set; }
 		public DateTime From { set { datePickerFrom.Value = value; } get { return datePickerFrom.Value; } }
 		public DateTime To { set { datePickerTo.Value = value; } get { return datePickerTo.Value; } }
-		
+
+		bool chartTypeChanged = false;
 		public FormReport()
 		{
 			//
@@ -170,8 +170,17 @@ namespace Torn.UI
 			labelOrderBy.Enabled = i == 0 || i == 2;
 			description.Enabled = true;
 			longitudinal.Enabled = i == 0 || i == 2 || i == (int)ReportType.Packs - 1;
+			if (i == (int)ReportType.Packs - 1 && ReportTemplate?.ReportType == ReportType.Packs)
+				longitudinal.Checked = true;
 
 			labelTopWhat.Text = i == 2 ? "players" : "teams";
+
+			if (!chartTypeChanged)
+				chartType.SelectedIndex =
+					i == 0 || i == 1 || i == 2 ? 3 :  // TeamLadder, TeamsVsTeams, SoloLadder: bar with rug
+					i == 10 ? 8 :  // Packs report: kernel density estimate with rug
+					i == 11 ? 6 :  // Tech report: histogram
+					1;  // everythig else: bar
 		}
 
 		void DatePickerFromValueChanged(object sender, EventArgs e)
@@ -215,6 +224,12 @@ namespace Torn.UI
 		{
 			DialogResult = DialogResult.OK;
 			Close();
+		}
+
+		private void ChartTypeSelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (chartType == ActiveControl) // if this change is being done by the user
+				chartTypeChanged = true;
 		}
 	}
 }
