@@ -12,14 +12,14 @@ namespace Torn
 		public Fixture Fixture { get; set; }
 		public int NumTeams { get; set; }
 		public int TeamsPerGame { get; set; }
-		/// Number of losing teams from each game that get sent down to the next lower track, or from the bottom track get eliminated.
+		/// <summary>Number of losing teams from each game that get sent down to the next lower track, or from the bottom track get eliminated.</summary>
 		public int TeamsSentDown { get; set; }
-		/// Number of "tracks" -- parallel streams of games for top teams, middle teams, bottom teams, etc.
+		/// <summary>Number of "tracks" -- parallel streams of games for top teams, middle teams, bottom teams, etc.</summary>
 		public int Tracks { get; set; }
-		/// Number of teams that go straight to grand finals without having to play any games.
+		/// <summary>Number of teams that go straight to grand finals without having to play any games.</summary>
 		public int FreeRides { get; set; }
 
-		/// Add a cell to a row with a simple arrow running from left to right in the cell.
+		/// <summary>Add a cell to a row with a simple arrow running from left to right in the cell.</summary>
 		void AddCell(int row, ZColumn col, Color color)
 		{
 			if (col != null)
@@ -108,7 +108,7 @@ namespace Torn
 			return (game + 1).ToString();
 		}
 
-		/// Add grand finals games.
+		/// <summary>Add grand finals games.</summary>
 		void GrandFinals(List<ZColumn> games)
 		{
 			for (int i = 0; i < TeamsPerGame; i++)

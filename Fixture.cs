@@ -50,7 +50,7 @@ namespace Torn
 			return BestMatch(game, out _);
 		}
 
-		/// Rate how well a game and a fixture game match. 0.0 is no match; 1.0 is perfect match.
+		/// <summary>Rate how well a game and a fixture game match. 0.0 is no match; 1.0 is perfect match.</summary>
 		double Match(Game game, FixtureGame fg)
 		{
 			// Check how many fixture game teams are in the game.

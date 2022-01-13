@@ -8,7 +8,7 @@ using Torn;
 namespace Torn.UI
 {
 	/// <summary>
-	/// Description of FormLeague.
+	/// Edit a League.
 	/// </summary>
 	public partial class FormLeague : Form
 	{

@@ -328,8 +328,11 @@ namespace Torn
 			set { colour = value; }
 		}
 		public double Score { get; set; }
+		/// <summary>Game score adjustment</summary>
 		public double Adjustment { get; set; }
+		/// <summary>Victory points</summary>
 		public double Points { get; set; }
+		/// <summary>Victory points adjustment</summary>
 		public double PointsAdjustment { get; set; }
 
 		readonly List<GamePlayer> players;
@@ -468,13 +471,13 @@ namespace Torn
 	{
 		public string Title { get; set; }
 		public DateTime Time { get; set; }
-		/// If true, don't serve this game from our internal webserver, or include it in any webserver reports.
+		/// <summary>If true, don't serve this game from our internal webserver, or include it in any webserver reports.</summary>
 		public bool Secret { get; set; }
 		public List<GameTeam> Teams { get; private set; }
-		/// Players not yet placed onto a GameTeam.
+		/// <summary>Players not yet placed onto a GameTeam.</summary>
 		public List<GamePlayer> UnallocatedPlayers { get; private set; }
 		public ServerGame ServerGame { get; set; }
-		/// Use Reported to decide whether to emit various report pages. Managed by caller.
+		/// <summary>Use Reported to decide whether to emit various report pages. Managed by caller.</summary>
 		public bool Reported { get; set; }
 
 		int? hits = null;
@@ -613,7 +616,7 @@ namespace Torn
 	{
 		public string Title { get; set; }
 
-		/// Watch our .Torn file. If another process writes it, reload.
+		/// <summary>Watch our .Torn file. If another process writes it, reload.</summary>
 		FileSystemWatcher Watcher { get; set; }
 
 		string fileName;

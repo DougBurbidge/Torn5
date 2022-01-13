@@ -445,7 +445,7 @@ namespace Torn.UI
 
 class TeamComparer : IComparer<FixtureTeam>
 {
-	/// Sorted list of league teams.
+	/// <summary>Sorted list of league teams.</summary>
 	public List<LeagueTeam> LeagueTeams { get; set; }
 
 	public int Compare(FixtureTeam x, Torn.FixtureTeam y)
