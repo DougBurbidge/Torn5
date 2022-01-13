@@ -479,15 +479,26 @@ namespace Torn.UI
 			if (holder != null)
 			{
 				if (adhocReportTemplate == null)
+				{
 					adhocReportTemplate = new ReportTemplate { ReportType = ReportType.TeamLadder };
+					adhocReportTemplate.Settings.Add("Description");
+				}
 
-				var formReport = new FormReport
+				if (new FormReport
 				{
 					ReportTemplate = adhocReportTemplate
-				};
-
-				if (formReport.ShowDialog() == DialogResult.OK)
-					new FormAdhoc { Report = ReportPages.Report(holder.League, IncludeSecret(), adhocReportTemplate) }.Show();
+				}.ShowDialog() == DialogResult.OK)
+				{
+					Cursor.Current = Cursors.WaitCursor;
+					try
+					{
+						new FormAdhoc { Report = ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate) }.Show();
+					}
+					finally
+					{
+						Cursor.Current = Cursors.Default;
+					}
+				}
 			}
 		}
 
@@ -568,46 +579,6 @@ namespace Torn.UI
 					AddLeague(fileName);
 
 				RefreshGamesList();
-			}
-		}
-
-		FormReport packReport; 
-		void ButtonPackReportClick(object sender, EventArgs e)
-		{
-			if (GetExportFolder() != null)
-			{
-				var leagues = new List<League>();
-
-				foreach (ListViewItem item in listViewLeagues.SelectedItems)
-					leagues.Add(((Holder)item.Tag).League);
-
-				if (packReport == null)
-				{
-					packReport = new FormReport
-					{
-						ReportTemplate = new ReportTemplate
-						{
-							ReportType = ReportType.Packs,
-							Title = "Pack report for " + string.Join(", ", leagues)
-						}
-					};
-					packReport.ReportTemplate.Settings.Add("ChartType=kernel density estimate with rug");
-					packReport.ReportTemplate.Settings.Add("Description");
-					packReport.ReportTemplate.Settings.Add("Longitudinal");
-				}
-
-				if (packReport.ShowDialog() == DialogResult.OK)
-				{
-					Cursor.Current = Cursors.WaitCursor;
-					try
-					{
-						ExportPages.PackReport(exportFolder, leagues, packReport.ReportTemplate, ((Holder)listViewLeagues.SelectedItems[0].Tag).ReportTemplates.OutputFormat);
-					}
-					finally
-					{
-						Cursor.Current = Cursors.Default;
-					}
-				}
 			}
 		}
 
@@ -948,7 +919,6 @@ namespace Torn.UI
 			buttonSave.Enabled = b;
 			buttonExportReports.Enabled = b;
 			buttonUploadReports.Enabled = b;
-			buttonPackReport.Enabled = b;
 			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
 			if (listViewLeagues.Items.Count == 0)

@@ -107,8 +107,31 @@ namespace Torn.Report
 				case ReportType.Packs:
 					return Reports.PackReport(new List<League> { league }, league.Games(includeSecret), rt.Title, rt.From, rt.To,
 						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal"));
+				case ReportType.Tech:
+					return Reports.TechReport(new List<League> { league }, rt.Title, rt.From, rt.To,
+						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description);
+				case ReportType.SanityCheck:
+					return Reports.SanityReport(new List<League> { league }, rt.Title, rt.From, rt.To, description);
 				case ReportType.Everything: return Reports.EverythingReport(league, rt.Title, rt.From, rt.To, description);
 				default: return null;
+			}
+		}
+
+		/// <summary>Generate one report. The type of report generated is specified in the ReportTemplate.</summary>
+		public static ZoomReport Report(List<League> leagues, bool includeSecret, ReportTemplate rt)
+		{
+			bool description = rt.Settings.Contains("Description");
+			switch (rt.ReportType)
+			{
+				case ReportType.Packs:
+					return Reports.PackReport(leagues, null, rt.Title, rt.From, rt.To,
+						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal"));
+				case ReportType.Tech:
+					return Reports.TechReport(leagues, rt.Title, rt.From, rt.To,
+						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description);
+				case ReportType.SanityCheck:
+					return Reports.SanityReport(leagues, rt.Title, rt.From, rt.To, description);
+				default: return Report(leagues.FirstOrDefault(), includeSecret, rt);
 			}
 		}
 
@@ -702,6 +725,18 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 								ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), reportTemplate.Settings.Contains("Description"), reportTemplate.Settings.Contains("Longitudinal"))
 						}.ToOutput(outputFormat));
 			}
+		}
+
+		/// <summary>Write a single pack report incorporating data from all the selected leagues.</summary>
+		public static void TechReport(string path, List<League> leagues, ReportTemplate reportTemplate, OutputFormat outputFormat)
+		{
+			if (path != null)
+				using (StreamWriter sw = File.CreateText(Path.Combine(path, "techreport." + outputFormat.ToExtension())))
+					sw.Write(new ZoomReports
+						{
+							Reports.TechReport(leagues, reportTemplate.Title, reportTemplate.From, reportTemplate.To,
+								ChartTypeExtensions.ToChartType(reportTemplate.Setting("ChartType")), reportTemplate.Settings.Contains("Description"))
+						}.ToOutput(outputFormat));
 		}
 	}
 }

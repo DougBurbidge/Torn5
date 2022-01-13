@@ -13,7 +13,7 @@ using Zoom;
 namespace Torn.Report
 {
 	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, Ascension, Pyramid, PyramidCondensed,
-		                     ColourPerformance, Packs, Tech, Everything, PageBreak };
+		                     ColourPerformance, Packs, Tech, SanityCheck, Everything, PageBreak };
 
 	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate
@@ -268,8 +268,8 @@ namespace Torn.Report
 	public class ReportTemplates: List<ReportTemplate>
 	{
 		public OutputFormat OutputFormat { get; set; }
-		
-		/// Add a suitable set of default reports. This may result in duplicates.
+
+		/// <summary>Add a suitable set of default reports. This may result in duplicates.</summary>
 		public void AddDefaults(League league)
 		{
 			string title = league.Title.ToLower();

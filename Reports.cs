@@ -1328,7 +1328,7 @@ namespace Torn.Report
 			return report;
 		}
 
-		/// Append the specified symbol to the StringBuilders. If the current colour has changed, emit <div> and <tspan> or </div> and </tspan> as appropriate.
+		/// <summary>Append the specified symbol to the StringBuilders. If the current colour has changed, emit <div> and <tspan> or </div> and </tspan> as appropriate.</summary>
 		static void ColourSymbol(StringBuilder text, StringBuilder html, StringBuilder svg, ref Colour currentColour, Colour newColour, string symbol)
 		{
 			string c = ColorTranslator.ToHtml(newColour.ToDarkColor());
@@ -2271,16 +2271,17 @@ namespace Torn.Report
 			}
 
 			// Do it all again for a summary row.
+			var serverGames = games.Select(g => g.ServerGame);
+			int gameTotal = serverGames.Count(g => g.Events.Any());
+			if (gameTotal > 0)
 			{
-				var serverGames = games.Select(g => g.ServerGame);
-				int gameCount = serverGames.Count(g => g.Events.Any());
 				var events = serverGames.SelectMany(g => g.Events.Select(e => e.Event_Type));
 
 				var row = new ZRow
 				{
 					new ZCell(""),
 					new ZCell("Total"),
-					new ZCell(gameCount),
+					new ZCell(gameTotal),
 					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 15 || e.Event_Type == 22) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
 					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 20 || e.Event_Type == 27) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
 					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 16 || e.Event_Type == 23) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
@@ -2309,6 +2310,61 @@ Histograms show the count of times each pack got shot in each location in each g
 Tiny numbers at the bottom of the bottom row show the minimum, bin size, and maximum of each histogram.";
 
 			return report;
+		}
+
+		/// <summary>Try to identify common errors in committed games.</summary>
+		public static ZoomReport SanityReport(List<League> leagues, string title, DateTime? from, DateTime? to, bool description)
+		{
+			var report = new ZoomReport(string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Sanity Check Report" : title,
+										"Game,Team,Issue",
+										"left,left,left");
+
+			foreach (var league in leagues)
+			{
+				var games = league.AllGames.Where(g => g.Time > (from ?? DateTime.MinValue) && g.Time < (to ?? DateTime.MaxValue));
+				double averageTeamPlayers = games.Average(g => g.Teams.Average(t => t.Players.Count));
+				double playersLoggedOn = games.Average(g => g.Teams.Average(t => t.Players.Average(p => string.IsNullOrEmpty(p.PlayerId) ? 0 : 1)));
+				int gamesWithPoints = games.Count(g => g.Teams.Any(t => t.Points != 0));
+
+				foreach (var game in games)
+				{
+					var teams = game.Teams.Where(t => t.Players.Count < Math.Truncate(averageTeamPlayers));
+					foreach (var team in teams)
+						AddSanityCheckRow(report, league, game, team, string.Format("Team has only {0} players", team.Players.Count));
+
+					teams = game.Teams.Where(t => t.Players.Count > Math.Round(averageTeamPlayers));
+					foreach (var team in teams)
+						AddSanityCheckRow(report, league, game, team, string.Format("Team has {0} players. (A player might have switched packs.)", team.Players.Count));
+
+					if (playersLoggedOn > 0.5)
+						foreach (var team in game.Teams)
+							foreach (var player in team.Players.Where(p => string.IsNullOrEmpty(p.PlayerId)))
+								AddSanityCheckRow(report, league, game, team, string.Format("Pack {0} did not log on. Score: {1}", player.Pack, player.Score));
+
+					string gameTitle = game.Title?.ToLower();
+					if (gamesWithPoints > games.Count() / 2 && (string.IsNullOrEmpty(game.Title) ||
+						(!gameTitle.Contains("ascension") && !gameTitle.Contains("format") && !gameTitle.Contains("final") && !gameTitle.Contains("track"))) &&
+						!game.Teams.Any(t => t.Points != 0))
+						AddSanityCheckRow(report, league, game, null, "Game does not have victory points set.");
+				}
+			}
+
+			if (description)
+				report.Description = "This report lists possible problems with committed games.\nTake remedial action (e.g. by fixing the problem and recommitting the game) where appropriate.";
+
+			return report;
+		}
+
+		static void AddSanityCheckRow(ZoomReport report, League league, Game game, GameTeam team, string message)
+		{
+			report.Rows.Add(
+				new ZRow()
+				{
+					new ZCell(game.LongTitle()) { Hyper = GameHyper(game) },
+					team == null ? new ZCell(string.Empty) : new ZCell(league.LeagueTeam(team).Name, team.Colour.ToColor()),
+					new ZCell(message)
+				}
+			);
 		}
 
 		/// <summary>Every player in every game.</summary>
@@ -2392,6 +2448,12 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return teamcell;
 		}
 
+		/// <summary>Callback passed to various reports to generate HTML fragment with URL of a game.</summary>
+		public static string GameHyper(Game game)
+		{
+			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture);
+		}
+
 		public static string TeamHyper(LeagueTeam leagueTeam)
 		{
 			if (leagueTeam == null)
@@ -2432,7 +2494,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return 1 - Math.Pow(1 + a1 * x + a2 * Math.Pow(x, 2) + a3 * Math.Pow(x, 3) + a4 * Math.Pow(x, 4) + a5 * Math.Pow(x, 5) + a6 * Math.Pow(x, 6), -16);
 		}
 
-		/// Used for t-test. https://en.wikipedia.org/wiki/T-statistic
+		/// <summary>Used for t-test. https://en.wikipedia.org/wiki/T-statistic </summary>
 		static double tStatistic(double n1, double sum1, double squaredSum1, double n2, double sum2, double squaredSum2)
 		{
 			double v1 = (squaredSum1 - (sum1 * sum1 / n1)) / (n1 - 1);  // Variance.
@@ -2486,7 +2548,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return ladder;
 		}
 
-		/// Figure out if this set of games ends in a finals series. It's a finals series if all the teams in the last game are in the second-last game, all the teams in the second-last are in the third-last, etc.
+		/// <summary>Figure out if this set of games ends in a finals series. It's a finals series if all the teams in the last game are in the second-last game, all the teams in the second-last are in the third-last, etc.</summary>
 		static List<Game> Finals(List<Game> games)
 		{
 			var finals = new List<Game>

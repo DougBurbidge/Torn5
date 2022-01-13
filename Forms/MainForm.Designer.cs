@@ -92,7 +92,6 @@ namespace Torn.UI
 			this.toolStripReports = new System.Windows.Forms.ToolStrip();
 			this.toolStripDropDownReports = new System.Windows.Forms.ToolStripDropDownButton();
 			this.buttonAdHocReport = new System.Windows.Forms.ToolStripMenuItem();
-			this.buttonPackReport = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonUpdateScoreboard = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonExportFixtures = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonSetFolder = new System.Windows.Forms.ToolStripButton();
@@ -618,7 +617,6 @@ namespace Torn.UI
 			this.toolStripDropDownReports.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.toolStripDropDownReports.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.buttonAdHocReport,
-            this.buttonPackReport,
             this.buttonUpdateScoreboard,
             this.buttonExportFixtures});
 			this.toolStripDropDownReports.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -632,13 +630,6 @@ namespace Torn.UI
 			this.buttonAdHocReport.Size = new System.Drawing.Size(180, 22);
 			this.buttonAdHocReport.Text = "Ad Hoc Report...";
 			this.buttonAdHocReport.Click += new System.EventHandler(this.ButtonAdHocReportClick);
-			// 
-			// buttonPackReport
-			// 
-			this.buttonPackReport.Name = "buttonPackReport";
-			this.buttonPackReport.Size = new System.Drawing.Size(180, 22);
-			this.buttonPackReport.Text = "Pack Report";
-			this.buttonPackReport.Click += new System.EventHandler(this.ButtonPackReportClick);
 			// 
 			// buttonUpdateScoreboard
 			// 
@@ -763,7 +754,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
 		private System.Windows.Forms.ToolStripMenuItem buttonExportFixtures;
 		private System.Windows.Forms.ToolStripMenuItem buttonUpdateScoreboard;
-		private System.Windows.Forms.ToolStripMenuItem buttonPackReport;
 		private System.Windows.Forms.ToolStripMenuItem buttonAdHocReport;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownReports;
 		private System.Windows.Forms.ToolStripMenuItem buttonAbout;

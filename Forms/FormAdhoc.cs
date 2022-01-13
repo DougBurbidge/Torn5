@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Svg;
 using Zoom;
@@ -42,10 +43,40 @@ namespace Torn.UI
 
 		private void TimerRedrawTick(object sender, EventArgs e)
 		{
-			document.Width = new SvgUnit(SvgUnitType.Pixel, Width);
-			document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(Width / aspectRatio));
-			BackgroundImage = document.Draw();
+			document.Width = new SvgUnit(SvgUnitType.Pixel, panelDisplay.Width);
+			document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(panelDisplay.Width / aspectRatio));
+			panelDisplay.BackgroundImage = document.Draw();
 			timerRedraw.Enabled = false;
+		}
+
+		string fileName;
+		private void ButtonSaveClick(object sender, EventArgs e)
+		{
+			var outputFormat = radioSvg.Checked ? OutputFormat.Svg :
+				radioTables.Checked ? OutputFormat.HtmlTable :
+				radioTsv.Checked ? OutputFormat.Tsv :
+				OutputFormat.Csv;
+
+			string file = report.Title.Replace('/', '-') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK.
+			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace all other invalid chars with _.
+
+			var reports = new ZoomReports()
+			{
+				report 
+			};
+
+			if (saveFileDialog.ShowDialog() == DialogResult.OK)
+			{
+				using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
+					sw.Write(reports.ToOutput(outputFormat));
+				fileName = saveFileDialog.FileName;
+				buttonShow.Enabled = true;
+			}
+		}
+
+		private void ButtonShowClick(object sender, EventArgs e)
+		{
+			System.Diagnostics.Process.Start(fileName);
 		}
 	}
 }
