@@ -392,17 +392,6 @@ namespace Zoom
 			set { colors = value;  } 
 		}
 
-		/// <summary>Export to the specified format.</summary>
-		public string ToOutput(OutputFormat outputFormat)
-		{
-			switch (outputFormat) {
-				case OutputFormat.Svg: return ToSvg();
-				case OutputFormat.HtmlTable: return ToHtml();
-				case OutputFormat.Tsv: return ToCsv('\t');
-				case OutputFormat.Csv: return ToCsv(',');
-				default: return ""; 
-			}
-		}
 		/// <summary>Export to character-separated value.</summary>
 		public abstract string ToCsv(char separator);
 		/// <summary>Export to an HTML table.</summary>
@@ -520,11 +509,11 @@ namespace Zoom
 
 		public void RemoveColumn(int i)
 		{
-			if (i < Columns.Count)
+			if (Columns.Valid(i))
 				Columns.RemoveAt(i);
 
 			foreach(ZRow row in Rows)
-				if (i < row.Count)
+				if (row.Valid(i))
 					row.RemoveAt(i);
 		}
 
