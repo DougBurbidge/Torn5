@@ -1589,7 +1589,7 @@ namespace Zoom
 		/// <summary>If true, show bars in HTML reports.</summary>
 		bool Bars { get; set; }
 
-		ZReportColors colors;
+		readonly ZReportColors colors;
 		public ZReportColors Colors { get { return colors; } }
 		
 //		int HeightUsed { get; set; }

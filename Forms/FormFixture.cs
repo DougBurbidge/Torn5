@@ -198,7 +198,7 @@ namespace Torn.UI
 				g.DrawString(games[col].Teams.Count.ToString(), font, Brushes.Black, col * size - 1, rows * size);
 		}
 
-		void PaintWhoPlaysWho(int size, int rows)
+		void PaintWhoPlaysWho(int size)
 		{
 			int left = Holder.Fixture.Games.Count * size + 150;
 
@@ -308,7 +308,7 @@ namespace Torn.UI
 			PaintGrid(size, rows);
 			PaintCells(size);
 			PaintNumbers(size, rows);
-			PaintWhoPlaysWho(size, rows);
+			PaintWhoPlaysWho(size);
 
 			// Paint palette.
 			for (Colour i = Colour.None; i < Colour.White; i++)
@@ -326,11 +326,11 @@ namespace Torn.UI
 				sw.Write(report.ToSvg(true));
 				document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
 				aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
-				timerRedraw_Tick(null, null);
+				TimerRedrawTick(null, null);
 			}
 		}
 
-		private void numericTeamsPerGame_ValueChanged(object sender, EventArgs e)
+		private void NumericTeamsPerGameValueChanged(object sender, EventArgs e)
 		{
 			numericTeamsToCut.Maximum = numericTeamsPerGame.Value - 1;
 			numericFreeRides.Maximum = numericTeamsPerGame.Value - 1;
@@ -343,7 +343,7 @@ namespace Torn.UI
 			timerRedraw.Enabled = true;
 		}
 
-		private void timerRedraw_Tick(object sender, EventArgs e)
+		private void TimerRedrawTick(object sender, EventArgs e)
 		{
 			if (document != null)
 			{
@@ -409,7 +409,7 @@ namespace Torn.UI
 				}
 
 				PaintNumbers(size, rows);
-				PaintWhoPlaysWho(size, rows);
+				PaintWhoPlaysWho(size);
 			}
 
 			else

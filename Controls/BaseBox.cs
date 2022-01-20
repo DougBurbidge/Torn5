@@ -15,7 +15,7 @@ namespace Torn.UI
 		public ListView.ListViewItemCollection Items { get { return listView1.Items; } }
 		public ImageList Images { get { return listView1.SmallImageList; } set { listView1.SmallImageList = value; } }
 		protected ListView ListView { get {return listView1; } }
-		private ListViewColumnSorter sorter;
+		private readonly ListViewColumnSorter sorter;
 		public Func<BaseBox> GetMoveTarget { get; set; }
 		public Action RankTeams { get; set; }
 		public Action SortTeamsByRank { get; set; }
@@ -95,8 +95,7 @@ namespace Torn.UI
 				Recalculate();
 				target.Recalculate();
 
-				if (RankTeams != null)
-					RankTeams();
+				RankTeams?.Invoke();
 			}
 		}
 
@@ -123,8 +122,7 @@ namespace Torn.UI
 			Recalculate();
 			target.Recalculate();
 
-			if (RankTeams != null)
-				RankTeams();
+			RankTeams?.Invoke();
 		}
 
 		public virtual void Clear()
@@ -162,8 +160,7 @@ namespace Torn.UI
 
 		void MenuSortTeamsClick(object sender, EventArgs e)
 		{
-			if (SortTeamsByRank != null)
-				SortTeamsByRank();
+			SortTeamsByRank?.Invoke();
 		}
 
 		public List<ServerPlayer> Players()
@@ -183,7 +180,7 @@ namespace Torn.UI
 		public int SortColumn { get; set; }
 		public SortOrder SortOrder { get; set; }
 
-		private CaseInsensitiveComparer comparer;
+		private readonly CaseInsensitiveComparer comparer;
 
 		public ListViewColumnSorter()
 		{

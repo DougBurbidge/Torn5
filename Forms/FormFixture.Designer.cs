@@ -518,7 +518,7 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.numericTeamsPerGame_ValueChanged);
+			this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.NumericTeamsPerGameValueChanged);
 			// 
 			// label9
 			// 
@@ -618,7 +618,7 @@ namespace Torn.UI
 			// timerRedraw
 			// 
 			this.timerRedraw.Interval = 1000;
-			this.timerRedraw.Tick += new System.EventHandler(this.timerRedraw_Tick);
+			this.timerRedraw.Tick += new System.EventHandler(this.TimerRedrawTick);
 			// 
 			// FormFixture
 			// 

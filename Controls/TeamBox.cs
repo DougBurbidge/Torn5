@@ -119,11 +119,6 @@ namespace Torn.UI
 				(GameTeam.Adjustment == 0 ? "" : "*");
 		}
 
-		LeaguePlayer LeaguePlayer(ListViewItem item)
-		{
-			return item.Tag is ServerPlayer && League.LeaguePlayer((ServerPlayer)item.Tag) != null ? League.LeaguePlayer((ServerPlayer)item.Tag) : null;
-		}
-
 		ToolStripMenuItem FindMenu(string s)
 		{
 			if (!string.IsNullOrEmpty(s))
@@ -154,8 +149,10 @@ namespace Torn.UI
 			if (League.Teams.Count < 49)
 				foreach (var team in League.Teams)
 				{
-					var item = new ToolStripMenuItem(team.Name);
-					item.Tag = team;
+					var item = new ToolStripMenuItem(team.Name)
+					{
+						Tag = team
+					};
 					item.Click += MenuIdentifyTeamClick;
 					menuIdentifyTeam.DropDownItems.Add(item);
 				}
@@ -173,8 +170,10 @@ namespace Torn.UI
 
 				foreach (var team in League.Teams)
 				{
-					var item = new ToolStripMenuItem(team.Name);
-					item.Tag = team;
+					var item = new ToolStripMenuItem(team.Name)
+					{
+						Tag = team
+					};
 					item.Click += MenuIdentifyTeamClick;
 					FindMenu(team.Name).DropDownItems.Add(item);
 				}
@@ -237,9 +236,11 @@ namespace Torn.UI
 				var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
 				if (leaguePlayer == null)
 				{
-					leaguePlayer = new LeaguePlayer();
-					leaguePlayer.Name = serverPlayer.Alias;
-					leaguePlayer.Id = serverPlayer.PlayerId;
+					leaguePlayer = new LeaguePlayer
+					{
+						Name = serverPlayer.Alias,
+						Id = serverPlayer.PlayerId
+					};
 					League.Players.Add(leaguePlayer);
 				}
 				LeagueTeam.Players.Add(leaguePlayer);
@@ -249,8 +250,7 @@ namespace Torn.UI
 
 		void MenuSortTeamsClick(object sender, EventArgs e)
 		{
-			if (SortTeamsByRank != null)
-				SortTeamsByRank();
+			SortTeamsByRank?.Invoke();
 		}
 
 		void MenuUpdateTeamClick(object sender, EventArgs e)
@@ -260,9 +260,11 @@ namespace Torn.UI
 				var leaguePlayer = League.LeaguePlayer(serverPlayer) ?? League.Players.Find(p => p.Id == serverPlayer.PlayerId);
 				if (leaguePlayer == null)
 				{
-					leaguePlayer = new LeaguePlayer();
-					leaguePlayer.Name = serverPlayer.Alias;
-					leaguePlayer.Id = serverPlayer.PlayerId;
+					leaguePlayer = new LeaguePlayer
+					{
+						Name = serverPlayer.Alias,
+						Id = serverPlayer.PlayerId
+					};
 					League.Players.Add(leaguePlayer);
 				}
 				if (!LeagueTeam.Players.Contains(leaguePlayer))
@@ -298,8 +300,8 @@ namespace Torn.UI
 	{
 		int IComparer.Compare(object x, object y)
 		{
-			return (x is ListViewItem && y is ListViewItem && ((ListViewItem)x).Tag is ServerPlayer && ((ListViewItem)y).Tag is ServerPlayer) ?
-				((ServerPlayer)((ListViewItem)y).Tag).Score.CompareTo(((ServerPlayer)((ListViewItem)x).Tag).Score) :
+			return (x is ListViewItem itemX && y is ListViewItem itemY && itemX.Tag is ServerPlayer playerX && itemY.Tag is ServerPlayer playerY) ?
+				playerY.Score.CompareTo(playerX.Score) :
 				0;
 		}
 	}

@@ -14,8 +14,8 @@ namespace Torn.UI
 	{
 		public League League { get; set; }
 		public FormPlayer FormPlayer { get; set; }
-		
-		List<NumericUpDown> victory;  // A list of victory points boxes.
+
+		readonly List<NumericUpDown> victory;  // A list of victory points boxes.
 
 		public FormLeague()
 		{
