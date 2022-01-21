@@ -486,7 +486,8 @@ namespace Torn.UI
 
 				if (new FormReport
 				{
-					ReportTemplate = adhocReportTemplate
+					ReportTemplate = adhocReportTemplate,
+					League = SelectedLeagues().FirstOrDefault()?.League
 				}.ShowDialog() == DialogResult.OK)
 				{
 					Cursor.Current = Cursors.WaitCursor;

@@ -137,7 +137,7 @@ namespace Torn.Report
 				MaxChartByColumn = true
 			};
 
-			List<Game> games = league.Games(includeSecret).Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue)).ToList();
+			List<Game> games = Games(league, includeSecret, rt);
 			var ladder = Ladder(league, games, rt);
 
 			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct().OrderBy(c => c);
@@ -368,7 +368,7 @@ namespace Torn.Report
 			           	return Math.Sign(result == 0 ? league.AverageScore(y, includeSecret) - league.AverageScore(x, includeSecret) : result);
 			           });
 
-			List<Game> games = league.Games(includeSecret).Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue)).ToList();
+			List<Game> games = Games(league, includeSecret, rt);
 
 			foreach (var team1 in teams)
 			{
@@ -417,7 +417,9 @@ namespace Torn.Report
 			}
 
 			if (rt.Settings.Contains("Description"))
-				report.Description = "This report shows how may times each team has played and beaten each other team, " + FromTo(games, rt.From, rt.To) + "."; 
+				report.Description = "This report shows how may times each team has played and beaten each other team.";
+
+			FinishReport(report, games, rt);
 			return report;
 		}  // TeamsVsTeams
 
@@ -427,7 +429,7 @@ namespace Torn.Report
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Colour Performance" : rt.Title, "Rank", "center");
 
-			List<Game> games = league.Games(includeSecret);
+			List<Game> games = Games(league, includeSecret, rt);
 
 			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct();
 			var colourTotals = new Dictionary<Colour, List<int>>();
@@ -436,18 +438,17 @@ namespace Torn.Report
 
 			foreach (Game game in games)
 				foreach (GameTeam gameTeam in game.Teams)  // Roll through this team's games.
-					if ((rt.From == null || game.Time >= rt.From) && (rt.To == null || game.Time <= rt.To))
-					{
-						// Add the team's rank in this game to the colourTotals.
-						int rank = league.Game(gameTeam).Teams.IndexOf(gameTeam);
+				{
+					// Add the team's rank in this game to the colourTotals.
+					int rank = league.Game(gameTeam).Teams.IndexOf(gameTeam);
 
-						while (colourTotals[gameTeam.Colour].Count <= rank)
-							colourTotals[gameTeam.Colour].Add(0);
-						if (rank > -1)
-							colourTotals[gameTeam.Colour][rank]++;
-					}
+					while (colourTotals[gameTeam.Colour].Count <= rank)
+						colourTotals[gameTeam.Colour].Add(0);
+					if (rank > -1)
+						colourTotals[gameTeam.Colour][rank]++;
+				}
 
-			coloursUsed = coloursUsed.OrderBy(c => -colourTotals[c][0]);
+			coloursUsed = coloursUsed.OrderBy(c => -colourTotals[c].FirstOrDefault());
 
 			foreach (Colour c in coloursUsed)
 				report.AddColumn(new ZColumn(c.ToString(), ZAlignment.Integer));
@@ -488,8 +489,7 @@ namespace Torn.Report
 //			report.MultiColumnOK = true;
 
 			int thisgame = 0;
-			List<Game> games = league.Games(includeSecret);
-			games = games.Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue)).ToList();
+			List<Game> games = Games(league, includeSecret, rt);
 			games.Sort();
 
 			int mostTeams = games.Count == 0 ? 0 : games.Max(g => g.Teams.Count);
@@ -565,7 +565,7 @@ namespace Torn.Report
 
 	 		if (games.Any() && games.First().Time.Date == games.Last().Time.Date)
 			    report.Rows.RemoveAt(0);  // The first entry in rows is a date line; since there's only one date for the whole report, we can delete it.
-	 		report.Title = (string.IsNullOrEmpty(rt.Title) ? league.Title + " Games " : rt.Title) + FromTo(games, rt.From, rt.To);
+	 		report.Title = (string.IsNullOrEmpty(rt.Title) ? league.Title + " Games " : rt.Title);
 			
 			for (int i = 0; i < mostTeams; i++)  // set up the Headings text, to cater for however many columns the report has turned out to be
 			{
@@ -590,11 +590,9 @@ namespace Torn.Report
 
 				if (league.VictoryPointsHighScore != 0)
 					report.Description += " At the end of each row, you see the high-scoring player for that game, and their score.";
-
-				if (rt.From != null || rt.To != null)
-					report.Description += "  The report has been limited to games " + FromTo(games, rt.From, rt.To) + ".";
 			}
 
+			FinishReport(report, games, rt);
 			return report;
 		}  // GamesList
 
@@ -604,7 +602,7 @@ namespace Torn.Report
 			ZoomReport report = new ZoomReport("Table of Contents");
 			report.Columns.Add(new ZColumn("", ZAlignment.Right));
 
-			List<Game> games = league.Games(includeSecret).Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue)).ToList();
+			List<Game> games = Games(league, includeSecret, rt);
 			games.Sort();
 
 			var dates = games.Select(g => g.Time.Date).Distinct().ToList();
@@ -663,17 +661,14 @@ namespace Torn.Report
 				}
 			}
 
-			int columns = report.Rows.Max(r => r.Count());
+			int columns = report.Rows.Count == 0 ? 0 : report.Rows.Max(r => r.Count());
 			for (; report.Columns.Count < columns; )
 				report.AddColumn(new ZColumn(""));
 
 			if (rt.Settings.Contains("Description"))
-			{
 				report.Description = "This is a list of games. Each cell in the table is one game. Click the cell for details.";
 
-				if (rt.From != null || rt.To != null)
-					report.Description += "  The report has been limited to games " + FromTo(games, rt.From, rt.To) + ".";
-			}
+			FinishReport(report, games, rt);
 			return report;
 		}
 
@@ -683,7 +678,7 @@ namespace Torn.Report
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
 			DateTime thisgametime = DateTime.MinValue;
-			List<Game> games = league.Games(includeSecret).Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue)).ToList();
+			List<Game> games = Games(league, includeSecret, rt);
 
 	 		// Create columns.
 	 		foreach (Game game in games)
@@ -779,9 +774,8 @@ namespace Torn.Report
 		{
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
+			List<Game> games = Games(league, includeSecret, rt);
 			DateTime newTo = rt.To ?? DateTime.MaxValue;
-			List<Game> games = league.Games(includeSecret).Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < newTo).ToList();
-
 			Game after = league.Games(includeSecret).Exists(x => x.Time > newTo) ? games.Find(x => x.Time > newTo) : null;
 			List<string> titles = games.Select(x => x.Title).Distinct().ToList();
 			var titleCount = new Dictionary<string, int>();
@@ -926,10 +920,7 @@ namespace Torn.Report
 			foreach (var pt in playerTeams)
 			{
 				var player = pt.Key;
-				var games = league.Games(includeSecret).Where(x => 
-				                                              (rt.From ?? DateTime.MinValue) < x.Time &&
-				                                              x.Time < (rt.To ?? DateTime.MaxValue) &&
-				                                              x.Players().Exists(y => y.PlayerId == player.Id));
+				var games = Games(league, includeSecret, rt).Where(x => x.Players().Exists(y => y.PlayerId == player.Id));
 
 				if (games.Count() > 0)
 				{
@@ -949,7 +940,10 @@ namespace Torn.Report
 					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
 					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
 					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
-					row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P0"));  // Tag ratio
+					if (played.Max(x => x.HitsOn) == 0 && played.Max(x => x.HitsBy) == 0)
+						row.Add(new ZCell(double.NaN));  // Tag ratio
+					else
+						row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P0"));  // Tag ratio
 
 					List<double> scoreRatios = new List<double>();
 					List<double> srxTrs = new List<double>();
@@ -1262,9 +1256,9 @@ namespace Torn.Report
 						ZCell cell;
 						if (player1 == player2)
 							cell = new ZCell("\u2572", row[0].Color);  // Diagonal Upper Left to Lower Right.
-						else if (player1 is ServerPlayer && player2 is ServerPlayer)
+						else if (player1 is ServerPlayer p1 && player2 is ServerPlayer p2)
 						{
-							int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == ((ServerPlayer)player1).ServerPlayerId && x.OtherPlayer == ((ServerPlayer)player2).ServerPlayerId && x.Event_Type < 14);
+							int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == p1.ServerPlayerId && x.OtherPlayer == p2.ServerPlayerId && x.Event_Type < 14);
 							cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? row[0].Color : Color.Empty);
 							if (gameTeam != gameTeam2)
 								cell.BarColor = ZReportColors.Darken(row[0].Color);
@@ -1275,55 +1269,59 @@ namespace Torn.Report
 						row.Add(cell);
 					}
 
-				var text = new StringBuilder();
-				var html = new StringBuilder();
-				var svg = new StringBuilder();
-				var startTime = game.ServerGame.Events.FirstOrDefault().Time;
-				int minutes = 0;  // How many whole minutes into the game are we?
-				Colour currentColour = Colour.None;
-				if (player1 is ServerPlayer player1sp)
+				if (game.ServerGame.Events != null && game.ServerGame.Events.Any())
 				{
-					foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == player1sp.ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) || (x.Event_Type >= 37 && x.Event_Type <= 1404))))
+					var text = new StringBuilder();
+					var html = new StringBuilder();
+					var svg = new StringBuilder();
+					var startTime = game.ServerGame.Events.FirstOrDefault().Time;
+					int minutes = 0;  // How many whole minutes into the game are we?
+					Colour currentColour = Colour.None;
+					if (player1 is ServerPlayer player1sp)
 					{
-						int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
-						if (now - minutes > 1)
+						foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == player1sp.ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) || (x.Event_Type >= 37 && x.Event_Type <= 1404))))
 						{
-							ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', now - minutes));  // Add one dot for each whole minute of the game.
-							minutes = now;
-						}
+							int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
+							if (now - minutes > 1)
+							{
+								ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', now - minutes));  // Add one dot for each whole minute of the game.
+								minutes = now;
+							}
 
-						Colour otherTeam = (Colour)(eevent.OtherTeam + 1);
-						switch (eevent.Event_Type)
-						{
-							case 28: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e8"); break;  // warning: yellow square.
-							case 29: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e5"); break;  // terminated: red square.
-							case 30: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u25cb"); break;  // hit base: open circle
-							case 31: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2b24"); break;  // destroyed base: filled circle.
-							case 32: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\U0001f480"); break;  // eliminated: skull
-							case 33: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "!"); break;  // hit by base
-							case 34: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // hit by mine
-							case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // player tagged target
-							case 1401:
-							case 1402:  // score denial points: circle with cross, circle with slash
-								ColourSymbol(text, html, svg, ref currentColour, otherTeam, new string('\u29bb', eevent.ShotsDenied / 2));  // If this is a game where you can deny for many shots (e.g. 10 shots to destroy a base or whatever) show a double-deny mark for each two shots denied.
-								if (eevent.ShotsDenied % 2 == 1) ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2300");  // Show remaining one deny hit if necessary.
-								break;
-							case 1403: case 1404: ColourSymbol(text, html, svg, ref currentColour, Colour.None, eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
-							default:
-								ColourSymbol(text, html, svg, ref currentColour, Colour.None, "?"); break;
+							Colour otherTeam = (Colour)(eevent.OtherTeam + 1);
+							switch (eevent.Event_Type)
+							{
+								case 28: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e8"); break;  // warning: yellow square.
+								case 29: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e5"); break;  // terminated: red square.
+								case 30: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u25cb"); break;  // hit base: open circle
+								case 31: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2b24"); break;  // destroyed base: filled circle.
+								case 32: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\U0001f480"); break;  // eliminated: skull
+								case 33: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "!"); break;  // hit by base
+								case 34: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // hit by mine
+								case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // player tagged target
+								case 1401:
+								case 1402:  // score denial points: circle with cross, circle with slash
+									ColourSymbol(text, html, svg, ref currentColour, otherTeam, new string('\u29bb', eevent.ShotsDenied / 2));  // If this is a game where you can deny for many shots (e.g. 10 shots to destroy a base or whatever) show a double-deny mark for each two shots denied.
+									if (eevent.ShotsDenied % 2 == 1) ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2300");  // Show remaining one deny hit if necessary.
+									break;
+								case 1403: case 1404: ColourSymbol(text, html, svg, ref currentColour, Colour.None, eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
+								default:
+									ColourSymbol(text, html, svg, ref currentColour, Colour.None, "?"); break;
+							}
 						}
 					}
-				}
-				ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes) + ".");  // Add one dot for each whole minute of the game.
-				row.Add(new ZCell(text.ToString())
+					ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes) + ".");  // Add one dot for each whole minute of the game.
+					row.Add(new ZCell(text.ToString())
 					{
 						Html = html.ToString(),
 						Svg = svg.ToString()
 					}
-					);
+						);
+				}
+
+				report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 			}
 
-			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 			report.RemoveColumn(idCol);
 			return report;
 		}
@@ -1991,7 +1989,7 @@ namespace Torn.Report
 			games.Sort((x, y) => DateTime.Compare(x.Time, y.Time));
 
 			// Now build the pack report.
-			var	report = new ZoomReport((string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Pack Report" : title) + FromTo(games, from, to),
+			var	report = new ZoomReport((string.IsNullOrEmpty(title) ? (leagues.Count == 1 ? leagues[0].Title + " " : "") + "Pack Report" : title),
 				                        "Rank,Pack,Score Ratio,t,p,Count,Tag Ratio,t,p,Count",
 				                        "center,left,integer,float,float,integer,float,float,float,integer");
 			
@@ -2253,12 +2251,12 @@ namespace Torn.Report
 					new ZCell(pack),
 					new ZCell(gamesThisPack.First().Players().Find(p => p is ServerPlayer sp && sp.ServerPlayerId == pack).Pack),
 					new ZCell(gameCount),
-					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 15 || e.Event_Type == 22)).ToList(), null, ChartType.Histogram, "N1"),
-					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 20 || e.Event_Type == 27)).ToList(), null, ChartType.Histogram, "N1"),
-					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 16 || e.Event_Type == 23)).ToList(), null, ChartType.Histogram, "N1"),
-					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 17 || e.Event_Type == 24)).ToList(), null, ChartType.Histogram, "N1"),
-					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 14 || e.Event_Type == 21)).ToList(), null, ChartType.Histogram, "N1"),
-					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type >= 14 && e.Event_Type <= 27)).ToList(), null, ChartType.Histogram, "N1")
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 15 || e.Event_Type == 22)).ToList(), null, chartType, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 20 || e.Event_Type == 27)).ToList(), null, chartType, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 16 || e.Event_Type == 23)).ToList(), null, chartType, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 17 || e.Event_Type == 24)).ToList(), null, chartType, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 14 || e.Event_Type == 21)).ToList(), null, chartType, "N1"),
+					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type >= 14 && e.Event_Type <= 27)).ToList(), null, chartType, "N1")
 				};
 
 				report.Rows.Add(row);
@@ -2375,7 +2373,8 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 											   "left,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer",
 											   ",,,,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties")
 			{
-				MaxChartByColumn = true
+				MaxChartByColumn = true,
+				NumberStyle = ZNumberStyle.Plain
 			};
 
 			foreach (var game in league.AllGames.FindAll(x => x.Time.CompareTo(from ?? DateTime.MinValue) >= 0 &&
@@ -2416,6 +2415,14 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 
 			return report;
 		}  // EverythingReport
+
+		static List<Game> Games(League league, bool includeSecret, ReportTemplate rt)
+		{
+			string group = rt.Setting("Group");
+			return league.Games(includeSecret)
+				.Where(g => g.Time > (rt.From ?? DateTime.MinValue) && g.Time < (rt.To ?? DateTime.MaxValue) && (string.IsNullOrEmpty(group) || (g.Title ?? "").Contains(group)))
+				.ToList();
+		}
 
 		/// <summary>If i is 0, return a cell which has "" as its text (but still 0 as its number). Otherwise return a cell with this number.</summary>
 		static ZCell BlankZero(int i, ChartType chartType, Color color)
@@ -2574,6 +2581,8 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 
 			return finals;
 		}
+
+		/// <summary>Returns text description like " from 1-1-2020 to 2/2/2020".</summary>
 		static string FromTo(List<Game> games, DateTime? from, DateTime? to)
 		{
 			if (games.Count == 0)
@@ -2774,6 +2783,10 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 					report.Description += " The report has been limited to games after " + games.First().Time.ToShortDateString() + ".";
 				else if (rt.To != null && games.Any())
 					report.Description += " The report has been limited to games before " + games.Last().Time.ToShortDateString() + ".";
+
+				string group = rt.Setting("Group");
+				if (!string.IsNullOrEmpty(group))
+					report.Description += " The report has been limited to games with title \"" + group + "\".";
 			}
 		}
 	}

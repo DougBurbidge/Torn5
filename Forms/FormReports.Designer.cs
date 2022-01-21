@@ -67,7 +67,7 @@ namespace Torn.UI
 			this.listViewReports.UseCompatibleStateImageBehavior = false;
 			this.listViewReports.View = System.Windows.Forms.View.Details;
 			this.listViewReports.DoubleClick += new System.EventHandler(this.ButtonEditClick);
-			this.listViewReports.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listViewReports_KeyDown);
+			this.listViewReports.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListViewReportsKeyDown);
 			// 
 			// colReport
 			// 
@@ -226,7 +226,7 @@ namespace Torn.UI
 			this.buttonDefaults.TabIndex = 7;
 			this.buttonDefaults.Text = "Add default reports";
 			this.buttonDefaults.UseVisualStyleBackColor = true;
-			this.buttonDefaults.Click += new System.EventHandler(this.buttonDefaults_Click);
+			this.buttonDefaults.Click += new System.EventHandler(this.ButtonDefaultsClick);
 			// 
 			// FormReports
 			// 

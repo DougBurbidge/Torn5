@@ -46,6 +46,8 @@ namespace Torn.UI
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonCancel = new System.Windows.Forms.Button();
 			this.groupBoxDateRange = new System.Windows.Forms.GroupBox();
+			this.descriptionGroup = new System.Windows.Forms.ComboBox();
+			this.withDescription = new System.Windows.Forms.CheckBox();
 			this.datePickerTo = new System.Windows.Forms.DateTimePicker();
 			this.datePickerFrom = new System.Windows.Forms.DateTimePicker();
 			this.dateTo = new System.Windows.Forms.CheckBox();
@@ -84,10 +86,10 @@ namespace Torn.UI
 			// 
 			// scaleGames
 			// 
-			this.scaleGames.Location = new System.Drawing.Point(12, 196);
+			this.scaleGames.Location = new System.Drawing.Point(12, 470);
 			this.scaleGames.Name = "scaleGames";
 			this.scaleGames.Size = new System.Drawing.Size(250, 24);
-			this.scaleGames.TabIndex = 2;
+			this.scaleGames.TabIndex = 7;
 			this.scaleGames.Tag = "ScaleGames";
 			this.scaleGames.Text = "scale up teams with less games";
 			this.scaleGames.UseVisualStyleBackColor = true;
@@ -98,83 +100,83 @@ namespace Torn.UI
 			this.dropGames.Location = new System.Drawing.Point(12, 226);
 			this.dropGames.Name = "dropGames";
 			this.dropGames.Size = new System.Drawing.Size(250, 24);
-			this.dropGames.TabIndex = 3;
+			this.dropGames.TabIndex = 4;
 			this.dropGames.Text = "drop best/worst games";
 			this.dropGames.UseVisualStyleBackColor = true;
 			this.dropGames.CheckedChanged += new System.EventHandler(this.DropGamesCheckedChanged);
 			// 
 			// showColours
 			// 
-			this.showColours.Location = new System.Drawing.Point(12, 412);
+			this.showColours.Location = new System.Drawing.Point(12, 500);
 			this.showColours.Name = "showColours";
 			this.showColours.Size = new System.Drawing.Size(250, 24);
-			this.showColours.TabIndex = 7;
+			this.showColours.TabIndex = 8;
 			this.showColours.Tag = "ShowColours";
 			this.showColours.Text = "show colours";
 			this.showColours.UseVisualStyleBackColor = true;
 			// 
 			// showPoints
 			// 
-			this.showPoints.Location = new System.Drawing.Point(12, 442);
+			this.showPoints.Location = new System.Drawing.Point(12, 533);
 			this.showPoints.Name = "showPoints";
 			this.showPoints.Size = new System.Drawing.Size(250, 24);
-			this.showPoints.TabIndex = 8;
+			this.showPoints.TabIndex = 9;
 			this.showPoints.Tag = "ShowPoints";
 			this.showPoints.Text = "show average victory points";
 			this.showPoints.UseVisualStyleBackColor = true;
 			// 
 			// showComments
 			// 
-			this.showComments.Location = new System.Drawing.Point(12, 472);
+			this.showComments.Location = new System.Drawing.Point(288, 470);
 			this.showComments.Name = "showComments";
 			this.showComments.Size = new System.Drawing.Size(250, 24);
-			this.showComments.TabIndex = 9;
+			this.showComments.TabIndex = 10;
 			this.showComments.Tag = "ShowComments";
-			this.showComments.Text = "show comments";
+			this.showComments.Text = "show comments column";
 			this.showComments.UseVisualStyleBackColor = true;
 			// 
 			// showTopN
 			// 
-			this.showTopN.Location = new System.Drawing.Point(12, 532);
+			this.showTopN.Location = new System.Drawing.Point(284, 18);
 			this.showTopN.Name = "showTopN";
 			this.showTopN.Size = new System.Drawing.Size(97, 24);
-			this.showTopN.TabIndex = 12;
+			this.showTopN.TabIndex = 6;
 			this.showTopN.Text = "show only top";
 			this.showTopN.UseVisualStyleBackColor = true;
 			this.showTopN.CheckedChanged += new System.EventHandler(this.ShowTopNCheckedChanged);
 			// 
 			// atLeastN
 			// 
-			this.atLeastN.Location = new System.Drawing.Point(12, 562);
+			this.atLeastN.Location = new System.Drawing.Point(284, 48);
 			this.atLeastN.Name = "atLeastN";
 			this.atLeastN.Size = new System.Drawing.Size(186, 24);
-			this.atLeastN.TabIndex = 15;
+			this.atLeastN.TabIndex = 9;
 			this.atLeastN.Text = "show only players with at least";
 			this.atLeastN.UseVisualStyleBackColor = true;
 			this.atLeastN.CheckedChanged += new System.EventHandler(this.AtLeastNCheckedChanged);
 			// 
 			// labelOrderBy
 			// 
-			this.labelOrderBy.Location = new System.Drawing.Point(12, 595);
+			this.labelOrderBy.Location = new System.Drawing.Point(285, 576);
 			this.labelOrderBy.Name = "labelOrderBy";
 			this.labelOrderBy.Size = new System.Drawing.Size(53, 23);
-			this.labelOrderBy.TabIndex = 18;
+			this.labelOrderBy.TabIndex = 15;
 			this.labelOrderBy.Text = "order by";
 			// 
 			// labelTopWhat
 			// 
-			this.labelTopWhat.Location = new System.Drawing.Point(185, 535);
+			this.labelTopWhat.Location = new System.Drawing.Point(433, 23);
 			this.labelTopWhat.Name = "labelTopWhat";
 			this.labelTopWhat.Size = new System.Drawing.Size(51, 23);
-			this.labelTopWhat.TabIndex = 14;
+			this.labelTopWhat.TabIndex = 8;
 			this.labelTopWhat.Text = "players";
 			// 
 			// labelAtLeastGames
 			// 
-			this.labelAtLeastGames.Location = new System.Drawing.Point(242, 567);
+			this.labelAtLeastGames.Location = new System.Drawing.Point(513, 53);
 			this.labelAtLeastGames.Name = "labelAtLeastGames";
-			this.labelAtLeastGames.Size = new System.Drawing.Size(41, 23);
-			this.labelAtLeastGames.TabIndex = 17;
+			this.labelAtLeastGames.Size = new System.Drawing.Size(40, 23);
+			this.labelAtLeastGames.TabIndex = 11;
 			this.labelAtLeastGames.Text = "games";
 			// 
 			// numericUpDownTopN
@@ -184,7 +186,7 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericUpDownTopN.Location = new System.Drawing.Point(129, 535);
+			this.numericUpDownTopN.Location = new System.Drawing.Point(377, 21);
 			this.numericUpDownTopN.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -192,7 +194,7 @@ namespace Torn.UI
             0});
 			this.numericUpDownTopN.Name = "numericUpDownTopN";
 			this.numericUpDownTopN.Size = new System.Drawing.Size(50, 20);
-			this.numericUpDownTopN.TabIndex = 13;
+			this.numericUpDownTopN.TabIndex = 7;
 			this.numericUpDownTopN.Value = new decimal(new int[] {
             40,
             0,
@@ -201,10 +203,10 @@ namespace Torn.UI
 			// 
 			// numericUpDownAtLeastN
 			// 
-			this.numericUpDownAtLeastN.Location = new System.Drawing.Point(185, 565);
+			this.numericUpDownAtLeastN.Location = new System.Drawing.Point(457, 51);
 			this.numericUpDownAtLeastN.Name = "numericUpDownAtLeastN";
 			this.numericUpDownAtLeastN.Size = new System.Drawing.Size(50, 20);
-			this.numericUpDownAtLeastN.TabIndex = 16;
+			this.numericUpDownAtLeastN.TabIndex = 10;
 			this.numericUpDownAtLeastN.Value = new decimal(new int[] {
             7,
             0,
@@ -218,16 +220,16 @@ namespace Torn.UI
 			this.orderBy.Items.AddRange(new object[] {
             "victory points then score",
             "victory points then score ratio"});
-			this.orderBy.Location = new System.Drawing.Point(73, 592);
+			this.orderBy.Location = new System.Drawing.Point(344, 573);
 			this.orderBy.Name = "orderBy";
 			this.orderBy.Size = new System.Drawing.Size(189, 21);
-			this.orderBy.TabIndex = 19;
+			this.orderBy.TabIndex = 16;
 			// 
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.Location = new System.Drawing.Point(129, 659);
+			this.buttonOK.Location = new System.Drawing.Point(395, 626);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 21;
@@ -238,7 +240,7 @@ namespace Torn.UI
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.Location = new System.Drawing.Point(211, 659);
+			this.buttonCancel.Location = new System.Drawing.Point(477, 626);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 22;
@@ -247,17 +249,60 @@ namespace Torn.UI
 			// 
 			// groupBoxDateRange
 			// 
+			this.groupBoxDateRange.Controls.Add(this.numericUpDownTopN);
+			this.groupBoxDateRange.Controls.Add(this.descriptionGroup);
+			this.groupBoxDateRange.Controls.Add(this.withDescription);
+			this.groupBoxDateRange.Controls.Add(this.numericUpDownAtLeastN);
 			this.groupBoxDateRange.Controls.Add(this.datePickerTo);
 			this.groupBoxDateRange.Controls.Add(this.datePickerFrom);
 			this.groupBoxDateRange.Controls.Add(this.dateTo);
 			this.groupBoxDateRange.Controls.Add(this.dateFrom);
 			this.groupBoxDateRange.Controls.Add(this.timePickerTo);
 			this.groupBoxDateRange.Controls.Add(this.timePickerFrom);
+			this.groupBoxDateRange.Controls.Add(this.showTopN);
+			this.groupBoxDateRange.Controls.Add(this.atLeastN);
+			this.groupBoxDateRange.Controls.Add(this.labelTopWhat);
+			this.groupBoxDateRange.Controls.Add(this.labelAtLeastGames);
 			this.groupBoxDateRange.Location = new System.Drawing.Point(4, 335);
 			this.groupBoxDateRange.Name = "groupBoxDateRange";
-			this.groupBoxDateRange.Size = new System.Drawing.Size(274, 71);
+			this.groupBoxDateRange.Size = new System.Drawing.Size(554, 119);
 			this.groupBoxDateRange.TabIndex = 6;
 			this.groupBoxDateRange.TabStop = false;
+			this.groupBoxDateRange.Text = "Filter";
+			// 
+			// descriptionGroup
+			// 
+			this.descriptionGroup.Enabled = false;
+			this.descriptionGroup.FormattingEnabled = true;
+			this.descriptionGroup.Items.AddRange(new object[] {
+            "Round 1",
+            "Repechage 1",
+            "Round 2",
+            "Repechage 2",
+            "Round 3",
+            "Repechage 3",
+            "Round Robin",
+            "Cascade 1",
+            "Cascade 2",
+            "Ascension",
+            "Format D",
+            "Final",
+            "Grand Final"});
+			this.descriptionGroup.Location = new System.Drawing.Point(159, 84);
+			this.descriptionGroup.Name = "descriptionGroup";
+			this.descriptionGroup.Size = new System.Drawing.Size(189, 21);
+			this.descriptionGroup.TabIndex = 19;
+			// 
+			// withDescription
+			// 
+			this.withDescription.AutoSize = true;
+			this.withDescription.Location = new System.Drawing.Point(8, 86);
+			this.withDescription.Name = "withDescription";
+			this.withDescription.Size = new System.Drawing.Size(151, 17);
+			this.withDescription.TabIndex = 18;
+			this.withDescription.Text = "with description containing";
+			this.withDescription.UseVisualStyleBackColor = true;
+			this.withDescription.CheckedChanged += new System.EventHandler(this.WithDescriptionCheckedChanged);
 			// 
 			// datePickerTo
 			// 
@@ -335,7 +380,7 @@ namespace Torn.UI
 			this.groupBoxDrops.Location = new System.Drawing.Point(24, 256);
 			this.groupBoxDrops.Name = "groupBoxDrops";
 			this.groupBoxDrops.Size = new System.Drawing.Size(262, 73);
-			this.groupBoxDrops.TabIndex = 4;
+			this.groupBoxDrops.TabIndex = 5;
 			this.groupBoxDrops.TabStop = false;
 			// 
 			// radioButtonPercent
@@ -406,10 +451,11 @@ namespace Torn.UI
             "Colours",
             "Packs",
             "Tech",
+            "Sanity Check",
             "Everything"});
 			this.listBoxReportType.Location = new System.Drawing.Point(62, 12);
 			this.listBoxReportType.Name = "listBoxReportType";
-			this.listBoxReportType.Size = new System.Drawing.Size(211, 134);
+			this.listBoxReportType.Size = new System.Drawing.Size(224, 134);
 			this.listBoxReportType.TabIndex = 1;
 			this.listBoxReportType.SelectedIndexChanged += new System.EventHandler(this.ListBoxReportTypeSelectedIndexChanged);
 			this.listBoxReportType.DoubleClick += new System.EventHandler(this.ListBoxReportType_DoubleClick);
@@ -418,20 +464,20 @@ namespace Torn.UI
 			// 
 			this.description.Checked = true;
 			this.description.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.description.Location = new System.Drawing.Point(12, 619);
+			this.description.Location = new System.Drawing.Point(288, 500);
 			this.description.Name = "description";
-			this.description.Size = new System.Drawing.Size(88, 24);
-			this.description.TabIndex = 20;
+			this.description.Size = new System.Drawing.Size(250, 24);
+			this.description.TabIndex = 11;
 			this.description.Tag = "Description";
 			this.description.Text = "description";
 			this.description.UseVisualStyleBackColor = true;
 			// 
 			// labelChartType
 			// 
-			this.labelChartType.Location = new System.Drawing.Point(12, 502);
+			this.labelChartType.Location = new System.Drawing.Point(12, 576);
 			this.labelChartType.Name = "labelChartType";
 			this.labelChartType.Size = new System.Drawing.Size(59, 23);
-			this.labelChartType.TabIndex = 10;
+			this.labelChartType.TabIndex = 13;
 			this.labelChartType.Text = "chart type";
 			// 
 			// chartType
@@ -448,10 +494,10 @@ namespace Torn.UI
             "histogram",
             "kernel density estimate",
             "kernel density estimate with rug"});
-			this.chartType.Location = new System.Drawing.Point(73, 499);
+			this.chartType.Location = new System.Drawing.Point(73, 573);
 			this.chartType.Name = "chartType";
 			this.chartType.Size = new System.Drawing.Size(189, 21);
-			this.chartType.TabIndex = 11;
+			this.chartType.TabIndex = 14;
 			this.chartType.SelectedIndexChanged += new System.EventHandler(this.ChartTypeSelectedIndexChanged);
 			// 
 			// labelTitle
@@ -459,7 +505,7 @@ namespace Torn.UI
 			this.labelTitle.Location = new System.Drawing.Point(12, 173);
 			this.labelTitle.Name = "labelTitle";
 			this.labelTitle.Size = new System.Drawing.Size(100, 23);
-			this.labelTitle.TabIndex = 23;
+			this.labelTitle.TabIndex = 2;
 			this.labelTitle.Text = "Title:";
 			// 
 			// title
@@ -468,17 +514,17 @@ namespace Torn.UI
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.title.Location = new System.Drawing.Point(62, 170);
 			this.title.Name = "title";
-			this.title.Size = new System.Drawing.Size(211, 20);
-			this.title.TabIndex = 24;
+			this.title.Size = new System.Drawing.Size(477, 20);
+			this.title.TabIndex = 3;
 			// 
 			// longitudinal
 			// 
 			this.longitudinal.Checked = true;
 			this.longitudinal.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.longitudinal.Location = new System.Drawing.Point(153, 619);
+			this.longitudinal.Location = new System.Drawing.Point(288, 533);
 			this.longitudinal.Name = "longitudinal";
-			this.longitudinal.Size = new System.Drawing.Size(128, 24);
-			this.longitudinal.TabIndex = 25;
+			this.longitudinal.Size = new System.Drawing.Size(250, 24);
+			this.longitudinal.TabIndex = 12;
 			this.longitudinal.Tag = "Longitudinal";
 			this.longitudinal.Text = "longitudinal chart";
 			this.longitudinal.UseVisualStyleBackColor = true;
@@ -489,7 +535,7 @@ namespace Torn.UI
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(298, 694);
+			this.ClientSize = new System.Drawing.Size(564, 661);
 			this.Controls.Add(this.longitudinal);
 			this.Controls.Add(this.title);
 			this.Controls.Add(this.labelTitle);
@@ -502,13 +548,7 @@ namespace Torn.UI
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.Controls.Add(this.orderBy);
-			this.Controls.Add(this.numericUpDownAtLeastN);
-			this.Controls.Add(this.numericUpDownTopN);
-			this.Controls.Add(this.labelAtLeastGames);
-			this.Controls.Add(this.labelTopWhat);
 			this.Controls.Add(this.labelOrderBy);
-			this.Controls.Add(this.atLeastN);
-			this.Controls.Add(this.showTopN);
 			this.Controls.Add(this.showComments);
 			this.Controls.Add(this.showPoints);
 			this.Controls.Add(this.showColours);
@@ -523,6 +563,7 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).EndInit();
 			this.groupBoxDateRange.ResumeLayout(false);
+			this.groupBoxDateRange.PerformLayout();
 			this.groupBoxDrops.ResumeLayout(false);
 			this.groupBoxDrops.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWorst)).EndInit();
@@ -568,5 +609,7 @@ namespace Torn.UI
 		private System.Windows.Forms.CheckBox dropGames;
 		private System.Windows.Forms.CheckBox scaleGames;
 		private System.Windows.Forms.Label labelReport;
+		private System.Windows.Forms.ComboBox descriptionGroup;
+		private System.Windows.Forms.CheckBox withDescription;
 	}
 }

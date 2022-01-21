@@ -14,7 +14,7 @@ namespace Torn.UI
 	/// </summary>
 	public partial class FormReports : Form
 	{
-		FormReport formReport = null;
+		readonly FormReport formReport = null;
 		public Holder Holder { get; set; }
 
 		public FormReports()
@@ -24,9 +24,6 @@ namespace Torn.UI
 			//
 			InitializeComponent();
 			
-			//
-			// TODO: Add constructor code after the InitializeComponent() call.
-			//
 			formReport = new FormReport();
 		}
 
@@ -37,6 +34,7 @@ namespace Torn.UI
 			{
 				formReport.From = Holder.League.AllGames.First().Time.Date;
 				formReport.To = Holder.League.AllGames.Last().Time.Date;
+				formReport.League = Holder.League;
 			}
 			RefreshListView();
 			
@@ -148,12 +146,12 @@ namespace Torn.UI
 			Holder.ReportTemplates.OutputFormat = (OutputFormat)((Control)sender).Tag;
 		}
 
-		private void buttonDefaults_Click(object sender, EventArgs e)
+		private void ButtonDefaultsClick(object sender, EventArgs e)
 		{
 			Holder.ReportTemplates.AddDefaults(Holder.League);
 			RefreshListView();
 		}
-		private void listViewReports_KeyDown(object sender, KeyEventArgs e)
+		private void ListViewReportsKeyDown(object sender, KeyEventArgs e)
 		{
 			switch (e.KeyData & Keys.KeyCode)
 			{
