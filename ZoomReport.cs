@@ -186,6 +186,8 @@ namespace Zoom
 						return "-\u221E";
 					else if (Number != null && double.IsInfinity((double)Number))
 						return "\u221E";
+					else if (Number != null && double.IsNaN((double)Number))
+						return "-";
 					else if (string.IsNullOrEmpty(NumberFormat))
 						return Number.ToString();
 					else if (Number != null)
@@ -562,7 +564,7 @@ namespace Zoom
 							max = Math.Max(max, points.Max(p => p.X.Ticks));
 							maxPoints = Math.Max(maxPoints, points.Count);
 						}
-						else if (cell.Number.HasValue && !double.IsNaN((double)cell.Number) && !double.IsInfinity((double)cell.Number))
+						else if (cell.Number.HasValue && !double.IsNaN((double)cell.Number) && !double.IsInfinity((double)cell.Number) && !double.IsNaN((double)cell.Number))
 						{
 							hasNumber = true;
 							min = Math.Min(min, Math.Abs((double)cell.Number));
