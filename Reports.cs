@@ -915,6 +915,7 @@ namespace Torn.Report
 			string bestScoreRatioText = "";
 			double bestTagRatio = 0;
 			string bestTagRatioText = "";
+			int atLeastN = rt.SettingInt("AtLeastN") ?? 1;
 
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
@@ -922,7 +923,7 @@ namespace Torn.Report
 				var player = pt.Key;
 				var games = Games(league, includeSecret, rt).Where(x => x.Players().Exists(y => y.PlayerId == player.Id));
 
-				if (games.Count() > 0)
+				if (games.Count() >= atLeastN)
 				{
 					ZRow row = new ZRow();
 					report.Rows.Add(row);
@@ -1025,6 +1026,11 @@ namespace Torn.Report
 				report.Description += string.Format("Best tag ratio was {0:P0} by {1}. ", bestTagRatio, bestTagRatioText);
 			if (bestScoreRatio > 0)
 				report.Description += string.Format("Best score ratio was {0:P0} by {1}. ", bestScoreRatio, bestScoreRatioText);
+
+			int? topN = rt.SettingInt("ShowTopN");
+			if (topN != null)
+				for (int i = report.Rows.Count - 1; i >= topN; i--)
+					report.Rows.RemoveAt(i);
 
 			if (rt.Settings.Contains("Longitudinal"))
 			{

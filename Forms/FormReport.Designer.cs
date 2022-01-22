@@ -181,6 +181,7 @@ namespace Torn.UI
 			// 
 			// numericUpDownTopN
 			// 
+			this.numericUpDownTopN.Enabled = false;
 			this.numericUpDownTopN.Increment = new decimal(new int[] {
             10,
             0,
@@ -203,6 +204,7 @@ namespace Torn.UI
 			// 
 			// numericUpDownAtLeastN
 			// 
+			this.numericUpDownAtLeastN.Enabled = false;
 			this.numericUpDownAtLeastN.Location = new System.Drawing.Point(457, 51);
 			this.numericUpDownAtLeastN.Name = "numericUpDownAtLeastN";
 			this.numericUpDownAtLeastN.Size = new System.Drawing.Size(50, 20);
