@@ -128,8 +128,8 @@ namespace Torn.Report
 		public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
-			bool ratio = rt.Setting("OrderBy").Contains("score ratio");
-			bool scaled = rt.Setting("OrderBy").StartsWith("scaled");
+			bool ratio = rt.Setting("OrderBy") == "score ratio";
+			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
 			bool showColours = rt.Settings.Contains("ShowColours");
 
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladder" : rt.Title, "Rank,Team", "center,left")
@@ -139,6 +139,8 @@ namespace Torn.Report
 
 			List<Game> games = Games(league, includeSecret, rt);
 			var ladder = Ladder(league, games, rt);
+
+			int atLeastN = rt.SettingInt("AtLeastN") ?? 1;
 
 			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct().OrderBy(c => c);
 			var colourTotals = new Dictionary<Colour, List<int>>();
@@ -252,7 +254,8 @@ namespace Torn.Report
 					foreach (ZCell cell in  row)
 						cell.ChartCell = barCell;
 
-				report.Rows.Add(row);
+				if (entry.ScoreList.Count + entry.Dropped >= atLeastN)
+					report.Rows.Add(row);
 			}  // foreach team in league.Teams
 
 			bool more = false;  // Are there teams with more than the mode number of games?
@@ -326,6 +329,11 @@ namespace Torn.Report
 				if (rt.Drops != null && rt.Drops.HasDrops())
 					row.Add(new ZCell(""));  // games dropped
 			}
+
+			int? topN = rt.SettingInt("ShowTopN");
+			if (topN != null)
+				for (int i = report.Rows.Count - 1; i >= topN; i--)
+					report.Rows.RemoveAt(i);
 
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
@@ -2518,7 +2526,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 
 		public static List<TeamLadderEntry> Ladder(League league, List<Game> games, ReportTemplate rt)
 		{
-			bool ratio = rt.Setting("OrderBy").Contains("score ratio");
+			bool ratio = rt.Setting("OrderBy") == "score ratio";
 			var ladder = new List<TeamLadderEntry>();
 
 			foreach (LeagueTeam team in league.Teams)  // Create a ladder entry for each League team.

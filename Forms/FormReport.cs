@@ -74,26 +74,16 @@ namespace Torn.UI
 				descriptionGroup.Text = ReportTemplate.Setting("Group");
 				withDescription.Checked = !string.IsNullOrEmpty(descriptionGroup.Text);
 
-				string s = ReportTemplate.Settings.Find(x => x.StartsWith("ChartType=", StringComparison.OrdinalIgnoreCase));
-				chartType.Text = string.IsNullOrEmpty(s) ? "bar" : s.Substring(s.IndexOf('=') + 1);
+				int? i = ReportTemplate.SettingInt("TopN");
+				numericUpDownTopN.Enabled = i != null;
+				numericUpDownTopN.Value = i ?? 0;
 
-				s = ReportTemplate.Settings.Find(x => x.StartsWith("TopN=", StringComparison.OrdinalIgnoreCase));
-				bool b = !string.IsNullOrEmpty(s);
-				showTopN.Checked = b;
-				numericUpDownTopN.Enabled = b;
-				numericUpDownTopN.Value = b ? int.Parse(s.Substring(s.IndexOf('=') + 1), CultureInfo.InvariantCulture) : 0;
+				i = ReportTemplate.SettingInt("AtLeastN");
+				numericUpDownAtLeastN.Enabled = i != null;
+				numericUpDownAtLeastN.Value = i ?? 0;
 
-				s = ReportTemplate.Settings.Find(x => x.StartsWith("AtLeastN=", StringComparison.OrdinalIgnoreCase));
-				b = !string.IsNullOrEmpty(s);
-				atLeastN.Checked = b;
-				numericUpDownAtLeastN.Enabled = b;
-				numericUpDownAtLeastN.Value = b ? int.Parse(s.Substring(s.IndexOf('=') + 1), CultureInfo.InvariantCulture) : 0;
-
-				s = ReportTemplate.Settings.Find(x => x.StartsWith("ChartType=", StringComparison.OrdinalIgnoreCase));
-				chartType.Text = string.IsNullOrEmpty(s) ? "bar" : s.Substring(s.IndexOf('=') + 1);
-
-				s = ReportTemplate.Settings.Find(x => x.StartsWith("OrderBy=", StringComparison.OrdinalIgnoreCase));
-				orderBy.Text = string.IsNullOrEmpty(s) ? "score" : s.Substring(s.IndexOf('=') + 1);
+				chartType.Text = ReportTemplate.Setting("ChartType") ?? "bar";
+				orderBy.Text = ReportTemplate.Setting("OrderBy") ?? "score";
 			}
 
 //			ListBoxReportTypeSelectedIndexChanged(null, null);
@@ -190,6 +180,7 @@ namespace Torn.UI
 				longitudinal.Checked = true;
 
 			labelTopWhat.Text = r == ReportType.SoloLadder ? "players" : "teams";
+			atLeastN.Text = r == ReportType.SoloLadder ? "show only players with at least" : "show only teams with at least";
 
 			if (!chartTypeChanged)
 				chartType.SelectedIndex =
