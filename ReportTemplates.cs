@@ -87,7 +87,7 @@ namespace Torn.Report
 		/// <summary>If a setting with this name exists, return its index in the collection.</summary>
 		public int FindSetting(string name)
 		{
-			return Settings.FindIndex(x => x.StartsWith("TopN", StringComparison.OrdinalIgnoreCase));
+			return Settings.FindIndex(x => x.StartsWith(name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		/// <summary>If a setting with this name exists, remove it. Return true if it was found and removed.</summary>
