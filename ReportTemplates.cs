@@ -66,10 +66,18 @@ namespace Torn.Report
 			}
 		}
 
+		/// <summary>If a setting with this name exists, return its value. Otherwise return "".</summary>
 		public string Setting(string name)
 		{
 			int index = Settings.FindIndex(s => s.StartsWith(name));
 			return index > -1 ? Settings[index].Substring(name.Length + 1) : "";
+		}
+
+		/// <summary>If a setting with this name exists, return its value. Otherwise return null.</summary>
+		public int? SettingInt(string name)
+		{
+			string text = Setting(name);
+			return int.TryParse(text, out int i) ? i : (int?)null;
 		}
 
 		public override string ToString()
