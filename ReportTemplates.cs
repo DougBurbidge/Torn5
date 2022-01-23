@@ -15,6 +15,10 @@ namespace Torn.Report
 	public enum ReportType { None = 0, TeamLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, Ascension, Pyramid, PyramidCondensed,
 		                     ColourPerformance, Packs, Tech, SanityCheck, Everything, PageBreak };
 
+	//ChartType[] barTypes = { Zoom.ChartType.None, Zoom.ChartType.Bar | Zoom.ChartType.Rug, Zoom.ChartType.Bar | Zoom.ChartType.Rug, Zoom.ChartType.Bar | Zoom.ChartType.Rug, 
+	// Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar,
+	// Zoom.ChartType.KernelDensityEstimate | Zoom.ChartType.Rug, Zoom.ChartType.Histogram, Zoom.ChartType.None, Zoom.ChartType.Bar, Zoom.ChartType.None };
+
 	/// <summary>Holds details for a single report template -- a team ladder, a solo ladder, etc.</summary>
 	public class ReportTemplate
 	{
@@ -66,20 +70,34 @@ namespace Torn.Report
 			}
 		}
 
-		/// <summary>If a setting with this name exists, return its value. Otherwise return "".</summary>
+		/// <summary>If a setting with this name exists, return its value. Otherwise return null.</summary>
 		public string Setting(string name)
 		{
-			int index = Settings.FindIndex(s => s.StartsWith(name));
-			return index > -1 ? Settings[index].Substring(name.Length + 1) : "";
+			int index = Settings.FindIndex(s => s.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+			return index > -1 ? Settings[index].Substring(name.Length + 1) : null;
 		}
 
 		/// <summary>If a setting with this name exists, return its value. Otherwise return null.</summary>
 		public int? SettingInt(string name)
 		{
 			string text = Setting(name);
-			return int.TryParse(text, out int i) ? i : (int?)null;
+			return int.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out int i) ? i : (int?)null;
 		}
 
+		/// <summary>If a setting with this name exists, return its index in the collection.</summary>
+		public int FindSetting(string name)
+		{
+			return Settings.FindIndex(x => x.StartsWith("TopN", StringComparison.OrdinalIgnoreCase));
+		}
+
+		/// <summary>If a setting with this name exists, remove it. Return true if it was found and removed.</summary>
+		public bool RemoveSetting(string name)
+		{
+			int i = FindSetting(name);
+			if (i != -1)
+				Settings.RemoveAt(i);
+			return i != -1;
+		}
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
@@ -134,20 +152,16 @@ namespace Torn.Report
 		{
 			if (ReportType != ReportType.TeamLadder)
 			{
-				Settings.Remove("ScaleGames");
-				Settings.Remove("ShowColours");
+				RemoveSetting("ScaleGames");
+				RemoveSetting("ShowColours");
 			}
 			if (ReportType != ReportType.TeamsVsTeams)
-				Settings.Remove("ShowPoints");
+				RemoveSetting("ShowPoints");
 			if (ReportType != ReportType.TeamLadder && ReportType != ReportType.SoloLadder)
 			{
-				Settings.Remove("ShowComments");
-				int i = Settings.FindIndex(x => x.StartsWith("TopN", StringComparison.OrdinalIgnoreCase));
-				if (i != -1)
-					Settings.RemoveAt(i);
-				i = Settings.FindIndex(x => x.StartsWith("AtLeastN", StringComparison.OrdinalIgnoreCase));
-				if (i != -1)
-					Settings.RemoveAt(i);
+				RemoveSetting("ShowComments");
+				RemoveSetting("TopN");
+				RemoveSetting("AtLeastN");
 			}
 			if (ReportType != ReportType.TeamLadder && ReportType != ReportType.SoloLadder && ReportType != ReportType.GameGrid)
 				Drops = null;
@@ -262,7 +276,7 @@ namespace Torn.Report
 
 		DateTime? ParseDateSetting(string name)
 		{
-			int index = Settings.FindIndex(s => s.StartsWith(name));
+			int index = FindSetting(name);
 			if (index > 0)
 			{
 				DateTime.TryParse(Settings[index].Substring(name.Length), out DateTime dt);
