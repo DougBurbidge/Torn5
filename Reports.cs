@@ -120,11 +120,9 @@ namespace Torn.Report
 		}
 	}
 
-	/// <summary>Ladders, game-by-game, etc.</summary>
-	public class Reports
+	/// <summary>Ladders, game-by-game, etc. Functions in this class mostly build and return a ZoomReport.</summary>
+	public static class Reports
 	{
-		private Reports() {}
-
 		public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
@@ -1053,7 +1051,7 @@ namespace Torn.Report
 			return report;
 		}  // SoloLadder
 
-		public static void FillDetails(ZRow row, GamePlayer gamePlayer, Color color, double averageScore)
+		static void FillDetails(ZRow row, GamePlayer gamePlayer, Color color, double averageScore)
 		{
 			row.Add(new ZCell(gamePlayer.Score, ChartType.Bar, "N0", color));
 			row.Add(BlankZero(gamePlayer.HitsBy, ChartType.Bar, color));
@@ -1085,7 +1083,7 @@ namespace Torn.Report
 			row.Add(BlankZero(gamePlayer.RedCards, ChartType.Bar, color));
 		}
 
-		public static void FillAverages(ZoomReport report, ZRow averageRow)
+		static void FillAverages(ZoomReport report, ZRow averageRow)
 		{
 			for (int col = averageRow.Count; col < report.Columns.Count; col++)
 			{
@@ -2470,12 +2468,12 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 		}
 
 		/// <summary>Callback passed to various reports to generate HTML fragment with URL of a game.</summary>
-		public static string GameHyper(Game game)
+		static string GameHyper(Game game)
 		{
 			return "games" + game.Time.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + ".html#game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture);
 		}
 
-		public static string TeamHyper(LeagueTeam leagueTeam)
+		static string TeamHyper(LeagueTeam leagueTeam)
 		{
 			if (leagueTeam == null)
 				return "team_not_found.html";
