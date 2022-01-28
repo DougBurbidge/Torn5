@@ -478,27 +478,27 @@ namespace Torn.UI
 			// 
 			this.buttonCreateGame.Enabled = false;
 			this.buttonCreateGame.Name = "buttonCreateGame";
-			this.buttonCreateGame.Size = new System.Drawing.Size(153, 22);
+			this.buttonCreateGame.Size = new System.Drawing.Size(180, 22);
 			this.buttonCreateGame.Text = "Create";
 			// 
 			// buttonEditGame
 			// 
 			this.buttonEditGame.Enabled = false;
 			this.buttonEditGame.Name = "buttonEditGame";
-			this.buttonEditGame.Size = new System.Drawing.Size(153, 22);
+			this.buttonEditGame.Size = new System.Drawing.Size(180, 22);
 			this.buttonEditGame.Text = "Edit";
 			// 
 			// buttonSetDescription
 			// 
 			this.buttonSetDescription.Name = "buttonSetDescription";
-			this.buttonSetDescription.Size = new System.Drawing.Size(153, 22);
+			this.buttonSetDescription.Size = new System.Drawing.Size(180, 22);
 			this.buttonSetDescription.Text = "Set &Description";
 			this.buttonSetDescription.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
 			// 
 			// buttonForget
 			// 
 			this.buttonForget.Name = "buttonForget";
-			this.buttonForget.Size = new System.Drawing.Size(153, 22);
+			this.buttonForget.Size = new System.Drawing.Size(180, 22);
 			this.buttonForget.Text = "Forget";
 			this.buttonForget.Click += new System.EventHandler(this.ButtonForgetClick);
 			// 
@@ -627,7 +627,8 @@ namespace Torn.UI
 			// buttonAdHocReport
 			// 
 			this.buttonAdHocReport.Name = "buttonAdHocReport";
-			this.buttonAdHocReport.Size = new System.Drawing.Size(180, 22);
+			this.buttonAdHocReport.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
+			this.buttonAdHocReport.Size = new System.Drawing.Size(202, 22);
 			this.buttonAdHocReport.Text = "Ad Hoc Report...";
 			this.buttonAdHocReport.Click += new System.EventHandler(this.ButtonAdHocReportClick);
 			// 
@@ -635,13 +636,13 @@ namespace Torn.UI
 			// 
 			this.buttonUpdateScoreboard.Enabled = false;
 			this.buttonUpdateScoreboard.Name = "buttonUpdateScoreboard";
-			this.buttonUpdateScoreboard.Size = new System.Drawing.Size(180, 22);
+			this.buttonUpdateScoreboard.Size = new System.Drawing.Size(202, 22);
 			this.buttonUpdateScoreboard.Text = "Update Scoreboard";
 			// 
 			// buttonExportFixtures
 			// 
 			this.buttonExportFixtures.Name = "buttonExportFixtures";
-			this.buttonExportFixtures.Size = new System.Drawing.Size(180, 22);
+			this.buttonExportFixtures.Size = new System.Drawing.Size(202, 22);
 			this.buttonExportFixtures.Text = "Export Fixtures";
 			this.buttonExportFixtures.Click += new System.EventHandler(this.ButtonExportFixturesClick);
 			// 

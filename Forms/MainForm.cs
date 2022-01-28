@@ -487,13 +487,18 @@ namespace Torn.UI
 				if (new FormReport
 				{
 					ReportTemplate = adhocReportTemplate,
-					League = SelectedLeagues().FirstOrDefault()?.League
-				}.ShowDialog() == DialogResult.OK)
+					League = SelectedLeagues().FirstOrDefault()?.League,
+					Icon = (Icon)this.Icon.Clone()
+			}.ShowDialog() == DialogResult.OK)
 				{
 					Cursor.Current = Cursors.WaitCursor;
 					try
 					{
-						new FormAdhoc { Report = ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate) }.Show();
+						new FormAdhoc 
+						{
+							Report = ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate),
+							Icon = (Icon)this.Icon.Clone()
+						}.Show();
 					}
 					finally
 					{
