@@ -2086,7 +2086,7 @@ namespace Torn.Report
 				{
 					new ZCell(pack),
 					new ZCell(gamesThisPack.First().Players().Find(p => p is ServerPlayer sp && sp.ServerPlayerId == pack).Pack),
-					new ZCell(gameCount),
+					new ZCell(gameCount, ChartType.None),
 					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 15 || e.Event_Type == 22)).ToList(), null, chartType, "N1"),
 					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 20 || e.Event_Type == 27)).ToList(), null, chartType, "N1"),
 					DataCell(gamesThisPack.Select(g => (double)g.ServerGame.Events.Count(e => e.ServerPlayerId == pack && e.Event_Type == 16 || e.Event_Type == 23)).ToList(), null, chartType, "N1"),
@@ -2105,28 +2105,28 @@ namespace Torn.Report
 			}
 
 			// Do it all again for a summary row.
-			var serverGames = games.Select(g => g.ServerGame);
-			int gameTotal = serverGames.Count(g => g.Events.Any());
+			int gameTotal = games.Select(g => g.ServerGame).Count(g => g.Events.Any());
 			if (gameTotal > 0)
 			{
-				var events = serverGames.SelectMany(g => g.Events.Select(e => e.Event_Type));
-
 				var row = new ZRow
 				{
 					new ZCell(""),
 					new ZCell("Total"),
-					new ZCell(gameTotal),
-					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 15 || e.Event_Type == 22) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
-					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 20 || e.Event_Type == 27) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
-					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 16 || e.Event_Type == 23) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
-					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 17 || e.Event_Type == 24) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
-					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type == 14 || e.Event_Type == 21) * 1.0 / g.Players.Count), ChartType.Histogram, "N1"),
-					new ZCell(1.0 * serverGames.Average(g => g.Events.Count(e => e.Event_Type >= 14 && e.Event_Type <= 27) * 1.0 / g.Players.Count), ChartType.Histogram, "N1")
+					new ZCell(gameTotal, ChartType.None),
+					new ZCell(0, ChartType.Histogram, "N1"),
+					new ZCell(0, ChartType.Histogram, "N1"),
+					new ZCell(0, ChartType.Histogram, "N1"),
+					new ZCell(0, ChartType.Histogram, "N1"),
+					new ZCell(0, ChartType.Histogram, "N1"),
+					new ZCell(0, ChartType.Histogram, "N1")
 				};
 
-				for (int i = 2; i < report.Columns.Count; i++)
+				for (int i = 3; i < report.Columns.Count; i++)
+				{
 					foreach (var packRow in report.Rows)
 						row[i].Data.Add((double)packRow[i].Number);
+					row[i].Number = row[i].Data.Average();
+				}
 
 				report.Rows.Add(row);
 
