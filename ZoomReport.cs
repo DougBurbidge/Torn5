@@ -586,6 +586,9 @@ namespace Zoom
 				if (hasNumber)
 				{
 					string stringMax = string.IsNullOrEmpty(numberFormat) ? max.ToString() : max.ToString(numberFormat);
+					if (double.IsInfinity(max) && !string.IsNullOrEmpty(numberFormat) && numberFormat.Length > 1 && numberFormat[0] == 'P' && stringMax.Length < 4)
+						stringMax = 9.99.ToString(numberFormat);
+
 					widths.Add(graphics.MeasureString(stringMax, font, 1000).Width * 1.01f);
 				}
 				else
@@ -1035,17 +1038,6 @@ namespace Zoom
 				// Draw upper edge curves.
 				s.AppendFormat("c {0:F1},0 {0:F1},{1:F1} {0:F1},{2:F1} ", -width / 2 + halfArrow + adjust, -mid, -mid - adjust * 2);
 				s.AppendFormat("s 0,{1:F1} {0:F1},{1:F1} ", -width / 2 + halfArrow - adjust, -mid + adjust * 2);
-
-				/*
-					<path d="M 270.4,215.8 
-					v 4.3
-					c 8,0 9,-19 9,-25
-					s 0,-21 4,-21
-					v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2
-					c -8,0 -8,19 -8,25
-					s 0,21 -5,21
-					Z" fill="Red" />
-				*/
 			}
 			else
 			{
