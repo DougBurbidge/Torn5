@@ -1084,9 +1084,9 @@ namespace Torn.Report
 					}
 						);
 				}
-
-				report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 			}
+
+			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 
 			report.RemoveColumn(idCol);
 			return report;
