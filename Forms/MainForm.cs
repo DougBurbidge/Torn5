@@ -496,7 +496,7 @@ namespace Torn.UI
 					{
 						new FormAdhoc 
 						{
-							Report = ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate),
+							Report = (ZoomReport)ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate),
 							Icon = (Icon)this.Icon.Clone()
 						}.Show();
 					}

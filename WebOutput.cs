@@ -87,7 +87,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Generate one report. The type of report generated is specified in the ReportTemplate.</summary>
-		public static ZoomReport Report(League league, bool includeSecret, ReportTemplate rt)
+		public static ZoomReportBase Report(League league, bool includeSecret, ReportTemplate rt)
 		{
 			bool description = rt.Settings.Contains("Description");
 			switch (rt.ReportType)
@@ -114,12 +114,13 @@ namespace Torn.Report
 				case ReportType.SanityCheck:
 					return Reports.SanityReport(new List<League> { league }, rt.Title, rt.From, rt.To, description);
 				case ReportType.Everything: return Reports.EverythingReport(league, rt.Title, rt.From, rt.To, description);
+				case ReportType.PageBreak: return new ZoomSeparator();
 				default: return null;
 			}
 		}
 
 		/// <summary>Generate one report. The type of report generated is specified in the ReportTemplate.</summary>
-		public static ZoomReport Report(List<League> leagues, bool includeSecret, ReportTemplate rt)
+		public static ZoomReportBase Report(List<League> leagues, bool includeSecret, ReportTemplate rt)
 		{
 			bool description = rt.Settings.Contains("Description");
 			switch (rt.ReportType)

@@ -61,7 +61,7 @@ namespace Torn.UI
 			{
 				ListViewItem item = new ListViewItem(reportTemplate.ReportType.ToString());
 				item.SubItems.Add(reportTemplate.Title);
-				item.SubItems.Add(reportTemplate.ToString());
+				item.SubItems.Add(reportTemplate.ReportType == ReportType.PageBreak ? "----" : reportTemplate.ToString());
 				item.Tag = reportTemplate;
 				listViewReports.Items.Add(item);
 			}
@@ -84,6 +84,12 @@ namespace Torn.UI
 				Holder.ReportTemplates.Add(formReport.ReportTemplate);
 				RefreshListView();
 			}
+		}
+
+		private void ButtonPageBreakClick(object sender, EventArgs e)
+		{
+			Holder.ReportTemplates.Add(new ReportTemplate(ReportType.PageBreak, null));
+			RefreshListView();
 		}
 
 		void FormReportsShown(object sender, EventArgs e)

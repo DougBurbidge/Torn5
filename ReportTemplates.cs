@@ -37,8 +37,9 @@ namespace Torn.Report
 		public ReportTemplate(ReportType reportType, string[] settings): this()
 		{
 			ReportType = reportType;
-			for (int i = 1; i < settings.Length; i++)
-				Settings.Add(settings[i].Trim());
+			if (settings != null)
+				for (int i = 1; i < settings.Length; i++)
+					Settings.Add(settings[i].Trim());
 
 			From = ParseDateSetting("from ");
 			To = ParseDateSetting("to ");

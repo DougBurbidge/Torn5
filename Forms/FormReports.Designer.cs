@@ -46,6 +46,7 @@ namespace Torn.UI
 			this.radioTables = new System.Windows.Forms.RadioButton();
 			this.radioSvg = new System.Windows.Forms.RadioButton();
 			this.buttonDefaults = new System.Windows.Forms.Button();
+			this.buttonPageBreak = new System.Windows.Forms.Button();
 			this.groupBoxOutputFormat.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -62,8 +63,8 @@ namespace Torn.UI
 			this.listViewReports.HideSelection = false;
 			this.listViewReports.Location = new System.Drawing.Point(12, 41);
 			this.listViewReports.Name = "listViewReports";
-			this.listViewReports.Size = new System.Drawing.Size(608, 312);
-			this.listViewReports.TabIndex = 5;
+			this.listViewReports.Size = new System.Drawing.Size(610, 311);
+			this.listViewReports.TabIndex = 7;
 			this.listViewReports.UseCompatibleStateImageBehavior = false;
 			this.listViewReports.View = System.Windows.Forms.View.Details;
 			this.listViewReports.DoubleClick += new System.EventHandler(this.ButtonEditClick);
@@ -95,44 +96,40 @@ namespace Torn.UI
 			// 
 			// buttonDelete
 			// 
-			this.buttonDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonDelete.Location = new System.Drawing.Point(174, 12);
+			this.buttonDelete.Location = new System.Drawing.Point(276, 12);
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.Size = new System.Drawing.Size(75, 23);
-			this.buttonDelete.TabIndex = 2;
+			this.buttonDelete.TabIndex = 3;
 			this.buttonDelete.Text = "&Delete";
 			this.buttonDelete.UseVisualStyleBackColor = true;
 			this.buttonDelete.Click += new System.EventHandler(this.ButtonDeleteClick);
 			// 
 			// buttonUp
 			// 
-			this.buttonUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonUp.Location = new System.Drawing.Point(255, 12);
+			this.buttonUp.Location = new System.Drawing.Point(357, 12);
 			this.buttonUp.Name = "buttonUp";
 			this.buttonUp.Size = new System.Drawing.Size(75, 23);
-			this.buttonUp.TabIndex = 3;
+			this.buttonUp.TabIndex = 4;
 			this.buttonUp.Text = "Move Up";
 			this.buttonUp.UseVisualStyleBackColor = true;
 			this.buttonUp.Click += new System.EventHandler(this.ButtonUpClick);
 			// 
 			// buttonDown
 			// 
-			this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonDown.Location = new System.Drawing.Point(336, 12);
+			this.buttonDown.Location = new System.Drawing.Point(438, 12);
 			this.buttonDown.Name = "buttonDown";
 			this.buttonDown.Size = new System.Drawing.Size(75, 23);
-			this.buttonDown.TabIndex = 4;
+			this.buttonDown.TabIndex = 5;
 			this.buttonDown.Text = "Move Down";
 			this.buttonDown.UseVisualStyleBackColor = true;
 			this.buttonDown.Click += new System.EventHandler(this.ButtonDownClick);
 			// 
 			// buttonEdit
 			// 
-			this.buttonEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.buttonEdit.Location = new System.Drawing.Point(93, 12);
+			this.buttonEdit.Location = new System.Drawing.Point(195, 12);
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.Size = new System.Drawing.Size(75, 23);
-			this.buttonEdit.TabIndex = 1;
+			this.buttonEdit.TabIndex = 2;
 			this.buttonEdit.Text = "&Edit";
 			this.buttonEdit.UseVisualStyleBackColor = true;
 			this.buttonEdit.Click += new System.EventHandler(this.ButtonEditClick);
@@ -147,10 +144,10 @@ namespace Torn.UI
 			this.groupBoxOutputFormat.Controls.Add(this.radioTsv);
 			this.groupBoxOutputFormat.Controls.Add(this.radioTables);
 			this.groupBoxOutputFormat.Controls.Add(this.radioSvg);
-			this.groupBoxOutputFormat.Location = new System.Drawing.Point(12, 359);
+			this.groupBoxOutputFormat.Location = new System.Drawing.Point(12, 358);
 			this.groupBoxOutputFormat.Name = "groupBoxOutputFormat";
-			this.groupBoxOutputFormat.Size = new System.Drawing.Size(608, 71);
-			this.groupBoxOutputFormat.TabIndex = 6;
+			this.groupBoxOutputFormat.Size = new System.Drawing.Size(610, 71);
+			this.groupBoxOutputFormat.TabIndex = 8;
 			this.groupBoxOutputFormat.TabStop = false;
 			this.groupBoxOutputFormat.Text = "Output format";
 			// 
@@ -220,19 +217,31 @@ namespace Torn.UI
 			// 
 			// buttonDefaults
 			// 
-			this.buttonDefaults.Location = new System.Drawing.Point(514, 12);
+			this.buttonDefaults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonDefaults.Location = new System.Drawing.Point(519, 12);
 			this.buttonDefaults.Name = "buttonDefaults";
 			this.buttonDefaults.Size = new System.Drawing.Size(104, 23);
-			this.buttonDefaults.TabIndex = 7;
+			this.buttonDefaults.TabIndex = 6;
 			this.buttonDefaults.Text = "Add default reports";
 			this.buttonDefaults.UseVisualStyleBackColor = true;
 			this.buttonDefaults.Click += new System.EventHandler(this.ButtonDefaultsClick);
+			// 
+			// buttonPageBreak
+			// 
+			this.buttonPageBreak.Location = new System.Drawing.Point(93, 12);
+			this.buttonPageBreak.Name = "buttonPageBreak";
+			this.buttonPageBreak.Size = new System.Drawing.Size(96, 23);
+			this.buttonPageBreak.TabIndex = 1;
+			this.buttonPageBreak.Text = "Add Page Break";
+			this.buttonPageBreak.UseVisualStyleBackColor = true;
+			this.buttonPageBreak.Click += new System.EventHandler(this.ButtonPageBreakClick);
 			// 
 			// FormReports
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(632, 442);
+			this.ClientSize = new System.Drawing.Size(634, 441);
+			this.Controls.Add(this.buttonPageBreak);
 			this.Controls.Add(this.buttonDefaults);
 			this.Controls.Add(this.groupBoxOutputFormat);
 			this.Controls.Add(this.buttonEdit);
@@ -241,6 +250,7 @@ namespace Torn.UI
 			this.Controls.Add(this.buttonDelete);
 			this.Controls.Add(this.buttonAdd);
 			this.Controls.Add(this.listViewReports);
+			this.MinimumSize = new System.Drawing.Size(650, 250);
 			this.Name = "FormReports";
 			this.Text = "Reports";
 			this.Shown += new System.EventHandler(this.FormReportsShown);
@@ -265,5 +275,6 @@ namespace Torn.UI
 		private System.Windows.Forms.Button buttonAdd;
 		private System.Windows.Forms.ListView listViewReports;
 		private System.Windows.Forms.Button buttonDefaults;
+		private System.Windows.Forms.Button buttonPageBreak;
 	}
 }
