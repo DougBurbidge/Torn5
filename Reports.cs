@@ -66,8 +66,6 @@ namespace Torn.Report
 		}
 	}
 
-	public delegate string GameHyper (Game game);
-
 	/// <summary>Used to hold data for one team while calculating and sorting a team ladder.</summary>
 	public class TeamLadderEntry : IComparable<TeamLadderEntry>
 	{
@@ -296,7 +294,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Fixtures. Each row is a game. CSS stuff is consumed by Javascript added in WebOutput.cs' ReportPages.FixturePage.</summary>
-		public static ZoomReport FixtureList(Fixture fixture, League league, GameHyper gameHyper)
+		public static ZoomReport FixtureList(Fixture fixture, League league)
 		{
 			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Time", "left")
 			{
@@ -325,7 +323,7 @@ namespace Torn.Report
 					CssClass = "time"
 				};
 				if (match.ContainsKey(fg))
-					timeCell.Hyper = gameHyper(match[fg]);
+					timeCell.Hyper = GameHyper(match[fg]);
 				row.Add(timeCell);
 
 				foreach (var kv in fg.Teams.OrderBy(t => t.Value).ThenBy(t => t.Key.Name))
@@ -346,7 +344,7 @@ namespace Torn.Report
 		}
 
 		/// <summary> Build a grid of games. One team per row; one game per column.
-		public static ZoomReport GamesGrid(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
+		public static ZoomReport GamesGrid(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
@@ -364,7 +362,7 @@ namespace Torn.Report
 					ZAlignment.Integer)
 				{
 					GroupHeading = game.Title,
-					Hyper = gameHyper(game)
+					Hyper = GameHyper(game)
 				};
 				report.AddColumn(column);
 
@@ -443,7 +441,7 @@ namespace Torn.Report
 		}
 
 		/// <summary> Build a list of games. One team per row.</summary>
-		public static ZoomReport GamesGridCondensed(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
+		public static ZoomReport GamesGridCondensed(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
@@ -517,7 +515,7 @@ namespace Torn.Report
 						{
 							row.Add(new ZCell(game.Time.ToShortTimeString())
 							{
-								Hyper = gameHyper(game)
+								Hyper = GameHyper(game)
 							}
 							);
 							row.Add(new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor()));
@@ -570,7 +568,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Build a list of games. One game per row.</summary>
-		public static ZoomReport GamesList(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
+		public static ZoomReport GamesList(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ZoomReport report = new ZoomReport("", "Game", "right");
 
@@ -597,7 +595,7 @@ namespace Torn.Report
 
 				ZCell dateCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
 				{
-					Hyper = gameHyper(game)
+					Hyper = GameHyper(game)
 				};
 				row.Add(dateCell);
 
@@ -685,7 +683,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Show hyperlinks to games. One row per day; one game per cell.</summary>
-		public static ZoomReport GamesToc(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
+		public static ZoomReport GamesToc(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ZoomReport report = new ZoomReport("Table of Contents");
 			report.Columns.Add(new ZColumn("", ZAlignment.Right));
@@ -740,7 +738,7 @@ namespace Torn.Report
 
 						row.Add(new ZCell((group[game].Time.ToShortTimeString()).Trim())
 						{
-							Hyper = gameHyper(group[game])
+							Hyper = GameHyper(group[game])
 						}
 						);
 
@@ -757,6 +755,110 @@ namespace Torn.Report
 				report.Description = "This is a list of games. Each cell in the table is one game. Click the cell for details.";
 
 			FinishReport(report, games, rt);
+			return report;
+		}
+
+		/// <summary>List each team and their rank, several times over: once for each titled group of games.</summary>
+		public static ZoomReport MultiLadder(League league, bool includeSecret, ReportTemplate rt)
+		{
+			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
+			bool ratio = rt.Setting("OrderBy") == "score ratio";
+			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
+			bool showColours = rt.Settings.Contains("ShowColours");
+
+			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladders" : rt.Title, "Rank", "center")
+			{
+				MaxChartByColumn = true
+			};
+
+			var games = Games(league, includeSecret, rt);
+			var groups = games.Select(g => g.Title).Distinct().ToList();
+			var groupGames = new List<Game>();
+
+			int columnsPerGroup = league.IsPoints() ? 5 : 4;
+
+			foreach (var team in league.Teams)
+			{
+				report.Rows.Add(new ZRow());
+				report.Rows.Last().Add(new ZCell(report.Rows.Count));  // Rank
+			}
+
+			for (int group = 0; group < groups.Count(); group++)
+			{
+				var thisGroupGames = games.Where(g => g.Title == groups[group]).ToList();
+				groupGames.AddRange(thisGroupGames);
+
+				report.AddColumn(new ZColumn("Team", ZAlignment.Left, groups[group]));
+
+				if (league.IsPoints())
+					report.AddColumn(new ZColumn("Points", ZAlignment.Float, groups[group]));
+
+				report.AddColumn(new ZColumn(ratio ? "Score Ratio" : "Average score", ZAlignment.Float, groups[group]));
+				report.AddColumn(new ZColumn("Games", ZAlignment.Integer, groups[group]));
+				report.AddColumn(new ZColumn());  // This column is for arrows.
+
+				var ladder = Ladder(league, groupGames, rt);
+				for (int t = 0; t < ladder.Count; t++)
+				{
+					var entry = ladder[t];
+					var team = entry.Team;
+
+					var row = report.Rows[t];
+
+					var gamesPlayedThisGroup = league.Played(thisGroupGames, team).Count;
+					if (gamesPlayedThisGroup == 0)
+					{
+						row.Add(new ZCell());  // Team
+						row.Add(new ZCell());  // Points
+						row.Add(new ZCell());  // Score
+						row.Add(new ZCell());  // Games
+						row.Add(new ZCell());  // Arrow
+					}
+					else
+					{
+						row.Add(TeamCell(team));  // Team
+						var teamHyper = row.Last().Hyper;
+
+						if (league.IsPoints())
+							row.Add(new ZCell(ladder[t].Points));  // Points
+
+						ZCell scoreCell;
+						if (entry.ScoreList.Count == 0)
+							scoreCell = new ZCell("-");
+						else
+						{
+							scoreCell = new ZCell(null, chartType)
+							{
+								Number = entry.ScoreList.Average(),
+								NumberFormat = ratio ? "P1" : "N0"
+							};
+
+							if (ratio)
+								scoreCell.Data.AddRange(entry.ScoreList.Select(x => x / entry.ScoreList.Average()));  // average game score ratio
+							else
+								scoreCell.Data.AddRange(entry.ScoreList);  // average game score
+						}
+						row.Add(scoreCell);  // Score
+						row.Add(new ZCell(gamesPlayedThisGroup));  // Games
+						row.Add(new ZCell());  // Arrow
+						if (group > 0)
+						{
+							var lastRow = report.Rows.FindIndex(r => r[(group - 1) * columnsPerGroup + 1].Hyper == teamHyper);
+							if (lastRow > -1)
+							{
+								var arrow = new Arrow();
+								arrow.From.Add(new ZArrowEnd(lastRow, 5));
+								arrow.To.Add(new ZArrowEnd(t, 5));
+								arrow.Color = Utility.StringToColor(team.Name);
+								report.Columns[group * columnsPerGroup].Arrows.Add(arrow);
+							}
+						}
+					}
+				}
+			}
+
+			report.RemoveColumn(report.Columns.Count - 1);
+
 			return report;
 		}
 
@@ -991,7 +1093,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Detailed report of a single player. One row for each game they played.</summary>
-		public static ZoomReport OnePlayer(League league, LeaguePlayer player, List<LeagueTeam> teams, GameHyper gameHyper)
+		public static ZoomReport OnePlayer(League league, LeaguePlayer player, List<LeagueTeam> teams)
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(player.Name) ? "Player " + player.Id : player.Name,
 											   "Time,Rank,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red",
@@ -1023,7 +1125,7 @@ namespace Torn.Report
 				{
 					var gameCell = new ZCell((game.Title + " " + game.Time.ShortDateTime()).Trim(), color)
 					{
-						Hyper = gameHyper(game)
+						Hyper = GameHyper(game)
 					};  // Game time
 					row.Add(gameCell);
 				}
@@ -1079,7 +1181,7 @@ namespace Torn.Report
 		}
 
 		/// <summary> List a team and its players' performance in each game.  One player per column; one game per row.</summary>
-		public static ZoomReport OneTeam(League league, bool includeSecret, LeagueTeam team, DateTime from, DateTime to, bool description, GameHyper gameHyper)
+		public static ZoomReport OneTeam(League league, bool includeSecret, LeagueTeam team, DateTime from, DateTime to, bool description)
 		{
 			ZoomReport report = new ZoomReport(team.Name);
 
@@ -1164,7 +1266,7 @@ namespace Torn.Report
 					report.Rows.Add(gameRow);
 					var timeCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
 					{
-						Hyper = gameHyper(game)
+						Hyper = GameHyper(game)
 					};
 					gameRow.Add(timeCell);
 
@@ -1982,7 +2084,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Build a square table showing how many times each team has played (and beaten) each other team.</summary>
-		public static ZoomReport TeamsVsTeams(League league, bool includeSecret, ReportTemplate rt, GameHyper gameHyper)
+		public static ZoomReport TeamsVsTeams(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Teams vs Teams" : rt.Title, "Team", "left");
 			
@@ -2036,7 +2138,7 @@ namespace Torn.Report
 						};
 
 						if (cellGames.Count == 1)
-							cell.Hyper = gameHyper(cellGames[0]);
+							cell.Hyper = GameHyper(cellGames[0]);
 					}
 					row.Add(cell);
 				}
