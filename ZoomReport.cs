@@ -1003,113 +1003,146 @@ namespace Zoom
 				bottomType = arrow.From.Last().Row == arrow.To.Last().Row ? TopBottomType.Both : arrow.From.Last().Row > arrow.To.Last().Row ? TopBottomType.Left : TopBottomType.Right;
 			}
 
+			s.Append('\t', indent);
+
 			//var arrowWidthH = arrow.MaxWidth();  // In unscaled units.
 			var halfScaleWidth = arrow.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled arrow width into half a scaled arrow width. 
 			var halfArrowH = arrow.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the arrow, in output SVG units.
 
-			if (topType == TopBottomType.Right)
+			if (arrow.From.Count == 1 && arrow.To.Count == 1 && !(arrow.From[0].Row == arrow.To[0].Row && arrow.From[0].Width == arrow.To[0].Width))
 			{
-				// Start in the horizontal middle, draw the top left corner arc. 
-				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 + halfArrowH, RowMid(top, arrow.To.First().Row, rowHeight) - arrow.To.First().Width * halfScaleWidth);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{0:F1} ", halfArrowH * 2, -halfArrowH * 2);
-				if (!arrow.From.Any())
-					s.AppendFormat("V {2:F1}\n", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth);
+				var leftEnd = arrow.From[0];
+				var rightEnd = arrow.To[0];
+				var halfArrow = leftEnd.Width * halfScaleWidth;
+
+				// Start at bottom of left end.
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left, RowMid(top, leftEnd.Row, rowHeight) + leftEnd.Width * halfScaleWidth);
+				// Draw left-side "From" end.
+				//s.AppendFormat("v {0:F1} ", halfArrow * 2);
+
+				// Draw lower edge curves.
+				var mid = (rightEnd.Row - leftEnd.Row) * rowHeight / 2;  // mid is -ve if the arrow is going up.
+				var adjust = Math.Sign(mid) * halfArrow;
+				s.AppendFormat("c {0:F1},0 {0:F1},{1:F1} {0:F1},{2:F1} ", width / 2 - halfArrow - adjust, mid, mid + adjust * 2);
+				s.AppendFormat("s 0,{1:F1} {0:F1},{1:F1} ", width / 2 - halfArrow + adjust, mid - adjust * 2);
+
+				// Paint a right end arrowhead, starting at its bottom left: down, up/right, up/left, down.
+				s.AppendFormat("v {0:F1} ", halfArrow);
+				s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
+				s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
+				s.AppendFormat("v {0:F1} ", halfArrow);
+
+				// Draw upper edge curves.
+				s.AppendFormat("c {0:F1},0 {0:F1},{1:F1} {0:F1},{2:F1} ", -width / 2 + halfArrow + adjust, -mid, -mid - adjust * 2);
+				s.AppendFormat("s 0,{1:F1} {0:F1},{1:F1} ", -width / 2 + halfArrow - adjust, -mid + adjust * 2);
+
+				/*
+					<path d="M 270.4,215.8 
+					v 4.3
+					c 8,0 9,-19 9,-25
+					s 0,-21 4,-21
+					v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2
+					c -8,0 -8,19 -8,25
+					s 0,21 -5,21
+					Z" fill="Red" />
+				*/
 			}
-			else  // Move cursor to top right end of first arrow.
-				s.AppendFormat("<path d=\"M {0:F1},{1:F1}\n", left + width / 2 - halfArrowH, RowMid(top, topRow, rowHeight) - arrow.From.First().Width * halfScaleWidth);
-
-			// Draw left-side "From" ends.
-			for (int i = 0; i < arrow.From.Count; i++)
+			else
 			{
-				var end = arrow.From[i];
-				var halfArrow = end.Width * halfScaleWidth;
-
-				s.Append('\t', indent + 1);
-				if (end.Row != topRow)
+				if (topType == TopBottomType.Right)
 				{
-					s.AppendFormat("V {0:F1} ", RowMid(top, end.Row, rowHeight) - halfArrow * 2);
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{0:F1} ", halfArrow, -halfArrow);
+					// Start in the horizontal middle, draw the top left corner arc. 
+					s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 + halfArrowH, RowMid(top, arrow.To.First().Row, rowHeight) - arrow.To.First().Width * halfScaleWidth);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{0:F1} ", halfArrowH * 2, -halfArrowH * 2);
+					if (!arrow.From.Any())
+						s.AppendFormat("V {2:F1}\n", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth);
 				}
-				// Paint a left end: horizontal left, diagonal in / diagonal out, horizontal right.
-				s.AppendFormat("H {0:F1} ", left);
-				s.AppendFormat("l {0:F1},{0:F1} ", halfArrow);
-				s.AppendFormat("l {0:F1},{1:F1} ", -halfArrow, halfArrow);
-				if (end.Row != bottomRow)
+				else  // Move cursor to top right end of first arrow.
+					s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 - halfArrowH, RowMid(top, topRow, rowHeight) - arrow.From.First().Width * halfScaleWidth);
+
+				// Draw left-side "From" ends.
+				for (int i = 0; i < arrow.From.Count; i++)
 				{
-					s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH - halfArrow);
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{0:F1} ", halfArrow);
+					var end = arrow.From[i];
+					var halfArrow = end.Width * halfScaleWidth;
+
+					if (end.Row != topRow)
+					{
+						s.AppendFormat("V {0:F1} ", RowMid(top, end.Row, rowHeight) - halfArrow * 2);
+						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{0:F1} ", halfArrow, -halfArrow);
+					}
+					// Paint a left end: left, down, right.
+					s.AppendFormat("H {0:F1} ", left);
+					s.AppendFormat("v {0:F1} ", halfArrow * 2);
+					if (end.Row != bottomRow)
+					{
+						s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH - halfArrow);
+						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{0:F1} ", halfArrow);
+					}
 				}
-				s.Append('\n');
-			}
 
-			// Handle transition between "From" and "To": draw the very bottom.
-			if (bottomType == TopBottomType.Left)
-			{
-				s.Append('\t', indent + 1);
-				s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{1:F1} \n", halfArrowH * 2, -halfArrowH * 2);
-			}
-			else if (bottomType == TopBottomType.Both)
-			{
-				s.Append('\t', indent + 1);
-				s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
-				if (arrow.From.Last().Width != arrow.To.Last().Width)
-					s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1}\n", halfArrowH, halfArrowH * 2, (arrow.To.Last().Width - arrow.From.Last().Width) / 2);
-			}
-			else if (bottomType == TopBottomType.Right)
-			{
-				s.Append('\t', indent + 1);
-				s.AppendFormat("V {0:F1} ", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth - halfArrowH * 2);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{0:F1} \n", halfArrowH * 2);
-			}
-
-			// Draw right-side "To" ends.
-			for (int i = arrow.To.Count - 1; i >= 0; i--)
-			{
-				var end = arrow.To[i];
-				var halfArrow = end.Width * halfScaleWidth;
-
-				s.Append('\t', indent + 1);
-				if (end.Row != bottomRow)
+				// Handle transition between "From" and "To": draw the very bottom.
+				if (bottomType == TopBottomType.Left)
 				{
-					s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfArrow * 2);
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfArrow, -halfArrow);
+					s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{1:F1} \n", halfArrowH * 2, -halfArrowH * 2);
 				}
-
-				if (nextCol != null && nextCol.Arrows.Exists(r => r.From.Exists(f => f.Row == arrow.To[i].Row)))  // True if there's a arrow immediately to the right of this arrow end.
+				else if (bottomType == TopBottomType.Both)
 				{
-					// Paint a simple right end, starting at its bottom left: horizontal right, up/right, up/left, left.
-					s.AppendFormat("H {0:F1} ", left + width + 1);
-					s.AppendFormat("l {0:F1},{1:F1} ", halfArrow, -halfArrow);
-					s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow);
-					s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
+					s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
+					if (arrow.From.Last().Width != arrow.To.Last().Width)
+						s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1}\n", halfArrowH, halfArrowH * 2, (arrow.To.Last().Width - arrow.From.Last().Width) / 2);
 				}
-				else
+				else if (bottomType == TopBottomType.Right)
 				{
-					// Paint a right end arrowhead, starting at its bottom left: horizontal right, down, up/right, up/left, down, left.
-					s.AppendFormat("H {0:F1} ", left + width - halfArrow);
-					s.AppendFormat("v {0:F1} ", halfArrow);
-					s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
-					s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
-					s.AppendFormat("v {0:F1} ", halfArrow);
-					s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
+					s.AppendFormat("V {0:F1} ", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth - halfArrowH * 2);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{0:F1} \n", halfArrowH * 2);
 				}
-				if (end.Row != topRow)
-					s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfArrow, -halfArrow);
-				s.Append('\n');
+
+				// Draw right-side "To" ends.
+				for (int i = arrow.To.Count - 1; i >= 0; i--)
+				{
+					var end = arrow.To[i];
+					var halfArrow = end.Width * halfScaleWidth;
+
+					s.Append('\t', indent);
+					if (end.Row != bottomRow)
+					{
+						s.AppendFormat("V {0:F1} ", top + (end.Row + 0.5) * rowHeight + halfArrow * 2);
+						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfArrow, -halfArrow);
+					}
+
+					if (nextCol != null && nextCol.Arrows.Exists(r => r.From.Exists(f => f.Row == arrow.To[i].Row)))  // True if there's a arrow immediately to the right of this arrow end.
+					{
+						// Paint a simple right end, starting at its bottom left: right, up/right, up/left, left.
+						s.AppendFormat("H {0:F1} ", left + width + 1);
+						s.AppendFormat("l {0:F1},{1:F1} ", halfArrow, -halfArrow);
+						s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow);
+						s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
+					}
+					else
+					{
+						// Paint a right end arrowhead, starting at its bottom left: right, down, up/right, up/left, down, left.
+						s.AppendFormat("H {0:F1} ", left + width - halfArrow);
+						s.AppendFormat("v {0:F1} ", halfArrow);
+						s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
+						s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
+						s.AppendFormat("v {0:F1} ", halfArrow);
+						s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
+					}
+					if (end.Row != topRow)
+						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfArrow, -halfArrow);
+				}
+
+				// Bring us back to top right and finish off.
+				if (topType == TopBottomType.Left)
+				{
+					s.AppendFormat("V {0:F1} ", top + (arrow.From.First().Row + 0.5) * rowHeight - arrow.From.First().Width * halfScaleWidth + halfArrowH * 2);
+					s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{1:F1} ", halfArrowH * 2, -halfArrowH * 2);
+				}
+				else if (topType == TopBottomType.Both && arrow.From.First().Width != arrow.To.First().Width)
+					s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1} ", -halfArrowH, -halfArrowH * 2, (arrow.To.First().Width - arrow.From.First().Width) / 2);
 			}
-
-			s.Append('\t', indent + 1);
-
-			// Bring us back to top right and finish off.
-			if (topType == TopBottomType.Left)
-			{
-				s.AppendFormat("V {0:F1} ", top + (arrow.From.First().Row + 0.5) * rowHeight - arrow.From.First().Width * halfScaleWidth + halfArrowH * 2);
-				s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{1:F1} ", halfArrowH * 2, -halfArrowH * 2);
-			}
-			else if (topType == TopBottomType.Both && arrow.From.First().Width != arrow.To.First().Width)
-				s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1} ", -halfArrowH, -halfArrowH * 2, (arrow.To.First().Width - arrow.From.First().Width) / 2);
-
 			s.Append("Z\" fill=\"");
 			s.Append(System.Drawing.ColorTranslator.ToHtml(c));
 			s.Append("\" />\n");
@@ -1537,7 +1570,7 @@ namespace Zoom
 			}
 
 			for (int col = 0; col < Columns.Count; col++)
-				foreach (var arrow in Columns[col].Arrows)
+				foreach (var arrow in Columns[col].Arrows.OrderByDescending(a => (a.From.Count + a.To.Count) * 100 + Math.Abs((a.From.FirstOrDefault()?.Row - a.To.FirstOrDefault()?.Row) ?? 0)))
 					SvgArrow(sb, 1, col + 1 == Columns.Count ? null : Columns[col + 1], arrow, widths.Take(col).Sum(w => w + 1) + 0.5F, widths[col] + 0.5F, arrowTop - 0.5F, rowHeight + 1);
 
 			sb.Replace("<<<<<<<<", rowTop.ToString());
