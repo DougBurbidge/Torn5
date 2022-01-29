@@ -442,6 +442,7 @@ namespace Torn.UI
 			this.listBoxReportType.FormattingEnabled = true;
 			this.listBoxReportType.Items.AddRange(new object[] {
             "Team ladder",
+            "Multi Ladder",
             "Teams vs teams",
             "Solo ladder",
             "Game by game (good for 3 team games)",
@@ -457,7 +458,7 @@ namespace Torn.UI
             "Everything"});
 			this.listBoxReportType.Location = new System.Drawing.Point(62, 12);
 			this.listBoxReportType.Name = "listBoxReportType";
-			this.listBoxReportType.Size = new System.Drawing.Size(224, 134);
+			this.listBoxReportType.Size = new System.Drawing.Size(224, 147);
 			this.listBoxReportType.TabIndex = 1;
 			this.listBoxReportType.SelectedIndexChanged += new System.EventHandler(this.ListBoxReportTypeSelectedIndexChanged);
 			this.listBoxReportType.DoubleClick += new System.EventHandler(this.ListBoxReportType_DoubleClick);

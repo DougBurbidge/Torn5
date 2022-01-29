@@ -93,6 +93,7 @@ namespace Torn.Report
 			switch (rt.ReportType)
 			{
 				case ReportType.TeamLadder: return Reports.TeamLadder(league, includeSecret, rt);
+				case ReportType.MultiLadder: return Reports.MultiLadder(league, includeSecret, rt);
 				case ReportType.TeamsVsTeams: return Reports.TeamsVsTeams(league, includeSecret, rt, ReportPages.GameHyper);
 				case ReportType.ColourPerformance: return Reports.ColourReport(league, includeSecret, rt);
 				case ReportType.SoloLadder: return Reports.SoloLadder(league, includeSecret, rt);

@@ -157,25 +157,27 @@ namespace Torn.UI
 		{
 			int i = listBoxReportType.SelectedIndex;
 			ReportType r = (ReportType)(i + 1);
+			bool isTeamOrSolo = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
 
 			scaleGames.Enabled = r == ReportType.TeamLadder;
-			dropGames.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder || r == ReportType.GameGrid;
+			dropGames.Enabled = isTeamOrSolo || r == ReportType.GameGrid;
 			dateFrom.Enabled = true;
 			dateTo.Enabled = true;
 			showColours.Enabled = r == ReportType.TeamLadder;
 			showPoints.Enabled = r == ReportType.TeamsVsTeams;
 			showComments.Enabled = r == ReportType.SoloLadder;
 			chartType.Enabled = true;
-			showTopN.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			numericUpDownTopN.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			labelTopWhat.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			atLeastN.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			numericUpDownAtLeastN.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			labelAtLeastGames.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			orderBy.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
-			labelOrderBy.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
+			showTopN.Enabled = isTeamOrSolo;
+			numericUpDownTopN.Enabled = isTeamOrSolo;
+			labelTopWhat.Enabled = isTeamOrSolo;
+			atLeastN.Enabled = isTeamOrSolo;
+			numericUpDownAtLeastN.Enabled = isTeamOrSolo;
+			labelAtLeastGames.Enabled = isTeamOrSolo;
+			orderBy.Enabled = isTeamOrSolo;
+			labelOrderBy.Enabled = isTeamOrSolo;
+			withDescription.Enabled = r != ReportType.MultiLadder;
 			description.Enabled = true;
-			longitudinal.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder || r == ReportType.Packs;
+			longitudinal.Enabled = isTeamOrSolo || r == ReportType.Packs;
 			if (r == ReportType.Packs && ReportTemplate?.ReportType == ReportType.Packs)
 				longitudinal.Checked = true;
 
@@ -184,9 +186,9 @@ namespace Torn.UI
 
 			if (!chartTypeChanged)
 				chartType.SelectedIndex =
-					i == 0 || i == 1 || i == 2 ? 3 :  // TeamLadder, TeamsVsTeams, SoloLadder: bar with rug
-					i == 10 ? 8 :  // Packs report: kernel density estimate with rug
-					i == 11 ? 6 :  // Tech report: histogram
+					isTeamOrSolo || r == ReportType.TeamsVsTeams ? 3 :  // bar with rug
+					r == ReportType.Packs ? 8 :  // kernel density estimate with rug
+					r == ReportType.Tech ? 6 :  // histogram
 					1;  // everything else: bar
 		}
 
