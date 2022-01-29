@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Drawing;
 using System.Text;
 using System.Xml;
 
@@ -45,8 +46,44 @@ namespace Torn
 			return new DateTime((dateTime.Ticks / delta.Ticks) * delta.Ticks);
 		}
 
+		public static Color StringToColor(string s)
+		{
+			double hash = 0;
+			foreach (char c in s)
+				hash = hash * 0.99 + Convert.ToInt32(c);
+
+			return ColorFromHSV((int)(hash % 360), Math.Abs(Math.Sin(hash * 19 + 2) * 0.9) + 0.1, Math.Abs(Math.Sin(hash * 23 + 4) * 0.6) + 0.2);
+		}
+
+		/// https://stackoverflow.com/questions/1335426/is-there-a-built-in-c-net-system-api-for-hsv-to-rgb
+		/// Ranges are 0 - 360 for hue, and 0 - 1 for saturation or value.
+		public static Color ColorFromHSV(double hue, double saturation, double value)
+		{
+			int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+			double f = hue / 60 - Math.Floor(hue / 60);
+
+			value *= 255;
+			int v = Convert.ToInt32(value);
+			int p = Convert.ToInt32(value * (1 - saturation));
+			int q = Convert.ToInt32(value * (1 - f * saturation));
+			int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+			if (hi == 0)
+				return Color.FromArgb(255, v, t, p);
+			else if (hi == 1)
+				return Color.FromArgb(255, q, v, p);
+			else if (hi == 2)
+				return Color.FromArgb(255, p, v, t);
+			else if (hi == 3)
+				return Color.FromArgb(255, p, q, v);
+			else if (hi == 4)
+				return Color.FromArgb(255, t, p, v);
+			else
+				return Color.FromArgb(255, v, p, q);
+		}
+
 /*		
- 		static string Rot13(string s)
+		static string Rot13(string s)
 		{
 			var sb = new StringBuilder();
 
