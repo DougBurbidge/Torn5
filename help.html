@@ -19,7 +19,7 @@ Run the program. Click the Leagues button, then Preferences. If you have a laser
 </p><p>
 Click OK. Click Latest. This will cause Torn to query the server. A list of games should appear.
 </p><p>
-On the Leagues toolbar, click New or Open. Torn 5 can open Torn 4 .Torn files. When it save those files it will write extra information. The latest version of Torn 4 will ignore all that extra information, so you <em>should</em> be able to open the file in one, make changes, then open it in the other, and then back again. (But after Torn 4 has opened the file, made changes and saved it again, the extra Torn 5 data will be missing.) For your new (or newly opened) .Torn file, click in the Tag cell at the left of the .Torn file's row in the Leagues list. Enter a tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
+On the Leagues toolbar, click New or Open. Torn 5 can open Torn 4 .Torn files. When it saves those files it will write extra information. The latest version of Torn 4 will ignore all that extra information, so you <em>should</em> be able to open the file in one, make changes, then open it in the other, and then back again. But after Torn 4 has opened the file, made changes and saved it again, the extra Torn 5 data will be missing. For your new (or newly opened) .Torn file, click in the Tag cell at the left of the .Torn file's row in the Leagues list. Enter a tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
 </p><p>
 If you like, you can open more league files. This is a difference between Torn 4 and Torn 5 &mdash; Torn 5 allows you to have several league files open at once.
 </p><p>
@@ -30,11 +30,11 @@ Games present in the game server are shown in white. Games only present in Torn 
 </p><p>
 Reporting is different in Torn 5 &mdash; click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-If you select multiple leagues (select one then hold down the ctrl key as you select more) and click Export, all the selected leagues will have reports exported.
+If you select multiple leagues (select one, then hold down the ctrl key as you select more) and click Export, all the selected leagues will have reports exported.
 </p><p>
-If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a machine called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
+If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
 </p><p>
-For P&amp;C systems, for games that have been committed during this run of Torn 5, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
+For P&amp;C systems, for games that are still in the lasergame server, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
 </p><p>
 Things not yet implemented: fixture generation, pushing scores to a scoreboard, setting up pyramid rounds, and a variety of other bits and bobs.
 </p>
@@ -59,7 +59,7 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 </p><p>
 <strong>Close</strong>: Remove the selected leagues from the Leagues list. (Of course, you can re-Open them later.)
 </p><p>
-<strong>Edit</strong>: Here you can set a title for the league file, edit team names and player line-ups, and set victory points for the league. (Victory points options are not yet quite as rich as those in Torn 4.)
+<strong>Edit</strong>: Here you can set a title for the league file, edit team names and player line-ups, and set victory points for the league. (Victory points options are not yet quite as rich as those in Torn 4.) (Victory points need not be whole numbers.)
 </p><p>
 <strong>Leagues &#x25b8 Preferences</strong>: brings up the Preferences dialog. These preferences are global to all of Torn, and are not specific to a league.
 </p><p>
@@ -69,7 +69,7 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 </p><p>
 <strong>Leagues &#x25b8 Set up Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
 </p><p>
-The Fixtures dialog has four tabs: Teams, Games as a list, Games as a gri, and Graphic. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
+The Fixtures dialog has five tabs: Teams, Games as a list, Games as a grid, Graphic, and Finals. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
 </p><p>
 The Games as a list page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
 </p><p>
@@ -77,11 +77,17 @@ The Games as a grid page is similar. Each row is a team; each column is a game.
 </p><p>
 The Graphics page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
 </p><p>
-At the bottom of the grid is a number showing how many teams are in each ame. At the right are numbers showing how many games each team plays. To the right of that is a difficulty number, calculated by averaging the difficulty of all the teams this team plays against, plus a graph plotting those difficulties. To the right of that is the who-plays-who grid. When you click a square in the main grid, the who-plays-who grid highlights the selected team in silver, and the teams this team plays against in this game in the relevant colours.
+At the bottom of the grid is a number showing how many teams are in each game. At the right are numbers showing how many games each team plays. To the right of that is a difficulty number, calculated by averaging the difficulty of all the teams this team plays against, plus a graph plotting those difficulties. To the right of that is the who-plays-who grid. When you click a square in the main grid, the who-plays-who grid highlights the selected team in silver, and the teams this team plays against in this game in the relevant colours.
 </p><p>
 At bottom right is a control for the size of the grid: set this larger to make grid squares larger.
 </p><p>
 At the moment the Graphics page assumes that teams are contiguously numbered &mdash; if you have deleted teams, thus leaving gaps in the numbering, this display may get a little out of whack.
+</p>
+<h3>Finals</h3>
+<p>
+The Finals page lets you set up finals schemes, such as Ascension, Format D, etc. Click the buttons for the various named finals schemes, or individually adjust parameters such as how many teams should be cut from each elimination game, how many tracks there should be, etc.
+</p><p>
+The team list shown at the left of the finals grid is from your team ladder. If it's not showing the order you want, adjust the settings on your Team Ladder report, then come back here.
 </p><p>
 <strong>Leagues &#x25b8 Match</strong>: not yet implemented. This is intended for things like Laserforce Space Marines, where two games form a match.
 </p><p>
@@ -115,20 +121,20 @@ At the moment the Graphics page assumes that teams are contiguously numbered &md
 </p><p>
 <strong>Remove Column</strong>: Removes a column of team boxes.
 </p><p>
-<strong>Teams &#x25b8 Remember All Teams</strong>:  list.
+<strong>Teams &#x25b8 Remember All Teams</strong>: for any teams in this game that aren't already on the list of teams in this league, Torn will add those teams to the league. You can then edit them under Leagues &#x25b8 Edit.
 </p><p>
 </p>
 <h2>Reports</h2>
 <p>
 <strong>Set Folder</strong>: lets you set a folder that reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
 </p><p>
-<strong>Report</strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used: a team ladder, a games list, a games pyramid or games grid, and a solo ladder. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
+<strong>Report</strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used, which may include a team ladder, a games list, a games pyramid or games grid, and a solo ladder. Exactly what reports are in the default set depends on the type of league: if Torn recognises that you're using a pyramid-style fixture, it will include a games pyramid. If not, it won't. If it detects that you're titling groups of games, it will include a report for your semifinals and a report for your grand finals; if not, it won't. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
 </p><p>
 <strong>Upload</strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
 </p><p>
 <strong>Configure</strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-<strong>Reports &#x25b8 Ad Hoc Report</strong>: not yet implemented.
+<strong>Reports &#x25b8 Ad Hoc Report</strong>: Choose a report type, and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
 </p><p>
 <strong>Reports &#x25b8 Pack Report</strong>: see below.
 </p><p>
@@ -136,30 +142,507 @@ At the moment the Graphics page assumes that teams are contiguously numbered &md
 </p><p>
 <strong>Reports &#x25b8 Export Fixtures</strong>: exports any fixtures you have set up in Leagues &#x25b8 Set up Fixtures, as HTML.
 </p>
+<h3>Report Types</h3>
+<p>
+Reporting is my favourite part of the software, so it gets all the attention. There are a variety of report types available, detailed below.
+</p><p>
+For a report you can manually set a title. If you don't set one, Torn will make up a title based on the league name and the report type.
+</p>
+<h4>Filters</h4>
+<p>
+In the Filters section you can limit reports to games within a certain date/time range. You can also limit reports to games that you've given a particular description back on the main screen: if you've told Torn that a group of games are "Round Robin", and you set the report to only show games with description "Round Robin", that's what you'll get. There's no way to tell it to only show games with no description, so... give your games descriptions.
+</p>
+<h4>Drops</h4>
+<p>
+
+</p>
+<h4>Chart Types</h4>
+<p>
+You can choose various chart types for various reports, though not every type makes sense for every report. "Bar chart" will show little embedded bar charts in the background of each cell. These are good where each cell holds a single value -- for example, in a game grid. Where cells hold many values (for example in a team ladder, where "Average Score" is, well, an average of many scores) the bar will show the aggregate (e.g. the average). "Rug" shows a series of "tick marks" along the bottom of the cell showing each value. So in a team ladder, that would be every individual score. <a href="https://en.wikipedia.org/wiki/Rug_plot">Wikipedia</a> has more. In Torn, if several tick marks coincide or nearly coincide, they stack vertically, into a sort of drunk histogram. Speaking of which, there's also an actual histogram option, which <a href="https://en.wikipedia.org/wiki/Histogram">does what you'd expect</a>. Much more technical is the <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">kernel density estimate</a>, only useful for large amounts of data (e.g. the Pack Report).
+</p>
+<h4>Clickability</h4>
+<p>
+If you export reports as HTML SVG or HTML tables, your reports will contain hyperlinks, which users can click to go to the appropriate place. Anywhere you see a team name, click it to see that team's stats page. Anywhere you see a player's name, click it to see that player's stats. Anywhere you see a game title or game time, click it to see details of that game.
+</p>
+</div>
+<div style="float:right">
+<svg viewBox="0 0 286 100" width="400" align="center">
+	<rect x="1.0" y="1" width="285.0" height="30" style="fill:Gray" />
+	<text text-anchor="middle" x="143" y="23" width="284" font-size="8" fill="White">Team ladder to end of Round Robin from 28/02/2019 to 3/03/2019</text>
+	<rect x="1.0" y="32" width="21.9" height="15" style="fill:Gray" />
+	<text text-anchor="middle" x="11" y="43" width="21" font-size="7" fill="White">Rank</text>
+	<rect x="23.9" y="32" width="162.8" height="15" style="fill:Gray" />
+	<text x="24" y="43" width="162" font-size="11" fill="White">Team</text>
+	<rect x="187.7" y="32" width="21.9" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="207" y="43" width="21" font-size="6" fill="White">Points</text>
+	<rect x="210.6" y="32" width="51.6" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="260" y="43" width="51" font-size="6.5" fill="White">Average score</text>
+	<rect x="263.2" y="32" width="21.9" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="283" y="43" width="21" font-size="5.5" fill="White">Games</text>
+
+	<rect x="1.0" y="48" width="286.0" height="15" style="fill:#EEFFFF" />
+	<rect x="-147.2" y="48" width="432.3" height="15" style="fill:#EEC0A0" />
+
+	<text text-anchor="middle" x="11" y="59" width="21" font-size="11">1</text>
+	<a xlink><text text-decoration="underline" x="24" y="59" width="162" font-size="11" fill="Navy">Spartans</text></a>
+	<text text-anchor="end" x="207" y="59" width="21" font-size="11">70</text>
+	<text text-anchor="end" x="260" y="59" width="51" font-size="11">43,459</text>
+	<text text-anchor="end" x="283" y="59" width="21" font-size="11">12</text>
+
+	<rect x="1.0" y="64" width="286.0" height="15" style="fill:White" />
+	<rect x="-147.2" y="64" width="419.9" height="15" style="fill:#FFC0A0" />
+
+	<text text-anchor="middle" x="11" y="75" width="21" font-size="11">2</text>
+	<a xlink><text text-decoration="underline" x="24" y="75" width="162" font-size="11" fill="Navy">Wolfpack</text></a>
+	<text text-anchor="end" x="207" y="75" width="21" font-size="11">68</text>
+	<text text-anchor="end" x="260" y="75" width="51" font-size="11">44,202</text>
+	<text text-anchor="end" x="283" y="75" width="21" font-size="11">12</text>
+
+	<rect x="1.0" y="80" width="286.0" height="15" style="fill:#EEFFFF" />
+	<rect x="-147.2" y="80" width="407.6" height="15" style="fill:#EEC0A0" />
+
+	<text text-anchor="middle" x="11" y="91" width="21" font-size="11">3</text>
+	<a xlink><text text-decoration="underline" x="24" y="91" width="162" font-size="11" fill="Navy">Brisbane Beavers</text></a>
+	<text text-anchor="end" x="207" y="91" width="21" font-size="11">66</text>
+	<text text-anchor="end" x="260" y="91" width="51" font-size="11">43,502</text>
+	<text text-anchor="end" x="283" y="91" width="21" font-size="11">12</text>
+
+	<rect x="1.0" y="96" width="286.0" height="15" style="fill:White" />
+	<rect x="-147.2" y="96" width="407.6" height="15" style="fill:#FFC0A0" />
+</svg>
+</div>
+<div style="max-width:800px; margin:auto">
+<h3>Team Ladder</h3>
+<p>
+Rank teams by average score, score ratio, or victory points (with average score or score ratio as a tie-breaker). Illustration shown at right.
+</p><p>
+You can tick a box to scale up teams with less games. This is useful when you are halfway through a round and you want to show a comparison of how well each team is going so far.
+</p><p>
+If you tick "show colours" you'll get columns in the report showing how many times each team places first, second, third, etc. on each colour. Whatever colours are used in your league are shown in the report.
+</p><p>
+You can limit the report to only show the top <i>n</i> teams, or to only show teams with a certain minimum number of games. 
+</p><p>
+If you tick "longitudinal chart" you'll get an extra column at the right of the report that shows how well each team did in each game.
+</p>
+<h3>Multi Team Ladder</h3>
+<p>
+If you have set descriptions for groups of games, this report will show you several incremental ladders, showing the state of play at the end of each group of games. It also has arrows showing how teams rose and fell between groups.
+</p>
+</div>
+<div style="float:right">
+<svg viewBox="0 0 233 172" width="326" align="center">
+	<rect x="0" y="1" width="300" height="30" style="fill:Gray" />
+	<text text-anchor="middle" x="117" y="23" width="360" font-size="15" fill="White">2019 ZLTAC Teams vs Teams</text>
+	<polygon points="-1,32 39,32 124,117 -1,117" style="fill:Gray" />
+	<polygon points="40,32 66,32 151,117 125,117" style="fill:Gray" />
+	<polygon points="67,32 93,32 178,117 152,117" style="fill:Gray" />
+	<polygon points="94,32 120,32 205,117 179,117" style="fill:Gray" />
+	<polygon points="121,32 147,32 232,117 206,117" style="fill:Gray" />
+	<polygon points="148,32 174,32 259,117 233,117" style="fill:Gray" />
+	<polygon points="175,32 202,32 287,117 260,117" style="fill:Gray" />
+	<polygon points="203,32 229,32 354,157 328,157" style="fill:Gray" />
+	<polygon points="230,32 256,32 381,157 355,157" style="fill:Gray" />
+
+	<text x="2" y="114" width="175"  font-size="11" fill="White">Team</text>
+	<text text-anchor="end" x="130" y="114" width="175" transform="rotate(45 130,114)" font-size="11" fill="White">Spartans</text>
+	<text text-anchor="end" x="157" y="114" width="175" transform="rotate(45 157,114)" font-size="11" fill="White">Brisbane Beavers</text>
+	<text text-anchor="end" x="185" y="114" width="175" transform="rotate(45 185,114)" font-size="11" fill="White">GP</text>
+	<text text-anchor="end" x="212" y="114" width="175" transform="rotate(45 212,114)" font-size="11" fill="White">Wolfpack</text>
+	<text text-anchor="end" x="239" y="114" width="175" transform="rotate(45 239,114)" font-size="11" fill="White">Dragons</text>
+
+	<rect x="1" y="117" width="300" height="15" style="fill:#EEFFFF" />
+	<rect x="124.8" y="117" width="26.1" height="15" style="fill:Gray" />
+	<rect x="124.8" y="117" width="26.1" height="15" style="fill:#5A6868" />
+	<rect x="151.9" y="117" width="14.5" height="15" style="fill:#EEC0A0" />
+	<rect x="179.1" y="117" width="26.1" height="15" style="fill:#EEC0A0" />
+	<rect x="206.2" y="117" width="15.7" height="15" style="fill:#EEC0A0" />
+
+	<a xlink><text text-decoration="underline" x="2" y="128" width="162" font-size="11" fill="Navy">Spartans</text></a>
+	<text text-anchor="middle" x="137" y="128" width="26" font-size="11">╲</text>
+	<text text-anchor="middle" x="164" y="128" width="26" font-size="11">5/9</text>
+	<text text-anchor="middle" x="192" y="128" width="26" font-size="11">4/4</text>
+	<text text-anchor="middle" x="219" y="128" width="26" font-size="11">6/10</text>
+
+	<rect x="1" y="133" width="300" height="15" style="fill:White" />
+	<rect x="124.8" y="133" width="11.6" height="15" style="fill:#FFC0A0" />
+	<rect x="151.9" y="133" width="26.1" height="15" style="fill:Gray" />
+	<rect x="151.9" y="133" width="26.1" height="15" style="fill:#686868" />
+	<rect x="179.1" y="133" width="13.1" height="15" style="fill:#FFC0A0" />
+	<rect x="206.2" y="133" width="15.7" height="15" style="fill:#FFC0A0" />
+
+	<a xlink><text text-decoration="underline" x="2" y="144" width="162" font-size="11" fill="Navy">Brisbane Beavers</text></a>
+	<text text-anchor="middle" x="137" y="144" width="26" font-size="11">4/9</text>
+	<text text-anchor="middle" x="164" y="144" width="26" font-size="11">╲</text>
+	<text text-anchor="middle" x="192" y="144" width="26" font-size="11">2/4</text>
+	<text text-anchor="middle" x="219" y="144" width="26" font-size="11">6/10</text>
+
+	<rect x="1" y="149" width="300" height="15" style="fill:#EEFFFF" />
+	<rect x="151.9" y="149" width="13.1" height="15" style="fill:#EEC0A0" />
+	<rect x="179.1" y="149" width="26.1" height="15" style="fill:Gray" />
+	<rect x="179.1" y="149" width="26.1" height="15" style="fill:#5A6868" />
+	<rect x="206.2" y="149" width="4.4" height="15" style="fill:#EEC0A0" />
+	<rect x="233.3" y="189" width="26.1" height="15" style="fill:#EEC0A0" />
+
+	<a xlink><text text-decoration="underline" x="2" y="160" width="162" font-size="11" fill="Navy">GP</text></a>
+	<text text-anchor="middle" x="137" y="160" width="26" font-size="11">0/4</text>
+	<text text-anchor="middle" x="164" y="160" width="26" font-size="11">2/4</text>
+	<text text-anchor="middle" x="192" y="160" width="26" font-size="11">╲</text>
+	<text text-anchor="middle" x="219" y="160" width="26" font-size="11">1/6</text>
+
+	<rect x="1" y="205" width="300" height="15" style="fill:White" />
+	<rect x="124.8" y="165" width="10.5" height="15" style="fill:#FFC0A0" />
+	<rect x="151.9" y="165" width="10.5" height="15" style="fill:#FFC0A0" />
+	<rect x="179.1" y="165" width="21.8" height="15" style="fill:#FFC0A0" />
+	<rect x="206.2" y="165" width="26.1" height="15" style="fill:Gray" />
+	<rect x="206.2" y="165" width="26.1" height="15" style="fill:#686868" />
+
+	<a xlink><text text-decoration="underline" x="2" y="176" width="162" font-size="11" fill="Navy">Wolfpack</text></a>
+	<text text-anchor="middle" x="137" y="176" width="26" font-size="11">4/10</text>
+	<text text-anchor="middle" x="164" y="176" width="26" font-size="11">4/10</text>
+	<text text-anchor="middle" x="192" y="176" width="26" font-size="11">5/6</text>
+	<text text-anchor="middle" x="219" y="176" width="26" font-size="11">╲</text>
+</svg></div>
+<div style="max-width:800px; margin:auto">
+<h3>Teams vs teams</h3>
+<p>
+This report (illustrated) shows a square array of teams versus teams. Each cell within the array shows how many times those teams have won against each other. If a cell represents one game (because those teams have played each other exactly once), it will be hyperlinked, and clicking the link will take you to that game. If you choose the "show average victory points" option, then in addition to the number of wins you'll also see the average number of victory points the team scored in games against the other team.
+</p>
+<h3>Solo Ladder</h3>
+<p>
+The solo ladder has most of the same options as the team ladder. No "show colours" option though.
+</p>
+<h3>Game Reports</h3>
+</div>
+<div style="float:right">
+<svg viewBox="0 0 350 112" width="490" align="center">
+	<rect x="1.0" y="1" width="349.0" height="30" style="fill:Gray" />
+	<text text-anchor="middle" x="175" y="23" width="348" font-size="22" fill="White">Grand Finals for 8/03/2019</text>
+
+	<rect x="1.0" y="32" width="138.5" height="15" style="fill:Gray" />
+	<rect x="140.5" y="32" width="156.8" height="15" style="fill:Gray" />
+	<text text-anchor="middle" x="218" y="43" width="156" font-size="11" fill="White">Grand Finals</text>
+	<rect x="298.3" y="32" width="51.6" height="15" style="fill:Gray" />
+
+	<rect x="1.0" y="48" width="13.4" height="15" style="fill:Gray" />
+	<text text-anchor="middle" x="7" y="59" width="13" font-size="5" fill="White">Rank</text>
+	<rect x="15.4" y="48" width="124.1" height="15" style="fill:Gray" />
+	<text x="16" y="59" width="124" font-size="11" fill="White">Team</text>
+	<rect x="140.5" y="48" width="51.6" height="15" style="fill:Gray" />
+	<a xlink:href="games20190308.html#game1651"><text text-decoration="underline" text-anchor="end" x="190" y="59" width="51" font-size="11" fill="White">4:51 PM</text></a>
+	<rect x="193.1" y="48" width="51.6" height="15" style="fill:Gray" />
+	<a xlink:href="games20190308.html#game1712"><text text-decoration="underline" text-anchor="end" x="243" y="59" width="51" font-size="11" fill="White">5:12 PM</text></a>
+	<rect x="245.7" y="48" width="51.6" height="15" style="fill:Gray" />
+	<a xlink:href="games20190308.html#game1730"><text text-decoration="underline" text-anchor="end" x="295" y="59" width="51" font-size="11" fill="White">5:30 PM</text></a>
+	<rect x="298.3" y="48" width="51.6" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="348" y="59" width="51" font-size="11" fill="White">Average</text>
+
+	<rect x="1.0" y="64" width="350.0" height="15" style="fill:#EEFFFF" />
+	<rect x="140.5" y="64" width="51.6" height="15" style="fill:#A0D0FF" />
+	<rect x="140.5" y="64" width="43.7" height="15" style="fill:#75AAD0" />
+	<rect x="193.1" y="64" width="51.6" height="15" style="fill:#FFA0A0" />
+	<rect x="193.1" y="64" width="39.3" height="15" style="fill:#C28282" />
+	<rect x="245.7" y="64" width="51.6" height="15" style="fill:#A0FFA0" />
+	<rect x="245.7" y="64" width="51.6" height="15" style="fill:#75D082" />
+	<rect x="298.3" y="64" width="44.9" height="15" style="fill:#EEC0A0" />
+
+	<text text-anchor="middle" x="7" y="75" width="13" font-size="11">1</text>
+	<a xlink><text text-decoration="underline" x="16" y="75" width="124" font-size="11" fill="Navy">Wolfpack</text></a>
+	<text text-anchor="end" x="190" y="75" width="51" font-size="11">23,684</text>
+	<text text-anchor="end" x="243" y="75" width="51" font-size="11">21,312</text>
+	<text text-anchor="end" x="295" y="75" width="51" font-size="11">27,984</text>
+	<text text-anchor="end" x="348" y="75" width="51" font-size="11">24,327</text>
+
+	<rect x="1.0" y="80" width="350.0" height="15" style="fill:White" />
+	<rect x="140.5" y="80" width="51.6" height="15" style="fill:#A0FFA0" />
+	<rect x="140.5" y="80" width="46.4" height="15" style="fill:#82D082" />
+	<rect x="193.1" y="80" width="51.6" height="15" style="fill:#A0D0FF" />
+	<rect x="193.1" y="80" width="50.9" height="15" style="fill:#82AAD0" />
+	<rect x="245.7" y="80" width="51.6" height="15" style="fill:#FFA0A0" />
+	<rect x="245.7" y="80" width="35.2" height="15" style="fill:#D08282" />
+	<rect x="298.3" y="80" width="44.2" height="15" style="fill:#FFC0A0" />
+
+	<text text-anchor="middle" x="7" y="91" width="13" font-size="11">2</text>
+	<a xlink><text text-decoration="underline" x="16" y="91" width="124" font-size="11" fill="Navy">Brisbane Beavers</text></a>
+	<text text-anchor="end" x="190" y="91" width="51" font-size="11">25,173</text>
+	<text text-anchor="end" x="243" y="91" width="51" font-size="11">27,623</text>
+	<text text-anchor="end" x="295" y="91" width="51" font-size="11">19,101</text>
+	<text text-anchor="end" x="348" y="91" width="51" font-size="11">23,966</text>
+
+	<rect x="1.0" y="96" width="350.0" height="15" style="fill:#EEFFFF" />
+	<rect x="140.5" y="96" width="51.6" height="15" style="fill:#FFA0A0" />
+	<rect x="140.5" y="96" width="42.0" height="15" style="fill:#C28282" />
+	<rect x="193.1" y="96" width="51.6" height="15" style="fill:#A0FFA0" />
+	<rect x="193.1" y="96" width="51.2" height="15" style="fill:#75D082" />
+	<rect x="245.7" y="96" width="51.6" height="15" style="fill:#A0D0FF" />
+	<rect x="245.7" y="96" width="38.7" height="15" style="fill:#75AAD0" />
+	<rect x="298.3" y="96" width="44.0" height="15" style="fill:#EEC0A0" />
+
+	<text text-anchor="middle" x="7" y="107" width="13" font-size="11">3</text>
+	<a xlink><text text-decoration="underline" x="16" y="107" width="124" font-size="11" fill="Navy">Spartans</text></a>
+	<text text-anchor="end" x="190" y="107" width="51" font-size="11">22,772</text>
+	<text text-anchor="end" x="243" y="107" width="51" font-size="11">27,774</text>
+	<text text-anchor="end" x="295" y="107" width="51" font-size="11">21,003</text>
+	<text text-anchor="end" x="348" y="107" width="51" font-size="11">23,850</text>
+
+</svg></div>
+<div style="max-width:800px; margin:auto">
+<p>
+A Game by game report shows games as a list, with each game being a single row in the list. It's useful when there's only a few teams in a game (e.g. a team game), and when there are lots of games in the league. It's not so good when there's lots of teams in a game (e.g. solos or doubles).
+</p><p>
+A Game grid (illustrated) shows results in a grid, with a row for each team and a column for each game. It's good when there's lots of teams in each game, but not all that many games (say 20 or less). It also has a column at the end for average score. If you configure the report to drop best/worst games, then the average will be on only the games not dropped. So this is handy for e.g. a finals series where you get to drop your worst score or whatever.
+</p><p>
+The "Game grid condensed" report (see Pyramid condensed illustration below) is like the game grid, with each row being a team's results, but columns are condensed, so that each team's games are just shown in consecutive columns. If you have set descriptions for groups of games, then there will be groups of columns for each named group of games. The condensed grid is good when there are too many games for an ordinary game grid, but each team plays just a few games.
+</p>
+</div>
+<div style="float:right">
+<svg viewBox="0 0 350 121" width="490" align="center">
+	<rect x="1" y="1" width="348" height="30" style="fill:Gray" />
+	<text text-anchor="middle" x="175" y="23" width="348" font-size="16" fill="White">2019 ZLTAC Solos Games for 1/03/2019</text>
+
+	<rect x="1" y="32" width="72.8" height="15" style="fill:Gray" />
+	<rect x="74.8" y="32" width="274.1" height="15" style="fill:Gray" />
+	<text text-anchor="middle" x="211" y="43" width="274" font-size="11" fill="White">Round 1</text>
+
+	<rect x="1" y="48" width="30.4" height="15" style="fill:Gray" />
+	<text text-anchor="middle" x="16" y="59" width="30" font-size="11" fill="White">Rank</text>
+	<rect x="32.4" y="48" width="41.4" height="15" style="fill:Gray" />
+	<text x="33" y="59" width="101" font-size="11" fill="White">Team</text>
+	<rect x="74.8" y="48" width="69.5" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="142" y="59" width="69" font-size="11" fill="White">Time</text>
+	<rect x="145.4" y="48" width="43.1" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="187" y="59" width="43" font-size="11" fill="White">Score</text>
+	<rect x="189.5" y="48" width="21.9" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="209" y="59" width="21" font-size="7" fill="White">Rank</text>
+	<rect x="212.4" y="48" width="69.5" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="280" y="59" width="69" font-size="11" fill="White">Time</text>
+	<rect x="282.9" y="48" width="43.1" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="324" y="59" width="43" font-size="11" fill="White">Score</text>
+	<rect x="327.0" y="48" width="21.9" height="15" style="fill:Gray" />
+	<text text-anchor="end" x="347" y="59" width="21" font-size="7" fill="White">Rank</text>
+
+	<rect x="1" y="64" width="349" height="15" style="fill:#EEFFFF" />
+	<rect x="145.4" y="64" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="145.4" y="64" width="37.6" height="15" style="fill:#75AAD0" />
+	<rect x="189.5" y="64" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="64" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="64" width="22.7" height="15" style="fill:#75AAD0" />
+	<rect x="327.0" y="64" width="21.9" height="15" style="fill:#A0D0FF" />
+
+	<text text-anchor="middle" x="16" y="75" width="30" font-size="11">1</text>
+	<a xlink><text text-decoration="underline" x="33" y="75" width="101" font-size="11" fill="Navy">ninja</text></a>
+	<text text-anchor="end" x="142" y="75" width="69" font-size="11">12:08 PM</text>
+	<text text-anchor="end" x="187" y="75" width="43" font-size="11">6,750</text>
+	<text text-anchor="end" x="209" y="75" width="21" font-size="11">1</text>
+	<text text-anchor="end" x="280" y="75" width="69" font-size="11">1:13 PM</text>
+	<text text-anchor="end" x="324" y="75" width="43" font-size="11">4,070</text>
+	<text text-anchor="end" x="347" y="75" width="21" font-size="11">7</text>
+
+	<rect x="1" y="80" width="349" height="15" style="fill:White" />
+	<rect x="145.4" y="80" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="145.4" y="80" width="39.7" height="15" style="fill:#82AAD0" />
+	<rect x="189.5" y="80" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="80" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="80" width="32.0" height="15" style="fill:#82AAD0" />
+	<rect x="327.0" y="80" width="21.9" height="15" style="fill:#A0D0FF" />
+
+	<text text-anchor="middle" x="16" y="91" width="30" font-size="11">2</text>
+	<a xlink><text text-decoration="underline" x="33" y="91" width="101" font-size="11" fill="Navy">Bootza</text></a>
+	<text text-anchor="end" x="142" y="91" width="69" font-size="11">12:42 PM</text>
+	<text text-anchor="end" x="187" y="91" width="43" font-size="11">7,120</text>
+	<text text-anchor="end" x="209" y="91" width="21" font-size="11">1</text>
+	<text text-anchor="end" x="280" y="91" width="69" font-size="11">2:24 PM</text>
+	<text text-anchor="end" x="324" y="91" width="43" font-size="11">5,730</text>
+	<text text-anchor="end" x="347" y="91" width="21" font-size="11">3</text>
+
+	<rect x="1" y="96" width="349" height="15" style="fill:#EEFFFF" />
+	<rect x="145.4" y="96" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="145.4" y="96" width="28.0" height="15" style="fill:#75AAD0" />
+	<rect x="189.5" y="96" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="96" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="96" width="36.4" height="15" style="fill:#75AAD0" />
+	<rect x="327.0" y="96" width="21.9" height="15" style="fill:#A0D0FF" />
+
+	<text text-anchor="middle" x="16" y="107" width="30" font-size="11">3</text>
+	<a xlink><text text-decoration="underline" x="33" y="107" width="101" font-size="11" fill="Navy">lakeo</text></a>
+	<text text-anchor="end" x="142" y="107" width="69" font-size="11">1:13 PM</text>
+	<text text-anchor="end" x="187" y="107" width="43" font-size="11">5,020</text>
+	<text text-anchor="end" x="209" y="107" width="21" font-size="11">2</text>
+	<text text-anchor="end" x="280" y="107" width="69" font-size="11">2:49 PM</text>
+	<text text-anchor="end" x="324" y="107" width="43" font-size="11">6,520</text>
+	<text text-anchor="end" x="347" y="107" width="21" font-size="11">1</text>
+
+	<rect x="1" y="112" width="349" height="15" style="fill:White" />
+	<rect x="145.4" y="112" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="145.4" y="112" width="30.3" height="15" style="fill:#82AAD0" />
+	<rect x="189.5" y="112" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="112" width="43.1" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="112" width="15.8" height="15" style="fill:#82AAD0" />
+	<rect x="327.0" y="112" width="21.9" height="15" style="fill:#A0D0FF" />
+
+	<text text-anchor="middle" x="16" y="123" width="30" font-size="11">4</text>
+	<a xlink><text text-decoration="underline" x="33" y="123" width="101" font-size="11" fill="Navy">Blitz</text></a>
+	<text text-anchor="end" x="142" y="123" width="69" font-size="11">1:02 PM</text>
+	<text text-anchor="end" x="187" y="123" width="43" font-size="11">5,430</text>
+	<text text-anchor="end" x="209" y="123" width="21" font-size="11">4</text>
+	<text text-anchor="end" x="280" y="123" width="69" font-size="11">3:00 PM</text>
+	<text text-anchor="end" x="324" y="123" width="43" font-size="11">2,840</text>
+	<text text-anchor="end" x="347" y="123" width="21" font-size="11">18</text>
+</svg></div>
+<div style="max-width:800px; margin:auto">
+<h3>Pyramids</h3>
+<p>
+The pyramid report is useful when you're running a competition that gradually eliminates teams that fail to make the cut each round. (We do this for ZLTAC solos, doubles and triples.) It's laid out in a similar way to the game grid: there is a row for each team and a column for each game. It ranks teams by the last round they survived into, and within rounds by average score. You'll need to set descriptions for the games, so the report can figure out which games are in each round.
+</p><p>
+The pyramid condensed report (illustrated) still has a row for each team, but similar to the game grid condensed, it doesn't try to put each game in a column; instead just listing all a teams games across that team's row.
+</p>
+<h3>Ascension</h3>
+<p>
+An asccension report is like a game grid, with one team per row and one game per column, but teams are ranked by the last game they survived in. This is useful for semifinals series.
+</p>
+</div>
+<div style="float:right">
+<svg viewBox="0 0 126 138" width="126" align="center">
+	<rect x="1.0" y="1" width="125.0" height="44" style="fill:Gray" />
+	<text text-anchor="middle" x="63" y="19" width="124" font-size="14" fill="White">2019 ZLTAC Team </text>
+	<text text-anchor="middle" x="63" y="35" width="124" font-size="14" fill="White">Colour Performance</text>
+
+	<rect x="1.0" y="46" width="30.1" height="22" style="fill:Gray" />
+	<text text-anchor="middle" x="16" y="62" width="30" font-size="11" fill="White">Rank</text>
+	<rect x="32.1" y="46" width="30.4" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="61" y="62" width="30" font-size="11" fill="White">Green</text>
+	<rect x="63.5" y="46" width="30.4" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="92" y="62" width="30" font-size="16" fill="White">Red</text>
+	<rect x="94.9" y="46" width="30.4" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="123" y="62" width="30" font-size="14" fill="White">Blue</text>
+
+	<rect x="1.0" y="69" width="126.0" height="22" style="fill:#EEFFFF" />
+	<rect x="32.1" y="69" width="30.4" height="22" style="fill:#A0FFA0" />
+	<rect x="32.1" y="69" width="28.1" height="22" style="fill:#75D082" />
+	<rect x="63.5" y="69" width="30.4" height="22" style="fill:#FFA0A0" />
+	<rect x="63.5" y="69" width="27.4" height="22" style="fill:#C28282" />
+	<rect x="94.9" y="69" width="30.4" height="22" style="fill:#A0D0FF" />
+	<rect x="94.9" y="69" width="22.4" height="22" style="fill:#75AAD0" />
+
+	<text text-anchor="middle" x="16" y="85" width="30" font-size="16">1st</text>
+	<text text-anchor="end" x="61" y="85" width="30" font-size="16">113</text>
+	<text text-anchor="end" x="92" y="85" width="30" font-size="16">110</text>
+	<text text-anchor="end" x="123" y="85" width="30" font-size="16">90</text>
+
+	<rect x="1.0" y="92" width="126.0" height="22" style="fill:White" />
+	<rect x="32.1" y="92" width="30.4" height="22" style="fill:#A0FFA0" />
+	<rect x="32.1" y="92" width="25.9" height="22" style="fill:#82D082" />
+	<rect x="63.5" y="92" width="30.4" height="22" style="fill:#FFA0A0" />
+	<rect x="63.5" y="92" width="26.9" height="22" style="fill:#D08282" />
+	<rect x="94.9" y="92" width="30.4" height="22" style="fill:#A0D0FF" />
+	<rect x="94.9" y="92" width="25.2" height="22" style="fill:#82AAD0" />
+
+	<text text-anchor="middle" x="16" y="108" width="30" font-size="16">2nd</text>
+	<text text-anchor="end" x="61" y="108" width="30" font-size="16">104</text>
+	<text text-anchor="end" x="92" y="108" width="30" font-size="16">108</text>
+	<text text-anchor="end" x="123" y="108" width="30" font-size="16">101</text>
+
+	<rect x="1.0" y="115" width="126.0" height="22" style="fill:#EEFFFF" />
+	<rect x="32.1" y="115" width="30.4" height="22" style="fill:#A0FFA0" />
+	<rect x="32.1" y="115" width="23.9" height="22" style="fill:#75D082" />
+	<rect x="63.5" y="115" width="30.4" height="22" style="fill:#FFA0A0" />
+	<rect x="63.5" y="115" width="23.7" height="22" style="fill:#C28282" />
+	<rect x="94.9" y="115" width="30.4" height="22" style="fill:#A0D0FF" />
+	<rect x="94.9" y="115" width="30.4" height="22" style="fill:#75AAD0" />
+
+	<text text-anchor="middle" x="16" y="131" width="30" font-size="16">3rd</text>
+	<text text-anchor="end" x="61" y="131" width="30" font-size="16">96</text>
+	<text text-anchor="end" x="92" y="131" width="30" font-size="16">95</text>
+	<text text-anchor="end" x="123" y="131" width="30" font-size="16">122</text>
+
+</svg></div>
+<div style="max-width:800px; margin:auto">
+<h3>Colours</h3>
+<p>
+In an arena where a particular colour may have an advantage or disadvantage because of arena layout, this report (illustrated) shows how many times each colour got each placing. This report can be good to give to teams before they have to make colour choices for e.g. semifinals or finals games.
+</p>
+<h3>Sanity Check Report</h3>
+<p>
+This report helps you pick up common errors: games with atypical numbers of players, players who have not been identified, games with no victory points where subsequent games do have victory points, etc.
+</p>
+</div>
+<div style="float:right">
+<svg viewBox="0 0 240 140" width="240" align="center">
+	<rect x="1" y="1" width="239" height="44" style="fill:Gray" />
+	<text text-anchor="middle" x="119" y="34" width="238" font-size="25" fill="White">[redacted] Pack Report</text>
+
+	<rect x="1.0" y="46" width="21.9" height="22" style="fill:Gray" />
+	<text text-anchor="middle" x="11" y="62" width="21" font-size="10" fill="White">Rank</text>
+	<rect x="23.9" y="46" width="68.7" height="22" style="fill:Gray" />
+	<text x="24" y="62" width="68" font-size="16" fill="White">Pack</text>
+	<rect x="93.6" y="46" width="44.0" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="135" y="62" width="43" font-size="10" fill="White">Tag Ratio</text>
+	<rect x="138.6" y="46" width="34.6" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="171" y="62" width="34" font-size="16" fill="White">t</text>
+	<rect x="174.2" y="46" width="34.6" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="207" y="62" width="34" font-size="16" fill="White">p</text>
+	<rect x="209.8" y="46" width="30.4" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="238" y="62" width="30" font-size="10" fill="White">Count</text>
+
+	<rect x="1" y="69" width="239" height="22" style="fill:#EEFFFF" />
+	<rect x="174.2" y="69" width="34.6" height="22" style="fill:#FFC0C0" />
+
+	<text text-anchor="middle" x="11" y="85" width="21" font-size="16">1</text>
+	<text x="24" y="85" width="68" font-size="16">[redacted]</text>
+	<text text-anchor="end" x="135" y="85" width="43" font-size="16">174%</text>
+	<text text-anchor="end" x="171" y="85" width="34" font-size="16">3.81</text>
+	<text text-anchor="end" x="207" y="85" width="34" font-size="9">0.00014</text>
+	<text text-anchor="end" x="238" y="85" width="30" font-size="16">58</text>
+
+	<rect x="1" y="92" width="239" height="22" style="fill:White" />
+	<rect x="174.2" y="92" width="34.6" height="22" style="fill:#FFF0F0" />
+
+	<text text-anchor="middle" x="11" y="108" width="21" font-size="16">2</text>
+	<text x="24" y="108" width="68" font-size="16">[redacted]</text>
+	<text text-anchor="end" x="135" y="108" width="43" font-size="16">119%</text>
+	<text text-anchor="end" x="171" y="108" width="34" font-size="16">2.81</text>
+	<text text-anchor="end" x="207" y="108" width="34" font-size="11">0.0049</text>
+	<text text-anchor="end" x="238" y="108" width="30" font-size="16">131</text>
+
+	<rect x="1" y="115" width="239" height="22" style="fill:#EEFFFF" />
+
+	<text text-anchor="middle" x="11" y="131" width="21" font-size="16">3</text>
+	<text x="24" y="131" width="68" font-size="16">[redacted]</text>
+	<text text-anchor="end" x="135" y="131" width="43" font-size="16">115%</text>
+	<text text-anchor="end" x="171" y="131" width="34" font-size="16">1.53</text>
+	<text text-anchor="end" x="207" y="131" width="34" font-size="16">0.13</text>
+	<text text-anchor="end" x="238" y="131" width="30" font-size="16">109</text>
+
+</svg></div>
+<div style="max-width:800px; margin:auto">
 <h3>Pack Report</h3>
 <p>
 The pack report endeavours to tell you how "good" or "bad" packs are. It does this via <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Student's t-test</a>.
 </p><p>
-Select one or more leagues (hold down the ctrl key to select additional leagues), then click Reports &#x25b8 Pack Report. The report will be generated and saved to the folder you set under Set Destination, as packreport.html.
+Select one or more leagues (hold down the ctrl key to select additional leagues), then click Reports &#x25b8 Ad Hoc Report and select Pack Report.
 </p><p>
-View the report in your favourite web browser. You'll see several sets of columns, and you should ignore all but one. 
-</p><p>
-If Torn 5 has hit data, it will fill in columns for tag ratios and tag differences. 
+If Torn 5 has hit data, it will fill in columns for tag ratios. 
 Here's how those are calculated: first we generate a solo ladder showing how "good" each player is. Then, for each pack in each game, we scale the number of tags that pack scored against other players by the "goodness" of the player waering it: if the pack scored 50 hits in a game but was being worn by a player who was 125% as good as the average player, we scale that to 50 / 1.25 = 40 hits. Then we take the ratio of that to the number of tags the pack received during the game.
-For tag difference we do the same thing, but we subtract the two numbers instead of dividing them. Differences are theoretically better than ratios because differences should be normally distributed, whereas ratios are not. But ratios are probably still better for our use case.
 </p><p>
-If Torn 5 does <em>not</em> have hit data (because this is Laserforce data, or because this is a Torn 4 file), you'll have to look at the score ratio instead. This is calculated in exactly the same way as tag ratio. Score ratio isn't as good as tag ratio, because we're interested here in how good the pack is at tagging other packs versus how good it is at getting tagged, but if you don't have tag data it's a reasonable proxy.
+If Torn 5 does <em>not</em> have hit data (because this is Laserforce data, or because this is a Torn 4 file), it will show you the score ratio instead. This is calculated in exactly the same way as tag ratio. Score ratio isn't as good as tag ratio, because we're interested here in how good the pack is at tagging other packs versus how good it is at getting tagged, but if you don't have tag data it's a reasonable proxy.
 </p><p>
 You'll see t values and p values. The t value is how many standard deviations this pack is from the mean. Look at the p value &mdash; when this is very small, there's a high chance that this pack is "good" or "bad".
 Any p value greater than 0.01 can be ignored &mdash; it's likely due to change, or to that pack being a favourite of particular players, etc. (You often see a level of p &lt; 0.05 being used, but this is only appropriate when we're testing a single variable. Here we're testing one variable for each pack. The description at the bottom of the report offers a conservative p value threshold for the number of packs shown.)
 </p><p>
-Very small p values will be highlighted in red. These packs are of concern &mdash; a "good" pack might have some faulty sensors; a "bad" pack might have weak IR, etc.
+Small p values will be highlighted in pink. Very small p values will be highlighted in red. These red packs are of concern &mdash; a "good" pack might have some faulty sensors; a "bad" pack might have weak IR, etc.
 </p><p>
 If pack hardware has been re-arranged (e.g. you've swapped guns between packs) or renumbered midway through data collection (e.g. you re-ID'ed packs to prevent players from picking favourites), these things will of course limit data quality.
 </p><p>
-You can try different chart options, set date ranges, etc. &mdash; on the Reports toolbar click Customise, add a Pack Report, and choose options.
+If you tick the "longitudinal" checkbox, you'll get an extra column showing when each pack played and how well it did. Higher is better.
+</p>
+<h3>Tech Report</h3>
+<p>
+This report shows the number of times each pack got hit in each location in the average game. Like the pack report, if you generate this from Reports &#x25b8 Ad Hoc Report, you can select more than one league as input. But if you do this, be sure to only select leagues that are comparable to each other -- players are going to get hit a lot less in an elimination game format, for example.
 </p><p>
-If you label Round Robin games as Roud Robin, and/or Round 1 games as Round 1, Torn 5 will use only those games for deciding how "good" players are.
+If you see a pack getting hit a lot less than other packs in its left shoulder, for example, that pack might have a problem.
+</p>
+<h3>Everything Report</h3>
+<p>
+List every player in every game. Useful for data export. Export to CSV or TSV for easiest import into other tools.
 </p>
 <h2>Download</h2>
 <p>
