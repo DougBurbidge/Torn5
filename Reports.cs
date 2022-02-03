@@ -1836,7 +1836,7 @@ namespace Torn.Report
 				report.Rows[0].Last().Text = "1";
 				report.RemoveZeroColumns();
 				report.Rows[0].Last().Text = null;
-				report.Description += " The Longitudinal column shows each game for each player. Scarlet is score ratio; blue is tag ratio.";
+				report.Description += " The Longitudinal column shows each game for each player. Red is score ratio; blue is tag ratio.";
 			}
 			else
 				report.RemoveZeroColumns();
@@ -1878,11 +1878,19 @@ namespace Torn.Report
 			if (league.IsPoints())
 				report.AddColumn(new ZColumn("Points", ZAlignment.Float));
 
+			double scoreMin = games.Min(g => g.Teams.Min(t => t.Score));
+			double scoreRange = games.Max(g => g.Teams.Max(t => t.Score)) - scoreMin;
+			double victoryPointsMin = games.Min(g => g.Teams.Min(t => t.Points));
+			double victoryPointsRange = games.Max(g => g.Teams.Max(t => t.Points)) - victoryPointsMin;
+
 			report.AddColumn(new ZColumn(ratio ? "Score Ratio" : "Average score", ZAlignment.Float));
 			report.AddColumn(new ZColumn("Games", ZAlignment.Integer));
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
 				report.AddColumn(new ZColumn("Dropped", ZAlignment.Integer));
+
+			if (rt.Settings.Contains("Longitudinal"))
+				report.AddColumn(new ZColumn("Longitudinal"));  // Longitudinal scatter of score ratios and tag ratios.
 
 			ZCell barCell = null;
 
@@ -1973,6 +1981,27 @@ namespace Torn.Report
 				else
 					foreach (ZCell cell in  row)
 						cell.ChartCell = barCell;
+
+				if (rt.Settings.Contains("Longitudinal"))
+				{
+					var pointRatios = new List<ChartPoint>();
+					foreach (GameTeam gameTeam in league.Played(games, team))  // Roll through this team's games.
+					{
+						var game = league.Game(gameTeam);
+
+						var scoreRatio = gameTeam.Score / game.Teams.Average(t => t.Score);
+						pointRatios.Add(new ChartPoint(game.Time, (gameTeam.Score - scoreMin) / scoreRange * 0.9 + 0.05, Color.FromArgb(0xFF, 0x33, 0x00)));  // scarlet
+
+						if (league.IsPoints())
+						{
+							if (game.Teams.Any(t => t.Points != 0) && victoryPointsRange > 0)
+								pointRatios.Add(new ChartPoint(game.Time, (gameTeam.Points - victoryPointsMin) / victoryPointsRange * 0.9 + 0.05, Color.FromArgb(0x3D, 0x42, 0x8B)));  // royal blue
+							else
+								pointRatios.Add(new ChartPoint(game.Time, 1 - (game.Teams.IndexOf(gameTeam) / (game.Teams.Count - 1) * 0.9 + 0.05), Color.FromArgb(0x3D, 0x42, 0x8B)));  // rank, royal blue
+						}
+					}
+					row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointRatios;  // Longitudinal scatter of score ratios and tag ratios.
+				}
 
 				if (entry.ScoreList.Count + entry.Dropped >= atLeastN)
 					report.Rows.Add(row);
@@ -2073,6 +2102,9 @@ namespace Torn.Report
 	
 				if (showColours)
 					report.Description += " For each team, the report shows the number of times they placed first, second and third on each colour. The Totals row shows the total number of firsts, seconds and thirds that were scored by each colour.";
+
+				if (rt.Settings.Contains("Longitudinal"))
+					report.Description += " The Longitudinal column shows each game for each team. Red is score ratio; blue is victory points or rank.";
 
 				if (report.Description == "This report ranks teams. ")  // No interesting boxes are checked,
 			  			report.Description = "";  // so this description is too boring to show.
