@@ -1035,7 +1035,7 @@ namespace Torn.Report
 						row.Add(cell);
 					}
 
-				if (game.ServerGame.Events != null && game.ServerGame.Events.Any())
+				if (game.ServerGame?.Events != null && game.ServerGame.Events.Any())
 				{
 					var text = new StringBuilder();
 					var html = new StringBuilder();
