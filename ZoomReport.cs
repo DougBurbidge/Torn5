@@ -811,7 +811,9 @@ namespace Zoom
 			if (fillColor != Color.Empty && width != 0 && height != 0)
 			{
 				s.Append('\t', indent);
+				int len = s.Length;
 				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
+				s.Replace(".0", "", len, s.Length - len);
 				s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
 				s.Append("\" />\n");
 			}
@@ -877,6 +879,9 @@ namespace Zoom
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell, bool pure)
 		{
+			if (cell.Empty())
+				return;
+
 			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, pure ? null : cell.Hyper);
 
 			int decimals = 0;
