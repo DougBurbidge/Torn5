@@ -30,7 +30,7 @@ Games present in the game server are shown in white. Games only present in Torn 
 </p><p>
 Reporting is different in Torn 5 &mdash; click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-If you select multiple leagues (select one, then hold down the ctrl key as you select more) and click Export, all the selected leagues will have reports exported.
+If you select multiple leagues (select one, then hold down the ctrl key as you select more) and click Report, all the selected leagues will have reports exported.
 </p><p>
 If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
 </p><p>
@@ -164,27 +164,28 @@ You can choose various chart types for various reports, though not every type ma
 <p>
 If you export reports as HTML SVG or HTML tables, your reports will contain hyperlinks, which users can click to go to the appropriate place. Anywhere you see a team name, click it to see that team's stats page. Anywhere you see a player's name, click it to see that player's stats. Anywhere you see a game title or game time, click it to see details of that game.
 </p>
+<h3>Team Ladder</h3>
 </div>
-<div style="float:right">
-<svg viewBox="0 0 286 100" width="400" align="center">
+<div style="float:left">
+<svg viewBox="0 0 293 100" width="410" align="center">
 	<rect x="1.0" y="1" width="285.0" height="30" style="fill:Gray" />
-	<text text-anchor="middle" x="143" y="23" width="284" font-size="8" fill="White">Team ladder to end of Round Robin from 28/02/2019 to 3/03/2019</text>
+	<text text-anchor="middle" x="143" y="23" width="284" font-size="12" fill="White">Team ladder to end of Round Robin from 28/02/2019 to 3/03/2019</text>
 	<rect x="1.0" y="32" width="21.9" height="15" style="fill:Gray" />
-	<text text-anchor="middle" x="11" y="43" width="21" font-size="7" fill="White">Rank</text>
+	<text text-anchor="middle" x="11" y="43" width="21" font-size="9" fill="White">Rank</text>
 	<rect x="23.9" y="32" width="162.8" height="15" style="fill:Gray" />
 	<text x="24" y="43" width="162" font-size="11" fill="White">Team</text>
 	<rect x="187.7" y="32" width="21.9" height="15" style="fill:Gray" />
-	<text text-anchor="end" x="207" y="43" width="21" font-size="6" fill="White">Points</text>
+	<text text-anchor="end" x="207" y="43" width="21" font-size="9" fill="White">Points</text>
 	<rect x="210.6" y="32" width="51.6" height="15" style="fill:Gray" />
-	<text text-anchor="end" x="260" y="43" width="51" font-size="6.5" fill="White">Average score</text>
+	<text text-anchor="end" x="260" y="43" width="51" font-size="9" fill="White">Average score</text>
 	<rect x="263.2" y="32" width="21.9" height="15" style="fill:Gray" />
-	<text text-anchor="end" x="283" y="43" width="21" font-size="5.5" fill="White">Games</text>
+	<text text-anchor="end" x="283" y="43" width="21" font-size="9" fill="White">Games</text>
 
 	<rect x="1.0" y="48" width="286.0" height="15" style="fill:#EEFFFF" />
 	<rect x="-147.2" y="48" width="432.3" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="11" y="59" width="21" font-size="11">1</text>
-	<a xlink><text text-decoration="underline" x="24" y="59" width="162" font-size="11" fill="Navy">Spartans</text></a>
+	<text text-decoration="underline" x="24" y="59" width="162" font-size="11" fill="Navy">Spartans</text></a>
 	<text text-anchor="end" x="207" y="59" width="21" font-size="11">70</text>
 	<text text-anchor="end" x="260" y="59" width="51" font-size="11">43,459</text>
 	<text text-anchor="end" x="283" y="59" width="21" font-size="11">12</text>
@@ -193,7 +194,7 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 	<rect x="-147.2" y="64" width="419.9" height="15" style="fill:#FFC0A0" />
 
 	<text text-anchor="middle" x="11" y="75" width="21" font-size="11">2</text>
-	<a xlink><text text-decoration="underline" x="24" y="75" width="162" font-size="11" fill="Navy">Wolfpack</text></a>
+	<text text-decoration="underline" x="24" y="75" width="162" font-size="11" fill="Navy">Wolfpack</text></a>
 	<text text-anchor="end" x="207" y="75" width="21" font-size="11">68</text>
 	<text text-anchor="end" x="260" y="75" width="51" font-size="11">44,202</text>
 	<text text-anchor="end" x="283" y="75" width="21" font-size="11">12</text>
@@ -202,7 +203,7 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 	<rect x="-147.2" y="80" width="407.6" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="11" y="91" width="21" font-size="11">3</text>
-	<a xlink><text text-decoration="underline" x="24" y="91" width="162" font-size="11" fill="Navy">Brisbane Beavers</text></a>
+	<text text-decoration="underline" x="24" y="91" width="162" font-size="11" fill="Navy">Brisbane Beavers</text></a>
 	<text text-anchor="end" x="207" y="91" width="21" font-size="11">66</text>
 	<text text-anchor="end" x="260" y="91" width="51" font-size="11">43,502</text>
 	<text text-anchor="end" x="283" y="91" width="21" font-size="11">12</text>
@@ -212,7 +213,6 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 </svg>
 </div>
 <div style="max-width:800px; margin:auto">
-<h3>Team Ladder</h3>
 <p>
 Rank teams by average score, score ratio, or victory points (with average score or score ratio as a tie-breaker). Illustration shown at right.
 </p><p>
@@ -228,11 +228,12 @@ If you tick "longitudinal chart" you'll get an extra column at the right of the 
 <p>
 If you have set descriptions for groups of games, this report will show you several incremental ladders, showing the state of play at the end of each group of games. It also has arrows showing how teams rose and fell between groups.
 </p>
+<h3>Teams vs teams</h3>
 </div>
 <div style="float:right">
 <svg viewBox="0 0 233 172" width="326" align="center">
-	<rect x="0" y="1" width="300" height="30" style="fill:Gray" />
-	<text text-anchor="middle" x="117" y="23" width="360" font-size="15" fill="White">2019 ZLTAC Teams vs Teams</text>
+	<rect x="0" y="1" width="233" height="30" style="fill:Gray" />
+	<text text-anchor="middle" x="121" y="23" width="225" font-size="22" fill="White">2019 ZLTAC Teams vs Teams</text>
 	<polygon points="-1,32 39,32 124,117 -1,117" style="fill:Gray" />
 	<polygon points="40,32 66,32 151,117 125,117" style="fill:Gray" />
 	<polygon points="67,32 93,32 178,117 152,117" style="fill:Gray" />
@@ -257,7 +258,7 @@ If you have set descriptions for groups of games, this report will show you seve
 	<rect x="179.1" y="117" width="26.1" height="15" style="fill:#EEC0A0" />
 	<rect x="206.2" y="117" width="15.7" height="15" style="fill:#EEC0A0" />
 
-	<a xlink><text text-decoration="underline" x="2" y="128" width="162" font-size="11" fill="Navy">Spartans</text></a>
+	<text text-decoration="underline" x="2" y="128" width="162" font-size="11" fill="Navy">Spartans</text></a>
 	<text text-anchor="middle" x="137" y="128" width="26" font-size="11">╲</text>
 	<text text-anchor="middle" x="164" y="128" width="26" font-size="11">5/9</text>
 	<text text-anchor="middle" x="192" y="128" width="26" font-size="11">4/4</text>
@@ -270,7 +271,7 @@ If you have set descriptions for groups of games, this report will show you seve
 	<rect x="179.1" y="133" width="13.1" height="15" style="fill:#FFC0A0" />
 	<rect x="206.2" y="133" width="15.7" height="15" style="fill:#FFC0A0" />
 
-	<a xlink><text text-decoration="underline" x="2" y="144" width="162" font-size="11" fill="Navy">Brisbane Beavers</text></a>
+	<text text-decoration="underline" x="2" y="144" width="162" font-size="11" fill="Navy">Brisbane Beavers</text></a>
 	<text text-anchor="middle" x="137" y="144" width="26" font-size="11">4/9</text>
 	<text text-anchor="middle" x="164" y="144" width="26" font-size="11">╲</text>
 	<text text-anchor="middle" x="192" y="144" width="26" font-size="11">2/4</text>
@@ -283,7 +284,7 @@ If you have set descriptions for groups of games, this report will show you seve
 	<rect x="206.2" y="149" width="4.4" height="15" style="fill:#EEC0A0" />
 	<rect x="233.3" y="189" width="26.1" height="15" style="fill:#EEC0A0" />
 
-	<a xlink><text text-decoration="underline" x="2" y="160" width="162" font-size="11" fill="Navy">GP</text></a>
+	<text text-decoration="underline" x="2" y="160" width="162" font-size="11" fill="Navy">GP</text></a>
 	<text text-anchor="middle" x="137" y="160" width="26" font-size="11">0/4</text>
 	<text text-anchor="middle" x="164" y="160" width="26" font-size="11">2/4</text>
 	<text text-anchor="middle" x="192" y="160" width="26" font-size="11">╲</text>
@@ -296,14 +297,13 @@ If you have set descriptions for groups of games, this report will show you seve
 	<rect x="206.2" y="165" width="26.1" height="15" style="fill:Gray" />
 	<rect x="206.2" y="165" width="26.1" height="15" style="fill:#686868" />
 
-	<a xlink><text text-decoration="underline" x="2" y="176" width="162" font-size="11" fill="Navy">Wolfpack</text></a>
+	<text text-decoration="underline" x="2" y="176" width="162" font-size="11" fill="Navy">Wolfpack</text></a>
 	<text text-anchor="middle" x="137" y="176" width="26" font-size="11">4/10</text>
 	<text text-anchor="middle" x="164" y="176" width="26" font-size="11">4/10</text>
 	<text text-anchor="middle" x="192" y="176" width="26" font-size="11">5/6</text>
 	<text text-anchor="middle" x="219" y="176" width="26" font-size="11">╲</text>
 </svg></div>
 <div style="max-width:800px; margin:auto">
-<h3>Teams vs teams</h3>
 <p>
 This report (illustrated) shows a square array of teams versus teams. Each cell within the array shows how many times those teams have won against each other. If a cell represents one game (because those teams have played each other exactly once), it will be hyperlinked, and clicking the link will take you to that game. If you choose the "show average victory points" option, then in addition to the number of wins you'll also see the average number of victory points the team scored in games against the other team.
 </p>
@@ -313,8 +313,75 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 </p>
 <h3>Game Reports</h3>
 </div>
-<div style="float:right">
-<svg viewBox="0 0 350 112" width="490" align="center">
+<div style="float:left">
+<svg viewBox="0 0 490 176" width="490" align="center">
+	<rect x="1" y="1" width="855" height="44" style="fill:Gray" />
+	<text x="9" y="34" width="854" font-size="33" fill="White">2019 ZLTAC Team Games  from 28/02/2019 to 8/03/2019</text>
+
+	<rect x="1" y="46" width="161.9" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="161" y="62" width="161" font-size="16" fill="White">Game</text>
+	<rect x="163.9" y="46" width="162.8" height="22" style="fill:Gray" />
+	<text x="164" y="62" width="162" font-size="16" fill="White">Team</text>
+	<rect x="327.7" y="46" width="51.6" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="377" y="62" width="51" font-size="16" fill="White">Score</text>
+	<rect x="380.3" y="46" width="13.4" height="22" style="fill:Gray" />
+	<text text-anchor="end" x="392" y="62" width="13" font-size="9" fill="White">Pts</text>
+	<rect x="394.7" y="46" width="162.8" height="22" style="fill:Gray" />
+	<text x="395" y="62" width="162" font-size="16" fill="White">Team</text>
+
+	<rect x="1" y="69" width="856" height="22" style="fill:#EEFFFF" />
+
+	<text text-anchor="end" x="161" y="85" width="161" font-size="16">28/02/2019</text>
+
+	<rect x="1" y="92" width="856" height="22" style="fill:White" />
+	<rect x="163.9" y="92" width="229.8" height="22" style="fill:#A0D0FF" />
+	<rect x="163.9" y="92" width="173.9" height="22" style="fill:#82AAD0" />
+	<rect x="394.7" y="92" width="229.8" height="22" style="fill:#A0FFA0" />
+	<rect x="394.7" y="92" width="70" height="22" style="fill:#82D082" />
+
+	<text text-decoration="underline" text-anchor="end" x="161" y="108" width="161" font-size="16" fill="Navy">Round Robin 9:56 AM</text></a>
+	<text text-decoration="underline" x="164" y="108" width="162" font-size="16" fill="Navy">Spartans</text></a>
+	<text text-anchor="end" x="377" y="108" width="51" font-size="16">53,400</text>
+	<text text-anchor="end" x="392" y="108" width="13" font-size="16">6</text>
+	<text text-decoration="underline" x="395" y="108" width="162" font-size="16" fill="Navy">WASP</text></a>
+
+	<rect x="1" y="115" width="856" height="22" style="fill:#EEFFFF" />
+	<rect x="163.9" y="115" width="229.8" height="22" style="fill:#FFA0A0" />
+	<rect x="163.9" y="115" width="131.5" height="22" style="fill:#C28282" />
+	<rect x="394.7" y="115" width="229.8" height="22" style="fill:#A0D0FF" />
+	<rect x="394.7" y="115" width="114.2" height="22" style="fill:#75AAD0" />
+
+	<text text-decoration="underline" text-anchor="end" x="161" y="131" width="161" font-size="16" fill="Navy">Round Robin 10:12 AM</text></a>
+	<text text-decoration="underline" x="164" y="131" width="162" font-size="16" fill="Navy">Sydney Basilisk</text></a>
+	<text text-anchor="end" x="377" y="131" width="51" font-size="16">40,386</text>
+	<text text-anchor="end" x="392" y="131" width="13" font-size="16">6</text>
+	<text text-decoration="underline" x="395" y="131" width="162" font-size="16" fill="Navy">1up</text></a>
+
+	<rect x="1" y="138" width="856" height="22" style="fill:White" />
+	<rect x="163.9" y="138" width="229.8" height="22" style="fill:#FFA0A0" />
+	<rect x="163.9" y="138" width="160" height="22" style="fill:#D08282" />
+	<rect x="394.7" y="138" width="229.8" height="22" style="fill:#A0D0FF" />
+	<rect x="394.7" y="138" width="135.6" height="22" style="fill:#82AAD0" />
+
+	<text text-decoration="underline" text-anchor="end" x="161" y="154" width="161" font-size="16" fill="Navy">Round Robin 10:27 AM</text></a>
+	<text text-decoration="underline" x="164" y="154" width="162" font-size="16" fill="Navy">Dragons</text></a>
+	<text text-anchor="end" x="377" y="154" width="51" font-size="16">49,139</text>
+	<text text-anchor="end" x="392" y="154" width="13" font-size="16">6</text>
+	<text text-decoration="underline" x="395" y="154" width="162" font-size="16" fill="Navy">Adelaide Aftershock</text></a>
+
+	<rect x="1" y="161" width="856" height="22" style="fill:#EEFFFF" />
+	<rect x="163.9" y="161" width="229.8" height="22" style="fill:#A0FFA0" />
+	<rect x="163.9" y="161" width="149.5" height="22" style="fill:#75D082" />
+	<rect x="394.7" y="161" width="229.8" height="22" style="fill:#FFA0A0" />
+	<rect x="394.7" y="161" width="109.6" height="22" style="fill:#C28282" />
+
+	<text text-decoration="underline" text-anchor="end" x="161" y="177" width="161" font-size="16" fill="Navy">Round Robin 10:43 AM</text></a>
+	<text text-decoration="underline" x="164" y="177" width="162" font-size="16" fill="Navy">Spartans</text></a>
+	<text text-anchor="end" x="377" y="177" width="51" font-size="16">45,926</text>
+	<text text-anchor="end" x="392" y="177" width="13" font-size="16">6</text>
+	<text text-decoration="underline" x="395" y="177" width="162" font-size="16" fill="Navy">Box Hill Sentinels</text></a>
+</svg><br/><br/>
+<svg viewBox="0 0 357 112" width="500" align="center">
 	<rect x="1.0" y="1" width="349.0" height="30" style="fill:Gray" />
 	<text text-anchor="middle" x="175" y="23" width="348" font-size="22" fill="White">Grand Finals for 8/03/2019</text>
 
@@ -328,11 +395,11 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<rect x="15.4" y="48" width="124.1" height="15" style="fill:Gray" />
 	<text x="16" y="59" width="124" font-size="11" fill="White">Team</text>
 	<rect x="140.5" y="48" width="51.6" height="15" style="fill:Gray" />
-	<a xlink:href="games20190308.html#game1651"><text text-decoration="underline" text-anchor="end" x="190" y="59" width="51" font-size="11" fill="White">4:51 PM</text></a>
+	<text text-decoration="underline" text-anchor="end" x="190" y="59" width="51" font-size="11" fill="White">4:51 PM</text></a>
 	<rect x="193.1" y="48" width="51.6" height="15" style="fill:Gray" />
-	<a xlink:href="games20190308.html#game1712"><text text-decoration="underline" text-anchor="end" x="243" y="59" width="51" font-size="11" fill="White">5:12 PM</text></a>
+	<text text-decoration="underline" text-anchor="end" x="243" y="59" width="51" font-size="11" fill="White">5:12 PM</text></a>
 	<rect x="245.7" y="48" width="51.6" height="15" style="fill:Gray" />
-	<a xlink:href="games20190308.html#game1730"><text text-decoration="underline" text-anchor="end" x="295" y="59" width="51" font-size="11" fill="White">5:30 PM</text></a>
+	<text text-decoration="underline" text-anchor="end" x="295" y="59" width="51" font-size="11" fill="White">5:30 PM</text></a>
 	<rect x="298.3" y="48" width="51.6" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="348" y="59" width="51" font-size="11" fill="White">Average</text>
 
@@ -346,7 +413,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<rect x="298.3" y="64" width="44.9" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="7" y="75" width="13" font-size="11">1</text>
-	<a xlink><text text-decoration="underline" x="16" y="75" width="124" font-size="11" fill="Navy">Wolfpack</text></a>
+	<text text-decoration="underline" x="16" y="75" width="124" font-size="11" fill="Navy">Wolfpack</text></a>
 	<text text-anchor="end" x="190" y="75" width="51" font-size="11">23,684</text>
 	<text text-anchor="end" x="243" y="75" width="51" font-size="11">21,312</text>
 	<text text-anchor="end" x="295" y="75" width="51" font-size="11">27,984</text>
@@ -362,7 +429,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<rect x="298.3" y="80" width="44.2" height="15" style="fill:#FFC0A0" />
 
 	<text text-anchor="middle" x="7" y="91" width="13" font-size="11">2</text>
-	<a xlink><text text-decoration="underline" x="16" y="91" width="124" font-size="11" fill="Navy">Brisbane Beavers</text></a>
+	<text text-decoration="underline" x="16" y="91" width="124" font-size="11" fill="Navy">Brisbane Beavers</text></a>
 	<text text-anchor="end" x="190" y="91" width="51" font-size="11">25,173</text>
 	<text text-anchor="end" x="243" y="91" width="51" font-size="11">27,623</text>
 	<text text-anchor="end" x="295" y="91" width="51" font-size="11">19,101</text>
@@ -378,7 +445,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<rect x="298.3" y="96" width="44.0" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="7" y="107" width="13" font-size="11">3</text>
-	<a xlink><text text-decoration="underline" x="16" y="107" width="124" font-size="11" fill="Navy">Spartans</text></a>
+	<text text-decoration="underline" x="16" y="107" width="124" font-size="11" fill="Navy">Spartans</text></a>
 	<text text-anchor="end" x="190" y="107" width="51" font-size="11">22,772</text>
 	<text text-anchor="end" x="243" y="107" width="51" font-size="11">27,774</text>
 	<text text-anchor="end" x="295" y="107" width="51" font-size="11">21,003</text>
@@ -387,17 +454,18 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 </svg></div>
 <div style="max-width:800px; margin:auto">
 <p>
-A Game by game report shows games as a list, with each game being a single row in the list. It's useful when there's only a few teams in a game (e.g. a team game), and when there are lots of games in the league. It's not so good when there's lots of teams in a game (e.g. solos or doubles).
+A Game by game report (illustrated) shows games as a list, with each game being a single row in the list. It's useful when there's only a few teams in a game (e.g. a team game), and when there are lots of games in the league. It's not so good when there's lots of teams in a game (e.g. solos or doubles).
 </p><p>
 A Game grid (illustrated) shows results in a grid, with a row for each team and a column for each game. It's good when there's lots of teams in each game, but not all that many games (say 20 or less). It also has a column at the end for average score. If you configure the report to drop best/worst games, then the average will be on only the games not dropped. So this is handy for e.g. a finals series where you get to drop your worst score or whatever.
 </p><p>
 The "Game grid condensed" report (see Pyramid condensed illustration below) is like the game grid, with each row being a team's results, but columns are condensed, so that each team's games are just shown in consecutive columns. If you have set descriptions for groups of games, then there will be groups of columns for each named group of games. The condensed grid is good when there are too many games for an ordinary game grid, but each team plays just a few games.
 </p>
+<h3>Pyramids</h3>
 </div>
 <div style="float:right">
 <svg viewBox="0 0 350 121" width="490" align="center">
 	<rect x="1" y="1" width="348" height="30" style="fill:Gray" />
-	<text text-anchor="middle" x="175" y="23" width="348" font-size="16" fill="White">2019 ZLTAC Solos Games for 1/03/2019</text>
+	<text text-anchor="middle" x="179" y="23" width="340" font-size="22" fill="White">2019 ZLTAC Solos Games for 1/03/2019</text>
 
 	<rect x="1" y="32" width="72.8" height="15" style="fill:Gray" />
 	<rect x="74.8" y="32" width="274.1" height="15" style="fill:Gray" />
@@ -412,13 +480,13 @@ The "Game grid condensed" report (see Pyramid condensed illustration below) is l
 	<rect x="145.4" y="48" width="43.1" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="187" y="59" width="43" font-size="11" fill="White">Score</text>
 	<rect x="189.5" y="48" width="21.9" height="15" style="fill:Gray" />
-	<text text-anchor="end" x="209" y="59" width="21" font-size="7" fill="White">Rank</text>
+	<text text-anchor="end" x="209" y="59" width="21" font-size="9" fill="White">Rank</text>
 	<rect x="212.4" y="48" width="69.5" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="280" y="59" width="69" font-size="11" fill="White">Time</text>
 	<rect x="282.9" y="48" width="43.1" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="324" y="59" width="43" font-size="11" fill="White">Score</text>
 	<rect x="327.0" y="48" width="21.9" height="15" style="fill:Gray" />
-	<text text-anchor="end" x="347" y="59" width="21" font-size="7" fill="White">Rank</text>
+	<text text-anchor="end" x="347" y="59" width="21" font-size="9" fill="White">Rank</text>
 
 	<rect x="1" y="64" width="349" height="15" style="fill:#EEFFFF" />
 	<rect x="145.4" y="64" width="43.1" height="15" style="fill:#A0D0FF" />
@@ -429,7 +497,7 @@ The "Game grid condensed" report (see Pyramid condensed illustration below) is l
 	<rect x="327.0" y="64" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="75" width="30" font-size="11">1</text>
-	<a xlink><text text-decoration="underline" x="33" y="75" width="101" font-size="11" fill="Navy">ninja</text></a>
+	<text text-decoration="underline" x="33" y="75" width="101" font-size="11" fill="Navy">ninja</text></a>
 	<text text-anchor="end" x="142" y="75" width="69" font-size="11">12:08 PM</text>
 	<text text-anchor="end" x="187" y="75" width="43" font-size="11">6,750</text>
 	<text text-anchor="end" x="209" y="75" width="21" font-size="11">1</text>
@@ -446,7 +514,7 @@ The "Game grid condensed" report (see Pyramid condensed illustration below) is l
 	<rect x="327.0" y="80" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="91" width="30" font-size="11">2</text>
-	<a xlink><text text-decoration="underline" x="33" y="91" width="101" font-size="11" fill="Navy">Bootza</text></a>
+	<text text-decoration="underline" x="33" y="91" width="101" font-size="11" fill="Navy">Bootza</text></a>
 	<text text-anchor="end" x="142" y="91" width="69" font-size="11">12:42 PM</text>
 	<text text-anchor="end" x="187" y="91" width="43" font-size="11">7,120</text>
 	<text text-anchor="end" x="209" y="91" width="21" font-size="11">1</text>
@@ -463,7 +531,7 @@ The "Game grid condensed" report (see Pyramid condensed illustration below) is l
 	<rect x="327.0" y="96" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="107" width="30" font-size="11">3</text>
-	<a xlink><text text-decoration="underline" x="33" y="107" width="101" font-size="11" fill="Navy">lakeo</text></a>
+	<text text-decoration="underline" x="33" y="107" width="101" font-size="11" fill="Navy">lakeo</text></a>
 	<text text-anchor="end" x="142" y="107" width="69" font-size="11">1:13 PM</text>
 	<text text-anchor="end" x="187" y="107" width="43" font-size="11">5,020</text>
 	<text text-anchor="end" x="209" y="107" width="21" font-size="11">2</text>
@@ -480,7 +548,7 @@ The "Game grid condensed" report (see Pyramid condensed illustration below) is l
 	<rect x="327.0" y="112" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="123" width="30" font-size="11">4</text>
-	<a xlink><text text-decoration="underline" x="33" y="123" width="101" font-size="11" fill="Navy">Blitz</text></a>
+	<text text-decoration="underline" x="33" y="123" width="101" font-size="11" fill="Navy">Blitz</text></a>
 	<text text-anchor="end" x="142" y="123" width="69" font-size="11">1:02 PM</text>
 	<text text-anchor="end" x="187" y="123" width="43" font-size="11">5,430</text>
 	<text text-anchor="end" x="209" y="123" width="21" font-size="11">4</text>
@@ -489,7 +557,6 @@ The "Game grid condensed" report (see Pyramid condensed illustration below) is l
 	<text text-anchor="end" x="347" y="123" width="21" font-size="11">18</text>
 </svg></div>
 <div style="max-width:800px; margin:auto">
-<h3>Pyramids</h3>
 <p>
 The pyramid report is useful when you're running a competition that gradually eliminates teams that fail to make the cut each round. (We do this for ZLTAC solos, doubles and triples.) It's laid out in a similar way to the game grid: there is a row for each team and a column for each game. It ranks teams by the last round they survived into, and within rounds by average score. You'll need to set descriptions for the games, so the report can figure out which games are in each round.
 </p><p>
@@ -499,9 +566,10 @@ The pyramid condensed report (illustrated) still has a row for each team, but si
 <p>
 An asccension report is like a game grid, with one team per row and one game per column, but teams are ranked by the last game they survived in. This is useful for semifinals series.
 </p>
+<h3>Colours</h3>
 </div>
-<div style="float:right">
-<svg viewBox="0 0 126 138" width="126" align="center">
+<div style="float:left">
+<svg viewBox="0 0 133 138" width="150" align="center">
 	<rect x="1.0" y="1" width="125.0" height="44" style="fill:Gray" />
 	<text text-anchor="middle" x="63" y="19" width="124" font-size="14" fill="White">2019 ZLTAC Team </text>
 	<text text-anchor="middle" x="63" y="35" width="124" font-size="14" fill="White">Colour Performance</text>
@@ -556,7 +624,6 @@ An asccension report is like a game grid, with one team per row and one game per
 
 </svg></div>
 <div style="max-width:800px; margin:auto">
-<h3>Colours</h3>
 <p>
 In an arena where a particular colour may have an advantage or disadvantage because of arena layout, this report (illustrated) shows how many times each colour got each placing. This report can be good to give to teams before they have to make colour choices for e.g. semifinals or finals games.
 </p>
@@ -564,6 +631,7 @@ In an arena where a particular colour may have an advantage or disadvantage beca
 <p>
 This report helps you pick up common errors: games with atypical numbers of players, players who have not been identified, games with no victory points where subsequent games do have victory points, etc.
 </p>
+<h3>Pack Report</h3>
 </div>
 <div style="float:right">
 <svg viewBox="0 0 240 140" width="240" align="center">
@@ -614,7 +682,6 @@ This report helps you pick up common errors: games with atypical numbers of play
 
 </svg></div>
 <div style="max-width:800px; margin:auto">
-<h3>Pack Report</h3>
 <p>
 The pack report endeavours to tell you how "good" or "bad" packs are. It does this via <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Student's t-test</a>.
 </p><p>
@@ -648,4 +715,15 @@ List every player in every game. Useful for data export. Export to CSV or TSV fo
 <p>
 Torn 5 can be downloaded from <a href="http://dougburbidge.com/Apps/index.html">my Apps page</a>. The source code is available from <a href="https://github.com/DougBurbidge/Torn5">my GitHub page</a>.
 </div>
+
+<script>
+window.onload = function() {
+  var texts = document.querySelectorAll('text');
+  for (i = 0; i < texts.length; i++) {
+    var fit = texts[i].getComputedTextLength() / (texts[i].getAttribute('width') - 2);
+    if (fit > 1)
+      texts[i].setAttribute('font-size', texts[i].getAttribute('font-size') / fit);
+  }
+}
+</script>
 </body>
