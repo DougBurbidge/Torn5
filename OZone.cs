@@ -1,14 +1,9 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace Torn
@@ -21,6 +16,8 @@ namespace Torn
 	{
 		protected string _server;
 
+		private const int PORT_NO = 12121;
+
 		protected OZone() { }
 
 		public OZone(string server)
@@ -31,26 +28,8 @@ namespace Torn
 
 		public override List<ServerGame> GetGames()
 		{
-			const int PORT_NO = 12121;
 			string textToSend = "{\"command\": \"list\"}";
-
-			//---create a TCPClient object at the IP and port no.---
-			TcpClient client = new TcpClient(_server, PORT_NO);
-			NetworkStream nwStream = client.GetStream();
-			byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
-			Thread.Sleep(1);
-
-			ReadFromOzone(client, nwStream);
-
-			//---send the text---
-			Console.WriteLine("Sending : " + textToSend);
-			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
-
-			//---read back the text---
-			var result = ReadFromOzone(client, nwStream);
-
-			client.Close();
-
+			string result = QueryServer(textToSend);
 			Console.WriteLine(result);
 
 			List<ServerGame> games = new List<ServerGame>();
@@ -105,8 +84,31 @@ namespace Torn
 			return Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
 		}
 
+		private string QueryServer(string query)
+		{
+			//---create a TCPClient object at the IP and port no.---
+			TcpClient client = new TcpClient(_server, PORT_NO);
+			NetworkStream nwStream = client.GetStream();
+			byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(query);
+			Thread.Sleep(1);
+
+			ReadFromOzone(client, nwStream);
+
+			//---send the text---
+			Console.WriteLine("Sending : " + query);
+			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
+
+			//---read back the text---
+			var result = ReadFromOzone(client, nwStream);
+
+			client.Close();
+
+			return result;
+		}
+
 		void FillGames(string sql, List<ServerGame> games)
 		{
+			Console.WriteLine("FillGames");
 			if (!EnsureConnected())
 				return;
 /*
@@ -132,67 +134,148 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
-			Console.WriteLine(game);
-			if (!EnsureConnected() || !game.GameId.HasValue)
+			if (!game.GameId.HasValue)
 				return;
 
-/*			" { \"gamenumber\": " + game.GameId + ", \"command\": \"all\" }";
+			Console.WriteLine("PopulateGame");
+			string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
+			string result = QueryServer(textToSend);
+			Console.WriteLine(result);
 
-			using (var reader = cmd.ExecuteReader())
+
+
+
+			using (JsonDocument document = JsonDocument.Parse(result))
 			{
-				if (reader.HasRows)
-					game.Events.Clear();
+				JsonElement root = document.RootElement;
 
-				while (reader.Read())
+				if (root.TryGetProperty("events", out JsonElement events))
 				{
-					var oneEvent = new Event
+					string eventsStr = events.ToString();
+					var eventsDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(eventsStr);
+
+					foreach (var evnt in eventsDictionary)
 					{
-						Time = GetDateTime(reader, "Time_Logged"),
-						ServerPlayerId = GetString(reader, "Player_ID"),
-						ServerTeamId = GetInt(reader, "Player_Team_ID"),
-						Event_Type = GetInt(reader, "Event_Type"),
-						Score = GetInt(reader, "Score"),
-						OtherPlayer = GetString(reader, "Result_Data_1"),
-						PointsLostByDeniee = GetInt(reader, "Result_Data_3"),
-						ShotsDenied = GetInt(reader, "Result_Data_4")
-					};
-					oneEvent.OtherTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
-					game.Events.Add(oneEvent);
+						string eventContent = evnt.Value.ToString();
+						using (JsonDocument eventDocument = JsonDocument.Parse(eventContent))
+						{
+							JsonElement eventRoot = eventDocument.RootElement;
+							int eventTime = 0;
+							string eventPlayerId = "";
+							int eventPlayerTeamId = -1;
+							int eventType = -1;
+							int score = 0;
+							string eventOtherPlayerId = "";
+							int eventOtherPlayerTeamId = -1;
+							if (eventRoot.TryGetProperty("time", out JsonElement time)) eventTime = time.GetInt32();
+							if (eventRoot.TryGetProperty("idf", out JsonElement playerId)) eventPlayerId = playerId.GetInt32().ToString();
+							if (eventRoot.TryGetProperty("tidf", out JsonElement playerTeamId)) eventPlayerTeamId = playerTeamId.GetInt32();
+							if (eventRoot.TryGetProperty("evtyp", out JsonElement evType)) eventType = evType.GetInt32();
+							if (eventRoot.TryGetProperty("score", out JsonElement scr)) score = scr.GetInt32();
+							if (eventRoot.TryGetProperty("ida", out JsonElement otherPlayerId)) eventOtherPlayerId = otherPlayerId.GetInt32().ToString();
+							if (eventRoot.TryGetProperty("tida", out JsonElement otherplayerTeamId)) eventOtherPlayerTeamId = otherplayerTeamId.GetInt32();
+
+
+							var gameEvent = new Event
+							{
+								Time = game.Time.AddSeconds(eventTime),
+								ServerPlayerId = eventPlayerId,
+								ServerTeamId = eventPlayerTeamId,
+								Event_Type = eventType,
+								Score = score,
+								OtherPlayer = eventOtherPlayerId,
+								OtherTeam = eventOtherPlayerTeamId,
+							};
+							game.Events.Add(gameEvent);
+						}
+					}
+
+
 				}
+
+				if (root.TryGetProperty("players", out JsonElement players))
+				{
+					string playersStr = players.ToString();
+					var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
+
+					foreach(var player in playersDictionary)
+                    {
+						string playerContent = player.Value.ToString();
+						using (JsonDocument playerDocument = JsonDocument.Parse(playerContent))
+                        {
+							JsonElement playerRoot = playerDocument.RootElement;
+							ServerPlayer serverPlayer = new ServerPlayer();
+							if (playerRoot.TryGetProperty("alias", out JsonElement alias)) serverPlayer.Alias = alias.GetString();
+							if (playerRoot.TryGetProperty("score", out JsonElement score)) serverPlayer.Score = score.GetInt32();
+							if (playerRoot.TryGetProperty("omid", out JsonElement playerId)) serverPlayer.PlayerId = playerId.GetInt32().ToString();
+							serverPlayer.Populate(game.Events);
+
+							game.Players.Add(serverPlayer);
+
+						}
+					}
+
+
+				}
+				
 			}
 
-			game.Players.Clear();
+			/*			using (var reader = cmd.ExecuteReader())
+						{
+							if (reader.HasRows)
+								game.Events.Clear();
 
-			cmd = new MySqlCommand(GameDetailSql(game.GameId), connection);
-			using (var reader = cmd.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					ServerPlayer player = new ServerPlayer
-					{
-						ServerPlayerId = GetString(reader, "Player_ID"),
-						ServerTeamId = GetInt(reader, "Player_Team_ID")
-					};
+							while (reader.Read())
+							{
+								var oneEvent = new Event
+								{
+									Time = GetDateTime(reader, "Time_Logged"),
+									ServerPlayerId = GetString(reader, "Player_ID"),
+									ServerTeamId = GetInt(reader, "Player_Team_ID"),
+									Event_Type = GetInt(reader, "Event_Type"),
+									Score = GetInt(reader, "Score"),
+									OtherPlayer = GetString(reader, "Result_Data_1"),
+									PointsLostByDeniee = GetInt(reader, "Result_Data_3"),
+									ShotsDenied = GetInt(reader, "Result_Data_4")
+								};
+								oneEvent.OtherTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
+								game.Events.Add(oneEvent);
+							}
+						}
 
-					if (0 <= player.ServerTeamId && player.ServerTeamId < 8)
-						player.Colour = (Colour)(player.ServerTeamId + 1);
-					else
-						player.Colour = Colour.None;
+						game.Players.Clear();
 
-					player.Score = GetInt(reader, "Score");
-					player.Pack = GetString(reader, "Pack_Name");
-					player.PlayerId = GetString(reader, "Button_ID");
-					player.Alias = GetString(reader, "Alias");
-					player.Populate(game.Events);
+						cmd = new MySqlCommand(GameDetailSql(game.GameId), connection);
+						using (var reader = cmd.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								ServerPlayer player = new ServerPlayer
+								{
+									ServerPlayerId = GetString(reader, "Player_ID"),
+									ServerTeamId = GetInt(reader, "Player_Team_ID")
+								};
 
-					game.Players.Add(player);
-				}
-			}
-*/
+								if (0 <= player.ServerTeamId && player.ServerTeamId < 8)
+									player.Colour = (Colour)(player.ServerTeamId + 1);
+								else
+									player.Colour = Colour.None;
+
+								player.Score = GetInt(reader, "Score");
+								player.Pack = GetString(reader, "Pack_Name");
+								player.PlayerId = GetString(reader, "Button_ID");
+								player.Alias = GetString(reader, "Alias");
+								player.Populate(game.Events);
+
+								game.Players.Add(player);
+							}
+						}*/
+
 		}
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
+			Console.WriteLine("Get Players");
 			if (!EnsureConnected())
 				return null;
 			/*
