@@ -15,7 +15,12 @@ If you're familiar with Torn 4, here's the very quick guide:
 </p>
 <h2>Quick Start</h2>
 </p><p>
-Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. For P&amp;C systems, this is the name or IP address of the database server machine. For Laserforce, this is probably lf-main\lf6. (Depending on firewall and SQl Server configuration, you may need to run Torn 5 on the database PC.) If you don't have a lasergame system, just leave it at Demo.
+Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. 
+<ul>
+<li>For P&amp;C systems, this is the name or IP address of the database server machine.</li>
+<li>For Laserforce, this is probably lf-main\lf6. (Depending on firewall and SQL Server configuration, you may need to run Torn 5 on the database PC.)</li>
+<li>If you don't have a lasergame system, just leave it at Demo.</li>
+</ul>
 </p><p>
 Click OK. Click Latest. This will cause Torn to query the server. A list of games should appear.
 </p><p>
@@ -709,11 +714,30 @@ If you see a pack getting hit a lot less than other packs in its left shoulder, 
 </p>
 <h3>Everything Report</h3>
 <p>
-List every player in every game. Useful for data export. Export to CSV or TSV for easiest import into other tools.
+List every player in every game. Useful for data export. Export to TSV (tab-separated values) for easiest import into other tools.
+</p>
+<h2>Web Server</h2>
+<p>
+Torn 5 has an internal web server. You can enable/disable it from Leagues &#x25b8 Preferences. You can also set its port number. The default, 8080, is a common port number for web servers that don't want to get in the way of anything else on the same machine that might be using port 80. If you're confident that nothing else is using port 80, you can set it to that if you like.
+</p><p>
+If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at http://mymachine:8080. From the computer running Torn 5, you can use <a href="http://localhost:8080">http://localhost:8080</a>.
+</p><p>
+There's a scoreboard showing the most recent committed game at http://localhost:8080/[tag]/scoreboard.html, where [tag] is the tag you set for this league file. This doesn't auto-refresh when new games are committed, so you'll have to press F5 to cause that refresh.
+</p><p>
+In addition to HTML, Torn 5's internal web server will serve JSON.
+<ul>
+<li>Query <a href="http://localhost:8080/elapsed">http://localhost:8080/elapsed</a> to get the time elapsed in the current game. This will return a number of seconds elapsed, or -1 if no game is in progress. (This query doesn't return JSON; it just returns a bare integer.)</li>
+<li>Query <a href="http://localhost:8080/games">http://localhost:8080/games</a> to get a list of games known to Torn. This lists the games in the game server, even the uncommitted ones.</li>
+<li>Query a URL like http://localhost:8080/game2020-01-02T13:45:56 to get a specific game. That date/time is in .NET's "<a href="https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#UniversalSortable">sortable</a>" date/time format, which in turn follows ISO 8601. No timezone is given &mdash; the timezone of the Torn 5 machine is assumed. You can copy a game start time from the games list, remove the timezone and use it for a game query.</li>
+<li>Query <a href="http://localhost:8080/players">http://localhost:8080/players</a> to get a list of players known to Torn. This lists the players known to the game server, not just the players in Torn's league file. This is the list used in Torn 5's Re-ID dialog. For Laserforce servers, this list may be long.</li>
+</ul>
+The object of all this is to eventually allow a remote copy of Torn 5 to pull the statistics it needs from a lasergame server via a local copy of Torn 5 &mdash; the local copy pulls results from the lasergame server and in turn passes them as JSON to the remote copy of Torn 5. This avoids any need to directly expose the lasergame server to the internet. But this feature isn't well tested. It's also eventually intended to be able to push these files from the local Torn 5 to a web location, so that a remote Torn 5 can query those static files from an ordinary web server. This isn't implemented.
 </p>
 <h2>Download</h2>
 <p>
 Torn 5 can be downloaded from <a href="http://dougburbidge.com/Apps/index.html">my Apps page</a>. The source code is available from <a href="https://github.com/DougBurbidge/Torn5">my GitHub page</a>.
+</p>
+<br/><br/><br/>
 </div>
 
 <script>
