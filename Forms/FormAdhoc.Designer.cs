@@ -31,16 +31,16 @@
 			this.components = new System.ComponentModel.Container();
 			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
 			this.groupBoxOutputFormat = new System.Windows.Forms.GroupBox();
+			this.buttonShow = new System.Windows.Forms.Button();
+			this.radioCsv = new System.Windows.Forms.RadioButton();
+			this.buttonSave = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
-			this.radioCsv = new System.Windows.Forms.RadioButton();
 			this.radioTsv = new System.Windows.Forms.RadioButton();
 			this.radioTables = new System.Windows.Forms.RadioButton();
 			this.radioSvg = new System.Windows.Forms.RadioButton();
-			this.buttonSave = new System.Windows.Forms.Button();
 			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.panelDisplay = new System.Windows.Forms.Panel();
-			this.buttonShow = new System.Windows.Forms.Button();
 			this.groupBoxOutputFormat.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -65,7 +65,38 @@
 			this.groupBoxOutputFormat.Size = new System.Drawing.Size(64, 689);
 			this.groupBoxOutputFormat.TabIndex = 7;
 			this.groupBoxOutputFormat.TabStop = false;
-			this.groupBoxOutputFormat.Text = "Output format";
+			this.groupBoxOutputFormat.Text = "Save As";
+			// 
+			// buttonShow
+			// 
+			this.buttonShow.Enabled = false;
+			this.buttonShow.Location = new System.Drawing.Point(6, 321);
+			this.buttonShow.Name = "buttonShow";
+			this.buttonShow.Size = new System.Drawing.Size(52, 76);
+			this.buttonShow.TabIndex = 7;
+			this.buttonShow.Text = "Show saved report in web browser";
+			this.buttonShow.UseVisualStyleBackColor = true;
+			this.buttonShow.Click += new System.EventHandler(this.ButtonShowClick);
+			// 
+			// radioCsv
+			// 
+			this.radioCsv.Location = new System.Drawing.Point(6, 228);
+			this.radioCsv.Name = "radioCsv";
+			this.radioCsv.Size = new System.Drawing.Size(56, 32);
+			this.radioCsv.TabIndex = 3;
+			this.radioCsv.Tag = 3;
+			this.radioCsv.Text = "CSV";
+			this.radioCsv.UseVisualStyleBackColor = true;
+			// 
+			// buttonSave
+			// 
+			this.buttonSave.Location = new System.Drawing.Point(6, 292);
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.Size = new System.Drawing.Size(52, 23);
+			this.buttonSave.TabIndex = 6;
+			this.buttonSave.Text = "&Save";
+			this.buttonSave.UseVisualStyleBackColor = true;
+			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
 			// 
 			// label2
 			// 
@@ -82,16 +113,6 @@
 			this.label1.Size = new System.Drawing.Size(55, 23);
 			this.label1.TabIndex = 4;
 			this.label1.Text = "(prettiest)";
-			// 
-			// radioCsv
-			// 
-			this.radioCsv.Location = new System.Drawing.Point(6, 228);
-			this.radioCsv.Name = "radioCsv";
-			this.radioCsv.Size = new System.Drawing.Size(56, 32);
-			this.radioCsv.TabIndex = 3;
-			this.radioCsv.Tag = 3;
-			this.radioCsv.Text = "CSV";
-			this.radioCsv.UseVisualStyleBackColor = true;
 			// 
 			// radioTsv
 			// 
@@ -125,16 +146,6 @@
 			this.radioSvg.Text = "HTML SVG";
 			this.radioSvg.UseVisualStyleBackColor = true;
 			// 
-			// buttonSave
-			// 
-			this.buttonSave.Location = new System.Drawing.Point(6, 292);
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.Size = new System.Drawing.Size(52, 23);
-			this.buttonSave.TabIndex = 6;
-			this.buttonSave.Text = "&Save";
-			this.buttonSave.UseVisualStyleBackColor = true;
-			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
-			// 
 			// panelDisplay
 			// 
 			this.panelDisplay.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
@@ -143,17 +154,6 @@
 			this.panelDisplay.Name = "panelDisplay";
 			this.panelDisplay.Size = new System.Drawing.Size(720, 689);
 			this.panelDisplay.TabIndex = 8;
-			// 
-			// buttonShow
-			// 
-			this.buttonShow.Enabled = false;
-			this.buttonShow.Location = new System.Drawing.Point(6, 321);
-			this.buttonShow.Name = "buttonShow";
-			this.buttonShow.Size = new System.Drawing.Size(52, 76);
-			this.buttonShow.TabIndex = 7;
-			this.buttonShow.Text = "Show saved report in web browser";
-			this.buttonShow.UseVisualStyleBackColor = true;
-			this.buttonShow.Click += new System.EventHandler(this.ButtonShowClick);
 			// 
 			// FormAdhoc
 			// 
