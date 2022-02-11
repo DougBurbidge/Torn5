@@ -486,9 +486,12 @@ namespace Torn.UI
 
 				if (new FormReport
 				{
+					From = (holder.League.AllGames.FirstOrDefault()?.Time ?? default).Date,
+					To = (holder.League.AllGames.LastOrDefault()?.Time ?? default).Date,
 					ReportTemplate = adhocReportTemplate,
 					League = SelectedLeagues().FirstOrDefault()?.League,
 					Icon = (Icon)this.Icon.Clone()
+
 			}.ShowDialog() == DialogResult.OK)
 				{
 					Cursor.Current = Cursors.WaitCursor;
