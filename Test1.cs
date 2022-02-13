@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -166,7 +165,7 @@ namespace TornWeb
 			reportTemplates.ToXml(doc, bodyNode);
 			
 			var reportTemplates2 = new ReportTemplates();
-			reportTemplates2.FromXml(doc, bodyNode.FirstChild);
+			reportTemplates2.FromXml(bodyNode.FirstChild);
 			
 			Assert.AreEqual(2, reportTemplates2.Count, "XML Number of report templates");
 			Assert.That(reportTemplates2[0].ReportType == ReportType.TeamLadder, "XML team ladder");
@@ -314,6 +313,27 @@ namespace TornWeb
 			else
 				return (int)timeElapsed.TotalSeconds;
 		}
+
+		[Test]
+		public void TestUtility()
+		{
+			Assert.AreEqual("one", "one two three".FirstWord(), "FirstWord()");
+			Assert.AreEqual("three", "one two three".LastWord(), "LastWord()");
+
+			Assert.AreEqual("one two", Utility.JoinWithoutDuplicate("one", "two"), "JoinWithoutDuplicate 12");
+			Assert.AreEqual("one two three four", Utility.JoinWithoutDuplicate("one two", "three four"), "JoinWithoutDuplicate 1234");
+			Assert.AreEqual("one two three", Utility.JoinWithoutDuplicate("one two", "two three"), "JoinWithoutDuplicate 123");
+			Assert.AreEqual("one twos three", Utility.JoinWithoutDuplicate("one twos", "two three"), "JoinWithoutDuplicate 12s3");
+			Assert.AreEqual("one twos three", Utility.JoinWithoutDuplicate("one two", "twos three"), "JoinWithoutDuplicate 12s3 again");
+
+			Assert.AreEqual("dogs", Utility.Pluralise("dog"), "pluralise dog");
+			Assert.AreEqual("mouths", Utility.Pluralise("mouth"), "pluralise mouth");
+			Assert.AreEqual("photos", Utility.Pluralise("photo"), "pluralise photo");
+			Assert.AreEqual("buses", Utility.Pluralise("bus"), "pluralise bus");
+			Assert.AreEqual("axes", Utility.Pluralise("axis"), "pluralise axis");
+			Assert.AreEqual("fairies", Utility.Pluralise("fairy"), "pluralise fairy");
+			Assert.AreEqual("monkeys", Utility.Pluralise("monkey"), "pluralise monkey");
+		}
 	}
 
 	public class StubServer: LaserGameServer
@@ -392,4 +412,3 @@ namespace TornWeb
 		}
     }
 }
-*/

@@ -160,6 +160,69 @@ namespace Torn
 			return 0 <= i && i < list.Count;
 		}
 
+		/// <summary>If s is a string containing whitespace-separated text, return the first word of s.</summary>
+		public static string FirstWord(this string s)
+		{
+			if (string.IsNullOrWhiteSpace(s))
+				return null;
+
+			char[] whitespace = { ' ', '\t', '\r', '\n', '\v', '\f' };
+			int i = s.IndexOfAny(whitespace);
+			if (i == -1)
+				return s;
+
+			return s.Substring(0, i);
+		}
+
+		/// <summary>If s is a string containing whitespace-separated text, return the lasst word of s.</summary>
+		public static string LastWord(this string s)
+		{
+			if (string.IsNullOrWhiteSpace(s))
+				return null;
+
+			char[] whitespace = { ' ', '\t', '\r', '\n', '\v', '\f' };
+			int i = s.LastIndexOfAny(whitespace);
+			if (i == -1)
+				return s;
+
+			return s.Substring(i + 1);
+		}
+
+		/// <summary>"one word" + "word two" -> "one word two". Also works with plurals: "one words" + "word two" -> "one words two".</summary>
+		public static string JoinWithoutDuplicate(string one, string two)
+		{
+			string lastWordOne = one.LastWord();
+			string firstWordTwo = two.FirstWord();
+			if (lastWordOne == firstWordTwo)
+				return one.Substring(0, one.Length - lastWordOne.Length) + two;
+			else if (lastWordOne.Pluralise() == firstWordTwo)
+				return one.Substring(0, one.Length - lastWordOne.Length) + two;
+			else if (lastWordOne == firstWordTwo.Pluralise())
+				return one + " " + two.Substring(firstWordTwo.Length + 1);
+			else
+				return one + " " + two;
+		}
+
+		public static string Pluralise(this string s)
+		{
+			if (s.Length <= 1)
+				return s + "s";
+
+			char last = s[s.Length - 1];
+			string lastTwo = s.Length < 2 ? s.Substring(s.Length - 1) : s.Substring(s.Length - 2);
+
+			if (lastTwo == "is")
+				return s.Substring(0, s.Length - 2) + "es";
+
+			if (last == 's' || last == 'x' || last == 'z' || lastTwo == "ch" || lastTwo == "sh")
+				return s + "es";
+
+			if (last == 'y' && !(lastTwo == "ay" || lastTwo == "ey" || lastTwo == "iy" || lastTwo == "oy" || lastTwo == "uy"))
+				return s.Substring(0, s.Length - 1) + "ies";
+
+			return s + "s";
+		}
+
 		static void JsonKeyValueInternal(StringBuilder sb, int indent, string key, string value, bool comma)
 		{
 			sb.Append('\t', indent);

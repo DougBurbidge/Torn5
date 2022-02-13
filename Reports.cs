@@ -126,7 +126,7 @@ namespace Torn.Report
 		{
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
-			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Colour Performance" : rt.Title, "Rank", "center");
+			ZoomReport report = new ZoomReport(ReportTitle("Colour Performance", league.Title, rt), "Rank", "center");
 
 			List<Game> games = Games(league, includeSecret, rt);
 
@@ -651,7 +651,7 @@ namespace Torn.Report
 
 			if (games.Any() && games.First().Time.Date == games.Last().Time.Date)
 				report.Rows.RemoveAt(0);  // The first entry in rows is a date line; since there's only one date for the whole report, we can delete it.
-			report.Title = (string.IsNullOrEmpty(rt.Title) ? league.Title + " Games " : rt.Title);
+			report.Title = (ReportTitle("Games", league.Title, rt));
 
 			for (int i = 0; i < mostTeams; i++)  // set up the Headings text, to cater for however many columns the report has turned out to be
 			{
@@ -766,7 +766,7 @@ namespace Torn.Report
 			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
 			bool showColours = rt.Settings.Contains("ShowColours");
 
-			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladders" : rt.Title, "Rank", "center")
+			ZoomReport report = new ZoomReport(ReportTitle("Team Ladders", league.Title, rt), "Rank", "center")
 			{
 				MaxChartByColumn = true
 			};
@@ -1699,7 +1699,7 @@ namespace Torn.Report
 		{
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
-			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Solo Ladder" : rt.Title,
+			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
 											   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Longitudinal",
 											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,float",
 											   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,,,")
@@ -1852,7 +1852,7 @@ namespace Torn.Report
 			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
 			bool showColours = rt.Settings.Contains("ShowColours");
 
-			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Team Ladder" : rt.Title, "Rank,Team", "center,left")
+			ZoomReport report = new ZoomReport(ReportTitle("Team Ladder", league.Title, rt), "Rank,Team", "center,left")
 			{
 				MaxChartByColumn = true
 			};
@@ -2118,7 +2118,7 @@ namespace Torn.Report
 		/// <summary>Build a square table showing how many times each team has played (and beaten) each other team.</summary>
 		public static ZoomReport TeamsVsTeams(League league, bool includeSecret, ReportTemplate rt)
 		{
-			ZoomReport report = new ZoomReport(string.IsNullOrEmpty(rt.Title) ? league.Title + " Teams vs Teams" : rt.Title, "Team", "left");
+			ZoomReport report = new ZoomReport(ReportTitle("Teams vs Teams", league.Title, rt), "Team", "left");
 			
 			List<LeagueTeam> teams = new List<LeagueTeam>();
 			teams.AddRange(league.Teams);
@@ -2909,10 +2909,23 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
 
-			report.Title = string.IsNullOrEmpty(rt.Title) ?
-				league.Title + (rt.ReportType == ReportType.Ascension ? " Ascension" : 
-			                    rt.ReportType == ReportType.Pyramid   ? " Pyramid" : 
-			                                                            " Games") : rt.Title;
+			report.Title = ReportTitle(rt.ReportType == ReportType.Ascension ? "Ascension" : 
+			                           rt.ReportType == ReportType.Pyramid   ? "Pyramid" : 
+			                                                                   "Games", league.Title, rt);
+		}
+
+		/// <summary>Return a title suitable for use at the top of a report. Remove duplicated words where appropriate.</summary>
+		static string ReportTitle(string reportName, string leagueName, ReportTemplate rt)
+		{
+			string templateName = rt.Title;
+			if (!string.IsNullOrEmpty(templateName))
+				return templateName;
+
+			string group = rt.Setting("Group");
+			if (string.IsNullOrEmpty(group))
+				return Utility.JoinWithoutDuplicate(leagueName, reportName);
+			else
+				return leagueName + " " + Utility.JoinWithoutDuplicate(group, reportName);
 		}
 
 		static void FinishReport(ZoomReport report, List<Game> games, ReportTemplate rt)
