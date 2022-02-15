@@ -644,10 +644,18 @@ namespace Zoom
 			}
 			s.Append('\n');
 
-			foreach (ZRow row in Rows)
+			for (int i = 0; i < Rows.Count; i++)
 			{
-				foreach (var cell in row)
+				for (int j = 0; j < Rows[i].Count; j++)
 				{
+					ZCell cell = Rows[i][j];
+					if (string.IsNullOrEmpty(cell.Text))
+					{
+						// If the cell is otherwise empty, and it contains the start of an arrow that has one From and one To, 
+						var arrows = Columns[j].Arrows.FindAll(a => a.From.Count == 1 && a.To.Count == 1 && a.From[0].Row == i);
+						if (arrows.Count == 1)
+							s.Append(arrows[0].To[0].Row - arrows[0].From[0].Row);  // output a number that shows how many rows the arrow goes up/down.
+					}
 					s.Append(cell.Text);
 					s.Append(separator);
 				}
