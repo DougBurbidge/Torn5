@@ -808,10 +808,10 @@ namespace Zoom
 		}
 
 		// Write a <rect> tag, and a <text> tag on top of it.
-		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null)
+		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text)
 		{
 			SvgRect(s, indent, x, y, width, height, backColor);
-			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text, cssClass, hyper);
+			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text);
 		}
 
 		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
@@ -836,7 +836,7 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string cssClass = null, string hyper = null)
+		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string cssClass = null, string hyper = null, double scale = 1.0)
 		{
 			s.Append('\t', indent);
 			if (!string.IsNullOrEmpty(hyper))
@@ -852,18 +852,16 @@ namespace Zoom
 			switch (alignment)
 			{
 				case ZAlignment.Left: 
-					s.AppendFormat("x=\"{0}\" y=\"{1}\" width=\"{2}\" font-size=\"{3}\"",
-					                       x + 1, y + height * 3 / 4, width, height * 3 / 4);
+					s.AppendFormat("x=\"{0}\"", x + 1);
 				break;
 				case ZAlignment.Center:
-					s.AppendFormat("text-anchor=\"middle\" x=\"{0}\" y=\"{1}\" width=\"{2}\" font-size=\"{3}\"",
-				                       x + width / 2, y + height * 3 / 4, width, height * 3 / 4);
+					s.AppendFormat("text-anchor=\"middle\" x=\"{0}\"", x + width / 2);
 				break;
 			default: // i.e. Right, Float, Integer
-					s.AppendFormat("text-anchor=\"end\" x=\"{0}\" y=\"{1}\" width=\"{2}\" font-size=\"{3}\"", 
-				                       x + width - 1, y + height * 3 / 4, width, height * 3 / 4);
+					s.AppendFormat("text-anchor=\"end\" x=\"{0}\"", x + width - 1);
 				break;
 			}
+			s.AppendFormat(" y=\"{0}\" width=\"{1}\" font-size=\"{2}\"", y + height * 3 / 4, width, (int)(scale * height * 3 / 4));
 
 			if (!string.IsNullOrEmpty(hyper) || fontColor != Color.Black)
 			{
@@ -890,7 +888,10 @@ namespace Zoom
 			if (cell.Empty())
 				return;
 
-			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, pure ? null : cell.Hyper);
+			var text = cell.Svg ?? WebUtility.HtmlEncode(cell.Text);
+			float textWidth = TextWidth(text, pure);
+
+			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, pure ? null : cell.Hyper, pure && width < textWidth ? width / textWidth : 1);
 
 			int decimals = 0;
 			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
@@ -899,13 +900,12 @@ namespace Zoom
 			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
 			    Math.Abs((double)cell.Number) > 0.0001)
 			{
-				var numberAsText = cell.Svg ?? WebUtility.HtmlEncode(cell.Text);
-				s.Append(numberAsText);
+				s.Append(text);
 				
 				// Now right-pad it, with a decimal-sized space if there's no decimal, and digit-sized spaces if there's not enough digits after the decimal.
-				if (decimals > 0 && !numberAsText.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator))
+				if (decimals > 0 && !text.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator))
 					s.Append('\u2008');  // punctutation space (width of a .)
-				var digitsAfterDecimal = numberAsText.Length - numberAsText.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator) - 1;
+				var digitsAfterDecimal = text.Length - text.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator) - 1;
 				if (decimals > 0 && digitsAfterDecimal < decimals)
 				{
 					s.Append('0', decimals - digitsAfterDecimal);
@@ -934,14 +934,28 @@ namespace Zoom
 			SvgEndText(s, pure ? null : cell.Hyper);
 		}
 
-		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null)
+		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
 		{
 			if (string.IsNullOrEmpty(text))
-			    return;
+				return;
 
-			SvgBeginText(s, indent, x, y, width, height, fontColor, alignment, cssClass, hyper);
+			float textWidth = TextWidth(text, pure);
+
+			SvgBeginText(s, indent, x, y, width, height, fontColor, alignment, cssClass, pure ? null : hyper, pure && width < textWidth ? width / textWidth : 1);
 			s.Append(WebUtility.HtmlEncode(text));
-			SvgEndText(s, hyper);
+			SvgEndText(s, pure ? null : hyper);
+		}
+
+		float TextWidth(string text, bool pure)
+		{
+			if (pure)
+			{
+				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
+				var font = new Font("Arial", 11);
+				return graphics.MeasureString(text, font, 1000).Width;
+			}
+			else
+				return 0;
 		}
 
 		void SvgCircle(StringBuilder s, int indent, double x, double y, double radius, Color fillColor)
@@ -1170,7 +1184,7 @@ namespace Zoom
 							   "\t<text text-anchor=\"middle\" x=\"45\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill=\"Black\">&#160;-&#160;</text>\n", rowHeight * 3 / 2 + 1, rowHeight * 2);
 			}
 
-			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, pure ? null : TitleHyper);  // Paint title "row" text.
+			SvgText(s, 1, 1, 1, width - 2, rowHeight * 2, Colors.TitleFontColor, ZAlignment.Center, Title, null, TitleHyper, pure);  // Paint title "row" text.
 			s.Append('\n');
 
 			if (!pure)
@@ -1278,7 +1292,7 @@ namespace Zoom
 				}
 				else  // Paint column heading text flat.
 					SvgText(s, 1, (int)x, rowTop + (int)headerHeight - rowHeight, (int)widths[col] - (nextRotated && !hasGroupHeadings ? rowHeight : 0), rowHeight,
-						textColor, column.Alignment, column.Text, null, pure ? null : column.Hyper);
+						textColor, column.Alignment, column.Text, null, column.Hyper, pure);
 
 				x += widths[col] + 1;
 			}
