@@ -346,11 +346,14 @@ namespace Torn.Report
 		/// <summary> Build a grid of games. One team per row; one game per column.
 		public static ZoomReport GamesGrid(League league, bool includeSecret, ReportTemplate rt)
 		{
+			return GamesGrid(league, Games(league, includeSecret, rt), rt);
+		}
+
+		static ZoomReport GamesGrid(League league, List<Game> games, ReportTemplate rt)
+		{
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
 			DateTime thisgametime = DateTime.MinValue;
-			List<Game> games = Games(league, includeSecret, rt);
-
 			// Create columns.
 			foreach (Game game in games)
 			{
@@ -362,7 +365,8 @@ namespace Torn.Report
 					ZAlignment.Integer)
 				{
 					GroupHeading = game.Title,
-					Hyper = GameHyper(game)
+					Hyper = GameHyper(game),
+					Tag = game
 				};
 				report.AddColumn(column);
 
@@ -370,7 +374,8 @@ namespace Torn.Report
 				{
 					column = new ZColumn("Pts")
 					{
-						GroupHeading = game.Title
+						GroupHeading = game.Title,
+						Tag = game
 					};
 					report.AddColumn(column);
 				}
@@ -400,7 +405,7 @@ namespace Torn.Report
 
 				row.Add(new ZCell(0, ChartType.None, "N0")); // Temporary blank rank.
 
-				row.Add(TeamCell(leagueTeam));
+				row.AddCell(TeamCell(leagueTeam)).Tag = leagueTeam;
 
 				// Add a cell for each game for this team. If the team is not in this game, add a blank.
 				foreach (Game game in games)
@@ -783,75 +788,102 @@ namespace Torn.Report
 				report.Rows.Last().Add(new ZCell(report.Rows.Count));  // Rank
 			}
 
-			for (int group = 0; group < groups.Count(); group++)
+			for (int group = 0; group < groups.Count(); group++)  // for each group of games
 			{
+				if (groups[group].ToLower().Contains("final") && !groups[group].ToLower().Contains("semi"))
+					groupGames.Clear();
+
 				var thisGroupGames = games.Where(g => g.Title == groups[group]).ToList();
 				groupGames.AddRange(thisGroupGames);
 
 				report.AddColumn(new ZColumn("Team", ZAlignment.Left, groups[group]));
 
-				if (league.IsPoints())
-					report.AddColumn(new ZColumn("Points", ZAlignment.Float, groups[group]));
-
-				report.AddColumn(new ZColumn(ratio ? "Score Ratio" : "Average score", ZAlignment.Float, groups[group]));
-				report.AddColumn(new ZColumn("Games", ZAlignment.Integer, groups[group]));
-				report.AddColumn(new ZColumn());  // This column is for arrows.
-
-				var ladder = Ladder(league, groupGames, rt);
-				for (int t = 0; t < ladder.Count; t++)
+				if (groups[group].ToLower().Contains("semifinal") || groups[group].ToLower().Contains("semi final") ||
+					groups[group].ToLower().Contains("ascension") || groups[group].ToLower().Contains("format ") || groups[group].ToLower().Contains("track"))
 				{
-					var entry = ladder[t];
-					var team = entry.Team;
+					report.AddColumn(new ZColumn("", ZAlignment.Right, groups[group]));
+					report.AddColumn(new ZColumn("Placings", ZAlignment.Right, groups[group]));
+					report.AddColumn(new ZColumn("Games", ZAlignment.Integer, groups[group]));
+					report.AddColumn(new ZColumn());  // This column is for arrows.
 
-					var row = report.Rows[t];
-
-					var gamesPlayedThisGroup = league.Played(thisGroupGames, team).Count;
-					if (gamesPlayedThisGroup == 0)
+					var ascension = GamesGrid(league, thisGroupGames, new ReportTemplate(ReportType.Ascension, new string[] { }));
+					for (int team = 0; team < Math.Min(report.Rows.Count, ascension.Rows.Count); team++)
 					{
-						row.Add(new ZCell());  // Team
-						row.Add(new ZCell());  // Points
-						row.Add(new ZCell());  // Score
-						row.Add(new ZCell());  // Games
+						ZRow aRow = ascension.Rows[team];
+						ZRow row = report.Rows[team];
+						ZCell teamCell = row.AddCell(aRow[1]);  // Team
+						row.Add(new ZCell());  // Blank spacer
+
+						var placings = new List<string>();
+						var teamId = league.Teams.Find(t => t.Name == teamCell.Text).TeamId;
+						foreach (var game in thisGroupGames)
+						{
+							int rank = game.Teams.FindIndex(t => t.TeamId == teamId);
+							if (rank > -1)
+								placings.Add(Utility.Ordinate(rank + 1));
+						}
+						row.Add(new ZCell(string.Join(", ", placings.ToArray())));  // Placings
+
+						row.Add(new ZCell(aRow.Count(c => !c.Empty()) - 2));  // Games
 						row.Add(new ZCell());  // Arrow
+
+						MultiLadderArrow(report, teamCell, group, columnsPerGroup, team);
 					}
-					else
+				}
+				else
+				{
+					if (league.IsPoints())
+						report.AddColumn(new ZColumn("Points", ZAlignment.Float, groups[group]));
+
+					report.AddColumn(new ZColumn(ratio ? "Score Ratio" : "Average score", ZAlignment.Float, groups[group]));
+					report.AddColumn(new ZColumn("Games", ZAlignment.Integer, groups[group]));
+					report.AddColumn(new ZColumn());  // This column is for arrows.
+
+					var ladder = Ladder(league, groupGames, rt);
+					for (int t = 0; t < ladder.Count; t++)
 					{
-						row.Add(TeamCell(team));  // Team
-						var teamHyper = row.Last().Hyper;
+						var entry = ladder[t];
+						var team = entry.Team;
 
-						if (league.IsPoints())
-							row.Add(new ZCell(ladder[t].Points));  // Points
+						var row = report.Rows[t];
 
-						ZCell scoreCell;
-						if (entry.ScoreList.Count == 0)
-							scoreCell = new ZCell("-");
+						var gamesPlayedThisGroup = league.Played(thisGroupGames, team).Count;
+						if (gamesPlayedThisGroup == 0)
+						{
+							row.Add(new ZCell());  // Team
+							row.Add(new ZCell());  // Points
+							row.Add(new ZCell());  // Score
+							row.Add(new ZCell());  // Games
+							row.Add(new ZCell());  // Arrow
+						}
 						else
 						{
-							scoreCell = new ZCell(null, chartType)
-							{
-								Number = entry.ScoreList.Average(),
-								NumberFormat = ratio ? "P1" : "N0"
-							};
+							ZCell teamCell = row.AddCell(TeamCell(team));  // Team
 
-							if (ratio)
-								scoreCell.Data.AddRange(entry.ScoreList.Select(x => x / entry.ScoreList.Average()));  // average game score ratio
+							if (league.IsPoints())
+								row.Add(new ZCell(ladder[t].Points));  // Points
+
+							ZCell scoreCell;
+							if (entry.ScoreList.Count == 0)
+								scoreCell = new ZCell("-");
 							else
-								scoreCell.Data.AddRange(entry.ScoreList);  // average game score
-						}
-						row.Add(scoreCell);  // Score
-						row.Add(new ZCell(gamesPlayedThisGroup));  // Games
-						row.Add(new ZCell());  // Arrow
-						if (group > 0)
-						{
-							var lastRow = report.Rows.FindIndex(r => r[(group - 1) * columnsPerGroup + 1].Hyper == teamHyper);
-							if (lastRow > -1)
 							{
-								var arrow = new Arrow();
-								arrow.From.Add(new ZArrowEnd(lastRow, 5));
-								arrow.To.Add(new ZArrowEnd(t, 5));
-								arrow.Color = Utility.StringToColor(team.Name);
-								report.Columns[group * columnsPerGroup].Arrows.Add(arrow);
+								scoreCell = new ZCell(null, chartType)
+								{
+									Number = entry.ScoreList.Average(),
+									NumberFormat = ratio ? "P1" : "N0"
+								};
+
+								if (ratio)
+									scoreCell.Data.AddRange(entry.ScoreList.Select(x => x / entry.ScoreList.Average()));  // average game score ratio
+								else
+									scoreCell.Data.AddRange(entry.ScoreList);  // average game score
 							}
+							row.Add(scoreCell);  // Score
+							row.Add(new ZCell(gamesPlayedThisGroup));  // Games
+							row.Add(new ZCell());  // Arrow
+
+							MultiLadderArrow(report, teamCell, group, columnsPerGroup, t);
 						}
 					}
 				}
@@ -860,6 +892,22 @@ namespace Torn.Report
 			report.RemoveColumn(report.Columns.Count - 1);
 
 			return report;
+		}
+
+		static void MultiLadderArrow(ZoomReport report, ZCell teamCell, int group, int columnsPerGroup, int rank)
+		{
+			if (group > 0)
+			{
+				var previousRank = report.Rows.FindIndex(r => r[(group - 1) * columnsPerGroup + 1].Hyper == teamCell.Hyper);
+				if (previousRank > -1)
+				{
+					var arrow = new Arrow();
+					arrow.From.Add(new ZArrowEnd(previousRank, 5));
+					arrow.To.Add(new ZArrowEnd(rank, 5));
+					arrow.Color = Utility.StringToColor(teamCell.Text);
+					report.Columns[group * columnsPerGroup].Arrows.Add(arrow);
+				}
+			}
 		}
 
 		/// <summary>Detailed report of a single game. One row for each player, plus total rows for each team and for the whole game.</summary>
@@ -2794,10 +2842,11 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			else
 				row.Add(new ZCell(""));  // games dropped
 		}
-		
-		static double? TopScore(ZoomReport report, int col)
+
+		/// <summary>Return the team's rank in this game (if any).</summary>
+		static int Rank(League league, Game game, LeagueTeam team)
 		{
-			return report.Rows.Max(r => r.Count <= col ? null : r[col].Number);
+			return game == null ? -1 : game.Teams.FindIndex(t => t.TeamId == team.TeamId) + 1;
 		}
 
 		static void SortGridReport(League league, ZoomReport report, ReportTemplate rt, List<Game> games, int averageCol, int pointsCol, bool reversed)
@@ -2845,39 +2894,36 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 					try
 					{  // Sort by comparing teams' score in the last game they played each other.
 						report.Rows.Sort(delegate(ZRow x, ZRow y)
-									 {
-										int lastx = (int)x.Last().Number;
-										int lasty = (int)y.Last().Number;
+							{
+								int lastx = (int)x.Last().Number;  // Index of x's last game, as a cell in this row.
+								int lasty = (int)y.Last().Number;  // Index of y's last game, as a cell in this row.
 
-										int result = 0;
+								int xRank = Rank(league, (Game)report.Columns[lastx].Tag, (LeagueTeam)x[1].Tag);
+								int yRank = Rank(league, (Game)report.Columns[lasty].Tag, (LeagueTeam)y[1].Tag);
 
-										if (x[lastx].Number == TopScore(report, lastx) && y[lasty].Number == TopScore(report, lasty))
-											result = Math.Sign(lastx - lasty);
-										else if (x[lastx].Number == TopScore(report, lastx))  // x won its last game.
-											result = -1;
-										else if (y[lasty].Number == TopScore(report, lasty))  // y won its last game.
-											result = +1;
+								int result = Math.Sign(lasty - lastx);
+								if (result == 0)
+									result = Math.Sign(xRank - yRank);
 
-										int last = Math.Max(lastx, lasty);
-										if (x[last].Number.HasValue && y[last].Number.HasValue)  // x and y play each other in the last game for both of them.
-											result = Math.Sign((double)y[last].Number - (double)x[last].Number);
-
-										int notlast = Math.Min(lastx, lasty);
-										if (result == 0 && x[notlast].Number.HasValue && y[notlast].Number.HasValue)  // x and y play each other in the last game for one of them.
-											result = Math.Sign((double)y[notlast].Number - (double)x[notlast].Number);
-
-										return result == 0 ? Math.Sign(lasty - lastx) : result;  // Just use who played last.
-									 }
-									);
+								if (!(xRank == 1) && !(yRank == 1))
+									return result;
+								else if (xRank == 1 && yRank == 1)
+									return -result;
+								else if (xRank == 1)
+									return -1;
+								else // yRank == 1
+									return +1;
+							}
+						);
 					}
 					catch
 					{  // If the above produces an ambiguous result, sort teams by whichever one played last.
 						report.Rows.Sort(delegate(ZRow x, ZRow y)
-									 {
-										int result = Math.Sign((double)y.Last().Number - (double)x.Last().Number);
-										return result == 0 ? Math.Sign((double)y[(int)y.Last().Number].Number - (double)x[(int)x.Last().Number].Number) : result;
-									 }
-									);
+							{
+								int result = Math.Sign((double)y.Last().Number - (double)x.Last().Number);
+								return result == 0 ? Math.Sign((double)y[(int)y.Last().Number].Number - (double)x[(int)x.Last().Number].Number) : result;
+							}
+						);
 					}
 
 					report.RemoveColumn(report.Columns.Count - 1);  // Last game index

@@ -48,21 +48,21 @@ namespace Zoom
 	}
 
 	/// <summary>This is the abstract parent of ZColumn and ZCell, holding only a few fields common to "rectangular areas that can contain text".</summary>
-	public interface IBlock
+	public class Block
 	{
-		/// <summary>Text to appear in the cell or column header.</summary>
-		string Text { get; set; }
 		/// <summary>If this cell or column heading contains text which links to another report, put the URL of that report here.</summary>
-		string Hyper { get; set; }
+		public string Hyper { get; set; }
 		/// <summary>Optional background color.</summary>
-		Color Color { get; set; }
+		public Color Color { get; set; }
+		/// <summary>Can hold whatever data the caller wants.</summary>
+		public object Tag { get; set; }
 	}
 
 	/// <summary>This is just the header row(s) and metadata for a column -- does not include the actual cells.</summary>
-	public class ZColumn: IBlock
+	public class ZColumn: Block
 	{
+		/// <summary>Text to appear in the column header.</summary>
 		public string Text { get; set; }
-		public string Hyper { get; set; }
 		/// <summary>Optional. Appears *above* heading text.</summary>
 		public string GroupHeading { get; set; }
 		/// <summary>left, right or center</summary>
@@ -71,7 +71,6 @@ namespace Zoom
 		public bool Rotate;
 		public List<Arrow> Arrows { get; }
 		/// <summary>Optional background colour.</summary>
-		public Color Color { get; set; }
 
 		public ZColumn(string text = null, ZAlignment alignment = ZAlignment.Left, string groupHeading = null)
 		{
@@ -172,11 +171,12 @@ namespace Zoom
 	}
 
 	/// <summary>Represents a single cell in a table. The cell can optionally have a horizontal chart bar.</summary>
-	public class ZCell: IBlock
+	public class ZCell: Block
 	{
 		string text;
-		
-		public string Text  // Text data to appear in this cell.
+
+		/// <summary>Text to display in the cell.</summary>
+		public string Text
 		{
 			get 
 			{
@@ -202,9 +202,6 @@ namespace Zoom
 			set { text = value; }
 		}
 
-		/// <summary>If set, the text in this cell will be a hyperlink, and Hyper will be the destination.</summary>
-		public string Hyper { get; set; }
-
 		/// <summary>Like Text, but can contain markup.</summary>
 		public string Html { get; set; }
 
@@ -217,8 +214,6 @@ namespace Zoom
 		/// <summary>If this cell contains a number, put it here.</summary>
 		public double? Number { get; set; }
 		public string NumberFormat { get; set; }
-		/// <summary>Optional background colour.</summary>
-		public Color Color { get; set; }
 		/// <summary>If set, show a chart for this cell. If ChartCell is not set, use this cell's number; otherwise use the cell specified in ChartCell.</summary>
 		public ChartType ChartType { get; set; }
 		/// <summary>Optional pointer to cell whose value we are to show as a chart. If no ChartType is set, we assume ChartType.Bar.</summary>
@@ -227,10 +222,6 @@ namespace Zoom
 		public Color BarColor { get; set; }
 		/// <summary>List of values to be shown as a scatter plot / quartile plot / stem-and-leaf plot / rug map / kernel density estimation.</summary>
 		public List<double> Data { get; private set; }
-		/// <summary>Can hold whatever data the caller wants.</summary>
-		[System.ComponentModel.Bindable(true)]
-		[System.ComponentModel.TypeConverter(typeof(System.ComponentModel.StringConverter))]
-		public object Tag { get; set; }
 
 		public ZCell(string text = "", Color color = default, ZCell barCell = null)
 		{
