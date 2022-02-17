@@ -260,7 +260,7 @@ namespace Torn.UI
 			// colDescription
 			// 
 			this.colDescription.Text = "Description";
-			this.colDescription.Width = 70;
+			this.colDescription.Width = 75;
 			// 
 			// panelLeague
 			// 
@@ -478,27 +478,27 @@ namespace Torn.UI
 			// 
 			this.buttonCreateGame.Enabled = false;
 			this.buttonCreateGame.Name = "buttonCreateGame";
-			this.buttonCreateGame.Size = new System.Drawing.Size(180, 22);
+			this.buttonCreateGame.Size = new System.Drawing.Size(153, 22);
 			this.buttonCreateGame.Text = "Create";
 			// 
 			// buttonEditGame
 			// 
 			this.buttonEditGame.Enabled = false;
 			this.buttonEditGame.Name = "buttonEditGame";
-			this.buttonEditGame.Size = new System.Drawing.Size(180, 22);
+			this.buttonEditGame.Size = new System.Drawing.Size(153, 22);
 			this.buttonEditGame.Text = "Edit";
 			// 
 			// buttonSetDescription
 			// 
 			this.buttonSetDescription.Name = "buttonSetDescription";
-			this.buttonSetDescription.Size = new System.Drawing.Size(180, 22);
+			this.buttonSetDescription.Size = new System.Drawing.Size(153, 22);
 			this.buttonSetDescription.Text = "Set &Description";
 			this.buttonSetDescription.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
 			// 
 			// buttonForget
 			// 
 			this.buttonForget.Name = "buttonForget";
-			this.buttonForget.Size = new System.Drawing.Size(180, 22);
+			this.buttonForget.Size = new System.Drawing.Size(153, 22);
 			this.buttonForget.Text = "Forget";
 			this.buttonForget.Click += new System.EventHandler(this.ButtonForgetClick);
 			// 
@@ -609,7 +609,7 @@ namespace Torn.UI
             this.buttonConfigureReports});
 			this.toolStripReports.Location = new System.Drawing.Point(3, 75);
 			this.toolStripReports.Name = "toolStripReports";
-			this.toolStripReports.Size = new System.Drawing.Size(398, 25);
+			this.toolStripReports.Size = new System.Drawing.Size(367, 25);
 			this.toolStripReports.TabIndex = 4;
 			// 
 			// toolStripDropDownReports
