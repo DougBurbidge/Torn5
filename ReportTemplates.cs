@@ -303,16 +303,23 @@ namespace Torn.Report
 			{
 				Add(new ReportTemplate(ReportType.Pyramid, new string[] { "ChartType=bar", "description" }));
 				Add(new ReportTemplate(ReportType.PyramidCondensed, new string[] { "ChartType=bar", "description" }));
+
+				if (league.Games(true).Max(g => g.Teams.Count) < league.Teams.Count)  // If there's no game with all teams, then add a GameGrid which the user can adjust the From date on to show finals.
+				{
+					Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description", "Group=Final" }));
+					this.Last().From = league.Games(true).Last().Time.Date;
+				}
 			}
 			else
 			{  // Team tournament, league, etc.
 				if (teamsPerGame <= 5 && (gameCount == 0 || gameCount >= 10))
+				{
 					Add(new ReportTemplate(ReportType.TeamLadder, new string[] { "ChartType=bar with rug", "description" }));
-
-				if (teamsPerGame <= 5)
-					Add(new ReportTemplate(ReportType.GameByGame, new string[] { "ChartType=bar", "description" }));
-				else
-					Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
+					if (league.Games(true).Select(g => g.Title).Distinct().Count() > 1)  // If the user has used game group descriptions, 
+						this.Last().ReportType = ReportType.MultiLadder;  // use a MultiLadder instead of a TeamLadder.
+					else
+						this.Last().From = league.Games(false).Last().Time.Date;  // Exclude games from the last day, on the basis that they're likely semifinals / grand finals.
+				}
 
 				Add(new ReportTemplate(ReportType.TeamsVsTeams, new string[] { "ChartType=bar with rug", "description" }));
 
@@ -322,15 +329,17 @@ namespace Torn.Report
 
 				if (teamsPerGame < league.Teams.Count - 1)  // Unless nearly every team is in nearly every game, add an Ascension for the user to set From and To dates on later.
 				{
-					Add(new ReportTemplate(ReportType.Ascension, new string[] { "ChartType=bar with rug", "description" }));
+					Add(new ReportTemplate(ReportType.Ascension, new string[] { "ChartType=bar with rug", "description", "Group=Ascension" }));
 					this.Last().From = league.Games(false).Last().Time.Date;
 				}
-			}
 
-			if (league.Games(true).Max(g => g.Teams.Count) < league.Teams.Count)  // If there's no game with all teams, then add a GameGrid which the user can adjust the From date on to show finals.
-			{
-				Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
+				Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description", "Group=Final" }));  // Add a GameGrid which the user can adjust the From date on to show finals.
 				this.Last().From = league.Games(true).Last().Time.Date;
+
+				if (teamsPerGame <= 5)
+					Add(new ReportTemplate(ReportType.GameByGame, new string[] { "ChartType=bar", "description" }));
+				else
+					Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
 			}
 
 			Add(new ReportTemplate(ReportType.SoloLadder, new string[] { "ChartType=bar with rug", "description" }));
