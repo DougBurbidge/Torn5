@@ -75,7 +75,7 @@ namespace Torn.UI
 				withDescription.Checked = !string.IsNullOrEmpty(descriptionGroup.Text);
 
 				int? i = ReportTemplate.SettingInt("TopN");
-				numericUpDownTopN.Enabled = i != null;
+				showTopN.Checked = i != null;
 				numericUpDownTopN.Value = i ?? 0;
 
 				i = ReportTemplate.SettingInt("AtLeastN");
@@ -167,9 +167,9 @@ namespace Torn.UI
 			showPoints.Enabled = r == ReportType.TeamsVsTeams;
 			showComments.Enabled = r == ReportType.SoloLadder;
 			chartType.Enabled = true;
-			showTopN.Enabled = isTeamOrSolo;
-			numericUpDownTopN.Enabled = isTeamOrSolo;
-			labelTopWhat.Enabled = isTeamOrSolo;
+			showTopN.Enabled = isTeamOrSolo || r == ReportType.MultiLadder;
+			numericUpDownTopN.Enabled = showTopN.Enabled;
+			labelTopWhat.Enabled = showTopN.Enabled;
 			atLeastN.Enabled = isTeamOrSolo;
 			numericUpDownAtLeastN.Enabled = isTeamOrSolo;
 			labelAtLeastGames.Enabled = isTeamOrSolo;

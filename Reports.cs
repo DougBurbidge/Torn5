@@ -769,7 +769,6 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 			bool ratio = rt.Setting("OrderBy") == "score ratio";
 			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
-			bool showColours = rt.Settings.Contains("ShowColours");
 
 			ZoomReport report = new ZoomReport(ReportTitle("Team Ladders", league.Title, rt), "Rank", "center")
 			{
@@ -889,7 +888,19 @@ namespace Torn.Report
 				}
 			}
 
-			report.RemoveColumn(report.Columns.Count - 1);
+			report.RemoveColumn(report.Columns.Count - 1);  // Remove final arrows column.
+
+			int? topN = rt.SettingInt("ShowTopN");
+			if (topN != null)
+			{
+				for (int i = report.Rows.Count - 1; i >= topN; i--)
+					report.Rows.RemoveAt(i);
+
+				foreach (var column in report.Columns)
+					for (int i = column.Arrows.Count - 1; i > 0; i--)
+						if (column.Arrows[i].From.Min(x => x.Row) > topN && column.Arrows[i].To.Min(x => x.Row) > topN)
+							column.Arrows.RemoveAt(i);
+			}
 
 			return report;
 		}
