@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 
 namespace Torn
@@ -36,46 +36,45 @@ namespace Torn
 
 			List<ServerGame> games = new List<ServerGame>();
 
-			using (JsonDocument document = JsonDocument.Parse(result))
-			{
-				JsonElement root = document.RootElement;
-				JsonElement gameList = root.GetProperty("gamelist");
+			JObject root = JObject.Parse(result);
 
-				foreach (JsonElement jgame in gameList.EnumerateArray())
+			JToken gameList = root.SelectToken("$.gamelist");
+
+			foreach (JObject jgame in gameList.Children())
+			{
+				var game = new ServerGame();
+				if (jgame["gamenum"] != null)   game.GameId = Int32.Parse(jgame["gamenum"].ToString());
+				if (jgame["gamename"] != null)   game.Description = jgame["gamename"].ToString();
+				if (jgame["starttime"] != null)
 				{
-					var game = new ServerGame();
-					if (jgame.TryGetProperty("gamenum",   out JsonElement gameNum))   game.GameId = gameNum.GetInt32();
-					if (jgame.TryGetProperty("gamename",  out JsonElement gameName))  game.Description = gameName.GetString();
-					if (jgame.TryGetProperty("starttime", out JsonElement startTime)) 
-					{ 
-						string dateTimeStr = startTime.GetString();
-						game.Time = DateTime.Parse(dateTimeStr,
-						  System.Globalization.CultureInfo.InvariantCulture);
-					}
-					if (jgame.TryGetProperty("endtime",   out JsonElement endTime))
-					{
-						try
-						{
-							string dateTimeStr = endTime.GetString();
-							game.EndTime = DateTime.Parse(dateTimeStr,
-							  System.Globalization.CultureInfo.InvariantCulture);
-						} catch
-                        {
-							string dateTimeStr = startTime.GetString();
-							game.EndTime = DateTime.Parse(dateTimeStr,
-							  System.Globalization.CultureInfo.InvariantCulture);
-						}
-					}
-					if (jgame.TryGetProperty("valid", out JsonElement valid))
-					{
-						int isValid = valid.GetInt16();
-						if (isValid > 0) game.OnServer = true;
-						else game.OnServer = false;
-					}
-					games.Add(game);
-					serverGames.Add(game);
+					string dateTimeStr = jgame["starttime"].ToString();
+					game.Time = DateTime.Parse(dateTimeStr,
+						System.Globalization.CultureInfo.InvariantCulture);
 				}
+				if (jgame["endtime"] != null)
+				{
+					try
+					{
+						string dateTimeStr = jgame["endtime"].ToString();
+						game.EndTime = DateTime.Parse(dateTimeStr,
+							System.Globalization.CultureInfo.InvariantCulture);
+					} catch
+                    {
+						string dateTimeStr = jgame["starttime"].ToString();
+						game.EndTime = DateTime.Parse(dateTimeStr,
+							System.Globalization.CultureInfo.InvariantCulture);
+					}
+				}
+				if (jgame["valid"] != null)
+				{
+					int isValid = Int16.Parse(jgame["valid"].ToString());
+					if (isValid > 0) game.OnServer = true;
+					else game.OnServer = false;
+				}
+				games.Add(game);
+				serverGames.Add(game);
 			}
+			
 			System.Console.WriteLine(games);
 			return games;
 		}
@@ -123,95 +122,85 @@ namespace Torn
 			Console.WriteLine(result);
 
 
+			JObject root = JObject.Parse(result);
 
-
-			using (JsonDocument document = JsonDocument.Parse(result))
+			if (root["events"] != null)
 			{
-				JsonElement root = document.RootElement;
+				string eventsStr = root["events"].ToString();
+				var eventsDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(eventsStr);
 
-				if (root.TryGetProperty("events", out JsonElement events))
+				foreach (var evnt in eventsDictionary)
 				{
-					string eventsStr = events.ToString();
-					var eventsDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(eventsStr);
+					string eventContent = evnt.Value.ToString();
+					JObject eventRoot = JObject.Parse(eventContent);
 
-					foreach (var evnt in eventsDictionary)
+					int eventTime = 0;
+					string eventPlayerId = "";
+					int eventPlayerTeamId = -1;
+					int eventType = -1;
+					int score = 0;
+					string eventOtherPlayerId = "";
+					int eventOtherPlayerTeamId = -1;
+					if (eventRoot["time"] != null) eventTime = Int32.Parse(eventRoot["time"].ToString());
+					if (eventRoot["idf"] != null) eventPlayerId = eventRoot["idf"].ToString();
+					if (eventRoot["tidf"] != null) eventPlayerTeamId = Int32.Parse(eventRoot["tidf"].ToString());
+					if (eventRoot["evtyp"] != null) eventType = Int32.Parse(eventRoot["evtyp"].ToString());
+					if (eventRoot["score"] != null) score = Int32.Parse(eventRoot["score"].ToString());
+					if (eventRoot["ida"] != null) eventOtherPlayerId = eventRoot["ida"].ToString();
+					if (eventRoot["tida"] != null) eventOtherPlayerTeamId = Int32.Parse(eventRoot["tida"].ToString());
+
+					var gameEvent = new Event
 					{
-						string eventContent = evnt.Value.ToString();
-						using (JsonDocument eventDocument = JsonDocument.Parse(eventContent))
-						{
-							JsonElement eventRoot = eventDocument.RootElement;
-							int eventTime = 0;
-							string eventPlayerId = "";
-							int eventPlayerTeamId = -1;
-							int eventType = -1;
-							int score = 0;
-							string eventOtherPlayerId = "";
-							int eventOtherPlayerTeamId = -1;
-							if (eventRoot.TryGetProperty("time", out JsonElement time)) eventTime = time.GetInt32();
-							if (eventRoot.TryGetProperty("idf", out JsonElement playerId)) eventPlayerId = playerId.GetInt32().ToString();
-							if (eventRoot.TryGetProperty("tidf", out JsonElement playerTeamId)) eventPlayerTeamId = playerTeamId.GetInt32();
-							if (eventRoot.TryGetProperty("evtyp", out JsonElement evType)) eventType = evType.GetInt32();
-							if (eventRoot.TryGetProperty("score", out JsonElement scr)) score = scr.GetInt32();
-							if (eventRoot.TryGetProperty("ida", out JsonElement otherPlayerId)) eventOtherPlayerId = otherPlayerId.GetInt32().ToString();
-							if (eventRoot.TryGetProperty("tida", out JsonElement otherplayerTeamId)) eventOtherPlayerTeamId = otherplayerTeamId.GetInt32();
-
-
-							var gameEvent = new Event
-							{
-								Time = game.Time.AddSeconds(eventTime),
-								ServerPlayerId = eventPlayerId,
-								ServerTeamId = eventPlayerTeamId,
-								Event_Type = eventType,
-								Score = score,
-								OtherPlayer = eventOtherPlayerId,
-								OtherTeam = eventOtherPlayerTeamId,
-							};
-							game.Events.Add(gameEvent);
-						}
-					}
-
-
+						Time = game.Time.AddSeconds(eventTime),
+						ServerPlayerId = eventPlayerId,
+						ServerTeamId = eventPlayerTeamId,
+						Event_Type = eventType,
+						Score = score,
+						OtherPlayer = eventOtherPlayerId,
+						OtherTeam = eventOtherPlayerTeamId,
+					};
+					game.Events.Add(gameEvent);
 				}
 
-				if (root.TryGetProperty("players", out JsonElement players))
-				{
-					string playersStr = players.ToString();
-					var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
 
-					foreach(var player in playersDictionary)
-                    {
-						string playerContent = player.Value.ToString();
-						using (JsonDocument playerDocument = JsonDocument.Parse(playerContent))
-                        {
-							JsonElement playerRoot = playerDocument.RootElement;
-							ServerPlayer serverPlayer = new ServerPlayer();
-							if (playerRoot.TryGetProperty("alias", out JsonElement alias)) serverPlayer.Alias = alias.GetString();
-							if (playerRoot.TryGetProperty("score", out JsonElement score)) serverPlayer.Score = score.GetInt32();
-							if (playerRoot.TryGetProperty("omid", out JsonElement playerId)) 
-							{ 
-								serverPlayer.PlayerId = playerId.GetInt32().ToString(); 
-								serverPlayer.ServerPlayerId = playerId.GetInt32().ToString(); 
-							};
-							if (playerRoot.TryGetProperty("tid", out JsonElement teamId))
-							{
-								serverPlayer.TeamId = teamId.GetInt32();
-								serverPlayer.ServerTeamId = teamId.GetInt32();
-								if (0 <= serverPlayer.ServerTeamId && serverPlayer.ServerTeamId < 8)
-									serverPlayer.Colour = (Colour)(serverPlayer.ServerTeamId + 1);
-								else
-									serverPlayer.Colour = Colour.None;
-							}
-							if(!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
-
-							game.Players.Add(serverPlayer);
-
-						}
-					}
-
-
-				}
-				
 			}
+
+			if (root["players"] != null)
+			{
+				string playersStr = root["players"].ToString();
+				var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
+
+				foreach(var player in playersDictionary)
+                {
+					string playerContent = player.Value.ToString();
+					JObject playerRoot = JObject.Parse(playerContent);
+
+					ServerPlayer serverPlayer = new ServerPlayer();
+					if (playerRoot["alias"] != null) serverPlayer.Alias = playerRoot["alias"].ToString();
+					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
+					if (playerRoot["omid"] != null) 
+					{ 
+						serverPlayer.PlayerId = playerRoot["omid"].ToString(); 
+						serverPlayer.ServerPlayerId = playerRoot["omid"].ToString(); 
+					};
+					if (playerRoot["tid"] != null)
+					{
+						serverPlayer.TeamId = Int32.Parse(playerRoot["tid"].ToString());
+						serverPlayer.ServerTeamId = Int32.Parse(playerRoot["tid"].ToString());
+						if (0 <= serverPlayer.ServerTeamId && serverPlayer.ServerTeamId < 8)
+							serverPlayer.Colour = (Colour)(serverPlayer.ServerTeamId + 1);
+						else
+							serverPlayer.Colour = Colour.None;
+					}
+					if(!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
+
+					game.Players.Add(serverPlayer);
+
+				}
+
+
+			}
+				
 
 		}
 
@@ -226,46 +215,29 @@ namespace Torn
 				string result = QueryServer(textToSend);
 				Console.WriteLine(result);
 
-				using (JsonDocument document = JsonDocument.Parse(result))
+
+				JObject root = JObject.Parse(result);
+
+				if (root["players"] != null)
 				{
-					JsonElement root = document.RootElement;
+					string playersStr = root["players"].ToString();
+					var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
 
-					if (root.TryGetProperty("players", out JsonElement players))
+					foreach (var player in playersDictionary)
 					{
-						string playersStr = players.ToString();
-						var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
+						string playerContent = player.Value.ToString();
+						JObject playerRoot = JObject.Parse(playerContent);
 
-						foreach (var player in playersDictionary)
-						{
-							string playerContent = player.Value.ToString();
-							using (JsonDocument playerDocument = JsonDocument.Parse(playerContent))
-							{
-								JsonElement playerRoot = playerDocument.RootElement;
-								LaserGamePlayer laserPlayer = new LaserGamePlayer();
-								if (playerRoot.TryGetProperty("alias", out JsonElement alias))
-								{
-									laserPlayer.Alias = alias.GetString();
-								}
-								if (playerRoot.TryGetProperty("omid", out JsonElement playerId))
-								{
-									laserPlayer.Id = playerId.GetInt32().ToString();
-								};
-								if(laserPlayers.Find((p) => p.Id == laserPlayer.Id) == null)
-                                {
-									laserPlayers.Add(laserPlayer);
-								}
-
-							}
-						}
-
-
+						LaserGamePlayer laserPlayer = new LaserGamePlayer();
+						if (playerRoot["alias"] != null) laserPlayer.Alias = playerRoot["alias"].ToString();
+						if (playerRoot["omid"] != null) laserPlayer.Id = playerRoot["omid"].ToString();
+						if(laserPlayers.Find((p) => p.Id == laserPlayer.Id) == null) laserPlayers.Add(laserPlayer);
 					}
-
 				}
-			}
 
+			}
 			
-			return null;
+			return laserPlayers;
 		}
 	}
 }
