@@ -19,6 +19,7 @@ namespace Torn
 		private const int PORT_NO = 12121;
 
 		private List<ServerGame> serverGames = new List<ServerGame>();
+		private List<LaserGamePlayer> laserPlayers = new List<LaserGamePlayer>();
 
 		protected OZone() { }
 
@@ -216,14 +217,54 @@ namespace Torn
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
+
 			Console.WriteLine("Get Players");
-			/*
-						using (var cmd = new MySqlCommand(PlayersSql(), connection))
+			GetGames();
+			foreach (ServerGame game in serverGames)
+			{
+				string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
+				string result = QueryServer(textToSend);
+				Console.WriteLine(result);
+
+				using (JsonDocument document = JsonDocument.Parse(result))
+				{
+					JsonElement root = document.RootElement;
+
+					if (root.TryGetProperty("players", out JsonElement players))
+					{
+						string playersStr = players.ToString();
+						var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
+
+						foreach (var player in playersDictionary)
 						{
-							cmd.Parameters.AddWithValue("@mask", "%" + mask + "%");
-							return ReadPlayers(cmd.ExecuteReader());
+							string playerContent = player.Value.ToString();
+							using (JsonDocument playerDocument = JsonDocument.Parse(playerContent))
+							{
+								JsonElement playerRoot = playerDocument.RootElement;
+								LaserGamePlayer laserPlayer = new LaserGamePlayer();
+								if (playerRoot.TryGetProperty("alias", out JsonElement alias))
+								{
+									laserPlayer.Alias = alias.GetString();
+								}
+								if (playerRoot.TryGetProperty("omid", out JsonElement playerId))
+								{
+									laserPlayer.Id = playerId.GetInt32().ToString();
+								};
+								if(laserPlayers.Find((p) => p.Id == laserPlayer.Id) == null)
+                                {
+									laserPlayers.Add(laserPlayer);
+								}
+
+							}
 						}
-			*/
+
+
+					}
+
+				}
+			}
+
+			
 			return null;
 		}
 	}
