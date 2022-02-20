@@ -81,9 +81,27 @@ namespace Torn
 
 		string ReadFromOzone(TcpClient client, NetworkStream nwStream)
         {
-			byte[] bytesToRead = new byte[client.ReceiveBufferSize];
-			int bytesRead = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
-			return Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+			string str = "";
+			bool reading = true;
+			int BYTE_LIMIT = 1024;
+			
+
+			while(reading)
+            {
+				byte[] bytesToRead = new byte[BYTE_LIMIT];
+				Console.WriteLine("bytesToRead " + bytesToRead.Length);
+				int bytesRead = nwStream.Read(bytesToRead, 0, BYTE_LIMIT);
+				Console.WriteLine("Bytes read " + bytesRead);
+				string current = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+
+				Console.WriteLine("Current " + current);
+
+				str += current;
+
+				if (bytesRead < BYTE_LIMIT) reading = false;
+			}
+
+			return str;
 		}
 
 		private string QueryServer(string query)
@@ -101,7 +119,9 @@ namespace Torn
 			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
 
 			//---read back the text---
-			var result = ReadFromOzone(client, nwStream);
+			string result = ReadFromOzone(client, nwStream);
+			Console.WriteLine("Result : " + result);
+
 
 			client.Close();
 
@@ -119,14 +139,21 @@ namespace Torn
 			Console.WriteLine("PopulateGame");
 			string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 			string result = QueryServer(textToSend);
-			Console.WriteLine(result);
+			string[] separatingStrings = { "}{" };
+			string[] objects = result.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+
+			string gameData = objects[0] + "}";
+			string eventData = "{" + objects[1];
+			Console.WriteLine("GameData: " + gameData);
+			Console.WriteLine("EventData: " + eventData);
 
 
-			JObject root = JObject.Parse(result);
+			JObject eventDataRoot = JObject.Parse(eventData);
+			JObject gameDataRoot = JObject.Parse(gameData);
 
-			if (root["events"] != null)
+			if (eventDataRoot["events"] != null)
 			{
-				string eventsStr = root["events"].ToString();
+				string eventsStr = eventDataRoot["events"].ToString();
 				var eventsDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(eventsStr);
 
 				foreach (var evnt in eventsDictionary)
@@ -165,9 +192,9 @@ namespace Torn
 
 			}
 
-			if (root["players"] != null)
+			if (gameDataRoot["players"] != null)
 			{
-				string playersStr = root["players"].ToString();
+				string playersStr = gameDataRoot["players"].ToString();
 				var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
 
 				foreach(var player in playersDictionary)
@@ -213,10 +240,14 @@ namespace Torn
 			{
 				string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 				string result = QueryServer(textToSend);
-				Console.WriteLine(result);
+				string[] separatingStrings = { "}{" };
+				string[] objects = result.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+
+				string gameData = objects[0] + "}";
+				Console.WriteLine(gameData);
 
 
-				JObject root = JObject.Parse(result);
+				JObject root = JObject.Parse(gameData);
 
 				if (root["players"] != null)
 				{
