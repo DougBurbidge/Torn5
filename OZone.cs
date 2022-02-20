@@ -18,12 +18,13 @@ namespace Torn
 
 		private const int PORT_NO = 12121;
 
+		private List<ServerGame> serverGames = new List<ServerGame>();
+
 		protected OZone() { }
 
 		public OZone(string server)
 		{
 			_server = server;
-			Connect();
 		}
 
 		public override List<ServerGame> GetGames()
@@ -71,6 +72,7 @@ namespace Torn
 						else game.OnServer = false;
 					}
 					games.Add(game);
+					serverGames.Add(game);
 				}
 			}
 			System.Console.WriteLine(games);
@@ -106,35 +108,12 @@ namespace Torn
 			return result;
 		}
 
-		void FillGames(string sql, List<ServerGame> games)
-		{
-			Console.WriteLine("FillGames");
-			if (!EnsureConnected())
-				return;
-/*
-			MySqlCommand cmd = new MySqlCommand(sql, connection);
-			using (var reader = cmd.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					ServerGame game = new ServerGame
-					{
-						GameId = GetInt(reader, "Game_ID"),
-						Description = GetString(reader, "Description"),
-						Time = GetDateTime(reader, "Start_Time"),
-						EndTime = GetDateTime(reader, "Finish_Time"),
-						OnServer = true
-					};
-					game.InProgress = game.EndTime == default;
-					games.Add(game);
-				}
-			}
-*/
-		}
-
 		public override void PopulateGame(ServerGame game)
 		{
 			if (!game.GameId.HasValue)
+				return;
+
+			if (game.Events.Count != 0)
 				return;
 
 			Console.WriteLine("PopulateGame");
@@ -207,8 +186,21 @@ namespace Torn
 							ServerPlayer serverPlayer = new ServerPlayer();
 							if (playerRoot.TryGetProperty("alias", out JsonElement alias)) serverPlayer.Alias = alias.GetString();
 							if (playerRoot.TryGetProperty("score", out JsonElement score)) serverPlayer.Score = score.GetInt32();
-							if (playerRoot.TryGetProperty("omid", out JsonElement playerId)) serverPlayer.PlayerId = playerId.GetInt32().ToString();
-							serverPlayer.Populate(game.Events);
+							if (playerRoot.TryGetProperty("omid", out JsonElement playerId)) 
+							{ 
+								serverPlayer.PlayerId = playerId.GetInt32().ToString(); 
+								serverPlayer.ServerPlayerId = playerId.GetInt32().ToString(); 
+							};
+							if (playerRoot.TryGetProperty("tid", out JsonElement teamId))
+							{
+								serverPlayer.TeamId = teamId.GetInt32();
+								serverPlayer.ServerTeamId = teamId.GetInt32();
+								if (0 <= serverPlayer.ServerTeamId && serverPlayer.ServerTeamId < 8)
+									serverPlayer.Colour = (Colour)(serverPlayer.ServerTeamId + 1);
+								else
+									serverPlayer.Colour = Colour.None;
+							}
+							if(!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
 
 							game.Players.Add(serverPlayer);
 
@@ -220,64 +212,11 @@ namespace Torn
 				
 			}
 
-			/*			using (var reader = cmd.ExecuteReader())
-						{
-							if (reader.HasRows)
-								game.Events.Clear();
-
-							while (reader.Read())
-							{
-								var oneEvent = new Event
-								{
-									Time = GetDateTime(reader, "Time_Logged"),
-									ServerPlayerId = GetString(reader, "Player_ID"),
-									ServerTeamId = GetInt(reader, "Player_Team_ID"),
-									Event_Type = GetInt(reader, "Event_Type"),
-									Score = GetInt(reader, "Score"),
-									OtherPlayer = GetString(reader, "Result_Data_1"),
-									PointsLostByDeniee = GetInt(reader, "Result_Data_3"),
-									ShotsDenied = GetInt(reader, "Result_Data_4")
-								};
-								oneEvent.OtherTeam = oneEvent.Event_Type == 30 || oneEvent.Event_Type == 31 ? GetInt(reader, "Result_Data_1") : GetInt(reader, "Result_Data_2");
-								game.Events.Add(oneEvent);
-							}
-						}
-
-						game.Players.Clear();
-
-						cmd = new MySqlCommand(GameDetailSql(game.GameId), connection);
-						using (var reader = cmd.ExecuteReader())
-						{
-							while (reader.Read())
-							{
-								ServerPlayer player = new ServerPlayer
-								{
-									ServerPlayerId = GetString(reader, "Player_ID"),
-									ServerTeamId = GetInt(reader, "Player_Team_ID")
-								};
-
-								if (0 <= player.ServerTeamId && player.ServerTeamId < 8)
-									player.Colour = (Colour)(player.ServerTeamId + 1);
-								else
-									player.Colour = Colour.None;
-
-								player.Score = GetInt(reader, "Score");
-								player.Pack = GetString(reader, "Pack_Name");
-								player.PlayerId = GetString(reader, "Button_ID");
-								player.Alias = GetString(reader, "Alias");
-								player.Populate(game.Events);
-
-								game.Players.Add(player);
-							}
-						}*/
-
 		}
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
 			Console.WriteLine("Get Players");
-			if (!EnsureConnected())
-				return null;
 			/*
 						using (var cmd = new MySqlCommand(PlayersSql(), connection))
 						{
@@ -286,32 +225,6 @@ namespace Torn
 						}
 			*/
 			return null;
-		}
-
-		protected void Connect()
-		{
-/*
-			if (connection != null)
-				connection.Close();
-
-			connection = new MySqlConnection("server=" + _server + ";user=root;database=ng_system;port=3306;password=password;Convert Zero Datetime=True");
-			try
-			{
-				connection.Open();
-				connected = true;
-			}
-			catch
-			{
-				connected = false;
-			}
-*/
-		}
-
-		bool EnsureConnected()
-		{
-			if (!Connected)
-				Connect();
-			return Connected;
 		}
 	}
 }
