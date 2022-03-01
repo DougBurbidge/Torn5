@@ -390,6 +390,7 @@ namespace Zoom
 		/// <summary>Export to an HTML table.</summary>
 		public abstract string ToHtml();
 		/// <summary>Export to an HTML SVG element.</summary>
+		/// <param name="pure">True if this is standalone SVG that will not be embedded in an HTML file, and therefore cannot contain xlinks or javascript text resizing.</param>
 		public abstract string ToSvg(bool pure = false);
 		public abstract void ToSvg(StringBuilder sb, bool pure = false);
 		public abstract IEnumerable<Color> BarCellColors();
@@ -827,7 +828,7 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string cssClass = null, string hyper = null, double scale = 1.0)
+		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, double fontSize, Color fontColor, ZAlignment alignment, string cssClass, string hyper)
 		{
 			s.Append('\t', indent);
 			if (!string.IsNullOrEmpty(hyper))
@@ -852,7 +853,7 @@ namespace Zoom
 					s.AppendFormat("text-anchor=\"end\" x=\"{0}\"", x + width - 1);
 				break;
 			}
-			s.AppendFormat(" y=\"{0}\" width=\"{1}\" font-size=\"{2}\"", y + height * 3 / 4, width, (int)(scale * height * 3 / 4));
+			s.AppendFormat(" y=\"{0}\" width=\"{1}\" font-size=\"{2:G2}\"", y + height * 3 / 4, width, fontSize);
 
 			if (!string.IsNullOrEmpty(hyper) || fontColor != Color.Black)
 			{
@@ -874,55 +875,55 @@ namespace Zoom
 			s.Append('\n');
 		}
 
+		/// <summary>This overload formats the value of a cell then calls the other overload.
+		/// If you specify a format starting with 'E' or 'G', it changes values like 0.0000123 to a style like 1.23x10^-5, but with Unicode superscript digits.</summary>
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell, bool pure)
 		{
 			if (cell.Empty())
 				return;
 
 			var text = cell.Svg ?? WebUtility.HtmlEncode(cell.Text);
-			float textWidth = TextWidth(text, pure);
-
-			SvgBeginText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, cell.CssClass, pure ? null : cell.Hyper, pure && width < textWidth ? width / textWidth : 1);
-
+			var s2 = new StringBuilder();
 			int decimals = 0;
-			if (!string.IsNullOrEmpty(cell.NumberFormat) && cell.NumberFormat.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
+			if (cell.NumberFormat?.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
 				decimals = int.Parse(cell.NumberFormat.Substring(1));
 
 			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
 			    Math.Abs((double)cell.Number) > 0.0001)
 			{
-				s.Append(text);
+				s2.Append(text);
 				
 				// Now right-pad it, with a decimal-sized space if there's no decimal, and digit-sized spaces if there's not enough digits after the decimal.
 				if (decimals > 0 && !text.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator))
-					s.Append('\u2008');  // punctutation space (width of a .)
+					s2.Append('\u2008');  // punctutation space (width of a .)
 				var digitsAfterDecimal = text.Length - text.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator) - 1;
 				if (decimals > 0 && digitsAfterDecimal < decimals)
 				{
-					s.Append('0', decimals - digitsAfterDecimal);
+					s2.Append('0', decimals - digitsAfterDecimal);
 					if (digitsAfterDecimal < 4)
-						s.Append('\u2002', 4 - decimals);  // en space (nut)
+						s2.Append('\u2002', 4 - decimals);  // en space (nut)
 				}
 				else if (decimals > 0 && digitsAfterDecimal < 4)
-					s.Append('\u2002', 4 - digitsAfterDecimal);  // en space (nut)
+					s2.Append('\u2002', 4 - digitsAfterDecimal);  // en space (nut)
 			}
 			else
 			{
 				int magnitude = (int)Math.Floor(Math.Log10(Math.Abs((double)cell.Number)));
 				string digits = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";  // superscript 0123456789
-				s.AppendFormat("{0:F" + (decimals - 1).ToString() + "}", (double)cell.Number * Math.Pow(10, -magnitude));
-				s.Append('\u00D7'); // multiply symbol
-				s.Append("10");
+				s2.AppendFormat("{0:F" + (decimals - 1).ToString() + "}", (double)cell.Number * Math.Pow(10, -magnitude));
+				s2.Append('\u00D7'); // multiply symbol
+				s2.Append("10");
 				if (magnitude < 0)
-					s.Append('\u207B');  // superscript -
+					s2.Append('\u207B');  // superscript -
 
 				if (magnitude == 0)
-					s.Append('\u2070');  // superscript 0
+					s2.Append('\u2070');  // superscript 0
 				else
 					for (int i = (int)Math.Log10(Math.Abs(magnitude)); i >= 0; i--)
-						s.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
+						s2.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
 			}
-			SvgEndText(s, pure ? null : cell.Hyper);
+
+			SvgText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure);
 		}
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
@@ -930,23 +931,17 @@ namespace Zoom
 			if (string.IsNullOrEmpty(text))
 				return;
 
-			float textWidth = TextWidth(text, pure);
-
-			SvgBeginText(s, indent, x, y, width, height, fontColor, alignment, cssClass, pure ? null : hyper, pure && width < textWidth ? width / textWidth : 1);
-			s.Append(WebUtility.HtmlEncode(text));
-			SvgEndText(s, pure ? null : hyper);
-		}
-
-		float TextWidth(string text, bool pure)
-		{
+			float textWidth = width;
 			if (pure)
 			{
 				var graphics = Graphics.FromImage(new Bitmap(1000, 20));
-				var font = new Font("Arial", 11);
-				return graphics.MeasureString(text, font, 1000).Width;
+				var font = new Font("Arial", height / 2);
+				textWidth = Math.Max(width, graphics.MeasureString(text, font, 1000).Width);
 			}
-			else
-				return 0;
+
+			SvgBeginText(s, indent, x, y, width, height, width / textWidth * height * (pure ? 0.681 : 0.75), fontColor, alignment, cssClass, pure ? null : hyper);
+			s.Append(WebUtility.HtmlEncode(text));
+			SvgEndText(s, pure ? null : hyper);
 		}
 
 		void SvgCircle(StringBuilder s, int indent, double x, double y, double radius, Color fillColor)
