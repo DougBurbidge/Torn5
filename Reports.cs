@@ -789,7 +789,9 @@ namespace Torn.Report
 
 			for (int group = 0; group < groups.Count(); group++)  // for each group of games
 			{
-				if (groups[group].ToLower().Contains("final") && !groups[group].ToLower().Contains("semi"))
+				string groupName = groups[group]?.ToLower() ?? "";
+
+				if (groupName.Contains("final") && !groupName.Contains("semi"))
 					groupGames.Clear();
 
 				var thisGroupGames = games.Where(g => g.Title == groups[group]).ToList();
@@ -797,8 +799,8 @@ namespace Torn.Report
 
 				report.AddColumn(new ZColumn("Team", ZAlignment.Left, groups[group]));
 
-				if (groups[group].ToLower().Contains("semifinal") || groups[group].ToLower().Contains("semi final") ||
-					groups[group].ToLower().Contains("ascension") || groups[group].ToLower().Contains("format ") || groups[group].ToLower().Contains("track"))
+				if (groupName.Contains("semifinal") || groupName.Contains("semi final") ||
+					groupName.Contains("ascension") || groupName.Contains("format ") || groupName.Contains("track"))
 				{
 					report.AddColumn(new ZColumn("", ZAlignment.Right, groups[group]));
 					report.AddColumn(new ZColumn("Placings", ZAlignment.Right, groups[group]));
@@ -909,7 +911,8 @@ namespace Torn.Report
 		{
 			if (group > 0)
 			{
-				var previousRank = report.Rows.FindIndex(r => r[(group - 1) * columnsPerGroup + 1].Hyper == teamCell.Hyper);
+				int previousCol = (group - 1) * columnsPerGroup + 1;
+				var previousRank = report.Rows.FindIndex(r => r.Valid(previousCol) && r[previousCol].Hyper == teamCell.Hyper);
 				if (previousRank > -1)
 				{
 					var arrow = new Arrow();
