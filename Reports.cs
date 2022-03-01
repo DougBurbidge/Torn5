@@ -122,30 +122,34 @@ namespace Torn.Report
 	public static class Reports
 	{
 		/// <summary>How many times does each colour come 1st, 2nd, 3rd (etc)?</summary>
-		public static ZoomReport ColourReport(League league, bool includeSecret, ReportTemplate rt)
+		public static ZoomReport ColourReport(List<League> leagues, bool includeSecret, ReportTemplate rt)
 		{
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
-			ZoomReport report = new ZoomReport(ReportTitle("Colour Performance", league.Title, rt), "Rank", "center");
+			ZoomReport report = new ZoomReport(ReportTitle("Colour Performance", (leagues.Count == 1 ? leagues[0].Title: ""), rt), "Rank", "center");
 
-			List<Game> games = Games(league, includeSecret, rt);
+			var games = new List<Game>();
+			foreach (var league in leagues)
+				games.AddRange(Games(league, includeSecret, rt));
+			games.Sort();
 
 			var coloursUsed = games.SelectMany(g => g.Teams.Select(t => t.Colour)).Distinct();
 			var colourTotals = new Dictionary<Colour, List<int>>();
 			foreach (Colour c in coloursUsed)
 				colourTotals.Add(c, new List<int>());
 
-			foreach (Game game in games)
-				foreach (GameTeam gameTeam in game.Teams)  // Roll through this team's games.
-				{
-					// Add the team's rank in this game to the colourTotals.
-					int rank = league.Game(gameTeam).Teams.IndexOf(gameTeam);
+			foreach (var league in leagues)
+				foreach (Game game in Games(league, includeSecret, rt))
+					foreach (GameTeam gameTeam in game.Teams)
+					{
+						// Add the team's rank in this game to the colourTotals.
+						int rank = league.Game(gameTeam).Teams.IndexOf(gameTeam);
 
-					while (colourTotals[gameTeam.Colour].Count <= rank)
-						colourTotals[gameTeam.Colour].Add(0);
-					if (rank > -1)
-						colourTotals[gameTeam.Colour][rank]++;
-				}
+						while (colourTotals[gameTeam.Colour].Count <= rank)
+							colourTotals[gameTeam.Colour].Add(0);
+						if (rank > -1)
+							colourTotals[gameTeam.Colour][rank]++;
+					}
 
 			coloursUsed = coloursUsed.OrderBy(c => -colourTotals[c].FirstOrDefault());
 

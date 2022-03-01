@@ -95,7 +95,7 @@ namespace Torn.Report
 				case ReportType.TeamLadder: return Reports.TeamLadder(league, includeSecret, rt);
 				case ReportType.MultiLadder: return Reports.MultiLadder(league, includeSecret, rt);
 				case ReportType.TeamsVsTeams: return Reports.TeamsVsTeams(league, includeSecret, rt);
-				case ReportType.ColourPerformance: return Reports.ColourReport(league, includeSecret, rt);
+				case ReportType.ColourPerformance: return Reports.ColourReport(new List<League> { league }, includeSecret, rt);
 				case ReportType.SoloLadder: return Reports.SoloLadder(league, includeSecret, rt);
 				case ReportType.GameByGame: return Reports.GamesList(league, includeSecret, rt);
 				case ReportType.GameGrid:
@@ -125,6 +125,8 @@ namespace Torn.Report
 			bool description = rt.Settings.Contains("Description");
 			switch (rt.ReportType)
 			{
+				case ReportType.ColourPerformance:
+					return Reports.ColourReport(leagues, includeSecret, rt);
 				case ReportType.Packs:
 					return Reports.PackReport(leagues, null, rt.Title, rt.From, rt.To,
 						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal"));

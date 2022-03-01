@@ -205,7 +205,7 @@ namespace Torn
 
 		public static string Pluralise(this string s)
 		{
-			if (s.Length <= 1)
+			if (string.IsNullOrEmpty(s) || s.Length == 1)
 				return s + "s";
 
 			char last = s[s.Length - 1];
