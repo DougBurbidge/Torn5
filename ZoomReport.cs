@@ -1025,32 +1025,25 @@ namespace Zoom
 			var halfScaleWidth = arrow.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled arrow width into half a scaled arrow width. 
 			var halfArrowH = arrow.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the arrow, in output SVG units.
 
-			if (arrow.From.Count == 1 && arrow.To.Count == 1 && !(arrow.From[0].Row == arrow.To[0].Row && arrow.From[0].Width == arrow.To[0].Width))
+			if (arrow.From.Count == 1 && arrow.To.Count == 1 && arrow.From[0].Width == arrow.To[0].Width)
 			{
 				var leftEnd = arrow.From[0];
 				var rightEnd = arrow.To[0];
-				var halfArrow = leftEnd.Width * halfScaleWidth;
-
-				// Start at bottom of left end.
-				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left, RowMid(top, leftEnd.Row, rowHeight) + leftEnd.Width * halfScaleWidth);
-				// Draw left-side "From" end.
-				//s.AppendFormat("v {0:F1} ", halfArrow * 2);
-
-				// Draw lower edge curves.
+				float fullArrow = (float)(leftEnd.Width * halfScaleWidth * 2);
 				var mid = (rightEnd.Row - leftEnd.Row) * rowHeight / 2;  // mid is -ve if the arrow is going up.
-				var adjust = Math.Sign(mid) * halfArrow;
-				s.AppendFormat("c {0:F1},0 {0:F1},{1:F1} {0:F1},{2:F1} ", width / 2 - halfArrow - adjust, mid, mid + adjust * 2);
-				s.AppendFormat("s 0,{1:F1} {0:F1},{1:F1} ", width / 2 - halfArrow + adjust, mid - adjust * 2);
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left, RowMid(top, leftEnd.Row, rowHeight));
 
-				// Paint a right end arrowhead, starting at its bottom left: down, up/right, up/left, down.
-				s.AppendFormat("v {0:F1} ", halfArrow);
-				s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
-				s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
-				s.AppendFormat("v {0:F1} ", halfArrow);
+				if (leftEnd == rightEnd)  // Draw the straight arrow line.
+					s.AppendFormat("h {0:F1}\" ", width);
+				else  // Draw the curved arrow line with two SVG "q" splines, like: <path d=\"M 100,100 h1 q3,0 6,11 q3,11 6,11 h1" stroke="color" stroke-width="4"/>
+					s.AppendFormat("h 1 q {0:F1},0 {1:F1},{2:F1} q {0:F1},{2:F1} {1:F1},{2:F1} h 1\" ", width / 4 - 1, width / 2 - 2, mid);
 
-				// Draw upper edge curves.
-				s.AppendFormat("c {0:F1},0 {0:F1},{1:F1} {0:F1},{2:F1} ", -width / 2 + halfArrow + adjust, -mid, -mid - adjust * 2);
-				s.AppendFormat("s 0,{1:F1} {0:F1},{1:F1} ", -width / 2 + halfArrow - adjust, -mid + adjust * 2);
+				s.AppendFormat("stroke-width=\"{0:F1}\" stroke=\"", fullArrow);
+				s.Append(System.Drawing.ColorTranslator.ToHtml(c));
+				s.Append("\" /> ");
+
+				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width - fullArrow / 2F, RowMid(top, rightEnd.Row, rowHeight));
+				s.AppendFormat("v {0:F1} l {0:F1},{1:F1} l {1:F1},{1:F1} z\" fill=\"", fullArrow, -fullArrow);
 			}
 			else
 			{
@@ -1147,8 +1140,8 @@ namespace Zoom
 				}
 				else if (topType == TopBottomType.Both && arrow.From.First().Width != arrow.To.First().Width)
 					s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1} ", -halfArrowH, -halfArrowH * 2, (arrow.To.First().Width - arrow.From.First().Width) / 2);
+				s.Append("Z\" fill=\"");
 			}
-			s.Append("Z\" fill=\"");
 			s.Append(System.Drawing.ColorTranslator.ToHtml(c));
 			s.Append("\" />\n");
 		}
