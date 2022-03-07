@@ -314,9 +314,6 @@ namespace Zoom
 		}
 	}
 
-//  TCalcBar = procedure(report: TZoomReport; row, col: Integer; max: Real; var fill: Real);  // callback to custom-set bar cell filledness
-//  TPaintBar = procedure(report: TZoomReport; row, col: Integer; canvas: TCanvas; rect: TRect; Color, BarColor: TColor);  // callback to custom-paint bar background
-
 	public class ZReportColors
 	{
 		public Color TitleFontColor { get; set; }
@@ -404,6 +401,8 @@ namespace Zoom
 		}
 	}
 
+	public delegate void CalculateFill(int row, int col, double chartMin, double chartMax, ref double? fill);  // Callback to custom-set bar cell filledness.
+
 	public class ZoomReport: ZoomReportBase
 	{
 		public List<ZColumn> Columns { get; private set; }
@@ -424,9 +423,11 @@ namespace Zoom
 		public bool Bars { get; set; }
 		/// <summary>Add groups of columns that should be rendered with the same width here.</summary>
 		public List<List<ZColumn>> SameWidths { get; private set; }
+		/// <summary>Callback to custom-set bar cell filledness.</summary>
+		public CalculateFill CalculateFill { get; set; }
 
-		//OnCalcBar: TCalcBar;
-		//OnPaintBar: TPaintBar;
+		//public delegate void PaintBar (ZoomReport report, int row, int col, TCanvas canvas, Rect rect, Color Color, Color BarColor);  // callback to custom-paint bar background
+		//public PaintBar PaintBar { get; set; }
 
 		public ZoomReport(string title, string headings = "", string alignments = "", string groupHeadings = "")
 		{
@@ -923,10 +924,15 @@ namespace Zoom
 						s2.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
 			}
 
-			SvgText(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure);
+			SvgTextEscaped(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure);
 		}
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
+		{
+			SvgTextEscaped(s, indent, x, y, width, height, fontColor, alignment, WebUtility.HtmlEncode(text), cssClass, hyper, pure);
+		}
+
+		void SvgTextEscaped(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
 		{
 			if (string.IsNullOrEmpty(text))
 				return;
@@ -940,7 +946,7 @@ namespace Zoom
 			}
 
 			SvgBeginText(s, indent, x, y, width, height, width / textWidth * height * (pure ? 0.681 : 0.75), fontColor, alignment, cssClass, pure ? null : hyper);
-			s.Append(WebUtility.HtmlEncode(text));
+			s.Append(text);
 			SvgEndText(s, pure ? null : hyper);
 		}
 
@@ -1311,13 +1317,22 @@ namespace Zoom
 			return 1 / Math.Sqrt(2 * Math.PI * variance) * Math.Exp(-Math.Pow(x - mean, 2) / 2 / variance);
 		}
 
-		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, int maxPoints, Color backColor, Color chartColor, ZCell cell, int column, bool lastRow)
+		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, int maxPoints, Color backColor, Color chartColor, ZCell cell, ZRow row, int column, bool lastRow)
 		{
 			if (cell.Color != Color.Empty)
 				SvgRect(s, 1, left, top, width, height, backColor);  // Paint chart cell(s) background.
 
 			if ((cell.ChartType == ChartType.None || cell.ChartType.HasFlag(ChartType.Bar)) && cell.Number != null)  // Bar
-				SvgRect(s, 1, left + Scale(0, width, chartMin, chartMax), top, ScaleWidth(cell.Number ?? 0, width, 0, chartMax - chartMin), height, chartColor);  // Paint bar.
+			{
+				double? fill = ScaleWidth(cell.Number ?? 0, 1, 0, chartMax - chartMin);
+				if (CalculateFill != null)
+				{
+					int rowIndex = Rows.IndexOf(row);
+					CalculateFill?.Invoke(rowIndex, column, chartMin, chartMax, ref fill);
+				}
+				if (fill != null)
+					SvgRect(s, 1, left + Scale(0, width, chartMin, chartMax), top, (double)fill * width, height, chartColor);  // Paint bar.
+			}
 
 			int count = 0;
 			if (cell.ChartType.HasFlag(ChartType.Rug) || cell.ChartType.HasFlag(ChartType.BoxPlot) || 
@@ -1514,7 +1529,7 @@ namespace Zoom
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
 					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
 					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), maxPoints,
-					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, barSource, row == Rows.Last());
+					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, row, barSource, row == Rows.Last());
 
 				start = end + 1;
 			}
