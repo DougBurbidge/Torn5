@@ -791,6 +791,7 @@ namespace Torn.Report
 				report.Rows.Last().Add(new ZCell(report.Rows.Count));  // Rank
 			}
 
+			List<TeamLadderEntry> previousLadder = null;
 			for (int group = 0; group < groups.Count(); group++)  // for each group of games
 			{
 				string groupName = groups[group]?.ToLower() ?? "";
@@ -812,11 +813,24 @@ namespace Torn.Report
 					report.AddColumn(new ZColumn());  // This column is for arrows.
 
 					var ascension = GamesGrid(league, thisGroupGames, new ReportTemplate(ReportType.Ascension, new string[] { }));
+
+					// Find if there are any teams that topped the previous round but aren't in this round. If so, provide blanks for them (because they're skipping this round).
+					int offset = 0;
+					if (previousLadder != null)
+						for (offset = 0; offset < previousLadder.Count; offset++)
+							if (ascension.Rows.Exists(r => r[1].Tag == previousLadder[offset].Team))
+								break;
+					previousLadder = null;
+
+					for (int team = 0; team < offset; team++)
+						AddBlankCells(report.Rows[team], 5);
+
+					// For teams that are in this round, add cells for them.
 					for (int team = 0; team < Math.Min(report.Rows.Count, ascension.Rows.Count); team++)
 					{
-						ZRow aRow = ascension.Rows[team];
-						ZRow row = report.Rows[team];
-						ZCell teamCell = row.AddCell(aRow[1]);  // Team
+						ZRow ascensionRow = ascension.Rows[team];
+						ZRow row = report.Rows[team + offset];
+						ZCell teamCell = row.AddCell(ascensionRow[1]);  // Team
 						row.Add(new ZCell());  // Blank spacer
 
 						var placings = new List<string>();
@@ -829,10 +843,10 @@ namespace Torn.Report
 						}
 						row.Add(new ZCell(string.Join(", ", placings.ToArray())));  // Placings
 
-						row.Add(new ZCell(aRow.Count(c => !c.Empty()) - 2));  // Games
+						row.Add(new ZCell(ascensionRow.Count(c => !c.Empty()) - 2));  // Games
 						row.Add(new ZCell());  // Arrow
 
-						MultiLadderArrow(report, teamCell, group, columnsPerGroup, team);
+						MultiLadderArrow(report, teamCell, group, columnsPerGroup, team + offset);
 					}
 				}
 				else
@@ -845,28 +859,31 @@ namespace Torn.Report
 					report.AddColumn(new ZColumn());  // This column is for arrows.
 
 					var ladder = Ladder(league, groupGames, rt);
-					for (int t = 0; t < ladder.Count; t++)
+					int offset = 0;
+					if (previousLadder != null)
+						for (offset = 0; offset < previousLadder.Count; offset++)
+							if (ladder.Exists(x => x.Team == previousLadder[offset].Team))
+								break;
+					previousLadder = ladder;
+					for (int team = 0; team < offset; team++)
+						AddBlankCells(report.Rows[team], 5);
+
+					for (int t = 0; t < ladder.Count - offset; t++)
 					{
 						var entry = ladder[t];
 						var team = entry.Team;
 
-						var row = report.Rows[t];
+						var row = report.Rows[t + offset];
 
 						var gamesPlayedThisGroup = league.Played(thisGroupGames, team).Count;
 						if (gamesPlayedThisGroup == 0)
-						{
-							row.Add(new ZCell());  // Team
-							row.Add(new ZCell());  // Points
-							row.Add(new ZCell());  // Score
-							row.Add(new ZCell());  // Games
-							row.Add(new ZCell());  // Arrow
-						}
+							AddBlankCells(row, 5);
 						else
 						{
 							ZCell teamCell = row.AddCell(TeamCell(team));  // Team
 
 							if (league.IsPoints())
-								row.Add(new ZCell(ladder[t].Points));  // Points
+								row.Add(new ZCell(ladder[t].Points, chartType));  // Points
 
 							ZCell scoreCell;
 							if (entry.ScoreList.Count == 0)
@@ -915,8 +932,13 @@ namespace Torn.Report
 		{
 			if (group > 0)
 			{
+				int previousRank = -1;
 				int previousCol = (group - 1) * columnsPerGroup + 1;
-				var previousRank = report.Rows.FindIndex(r => r.Valid(previousCol) && r[previousCol].Hyper == teamCell.Hyper);
+				while (previousCol >= 0 && previousRank == -1)
+				{
+					previousRank = report.Rows.FindIndex(r => r.Valid(previousCol) && r[previousCol].Hyper == teamCell.Hyper);
+					previousCol -= columnsPerGroup;
+				}
 				if (previousRank > -1)
 				{
 					var arrow = new Arrow();
@@ -928,11 +950,17 @@ namespace Torn.Report
 			}
 		}
 
+		static void AddBlankCells(ZRow row, int i)
+		{
+			for (int j = 0; j < i; j++)
+				row.Add(new ZCell());
+		}
+
 		/// <summary>Detailed report of a single game. One row for each player, plus total rows for each team and for the whole game.</summary>
 		public static ZoomReport OneGame(League league, Game game)
 		{
 			ZoomReport report = new ZoomReport(game.LongTitle(),
-											   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow Card,Red Card,ID",
+											   "Rank,Name,Score,Tags +,Tags -,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Got Denied,Yellow Card,Red Card,ID",
 											   "center,left,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,left",
 											   ",,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties,")
 			{
@@ -953,6 +981,8 @@ namespace Torn.Report
 
 			var gameTotal = new GamePlayer();
 
+			double maxScore = double.MinValue;
+			int maxTags = 1;
 			foreach (GameTeam gameTeam in game.Teams)
 			{
 				var teamTotal = new GamePlayer();
@@ -976,6 +1006,8 @@ namespace Torn.Report
 
 					FillDetails(playerRow, gamePlayer, color, (double)game.TotalScore() / game.Players().Count);
 					playerRow.Add(new ZCell(gamePlayer.PlayerId));
+					maxScore = Math.Max(maxScore, gamePlayer.Score);
+					maxTags = Math.Max(maxTags, Math.Max(gamePlayer.HitsOn, gamePlayer.HitsBy));
 
 					teamTotal.Add(gamePlayer);
 					gameTotal.Add(gamePlayer);
@@ -1074,6 +1106,7 @@ namespace Torn.Report
 				}
 			}
 
+			int maxHits = 1;
 			var idCol = report.Columns.FindIndex(c => c.Text == "ID");
 			foreach (var row in report.Rows.Where(r => r.Valid(idCol)))
 			{
@@ -1081,6 +1114,7 @@ namespace Torn.Report
 				if (player1 == null)
 					continue;
 
+				// Add who-shot-who cells.
 				var gameTeam = player1.GameTeam(league);
 				foreach (var gameTeam2 in game.Teams)
 					foreach (var player2 in gameTeam2.Players)
@@ -1094,6 +1128,7 @@ namespace Torn.Report
 							cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? row[0].Color : Color.Empty);
 							if (gameTeam != gameTeam2)
 								cell.BarColor = ZReportColors.Darken(row[0].Color);
+							maxHits = Math.Max(maxHits, count);
 						}
 						else
 							cell = new ZCell("");
@@ -1155,6 +1190,15 @@ namespace Torn.Report
 			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 
 			report.RemoveColumn(idCol);
+			report.CalculateFill = delegate (int row, int col, double chartMin, double chartMax, ref double? fill) 
+			{
+				if (report.Columns[col].Text == "Score")
+					fill = report.Rows[row][col].Number / maxScore;
+				if (report.Columns[col].GroupHeading == "Tags")
+					fill = report.Rows[row][col].Number / maxTags;
+				if (report.Columns[col].Color != Color.Empty)
+					fill = report.Rows[row][col].Number / maxHits; 
+			};
 			return report;
 		}
 
