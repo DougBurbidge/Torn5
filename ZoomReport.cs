@@ -191,7 +191,7 @@ namespace Zoom
 					else if (string.IsNullOrEmpty(NumberFormat))
 						return Number.ToString();
 					else if (Number != null)
-						return ((double)Number).ToString(NumberFormat, CultureInfo.CurrentCulture);
+							return ((double)Number).ToString(NumberFormat, CultureInfo.CurrentCulture);
 					else
 						return "";
 				}
@@ -401,7 +401,7 @@ namespace Zoom
 		}
 	}
 
-	public delegate void CalculateFill(int row, int col, double chartMin, double chartMax, ref double? fill);  // Callback to custom-set bar cell filledness.
+	public delegate void CalculateFill(ZRow row, int col, double chartMin, double chartMax, ref double? fill);  // Callback to custom-set bar cell filledness.
 
 	public class ZoomReport: ZoomReportBase
 	{
@@ -886,8 +886,13 @@ namespace Zoom
 			var text = cell.Svg ?? WebUtility.HtmlEncode(cell.Text);
 			var s2 = new StringBuilder();
 			int decimals = 0;
-			if (cell.NumberFormat?.Length >= 2 && (cell.NumberFormat[0] == 'E' || cell.NumberFormat[0] == 'G'))
+			char numberFormat = cell.NumberFormat?.Length >= 1 ? cell.NumberFormat[0] : ' ';
+			if (cell.NumberFormat?.Length >= 2 && (numberFormat == 'E' || numberFormat == 'G'))
 				decimals = int.Parse(cell.NumberFormat.Substring(1));
+
+			if (numberFormat == 'f')
+				while (text?.Length >= 1 && (text.Last() == '0' || text.Last() == CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0]))
+					text = text.Substring(0, text.Length - 1);
 
 			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
 			    Math.Abs((double)cell.Number) > 0.0001)
@@ -1326,10 +1331,7 @@ namespace Zoom
 			{
 				double? fill = ScaleWidth(cell.Number ?? 0, 1, 0, chartMax - chartMin);
 				if (CalculateFill != null)
-				{
-					int rowIndex = Rows.IndexOf(row);
-					CalculateFill?.Invoke(rowIndex, column, chartMin, chartMax, ref fill);
-				}
+					CalculateFill?.Invoke(row, column, chartMin, chartMax, ref fill);
 				if (fill != null)
 					SvgRect(s, 1, left + Scale(0, width, chartMin, chartMax), top, (double)fill * width, height, chartColor);  // Paint bar.
 			}

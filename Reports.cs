@@ -778,6 +778,7 @@ namespace Torn.Report
 			{
 				MaxChartByColumn = true
 			};
+			report.Columns[0].Rotate = true;
 
 			var games = Games(league, includeSecret, rt);
 			var groups = games.Select(g => g.Title).Distinct().ToList();
@@ -1190,14 +1191,14 @@ namespace Torn.Report
 			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 
 			report.RemoveColumn(idCol);
-			report.CalculateFill = delegate (int row, int col, double chartMin, double chartMax, ref double? fill) 
+			report.CalculateFill = delegate (ZRow row, int col, double chartMin, double chartMax, ref double? fill) 
 			{
 				if (report.Columns[col].Text == "Score")
-					fill = report.Rows[row][col].Number / maxScore;
+					fill = row[col].Number / maxScore;
 				if (report.Columns[col].GroupHeading == "Tags")
-					fill = report.Rows[row][col].Number / maxTags;
+					fill = row[col].Number / maxTags;
 				if (report.Columns[col].Color != Color.Empty)
-					fill = report.Rows[row][col].Number / maxHits; 
+					fill = row[col].Number / maxHits; 
 			};
 			return report;
 		}
@@ -1976,14 +1977,18 @@ namespace Torn.Report
 			var colourTotals = new Dictionary<Colour, List<int>>();
 
 			if (showColours)
+			{
+				var colourColumns = new List<ZColumn>();
 				foreach (Colour c in coloursUsed)
 				{
-					report.AddColumn(new ZColumn("1st", ZAlignment.Integer, c.ToString()));
-					report.AddColumn(new ZColumn("2nd", ZAlignment.Integer, c.ToString()));
-					report.AddColumn(new ZColumn("3rd", ZAlignment.Integer, c.ToString()));
+					colourColumns.Add(report.AddColumn(new ZColumn("1st", ZAlignment.Integer, c.ToString())));
+					colourColumns.Add(report.AddColumn(new ZColumn("2nd", ZAlignment.Integer, c.ToString())));
+					colourColumns.Add(report.AddColumn(new ZColumn("3rd", ZAlignment.Integer, c.ToString())));
 
 					colourTotals.Add(c, new List<int>());
 				}
+				report.SameWidths.Add(colourColumns);
+			}
 
 			if (league.IsPoints())
 				report.AddColumn(new ZColumn("Points", ZAlignment.Float));
@@ -2005,6 +2010,7 @@ namespace Torn.Report
 			ZCell barCell = null;
 
 			List<int> countList = new List<int>();  // Number of games each team has played, for scaling.
+			int maxPlace = 1;
 
 			foreach (TeamLadderEntry entry in ladder)  // Create a row for each League team.
 			{
@@ -2042,7 +2048,10 @@ namespace Torn.Report
 					foreach (Colour c in coloursUsed)
 						for (int rank = 0; rank < 3; rank++)
 							if (colourCounts[c].Count > rank && colourCounts[c][rank] > 0)
+							{
 								row.Add(new ZCell(colourCounts[c][rank], ChartType.Bar, "N0", c.ToColor()));
+								maxPlace = Math.Max(maxPlace, colourCounts[c][rank]);
+							}
 							else
 								row.Add(new ZCell("", c.ToColor()));
 				}
@@ -2158,6 +2167,7 @@ namespace Torn.Report
 			for (int i = 0; i < report.Rows.Count; i++)
 				report.Rows[i][0].Number = i + 1;
 
+			int maxTotal = 1;
 			if (showColours)  // Add a Totals row at the bottom of the report.
 			{
 				ZRow row = new ZRow();
@@ -2167,23 +2177,26 @@ namespace Torn.Report
 
 				foreach (Colour c in coloursUsed)
 					for (int rank = 0; rank < 3; rank++)
-		 			{
-		 			Color dark = Color.FromArgb((c.ToColor().R + Color.Gray.R) / 2, (c.ToColor().G + Color.Gray.G) / 2, (c.ToColor().B + Color.Gray.B) / 2);
-		 				if (colourTotals[c].Count > rank)
-		 					row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, dark));
+					{
+						Color dark = Color.FromArgb((c.ToColor().R + Color.Gray.R) / 2, (c.ToColor().G + Color.Gray.G) / 2, (c.ToColor().B + Color.Gray.B) / 2);
+						if (colourTotals[c].Count > rank)
+						{
+							row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, dark));
+							maxTotal = Math.Max(maxTotal, colourTotals[c][rank]);
+						}
 		 				else
 		 					row.Add(new ZCell("", dark));
 		 			}
 
 				if (league.IsPoints())
-					row.Add(new ZCell(ladder.Sum(e => e.Points) / ladder.Count(), ChartType.None, "F1", Color.Gray));  // average league points scored
+					row.Add(new ZCell(ladder.Sum(e => e.Points) / ladder.Count(), ChartType.None, "f1", Color.Gray));  // average league points scored
 
 				if (ratio)
 					row.Add(new ZCell(ladder.Sum(e => e.Score) * 100.0 / ladder.Count(), ChartType.None, "P1", Color.Gray));  // average game score ratio
 				else
 					row.Add(new ZCell(ladder.Sum(e => e.Score) / ladder.Count(), ChartType.None, "N0", Color.Gray));  // average game score
 
-				row.Add(new ZCell(countList.Average(), ChartType.None, "F1", Color.Gray));  // average games played
+				row.Add(new ZCell(countList.Average(), ChartType.None, "f1", Color.Gray));  // average games played
 
 				if (rt.Drops != null && rt.Drops.HasDrops())
 					row.Add(new ZCell(""));  // games dropped
@@ -2202,7 +2215,17 @@ namespace Torn.Report
 				report.Description = "This report ranks teams.";
 
 				FinishReport(report, games, rt);
-		
+
+				report.CalculateFill = delegate (ZRow row, int col, double chartMin, double chartMax, ref double? fill)
+				{
+					if (string.IsNullOrEmpty(report.Columns[col].GroupHeading))
+						return;
+					if (row == report.Rows.Last())
+						fill = row[col].Number / maxTotal;
+					else
+						fill = row[col].Number / maxPlace;
+				};
+
 				if (more && less)
 					report.Description += " Teams with more or less than " + mode.ToString(CultureInfo.CurrentCulture) + " games have been scaled down or up. This is shown in the Scaled column.";
 				else if (more)
