@@ -264,9 +264,7 @@ namespace Torn.UI
 		{
 			try
 			{
-				tableLayoutPanel1.SetCellPosition(panelLeague, new TableLayoutPanelCellPosition(0, (tableLayoutPanel1.RowCount + adjust) / 2));
-				tableLayoutPanel1.SetRowSpan(listViewLeagues, (tableLayoutPanel1.RowCount + adjust) / 2);
-				tableLayoutPanel1.SetRowSpan(panelLeague, (tableLayoutPanel1.RowCount + adjust + 1) / 2);
+				tableLayoutPanel1.SetRowSpan(splitContainer1, tableLayoutPanel1.RowCount + adjust);
 				tableLayoutPanel1.SetRowSpan(panelGames, tableLayoutPanel1.RowCount + adjust);
 				tableLayoutPanel1.SetRowSpan(playersBox, tableLayoutPanel1.RowCount + adjust);
 			}
@@ -283,7 +281,7 @@ namespace Torn.UI
 
 		void AddTeamBoxes()
 		{
-			while(tableLayoutPanel1.Controls.Count - 4 < tableLayoutPanel1.RowCount * (tableLayoutPanel1.ColumnCount - 3))
+			while(tableLayoutPanel1.Controls.Count - 3 < tableLayoutPanel1.RowCount * (tableLayoutPanel1.ColumnCount - 3))
 			{
 				TeamBox teamBox = new TeamBox
 				{
@@ -486,6 +484,7 @@ namespace Torn.UI
 
 				if (new FormReport
 				{
+					Text = "Report on " + (SelectedLeagues().Count == 1 ? holder.League.Title : SelectedLeagues().Count.ToString() + " leagues"),
 					From = (holder.League.AllGames.FirstOrDefault()?.Time ?? default).Date,
 					To = (holder.League.AllGames.LastOrDefault()?.Time ?? default).Date,
 					ReportTemplate = adhocReportTemplate,
@@ -922,7 +921,6 @@ namespace Torn.UI
 		void ListViewLeaguesItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
 			Boolean b = listViewLeagues.SelectedItems.Count > 0;
-			//string s = listViewLeagues.SelectedItems.Count > 1 ? "s" : "";
 
 			buttonClose.Enabled = b;
 			buttonSave.Enabled = b;

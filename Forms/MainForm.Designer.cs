@@ -43,23 +43,23 @@ namespace Torn.UI
 			this.imageListLeagues = new System.Windows.Forms.ImageList(this.components);
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.panelGames = new System.Windows.Forms.Panel();
+			this.listViewGames = new System.Windows.Forms.ListView();
+			this.colGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colLeague = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.listViewLeagues = new System.Windows.Forms.ListView();
 			this.colTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colFile = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colGames = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colTeams = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.panelGames = new System.Windows.Forms.Panel();
-			this.listViewGames = new System.Windows.Forms.ListView();
-			this.colGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.colLeague = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.colDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.panelLeague = new System.Windows.Forms.Panel();
+			this.labelStatus = new System.Windows.Forms.Label();
+			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this.labelNow = new System.Windows.Forms.Label();
 			this.labelTime = new System.Windows.Forms.Label();
 			this.labelLeagueDetails = new System.Windows.Forms.Label();
-			this.progressBar1 = new System.Windows.Forms.ProgressBar();
-			this.labelStatus = new System.Windows.Forms.Label();
 			this.toolStripLeague = new System.Windows.Forms.ToolStrip();
 			this.toolStripDropDownLeagues = new System.Windows.Forms.ToolStripDropDownButton();
 			this.buttonPreferences = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,7 +106,10 @@ namespace Torn.UI
 			this.toolStripContainer1.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.panelGames.SuspendLayout();
-			this.panelLeague.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+			this.splitContainer1.Panel1.SuspendLayout();
+			this.splitContainer1.Panel2.SuspendLayout();
+			this.splitContainer1.SuspendLayout();
 			this.toolStripLeague.SuspendLayout();
 			this.toolStripGame.SuspendLayout();
 			this.toolStripTeams.SuspendLayout();
@@ -115,7 +118,6 @@ namespace Torn.UI
 			// 
 			// openFileDialog1
 			// 
-			this.openFileDialog1.FileName = "openFileDialog1";
 			this.openFileDialog1.Filter = "Torn files|*.Torn|All files|*.*";
 			this.openFileDialog1.Multiselect = true;
 			// 
@@ -154,9 +156,8 @@ namespace Torn.UI
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel1.Controls.Add(this.listViewLeagues, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.panelGames, 1, 0);
-			this.tableLayoutPanel1.Controls.Add(this.panelLeague, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.splitContainer1, 0, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -166,55 +167,6 @@ namespace Torn.UI
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(1272, 592);
 			this.tableLayoutPanel1.TabIndex = 20;
-			// 
-			// listViewLeagues
-			// 
-			this.listViewLeagues.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colTag,
-            this.colTitle,
-            this.colFile,
-            this.colGames,
-            this.colTeams});
-			this.listViewLeagues.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.listViewLeagues.HideSelection = false;
-			this.listViewLeagues.LabelEdit = true;
-			this.listViewLeagues.Location = new System.Drawing.Point(3, 3);
-			this.listViewLeagues.Name = "listViewLeagues";
-			this.listViewLeagues.Size = new System.Drawing.Size(312, 290);
-			this.listViewLeagues.SmallImageList = this.imageListLeagues;
-			this.listViewLeagues.TabIndex = 11;
-			this.listViewLeagues.UseCompatibleStateImageBehavior = false;
-			this.listViewLeagues.View = System.Windows.Forms.View.Details;
-			this.listViewLeagues.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ListViewLeaguesAfterLabelEdit);
-			this.listViewLeagues.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListViewLeaguesItemSelectionChanged);
-			this.listViewLeagues.SelectedIndexChanged += new System.EventHandler(this.ListViewGamesSelectedIndexChanged);
-			// 
-			// colTag
-			// 
-			this.colTag.Text = "Tag";
-			this.colTag.Width = 100;
-			// 
-			// colTitle
-			// 
-			this.colTitle.Text = "League";
-			this.colTitle.Width = 200;
-			// 
-			// colFile
-			// 
-			this.colFile.Text = "File";
-			this.colFile.Width = 350;
-			// 
-			// colGames
-			// 
-			this.colGames.Text = "Games";
-			this.colGames.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.colGames.Width = 50;
-			// 
-			// colTeams
-			// 
-			this.colTeams.Text = "Teams";
-			this.colTeams.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.colTeams.Width = 50;
 			// 
 			// panelGames
 			// 
@@ -262,27 +214,107 @@ namespace Torn.UI
 			this.colDescription.Text = "Description";
 			this.colDescription.Width = 75;
 			// 
-			// panelLeague
+			// splitContainer1
 			// 
-			this.panelLeague.Controls.Add(this.labelNow);
-			this.panelLeague.Controls.Add(this.labelTime);
-			this.panelLeague.Controls.Add(this.labelLeagueDetails);
-			this.panelLeague.Controls.Add(this.progressBar1);
-			this.panelLeague.Controls.Add(this.labelStatus);
-			this.panelLeague.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelLeague.Location = new System.Drawing.Point(3, 299);
-			this.panelLeague.Name = "panelLeague";
-			this.panelLeague.Size = new System.Drawing.Size(312, 290);
-			this.panelLeague.TabIndex = 16;
+			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer1.Location = new System.Drawing.Point(3, 3);
+			this.splitContainer1.Name = "splitContainer1";
+			this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// splitContainer1.Panel1
+			// 
+			this.splitContainer1.Panel1.Controls.Add(this.listViewLeagues);
+			// 
+			// splitContainer1.Panel2
+			// 
+			this.splitContainer1.Panel2.Controls.Add(this.labelStatus);
+			this.splitContainer1.Panel2.Controls.Add(this.progressBar1);
+			this.splitContainer1.Panel2.Controls.Add(this.labelNow);
+			this.splitContainer1.Panel2.Controls.Add(this.labelTime);
+			this.splitContainer1.Panel2.Controls.Add(this.labelLeagueDetails);
+			this.tableLayoutPanel1.SetRowSpan(this.splitContainer1, 2);
+			this.splitContainer1.Size = new System.Drawing.Size(312, 586);
+			this.splitContainer1.SplitterDistance = 360;
+			this.splitContainer1.TabIndex = 17;
+			// 
+			// listViewLeagues
+			// 
+			this.listViewLeagues.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colTag,
+            this.colTitle,
+            this.colFile,
+            this.colGames,
+            this.colTeams});
+			this.listViewLeagues.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.listViewLeagues.HideSelection = false;
+			this.listViewLeagues.LabelEdit = true;
+			this.listViewLeagues.Location = new System.Drawing.Point(0, 0);
+			this.listViewLeagues.Name = "listViewLeagues";
+			this.listViewLeagues.Size = new System.Drawing.Size(312, 360);
+			this.listViewLeagues.SmallImageList = this.imageListLeagues;
+			this.listViewLeagues.TabIndex = 0;
+			this.listViewLeagues.UseCompatibleStateImageBehavior = false;
+			this.listViewLeagues.View = System.Windows.Forms.View.Details;
+			this.listViewLeagues.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.ListViewLeaguesAfterLabelEdit);
+			this.listViewLeagues.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListViewLeaguesItemSelectionChanged);
+			this.listViewLeagues.SelectedIndexChanged += new System.EventHandler(this.ListViewGamesSelectedIndexChanged);
+			// 
+			// colTag
+			// 
+			this.colTag.Text = "Tag";
+			this.colTag.Width = 100;
+			// 
+			// colTitle
+			// 
+			this.colTitle.Text = "League";
+			this.colTitle.Width = 200;
+			// 
+			// colFile
+			// 
+			this.colFile.Text = "File";
+			this.colFile.Width = 350;
+			// 
+			// colGames
+			// 
+			this.colGames.Text = "Games";
+			this.colGames.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.colGames.Width = 50;
+			// 
+			// colTeams
+			// 
+			this.colTeams.Text = "Teams";
+			this.colTeams.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.colTeams.Width = 50;
+			// 
+			// labelStatus
+			// 
+			this.labelStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.labelStatus.Location = new System.Drawing.Point(3, 170);
+			this.labelStatus.Name = "labelStatus";
+			this.labelStatus.Size = new System.Drawing.Size(306, 21);
+			this.labelStatus.TabIndex = 3;
+			// 
+			// progressBar1
+			// 
+			this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.progressBar1.Location = new System.Drawing.Point(3, 194);
+			this.progressBar1.Maximum = 1000;
+			this.progressBar1.Name = "progressBar1";
+			this.progressBar1.Size = new System.Drawing.Size(306, 23);
+			this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+			this.progressBar1.TabIndex = 4;
+			this.progressBar1.Visible = false;
 			// 
 			// labelNow
 			// 
 			this.labelNow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.labelNow.Location = new System.Drawing.Point(12, 167);
+			this.labelNow.Location = new System.Drawing.Point(12, 97);
 			this.labelNow.Name = "labelNow";
 			this.labelNow.Size = new System.Drawing.Size(297, 64);
-			this.labelNow.TabIndex = 1;
+			this.labelNow.TabIndex = 2;
 			this.labelNow.Text = "Now Playing:";
 			// 
 			// labelTime
@@ -290,10 +322,10 @@ namespace Torn.UI
 			this.labelTime.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.labelTime.Font = new System.Drawing.Font("Arial", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.labelTime.Location = new System.Drawing.Point(12, 136);
+			this.labelTime.Location = new System.Drawing.Point(12, 66);
 			this.labelTime.Name = "labelTime";
 			this.labelTime.Size = new System.Drawing.Size(297, 23);
-			this.labelTime.TabIndex = 0;
+			this.labelTime.TabIndex = 1;
 			this.labelTime.Text = "Time";
 			// 
 			// labelLeagueDetails
@@ -303,30 +335,9 @@ namespace Torn.UI
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.labelLeagueDetails.Location = new System.Drawing.Point(0, 0);
 			this.labelLeagueDetails.Name = "labelLeagueDetails";
-			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 136);
-			this.labelLeagueDetails.TabIndex = 13;
+			this.labelLeagueDetails.Size = new System.Drawing.Size(312, 66);
+			this.labelLeagueDetails.TabIndex = 0;
 			this.labelLeagueDetails.Text = "\nSelect a league and its details will appear here.";
-			// 
-			// progressBar1
-			// 
-			this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.progressBar1.Location = new System.Drawing.Point(3, 264);
-			this.progressBar1.Maximum = 1000;
-			this.progressBar1.Name = "progressBar1";
-			this.progressBar1.Size = new System.Drawing.Size(306, 23);
-			this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-			this.progressBar1.TabIndex = 19;
-			this.progressBar1.Visible = false;
-			// 
-			// labelStatus
-			// 
-			this.labelStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.labelStatus.Location = new System.Drawing.Point(3, 240);
-			this.labelStatus.Name = "labelStatus";
-			this.labelStatus.Size = new System.Drawing.Size(306, 21);
-			this.labelStatus.TabIndex = 18;
 			// 
 			// toolStripLeague
 			// 
@@ -725,7 +736,6 @@ namespace Torn.UI
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MinimumSize = new System.Drawing.Size(620, 380);
 			this.Name = "MainForm";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Torn 5";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.Shown += new System.EventHandler(this.MainFormShown);
@@ -736,7 +746,10 @@ namespace Torn.UI
 			this.toolStripContainer1.PerformLayout();
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.panelGames.ResumeLayout(false);
-			this.panelLeague.ResumeLayout(false);
+			this.splitContainer1.Panel1.ResumeLayout(false);
+			this.splitContainer1.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+			this.splitContainer1.ResumeLayout(false);
 			this.toolStripLeague.ResumeLayout(false);
 			this.toolStripLeague.PerformLayout();
 			this.toolStripGame.ResumeLayout(false);
@@ -781,7 +794,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripButton buttonClose;
 		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
 		private System.Windows.Forms.ToolStripButton buttonNew;
-		private System.Windows.Forms.Panel panelLeague;
 		private System.Windows.Forms.Panel panelGames;
 		private System.Windows.Forms.ImageList imageListPacks;
 		private System.Windows.Forms.ToolStripButton buttonRemoveColumn;
@@ -794,22 +806,23 @@ namespace Torn.UI
 		private System.Windows.Forms.ColumnHeader colDescription;
 		private System.Windows.Forms.ColumnHeader colLeague;
 		private System.Windows.Forms.ColumnHeader colGame;
-		private System.Windows.Forms.Label labelLeagueDetails;
 		private System.Windows.Forms.ListView listViewGames;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-		private System.Windows.Forms.ProgressBar progressBar1;
-		private System.Windows.Forms.Label labelStatus;
-		private System.Windows.Forms.Label labelNow;
 		private System.Windows.Forms.Timer timerGame;
-		private System.Windows.Forms.Label labelTime;
-		private System.Windows.Forms.ColumnHeader colTeams;
-		private System.Windows.Forms.ColumnHeader colTag;
 		private System.Windows.Forms.ImageList imageListLeagues;
-		private System.Windows.Forms.ColumnHeader colGames;
-		private System.Windows.Forms.ColumnHeader colFile;
-		private System.Windows.Forms.ColumnHeader colTitle;
-		private System.Windows.Forms.ListView listViewLeagues;
 		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 		private System.Windows.Forms.OpenFileDialog openFileDialog1;
+		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.ListView listViewLeagues;
+		private System.Windows.Forms.ColumnHeader colTag;
+		private System.Windows.Forms.ColumnHeader colTitle;
+		private System.Windows.Forms.ColumnHeader colFile;
+		private System.Windows.Forms.ColumnHeader colGames;
+		private System.Windows.Forms.ColumnHeader colTeams;
+		private System.Windows.Forms.Label labelStatus;
+		private System.Windows.Forms.ProgressBar progressBar1;
+		private System.Windows.Forms.Label labelNow;
+		private System.Windows.Forms.Label labelTime;
+		private System.Windows.Forms.Label labelLeagueDetails;
 	}
 }
