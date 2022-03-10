@@ -57,7 +57,7 @@ namespace Torn.UI
 				radioTsv.Checked ? OutputFormat.Tsv :
 				OutputFormat.Csv;
 
-			string file = report.Title.Replace('/', '-') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK.
+			string file = report.Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
 			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace all other invalid chars with _.
 
 			var reports = new ZoomReports()
