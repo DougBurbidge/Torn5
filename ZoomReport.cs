@@ -1259,25 +1259,25 @@ namespace Zoom
 				{
 					s.Append("\t");
 
-					//if (!pure && !string.IsNullOrEmpty(hyper))
-					//	AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
+					if (!pure && !string.IsNullOrEmpty(column.Hyper))
+						AppendStrings(s, "<a xlink:href=\"", column.Hyper, "\">");
 
 					// Draw text inside parallelogram.
 					s.Append("<text ");
 
-					//if (!pure && !string.IsNullOrEmpty(hyper))
+					//if (!pure && !string.IsNullOrEmpty(column.Hyper))
 					//	s.Append("text-decoration=\"underline\" ");
 
 					s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(45 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
-								   x + (widths[col] - rowHeight) / 2, rowTop + headerHeight - 3, headerHeight * 1.4, rowHeight * 3 / 4);
+								   x + (widths[col] - rowHeight) / 2, rowTop + headerHeight - 3, headerHeight * 1.41 - rowHeight * 3 / 4, rowHeight * 3 / 4);
 					s.Append(System.Drawing.ColorTranslator.ToHtml(textColor));
 					s.Append("\">");
 
 					s.Append(WebUtility.HtmlEncode(column.Text));
 					s.Append("</text>");
 
-					//if (!pure && !string.IsNullOrEmpty(hyper))
-					//	s.Append("</a>");
+					if (!pure && !string.IsNullOrEmpty(column.Hyper))
+						s.Append("</a>");
 					s.Append("\n");
 				}
 				else  // Paint column heading text flat.
