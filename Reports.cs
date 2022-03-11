@@ -797,18 +797,21 @@ namespace Torn.Report
 			{
 				string groupName = groups[group]?.ToLower() ?? "";
 
-				if (groupName.Contains("final") && !groupName.Contains("semi"))
-					groupGames.Clear();
+				if ((groupName.Contains("final") && !groupName.Contains("semi")) || groupName.Contains("repechage") || groupName.Contains("repêchage"))
+					groupGames.Clear();  // Disregard previous results -- use only results from this round to rank.
 
 				var thisGroupGames = games.Where(g => g.Title == groups[group]).ToList();
 				groupGames.AddRange(thisGroupGames);
 
 				report.AddColumn(new ZColumn("Team", ZAlignment.Left, groups[group]));
+				if (league.IsPoints())
+					report.AddColumn(new ZColumn("Points", ZAlignment.Right, groups[group]));
 
 				if (groupName.Contains("semifinal") || groupName.Contains("semi final") ||
 					groupName.Contains("ascension") || groupName.Contains("format ") || groupName.Contains("track"))
 				{
-					report.AddColumn(new ZColumn("", ZAlignment.Right, groups[group]));
+					// Rank this round as an Ascension: teams that survive longer are ranked higher.
+
 					report.AddColumn(new ZColumn("Placings", ZAlignment.Right, groups[group]));
 					report.AddColumn(new ZColumn("Games", ZAlignment.Integer, groups[group]));
 					report.AddColumn(new ZColumn());  // This column is for arrows.
@@ -824,7 +827,7 @@ namespace Torn.Report
 					previousLadder = null;
 
 					for (int team = 0; team < offset; team++)
-						AddBlankCells(report.Rows[team], 5);
+						AddBlankCells(report.Rows[team], columnsPerGroup);
 
 					// For teams that are in this round, add cells for them.
 					for (int team = 0; team < Math.Min(report.Rows.Count, ascension.Rows.Count); team++)
@@ -852,8 +855,7 @@ namespace Torn.Report
 				}
 				else
 				{
-					if (league.IsPoints())
-						report.AddColumn(new ZColumn("Points", ZAlignment.Float, groups[group]));
+					// Rank this round based on score and/or victory points accumulated to date.
 
 					report.AddColumn(new ZColumn(ratio ? "Score Ratio" : "Average score", ZAlignment.Float, groups[group]));
 					report.AddColumn(new ZColumn("Games", ZAlignment.Integer, groups[group]));
@@ -867,7 +869,7 @@ namespace Torn.Report
 								break;
 					previousLadder = ladder;
 					for (int team = 0; team < offset; team++)
-						AddBlankCells(report.Rows[team], 5);
+						AddBlankCells(report.Rows[team], columnsPerGroup);
 
 					for (int t = 0; t < ladder.Count - offset; t++)
 					{
@@ -878,7 +880,7 @@ namespace Torn.Report
 
 						var gamesPlayedThisGroup = league.Played(thisGroupGames, team).Count;
 						if (gamesPlayedThisGroup == 0)
-							AddBlankCells(row, 5);
+							AddBlankCells(row, columnsPerGroup);
 						else
 						{
 							ZCell teamCell = row.AddCell(TeamCell(team));  // Team
@@ -912,7 +914,7 @@ namespace Torn.Report
 				}
 			}
 
-			report.RemoveColumn(report.Columns.Count - 1);  // Remove final arrows column.
+			report.RemoveZeroColumns();
 
 			int? topN = rt.SettingInt("ShowTopN");
 			if (topN != null)
