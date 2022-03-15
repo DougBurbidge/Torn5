@@ -32,6 +32,8 @@ edit league -- team add/delete/rename, player add/delete/re-ID; implement OK/Can
 better save format
 read from demo "server"
 read from laserforce server
+sanity check report. Add new check: are there odd games out with no victory points?
+tech report: hit totals for all sensors on all packs, plus games where a sensor takes 0 hits
 
 TODO for BOTH:
 output to printer
@@ -54,8 +56,6 @@ read from O-Zone server
 spark lines
 check latest version via REST
 reports and uploads in worker thread
-sanity check report. Add new check: are there odd games out with no victory points?
-tech report: hit totals for all sensors on all packs, plus games where a sensor takes 0 hits
 option to zero eliminated players.
 Move global settings to Program.cs
 
@@ -454,7 +454,7 @@ namespace Torn.UI
 
 		void ButtonExportClick(object sender, EventArgs e)
 		{
-			if (GetExportFolder() != null)
+			if (GetExportFolder())
 			{
 				Cursor.Current = Cursors.WaitCursor;
 				progressBar1.Value  = 0;
@@ -512,7 +512,7 @@ namespace Torn.UI
 
 		void ButtonExportFixturesClick(object sender, EventArgs e)
 		{
-			if (GetExportFolder() != null)
+			if (GetExportFolder())
 				ExportPages.ExportFixtures(exportFolder, SelectedLeagues());
 		}
 
@@ -705,7 +705,7 @@ namespace Torn.UI
 				return;
 			}
 
-			if (GetExportFolder() != null)
+			if (GetExportFolder())
 			{
 				progressBar1.Value = 0;
 				try {
@@ -715,10 +715,10 @@ namespace Torn.UI
 			}
 		}
 
-		string GetExportFolder(string message = "", bool showDialog = false)
+		bool GetExportFolder(string message = "", bool showDialog = false)
 		{
 			if (!showDialog && !string.IsNullOrEmpty(exportFolder))
-				return exportFolder;
+				return true;
 
 			if (!string.IsNullOrEmpty(message))
 				folderBrowserDialog1.Description = message;
@@ -729,10 +729,12 @@ namespace Torn.UI
 
 			folderBrowserDialog1.SelectedPath = exportFolder;
 
-			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-				return exportFolder = folderBrowserDialog1.SelectedPath;
-			else
-				return null;
+			bool result = folderBrowserDialog1.ShowDialog() == DialogResult.OK;
+			if (result)
+			{
+				exportFolder = folderBrowserDialog1.SelectedPath;
+			}
+			return result;
 		}
 
 		void SetRowColumnCount(int rows, int columns)
