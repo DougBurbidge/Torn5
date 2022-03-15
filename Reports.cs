@@ -1085,114 +1085,119 @@ namespace Torn.Report
 
 			report.RemoveZeroColumns();
 
-			foreach (var gameTeam in game.Teams)
-			{
-				var leagueTeam = league.LeagueTeam(gameTeam);
-
-				foreach (var player1 in gameTeam.Players)
-				{
-					var leaguePlayer = league.LeaguePlayer(player1);
-					string name = leaguePlayer == null ? player1.PlayerId : leaguePlayer.Name;
-					Color color = (player1.Colour == Colour.None ? gameTeam.Colour : player1.Colour).ToColor();
-
-					// Add a row and a column for each player on the team.
-					var column = new ZColumn(name)
-					{
-						Alignment = ZAlignment.Integer,
-						Rotate = true,
-						Color = color
-					};
-					if (!solo || gameTeam.Players.Count > 1)
-						column.GroupHeading = leagueTeam == null ? "Team ??" : leagueTeam.Name;
-					report.AddColumn(column);
-					sameWidths.Add(column);
-				}
-			}
-
 			int maxHits = 1;
 			var idCol = report.Columns.FindIndex(c => c.Text == "ID");
-			foreach (var row in report.Rows.Where(r => r.Valid(idCol)))
+
+			if (game?.ServerGame?.Events?.Any() ?? false)
 			{
-				var player1 = game.Players().Find(p => p.PlayerId == row[idCol].Text);
-				if (player1 == null)
-					continue;
-
-				// Add who-shot-who cells.
-				var gameTeam = player1.GameTeam(league);
-				foreach (var gameTeam2 in game.Teams)
-					foreach (var player2 in gameTeam2.Players)
-					{
-						ZCell cell;
-						if (player1 == player2)
-							cell = new ZCell("\u2572", row[0].Color);  // Diagonal Upper Left to Lower Right.
-						else if (player1 is ServerPlayer p1 && player2 is ServerPlayer p2)
-						{
-							int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == p1.ServerPlayerId && x.OtherPlayer == p2.ServerPlayerId && x.Event_Type < 14);
-							cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? row[0].Color : Color.Empty);
-							if (gameTeam != gameTeam2)
-								cell.BarColor = ZReportColors.Darken(row[0].Color);
-							maxHits = Math.Max(maxHits, count);
-						}
-						else
-							cell = new ZCell("");
-
-						row.Add(cell);
-					}
-
-				if (game.ServerGame?.Events != null && game.ServerGame.Events.Any())
+				foreach (var gameTeam in game.Teams)
 				{
-					var text = new StringBuilder();
-					var html = new StringBuilder();
-					var svg = new StringBuilder();
-					var startTime = game.ServerGame.Events.FirstOrDefault().Time;
-					int minutes = 0;  // How many whole minutes into the game are we?
-					Colour currentColour = Colour.None;
-					if (player1 is ServerPlayer player1sp)
-					{
-						foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == player1sp.ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) || (x.Event_Type >= 37 && x.Event_Type <= 1404))))
-						{
-							int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
-							if (now - minutes > 1)
-							{
-								ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', now - minutes));  // Add one dot for each whole minute of the game.
-								minutes = now;
-							}
+					var leagueTeam = league.LeagueTeam(gameTeam);
 
-							Colour otherTeam = (Colour)(eevent.OtherTeam + 1);
-							switch (eevent.Event_Type)
+					foreach (var player1 in gameTeam.Players)
+					{
+						var leaguePlayer = league.LeaguePlayer(player1);
+						string name = leaguePlayer == null ? player1.PlayerId : leaguePlayer.Name;
+						Color color = (player1.Colour == Colour.None ? gameTeam.Colour : player1.Colour).ToColor();
+
+						// Add a column for each player on the team.
+						var column = new ZColumn(name)
+						{
+							Alignment = ZAlignment.Integer,
+							Rotate = true,
+							Color = color
+						};
+						if (!solo || gameTeam.Players.Count > 1)
+							column.GroupHeading = leagueTeam == null ? "Team ??" : leagueTeam.Name;
+						report.AddColumn(column);
+						sameWidths.Add(column);
+					}
+				}
+
+				foreach (var row in report.Rows.Where(r => r.Valid(idCol)))
+				{
+					var player1 = game.Players().Find(p => p.PlayerId == row[idCol].Text);
+					if (player1 == null)
+						continue;
+
+					// Add who-shot-who cells.
+					var gameTeam = player1.GameTeam(league);
+					foreach (var gameTeam2 in game.Teams)
+						foreach (var player2 in gameTeam2.Players)
+						{
+							ZCell cell;
+							if (player1 == player2)
+								cell = new ZCell("\u2572", row[0].Color);  // Diagonal Upper Left to Lower Right.
+							else if (player1 is ServerPlayer p1 && player2 is ServerPlayer p2)
 							{
-								case 28: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e8"); break;  // warning: yellow square.
-								case 29: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e5"); break;  // terminated: red square.
-								case 30: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u25cb"); break;  // hit base: open circle
-								case 31: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2b24"); break;  // destroyed base: filled circle.
-								case 32: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\U0001f480"); break;  // eliminated: skull
-								case 33: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "!"); break;  // hit by base
-								case 34: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // hit by mine
-								case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // player tagged target
-								case 1401:
-								case 1402:  // score denial points: circle with cross, circle with slash
-									ColourSymbol(text, html, svg, ref currentColour, otherTeam, new string('\u29bb', eevent.ShotsDenied / 2));  // If this is a game where you can deny for many shots (e.g. 10 shots to destroy a base or whatever) show a double-deny mark for each two shots denied.
-									if (eevent.ShotsDenied % 2 == 1) ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2300");  // Show remaining one deny hit if necessary.
-									break;
-								case 1403: case 1404: ColourSymbol(text, html, svg, ref currentColour, Colour.None, eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
-								default:
-									ColourSymbol(text, html, svg, ref currentColour, Colour.None, "?"); break;
+								int count = game.ServerGame.Events.Count(x => x.ServerPlayerId == p1.ServerPlayerId && x.OtherPlayer == p2.ServerPlayerId && x.Event_Type < 14);
+								cell = BlankZero(count, ChartType.Bar, gameTeam == gameTeam2 ? row[0].Color : Color.Empty);
+								if (gameTeam != gameTeam2)
+									cell.BarColor = ZReportColors.Darken(row[0].Color);
+								maxHits = Math.Max(maxHits, count);
+							}
+							else
+								cell = new ZCell("");
+
+							row.Add(cell);
+						}
+
+					if (game.ServerGame?.Events != null && game.ServerGame.Events.Any())
+					{
+						var text = new StringBuilder();
+						var html = new StringBuilder();
+						var svg = new StringBuilder();
+						var startTime = game.ServerGame.Events.FirstOrDefault().Time;
+						int minutes = 0;  // How many whole minutes into the game are we?
+						Colour currentColour = Colour.None;
+						if (player1 is ServerPlayer player1sp)
+						{
+							foreach (var eevent in game.ServerGame.Events.Where(x => x.ServerPlayerId == player1sp.ServerPlayerId && ((x.Event_Type >= 28 && x.Event_Type <= 34) || (x.Event_Type >= 37 && x.Event_Type <= 1404))))
+							{
+								int now = (int)Math.Truncate(eevent.Time.Subtract(startTime).TotalMinutes);
+								if (now - minutes > 1)
+								{
+									ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', now - minutes));  // Add one dot for each whole minute of the game.
+									minutes = now;
+								}
+
+								Colour otherTeam = (Colour)(eevent.OtherTeam + 1);
+								switch (eevent.Event_Type)
+								{
+									case 28: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e8"); break;  // warning: yellow square.
+									case 29: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "\U0001f7e5"); break;  // terminated: red square.
+									case 30: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u25cb"); break;  // hit base: open circle
+									case 31: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2b24"); break;  // destroyed base: filled circle.
+									case 32: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\U0001f480"); break;  // eliminated: skull
+									case 33: ColourSymbol(text, html, svg, ref currentColour, otherTeam, "!"); break;  // hit by base
+									case 34: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // hit by mine
+									case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: ColourSymbol(text, html, svg, ref currentColour, Colour.None, "!"); break;  // player tagged target
+									case 1401:
+									case 1402:  // score denial points: circle with cross, circle with slash
+										ColourSymbol(text, html, svg, ref currentColour, otherTeam, new string('\u29bb', eevent.ShotsDenied / 2));  // If this is a game where you can deny for many shots (e.g. 10 shots to destroy a base or whatever) show a double-deny mark for each two shots denied.
+										if (eevent.ShotsDenied % 2 == 1) ColourSymbol(text, html, svg, ref currentColour, otherTeam, "\u2300");  // Show remaining one deny hit if necessary.
+										break;
+									case 1403: case 1404: ColourSymbol(text, html, svg, ref currentColour, Colour.None, eevent.ShotsDenied == 1 ? "\U0001f61e" : "\U0001f620"); break;  // lose points for being denied: sad face, angry face
+									default:
+										ColourSymbol(text, html, svg, ref currentColour, Colour.None, "?"); break;
+								}
 							}
 						}
+						ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes) + ".");  // Add one dot for each whole minute of the game.
+						row.Add(new ZCell(text.ToString())
+						{
+							Html = html.ToString(),
+							Svg = svg.ToString()
+						}
+							);
 					}
-					ColourSymbol(text, html, svg, ref currentColour, Colour.None, new string('\u00B7', (int)Math.Truncate(game.ServerGame.Events.LastOrDefault().Time.Subtract(startTime).TotalMinutes) - minutes) + ".");  // Add one dot for each whole minute of the game.
-					row.Add(new ZCell(text.ToString())
-					{
-						Html = html.ToString(),
-						Svg = svg.ToString()
-					}
-						);
 				}
+
+				report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
 			}
 
-			report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
-
 			report.RemoveColumn(idCol);
+
 			report.CalculateFill = delegate (ZRow row, int col, double chartMin, double chartMax, ref double? fill) 
 			{
 				if (report.Columns[col].Text == "Score")
@@ -1202,6 +1207,7 @@ namespace Torn.Report
 				if (report.Columns[col].Color != Color.Empty)
 					fill = row[col].Number / maxHits; 
 			};
+
 			return report;
 		}
 
