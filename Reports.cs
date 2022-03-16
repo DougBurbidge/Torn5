@@ -1193,7 +1193,11 @@ namespace Torn.Report
 					}
 				}
 
-				report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left));
+				report.AddColumn(new ZColumn("Base hits etc.", ZAlignment.Left)
+				{
+					FillWidth = true
+				}
+				);
 			}
 
 			report.RemoveColumn(idCol);

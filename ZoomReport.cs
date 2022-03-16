@@ -68,7 +68,9 @@ namespace Zoom
 		/// <summary>left, right or center</summary>
 		public ZAlignment Alignment { get; set; }
 		/// <summary>If true, we should try rotating the header text to make it fit better.</summary>
-		public bool Rotate;
+		public bool Rotate { get; set; }
+		/// <summary>If true, try to adjust text spacing so that all cells in this column have text that fills the whole available width.</summary>
+		public bool FillWidth { get; set; }
 		public List<Arrow> Arrows { get; }
 		/// <summary>Optional background colour.</summary>
 
@@ -495,6 +497,9 @@ namespace Zoom
 
 		public bool ColumnZeroOrNaN(int i)
 		{
+			if (Columns[i].Arrows.Any())
+				return false;
+
 			foreach(ZRow row in Rows)
 				if (i < row.Count && !row[i].EmptyOrNaN() && row[i].Number != 0)
 					return false;
@@ -512,6 +517,7 @@ namespace Zoom
 					row.RemoveAt(i);
 		}
 
+		/// <summary>Remove columns which contain no arrows and whose data is all empty, NaN or 0.</summary>
 		public void RemoveZeroColumns()
 		{
 			for (int i = Columns.Count - 1; i >= 0; i--)
@@ -829,7 +835,7 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, double fontSize, Color fontColor, ZAlignment alignment, string cssClass, string hyper)
+		void SvgBeginText(StringBuilder s, int indent, int x, int y, int width, int height, double fontSize, Color fontColor, ZAlignment alignment, string cssClass, string hyper, bool fillWidth)
 		{
 			s.Append('\t', indent);
 			if (!string.IsNullOrEmpty(hyper))
@@ -841,6 +847,9 @@ namespace Zoom
 
 			if (!string.IsNullOrEmpty(hyper))
 				s.Append("text-decoration=\"underline\" ");
+
+			if (fillWidth)
+				s.AppendFormat("textLength=\"{0}\" lengthAdjust=\"spacing\" ", width);
 
 			switch (alignment)
 			{
@@ -929,15 +938,15 @@ namespace Zoom
 						s2.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
 			}
 
-			SvgTextEscaped(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure);
+			SvgTextEscaped(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure, column.FillWidth);
 		}
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
 		{
-			SvgTextEscaped(s, indent, x, y, width, height, fontColor, alignment, WebUtility.HtmlEncode(text), cssClass, hyper, pure);
+			SvgTextEscaped(s, indent, x, y, width, height, fontColor, alignment, WebUtility.HtmlEncode(text), cssClass, hyper, pure, false);
 		}
 
-		void SvgTextEscaped(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
+		void SvgTextEscaped(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass, string hyper, bool pure, bool fillWidth)
 		{
 			if (string.IsNullOrEmpty(text))
 				return;
@@ -950,7 +959,7 @@ namespace Zoom
 				textWidth = Math.Max(width, graphics.MeasureString(text, font, 1000).Width);
 			}
 
-			SvgBeginText(s, indent, x, y, width, height, width / textWidth * height * (pure ? 0.681 : 0.75), fontColor, alignment, cssClass, pure ? null : hyper);
+			SvgBeginText(s, indent, x, y, width, height, width / textWidth * height * (pure ? 0.681 : 0.75), fontColor, alignment, cssClass, pure ? null : hyper, fillWidth);
 			s.Append(text);
 			SvgEndText(s, pure ? null : hyper);
 		}
@@ -1049,7 +1058,7 @@ namespace Zoom
 				else  // Draw the curved arrow line with two SVG "q" splines, like: <path d=\"M 100,100 h1 q3,0 6,11 q3,11 6,11 h1" stroke="color" stroke-width="4"/>
 					s.AppendFormat("h 1 q {0:F1},0 {1:F1},{2:F1} q {0:F1},{2:F1} {1:F1},{2:F1} h 1\" ", width / 4 - 1, width / 2 - 2, mid);
 
-				s.AppendFormat("stroke-width=\"{0:F1}\" stroke=\"", fullArrow);
+				s.AppendFormat("fill=\"none\" stroke-width=\"{0:F1}\" stroke=\"", fullArrow);
 				s.Append(System.Drawing.ColorTranslator.ToHtml(c));
 				s.Append("\" /> ");
 
