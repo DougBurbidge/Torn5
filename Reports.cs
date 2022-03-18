@@ -945,7 +945,7 @@ namespace Torn.Report
 				if (previousRank > -1)
 				{
 					var arrow = new Arrow();
-					arrow.From.Add(new ZArrowEnd(previousRank, 5));
+					arrow.From.Add(new ZArrowEnd(previousRank, 5) { Expand = true });
 					arrow.To.Add(new ZArrowEnd(rank, 5));
 					arrow.Color = Utility.StringToColor(teamCell.Text);
 					report.Columns[group * columnsPerGroup].Arrows.Add(arrow);
