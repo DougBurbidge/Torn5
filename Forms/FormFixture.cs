@@ -92,8 +92,10 @@ namespace Torn.UI
 		List<LeagueTeam> Ladder()
 		{
 			// Find the most appropriate report template showing the date range, drop games, etc.
-			var rt = Holder.ReportTemplates.Find(r => r.ReportType == ReportType.TeamLadder) ??
-				Holder.ReportTemplates.Find(r => r.ReportType == ReportType.GameByGame || r.ReportType == ReportType.GameGrid || r.ReportType == ReportType.GameGridCondensed) ??
+			var rt = Holder.ReportTemplates.Find(r => r.ReportType == ReportType.TeamLadder) ?? 
+				Holder.ReportTemplates.Find(r => r.ReportType == ReportType.MultiLadder) ??
+				Holder.ReportTemplates.Find(r => r.ReportType == ReportType.GameByGame) ?? 
+				Holder.ReportTemplates.Find(r => r.ReportType == ReportType.GameGrid || r.ReportType == ReportType.GameGridCondensed) ??
 				Holder.ReportTemplates.Find(r => r.ReportType == ReportType.Pyramid || r.ReportType == ReportType.PyramidCondensed) ??
 				Holder.ReportTemplates.FirstOrDefault() ??
 				new ReportTemplate() { ReportType = ReportType.TeamLadder };
@@ -212,7 +214,7 @@ namespace Torn.UI
 				g.FillRectangle(new SolidBrush(Color.FromArgb(0xF8, 0xF8, 0xF8)), left + x * size, x * size, size, size);
 
 				// Colour squares for selected team and game.
-				if (point.X > -1 && point.X < Holder.Fixture.Games.Count)
+				if (Holder.Fixture.Games.Valid(point.X))
 				{
 				var game = Holder.Fixture.Games[point.X];
 				var team = Holder.Fixture.Teams[point.Y];
