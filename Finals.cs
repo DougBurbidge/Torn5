@@ -20,23 +20,20 @@ namespace Torn
 		public int FreeRides { get; set; }
 
 		/// <summary>Add a cell to a row with a simple arrow running from left to right in the cell.</summary>
-		void AddCell(int row, ZColumn col, Color color)
+		void AddCell(int row, ZColumn col)
 		{
 			if (col != null)
-			{
 				Report.Rows[row].AddCell(new ZCell());
-				col.AddArrow(row, 5, color);
-			}
 		}
 
-		void AddCells(int row, ZColumn col1, ZColumn col2, Color color = default)
+		void AddCells(int row, ZColumn col1, ZColumn col2)
 		{
-			AddCell(row, col1, color);
-			AddCell(row, col2, color);
+			AddCell(row, col1);
+			AddCell(row, col2);
 		}
 
 		/// <summary>
-		/// Add column and cells representing this game, plus a riarrowbbon showing arrows leading out of this game.
+		/// Add column and cells representing this game, plus an arrow showing paths leading out of this game.
 		/// </summary>
 		/// <param name="gameName">Title for the column.</param>
 		/// <param name="topSpace">Space above this game to fill with pale horizontal arrows representing teams that haven't played their first game yet.</param>
@@ -44,8 +41,9 @@ namespace Torn
 		/// <param name="teamsInGame">Teams that are actually playing in this game.</param>
 		/// <param name="bottomSpace">Space below this game to fill with dark horizontal arrows, representing teams that have played their first game, but aren't in this game.</param>
 		/// <param name="narrow">If true, add just one column, and just one columns worth of cells, with the game cells going in the column just to the left of the one we're adding. If false, add two columns, with the second being for arrows.</param>
+		/// <param name="prefillArrows">If true, place simple left-right expanding arrows in the cells above the game that would otherwise be blank in this column.</param>
 		/// <returns>The column that contains the game cells.</returns>
-		ZColumn FillColumn(string gameName, int topSpace, int stepDown, int teamsInGame, int bottomSpace, bool narrow = false)
+		ZColumn FillColumn(string gameName, int topSpace, int stepDown, int teamsInGame, int bottomSpace, bool narrow = false, bool prefillArrows = false)
 		{
 			ZColumn gameCol;
 			// Add columns for game (and the arrows between games).
@@ -68,11 +66,19 @@ namespace Torn
 			int row = 0;
 			// Add cells for the space above this game (and the arrows between games).
 			for (int i = 0; i < topSpace && row < Report.Rows.Count - teamsInGame; i++, row++)
-				AddCells(row, narrow ? null : gameCol, arrowCol, Color.FromArgb(0xEE, 0xEE, 0xEE));
+			{
+				AddCells(row, narrow ? null : gameCol, arrowCol);
+				if (prefillArrows)
+					gameCol.AddArrow(row, 5, Color.FromArgb(0xEE, 0xEE, 0xEE), true);
+			}
 
 			// Add cells for the space which is above this game but below the teams first game, because this is a lower track.
 			for (int i = 0; i < stepDown && row < Report.Rows.Count - teamsInGame; i++, row++)
+			{
 				AddCells(row, narrow ? null : gameCol, arrowCol);
+				if (prefillArrows)
+					gameCol.AddArrow(row, 5, default, true);
+			}
 
 			// Add cells for the game (and the arrows between games).
 			for (int i = 0; i < teamsInGame; i++, row++)
@@ -88,8 +94,8 @@ namespace Torn
 				Report.Rows[row].AddCell(new ZCell(" ... ", Colour.Referee.ToColor()));
 				Report.Rows[row].AddCell(new ZCell());
 
-				arrow.From.Add(new ZArrowEnd(row, 5));
-				arrow.To.Add(new ZArrowEnd(row, 5));
+				arrow.From.Add(new ZArrowEnd(row, 5) { Expand = true } );
+				arrow.To.Add(new ZArrowEnd(row, 5) { Expand = true } );
 			}
 
 			// Add cells for the space below this game (and the arrows between games), so that lower-track games are placed correctly.
@@ -136,12 +142,12 @@ namespace Torn
 			// Ensure the bottom team(s) get a game.
 			if (topSpace + 2 * TeamsPerGame < NumTeams + TeamsSentDown)
 			{
-				games.Add(FillColumn(GameName(game), NumTeams - TeamsPerGame, 0, TeamsPerGame, 0));
+				games.Add(FillColumn(GameName(game), NumTeams - TeamsPerGame, 0, TeamsPerGame, 0, false, true));
 				game++;
 			}
 
 			// Add a "startup" games to get things rolling.
-			games.Add(FillColumn(GameName(game), topSpace, 0, TeamsPerGame, TeamsPerGame - TeamsSentDown));
+			games.Add(FillColumn(GameName(game), topSpace, 0, TeamsPerGame, TeamsPerGame - TeamsSentDown, false, !games.Any()));
 			game++;
 			topSpace -= TeamsSentDown;
 
@@ -160,7 +166,6 @@ namespace Torn
 				Report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
 
 			GrandFinals(games);
-
 			Report.SameWidths.Add(games);
 		}
 
@@ -179,7 +184,7 @@ namespace Torn
 			bool prefix = topSpace + 2 * TeamsPerGame + teamsSentUp < NumTeams + TeamsSentDown;
 			if (prefix)
 			{
-				games.Add(FillColumn(GameName(game) + "a", NumTeams - TeamsPerGame - teamsSentUp, 0, TeamsPerGame, TeamsSentDown));
+				games.Add(FillColumn(GameName(game), NumTeams - TeamsPerGame - teamsSentUp, 0, TeamsPerGame, TeamsSentDown, false, true));
 				game++;
 
 				games.Add(FillColumn(GameName(game), NumTeams - TeamsPerGame - teamsSentUp, teamsSentUp, TeamsPerGame, 0));
@@ -187,7 +192,7 @@ namespace Torn
 			}
 
 			// Add a "startup" games to get things rolling.
-			games.Add(FillColumn(GameName(game) + "S", topSpace, 0, TeamsPerGame, NumTeams - topSpace - TeamsPerGame, prefix));
+			games.Add(FillColumn(GameName(game), topSpace, 0, TeamsPerGame, NumTeams - topSpace - TeamsPerGame, prefix));
 			game++;
 			topSpace -= TeamsSentDown;
 			bool first = true;
@@ -216,6 +221,7 @@ namespace Torn
 			// Add columns for games.
 			int col = 0;
 			int game = 0;
+			var games = new List<ZColumn>();
 
 			int topSpace;
 			if (Tracks == 1)
@@ -232,7 +238,7 @@ namespace Torn
 					if (!bottom || topSpace + TeamsPerGame + track * TeamsSentDown <= NumTeams)
 					{
 						string gameName = Tracks == 1 ? (topSpace + TeamsPerGame).ToString() : GameName(game);
-						FillColumn(gameName, topSpace, track * (TeamsPerGame - TeamsSentDown), TeamsPerGame, (Tracks - track - 1) * TeamsSentDown);
+						games.Add(FillColumn(gameName, topSpace, track * (TeamsPerGame - TeamsSentDown), TeamsPerGame, (Tracks - track - 1) * TeamsSentDown, false, game == 0));
 						game++;
 						bottom |= topSpace + TeamsPerGame + track * TeamsSentDown >= NumTeams;
 					}
@@ -243,7 +249,8 @@ namespace Torn
 			for (int row = TeamsPerGame; row < NumTeams; row++)
 				Report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
 
-			GrandFinals(null);
+			GrandFinals(games);
+			Report.SameWidths.Add(games);
 			Report.Description = "You may wish to rearrange games to avoid back-to-backs where teams play twice in a row.";
 		}
 

@@ -88,12 +88,12 @@ namespace Zoom
 		}
 
 		/// <summary>Adds a simple arrow with one From and one To, both in the specified row and of the specified width.</summary>
-		public void AddArrow(int row, int width, Color color = default)
+		public void AddArrow(int row, int width, Color color = default, bool expand = false)
 		{
 			var arrow = new Arrow { Color = color };
 			Arrows.Add(arrow);
-			arrow.From.Add(new ZArrowEnd(row, width));
-			arrow.To.Add(new ZArrowEnd(row, width));
+			arrow.From.Add(new ZArrowEnd(row, width) { Expand = expand } );
+			arrow.To.Add(new ZArrowEnd(row, width) { Expand = expand } );
 		}
 	}
 
@@ -1008,6 +1008,26 @@ namespace Zoom
 
 		enum TopBottomType { Left, Right, Both }; // Does the top of this arrow have an end from the left? An end to the right? One of each? What about the bottom of the arrow?
 
+		float FindArrowLeft(ZArrowEnd end, int col, List<float> widths)
+		{
+			if (end.Expand)
+				while (Columns.Valid(col - 1) && Rows[end.Row].Valid(col - 1) && Rows[end.Row][col - 1].Empty() &&
+						!Columns[col - 1].Arrows.Exists(a => a.From.Exists(f => f.Row == end.Row) || a.To.Exists(t => t.Row == end.Row)))
+					col--;
+
+			return widths.Take(col).Sum(w => w + 1) + 0.5F;
+		}
+
+		float FindArrowRight(ZArrowEnd end, int col, List<float> widths)
+		{
+			if (end.Expand)
+				while (Columns.Valid(col + 1) && Rows[end.Row].Valid(col + 1) && Rows[end.Row][col + 1].Empty() &&
+						!Columns[col + 1].Arrows.Exists(a => a.From.Exists(f => f.Row == end.Row) || a.To.Exists(t => t.Row == end.Row)))
+					col++;
+
+			return widths.Take(col + 1).Sum(w => w + 1) + 0.5F;
+		}
+
 		/// <summary>Draw one complete vertical arrow plus its horizontal ends.</summary>
 		void SvgArrow(StringBuilder s, int indent, int col, Arrow arrow, List<float> widths, float top, float rowHeight)
 		{
@@ -1043,10 +1063,6 @@ namespace Zoom
 
 			s.Append('\t', indent);
 
-			float left = widths.Take(col).Sum(w => w + 1) + 0.5F;
-			float width = widths[col] + 0.5F;
-
-			//var arrowWidthH = arrow.MaxWidth();  // In unscaled units.
 			var halfScaleWidth = arrow.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled arrow width into half a scaled arrow width. 
 			var halfArrowH = arrow.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the arrow, in output SVG units.
 
@@ -1056,27 +1072,8 @@ namespace Zoom
 				var rightEnd = arrow.To[0];
 				float fullArrow = (float)(leftEnd.Width * halfScaleWidth * 2);
 
-				float thisLeft = left;
-				if (leftEnd.Expand)
-				{
-					int leftCol = col;
-					while (leftCol > 1 && Rows[leftEnd.Row][leftCol - 1].Empty() &&
-							!Columns[leftCol - 1].Arrows.Exists(a => a.From.Exists(f => f.Row == leftEnd.Row) || a.To.Exists(t => t.Row == leftEnd.Row)))
-						leftCol--;
-					left = widths.Take(leftCol).Sum(w => w + 1) + 0.5F;
-				}
-
-				float thisright = left + width;
-				if (rightEnd.Expand)
-				{
-					int rightCol = col;
-					while (Columns.Valid(rightCol + 1) && Rows[leftEnd.Row][rightCol + 1].Empty() &&
-							!Columns[rightCol + 1].Arrows.Exists(a => a.From.Exists(f => f.Row == rightEnd.Row) || a.To.Exists(t => t.Row == rightEnd.Row)))
-						rightCol++;
-					width = widths.Take(rightCol + 1).Sum(w => w + 1) - left;
-				}
-				else
-					width = widths.Take(col + 1).Sum(w => w + 1) - left;
+				float left = FindArrowLeft(leftEnd, col, widths);
+				float width = FindArrowRight(rightEnd, col, widths) - left;
 
 				var mid = (rightEnd.Row - leftEnd.Row) * rowHeight / 2;  // mid is -ve if the arrow is going up.
 				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left, RowMid(top, leftEnd.Row, rowHeight));
@@ -1095,6 +1092,9 @@ namespace Zoom
 			}
 			else
 			{
+				float left = widths.Take(col).Sum(w => w + 1) + 0.5F;
+				float width = widths[col] + 0.5F;
+
 				if (topType == TopBottomType.Right)
 				{
 					// Start in the horizontal middle, draw the top left corner arc. 
@@ -1118,7 +1118,7 @@ namespace Zoom
 						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{0:F1} ", halfArrow, -halfArrow);
 					}
 					// Paint a left end: left, down, right.
-					s.AppendFormat("H {0:F1} ", left);
+					s.AppendFormat("H {0:F1} ", FindArrowLeft(end, col, widths));
 					s.AppendFormat("v {0:F1} ", halfArrow * 2);
 					if (end.Row != bottomRow)
 					{
@@ -1158,24 +1158,14 @@ namespace Zoom
 						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{1:F1} ", halfArrow, -halfArrow);
 					}
 
-					if (col < Columns.Count - 2 && Columns[col + 1].Arrows.Exists(r => r.From.Exists(f => f.Row == arrow.To[i].Row)))  // True if there's a arrow immediately to the right of this arrow end.
-					{
-						// Paint a simple right end, starting at its bottom left: right, up/right, up/left, left.
-						s.AppendFormat("H {0:F1} ", left + width + 1);
-						s.AppendFormat("l {0:F1},{1:F1} ", halfArrow, -halfArrow);
-						s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow);
-						s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
-					}
-					else
-					{
-						// Paint a right end arrowhead, starting at its bottom left: right, down, up/right, up/left, down, left.
-						s.AppendFormat("H {0:F1} ", left + width - halfArrow);
-						s.AppendFormat("v {0:F1} ", halfArrow);
-						s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
-						s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
-						s.AppendFormat("v {0:F1} ", halfArrow);
-						s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
-					}
+					// Paint a right end arrowhead, starting at its bottom left: right, down, up/right, up/left, down, left.
+					s.AppendFormat("H {0:F1} ", FindArrowRight(end, col, widths) - halfArrow);
+					s.AppendFormat("v {0:F1} ", halfArrow);
+					s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
+					s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
+					s.AppendFormat("v {0:F1} ", halfArrow);
+					s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
+
 					if (end.Row != topRow)
 						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfArrow, -halfArrow);
 				}
