@@ -527,6 +527,21 @@ namespace Zoom
 					RemoveColumn(i);
 		}
 
+		/// <summary>Return the largest number of arrows starting in, ending in, or crossing a row.</summary>
+		int MaxArrowCount(int col)
+		{
+			var rowsCrossed = new List<int>();
+			foreach (var arrow in Columns[col].Arrows)
+			{
+				int min = Math.Min(arrow.From.Min(x => x.Row), arrow.To.Min(x => x.Row));
+				int max = Math.Max(arrow.From.Max(x => x.Row), arrow.To.Max(x => x.Row));
+				for (int i = min; i <= max; i++)
+					rowsCrossed.Add(i);
+			}
+
+			return rowsCrossed.Any() ? rowsCrossed.GroupBy(r => r).Max(g => g.Count()) : 0;
+		}
+
 		/// <summary>For each column, calculate a pixel width, and find the min and max values.</summary>
 		void Widths(List<float> widths, List<double> mins, List<double> maxs, out int maxPoints)
 		{
@@ -536,7 +551,8 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
-				float widest = Columns[col].Arrows.Any() ? 15 : 1;
+				int maxArrows = MaxArrowCount(col);
+				float widest = maxArrows == 0 ? 1 : maxArrows <= 3 ? 15 : maxArrows * 5; //Columns[col].Arrows.Any() ? 15 : 1;
 				float total = widest;
 				int count = 1;
 				double min = 0.0;
