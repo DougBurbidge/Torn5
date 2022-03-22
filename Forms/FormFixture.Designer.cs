@@ -58,6 +58,15 @@ namespace Torn.UI
 			this.numericSize = new System.Windows.Forms.NumericUpDown();
 			this.panelGraphic = new System.Windows.Forms.Panel();
 			this.tabFinals = new System.Windows.Forms.TabPage();
+			this.groupBoxOutputFormat = new System.Windows.Forms.GroupBox();
+			this.buttonShow = new System.Windows.Forms.Button();
+			this.radioCsv = new System.Windows.Forms.RadioButton();
+			this.buttonSave = new System.Windows.Forms.Button();
+			this.label11 = new System.Windows.Forms.Label();
+			this.label12 = new System.Windows.Forms.Label();
+			this.radioTsv = new System.Windows.Forms.RadioButton();
+			this.radioTables = new System.Windows.Forms.RadioButton();
+			this.radioSvg = new System.Windows.Forms.RadioButton();
 			this.labelTeamsToSendUp = new System.Windows.Forms.Label();
 			this.numericFreeRides = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
@@ -72,6 +81,7 @@ namespace Torn.UI
 			this.panelFinals = new System.Windows.Forms.Panel();
 			this.buttonAscension = new System.Windows.Forms.Button();
 			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
+			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.tabControl1.SuspendLayout();
 			this.tabTeams.SuspendLayout();
 			this.tabGamesList.SuspendLayout();
@@ -80,6 +90,7 @@ namespace Torn.UI
 			this.tabGraphic.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).BeginInit();
 			this.tabFinals.SuspendLayout();
+			this.groupBoxOutputFormat.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
@@ -221,7 +232,7 @@ namespace Torn.UI
 			this.tabControl1.Location = new System.Drawing.Point(12, 12);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(768, 658);
+			this.tabControl1.Size = new System.Drawing.Size(1232, 658);
 			this.tabControl1.TabIndex = 19;
 			// 
 			// tabTeams
@@ -232,7 +243,7 @@ namespace Torn.UI
 			this.tabTeams.Location = new System.Drawing.Point(4, 22);
 			this.tabTeams.Name = "tabTeams";
 			this.tabTeams.Padding = new System.Windows.Forms.Padding(3);
-			this.tabTeams.Size = new System.Drawing.Size(760, 632);
+			this.tabTeams.Size = new System.Drawing.Size(1224, 632);
 			this.tabTeams.TabIndex = 0;
 			this.tabTeams.Text = "Teams";
 			this.tabTeams.UseVisualStyleBackColor = true;
@@ -250,7 +261,7 @@ namespace Torn.UI
 			this.tabGamesList.Location = new System.Drawing.Point(4, 22);
 			this.tabGamesList.Name = "tabGamesList";
 			this.tabGamesList.Padding = new System.Windows.Forms.Padding(3);
-			this.tabGamesList.Size = new System.Drawing.Size(760, 632);
+			this.tabGamesList.Size = new System.Drawing.Size(1224, 632);
 			this.tabGamesList.TabIndex = 1;
 			this.tabGamesList.Text = "Games as a list";
 			this.tabGamesList.UseVisualStyleBackColor = true;
@@ -280,7 +291,7 @@ namespace Torn.UI
 			this.tabGamesGrid.Location = new System.Drawing.Point(4, 22);
 			this.tabGamesGrid.Name = "tabGamesGrid";
 			this.tabGamesGrid.Padding = new System.Windows.Forms.Padding(3);
-			this.tabGamesGrid.Size = new System.Drawing.Size(760, 632);
+			this.tabGamesGrid.Size = new System.Drawing.Size(1224, 632);
 			this.tabGamesGrid.TabIndex = 2;
 			this.tabGamesGrid.Text = "Games as a grid";
 			this.tabGamesGrid.UseVisualStyleBackColor = true;
@@ -387,7 +398,7 @@ namespace Torn.UI
 			this.tabGraphic.Location = new System.Drawing.Point(4, 22);
 			this.tabGraphic.Name = "tabGraphic";
 			this.tabGraphic.Padding = new System.Windows.Forms.Padding(3);
-			this.tabGraphic.Size = new System.Drawing.Size(760, 632);
+			this.tabGraphic.Size = new System.Drawing.Size(1224, 632);
 			this.tabGraphic.TabIndex = 3;
 			this.tabGraphic.Text = "Graphic";
 			this.tabGraphic.UseVisualStyleBackColor = true;
@@ -425,6 +436,7 @@ namespace Torn.UI
 			// 
 			// tabFinals
 			// 
+			this.tabFinals.Controls.Add(this.groupBoxOutputFormat);
 			this.tabFinals.Controls.Add(this.labelTeamsToSendUp);
 			this.tabFinals.Controls.Add(this.numericFreeRides);
 			this.tabFinals.Controls.Add(this.label10);
@@ -440,11 +452,107 @@ namespace Torn.UI
 			this.tabFinals.Controls.Add(this.buttonAscension);
 			this.tabFinals.Location = new System.Drawing.Point(4, 22);
 			this.tabFinals.Name = "tabFinals";
-			this.tabFinals.Size = new System.Drawing.Size(760, 632);
+			this.tabFinals.Size = new System.Drawing.Size(1224, 632);
 			this.tabFinals.TabIndex = 4;
 			this.tabFinals.Text = "Finals";
 			this.tabFinals.UseVisualStyleBackColor = true;
 			this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
+			// 
+			// groupBoxOutputFormat
+			// 
+			this.groupBoxOutputFormat.Controls.Add(this.buttonShow);
+			this.groupBoxOutputFormat.Controls.Add(this.radioCsv);
+			this.groupBoxOutputFormat.Controls.Add(this.buttonSave);
+			this.groupBoxOutputFormat.Controls.Add(this.label11);
+			this.groupBoxOutputFormat.Controls.Add(this.label12);
+			this.groupBoxOutputFormat.Controls.Add(this.radioTsv);
+			this.groupBoxOutputFormat.Controls.Add(this.radioTables);
+			this.groupBoxOutputFormat.Controls.Add(this.radioSvg);
+			this.groupBoxOutputFormat.Location = new System.Drawing.Point(741, 5);
+			this.groupBoxOutputFormat.Name = "groupBoxOutputFormat";
+			this.groupBoxOutputFormat.Size = new System.Drawing.Size(487, 60);
+			this.groupBoxOutputFormat.TabIndex = 13;
+			this.groupBoxOutputFormat.TabStop = false;
+			this.groupBoxOutputFormat.Text = "Save As";
+			// 
+			// buttonShow
+			// 
+			this.buttonShow.Enabled = false;
+			this.buttonShow.Location = new System.Drawing.Point(363, 14);
+			this.buttonShow.Name = "buttonShow";
+			this.buttonShow.Size = new System.Drawing.Size(114, 40);
+			this.buttonShow.TabIndex = 7;
+			this.buttonShow.Text = "Show saved report in web browser";
+			this.buttonShow.UseVisualStyleBackColor = true;
+			this.buttonShow.Click += new System.EventHandler(this.ButtonShowClick);
+			// 
+			// radioCsv
+			// 
+			this.radioCsv.Location = new System.Drawing.Point(243, 16);
+			this.radioCsv.Name = "radioCsv";
+			this.radioCsv.Size = new System.Drawing.Size(56, 20);
+			this.radioCsv.TabIndex = 3;
+			this.radioCsv.Tag = 3;
+			this.radioCsv.Text = "CSV";
+			this.radioCsv.UseVisualStyleBackColor = true;
+			// 
+			// buttonSave
+			// 
+			this.buttonSave.Location = new System.Drawing.Point(305, 14);
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.Size = new System.Drawing.Size(52, 40);
+			this.buttonSave.TabIndex = 6;
+			this.buttonSave.Text = "&Save";
+			this.buttonSave.UseVisualStyleBackColor = true;
+			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
+			// 
+			// label11
+			// 
+			this.label11.Location = new System.Drawing.Point(138, 39);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(124, 21);
+			this.label11.TabIndex = 5;
+			this.label11.Text = "(best for data export)";
+			// 
+			// label12
+			// 
+			this.label12.Location = new System.Drawing.Point(22, 39);
+			this.label12.Name = "label12";
+			this.label12.Size = new System.Drawing.Size(55, 23);
+			this.label12.TabIndex = 4;
+			this.label12.Text = "(prettiest)";
+			// 
+			// radioTsv
+			// 
+			this.radioTsv.Location = new System.Drawing.Point(181, 16);
+			this.radioTsv.Name = "radioTsv";
+			this.radioTsv.Size = new System.Drawing.Size(56, 20);
+			this.radioTsv.TabIndex = 2;
+			this.radioTsv.Tag = 2;
+			this.radioTsv.Text = "TSV";
+			this.radioTsv.UseVisualStyleBackColor = true;
+			// 
+			// radioTables
+			// 
+			this.radioTables.Location = new System.Drawing.Point(88, 16);
+			this.radioTables.Name = "radioTables";
+			this.radioTables.Size = new System.Drawing.Size(87, 20);
+			this.radioTables.TabIndex = 1;
+			this.radioTables.Tag = 1;
+			this.radioTables.Text = "HTML tables";
+			this.radioTables.UseVisualStyleBackColor = true;
+			// 
+			// radioSvg
+			// 
+			this.radioSvg.Checked = true;
+			this.radioSvg.Location = new System.Drawing.Point(6, 16);
+			this.radioSvg.Name = "radioSvg";
+			this.radioSvg.Size = new System.Drawing.Size(84, 20);
+			this.radioSvg.TabIndex = 0;
+			this.radioSvg.TabStop = true;
+			this.radioSvg.Tag = 0;
+			this.radioSvg.Text = "HTML SVG";
+			this.radioSvg.UseVisualStyleBackColor = true;
 			// 
 			// labelTeamsToSendUp
 			// 
@@ -601,7 +709,7 @@ namespace Torn.UI
 			this.panelFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
 			this.panelFinals.Location = new System.Drawing.Point(3, 68);
 			this.panelFinals.Name = "panelFinals";
-			this.panelFinals.Size = new System.Drawing.Size(754, 561);
+			this.panelFinals.Size = new System.Drawing.Size(1218, 561);
 			this.panelFinals.TabIndex = 9;
 			this.panelFinals.Resize += new System.EventHandler(this.PanelFinalsResize);
 			// 
@@ -624,7 +732,7 @@ namespace Torn.UI
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(792, 682);
+			this.ClientSize = new System.Drawing.Size(1256, 682);
 			this.Controls.Add(this.tabControl1);
 			this.Name = "FormFixture";
 			this.Text = "Fixtures";
@@ -643,6 +751,7 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).EndInit();
 			this.tabFinals.ResumeLayout(false);
 			this.tabFinals.PerformLayout();
+			this.groupBoxOutputFormat.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
@@ -692,5 +801,15 @@ namespace Torn.UI
 		private System.Windows.Forms.NumericUpDown numericFreeRides;
 		private System.Windows.Forms.Label label10;
 		private System.Windows.Forms.Label labelTeamsToSendUp;
+		private System.Windows.Forms.GroupBox groupBoxOutputFormat;
+		private System.Windows.Forms.Button buttonShow;
+		private System.Windows.Forms.RadioButton radioCsv;
+		private System.Windows.Forms.Button buttonSave;
+		private System.Windows.Forms.Label label11;
+		private System.Windows.Forms.Label label12;
+		private System.Windows.Forms.RadioButton radioTsv;
+		private System.Windows.Forms.RadioButton radioTables;
+		private System.Windows.Forms.RadioButton radioSvg;
+		private System.Windows.Forms.SaveFileDialog saveFileDialog;
 	}
 }

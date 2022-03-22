@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Svg;
 using Torn;
 using Torn.Report;
+using Zoom;
 
 namespace Torn.UI
 {
@@ -23,6 +24,8 @@ namespace Torn.UI
 		bool resizing;
 		SvgDocument document;
 		double aspectRatio = 1.0;
+
+		ZoomReport report;
 
 		public FormFixture()
 		{
@@ -321,7 +324,7 @@ namespace Torn.UI
 		{
 			labelTeamsToSendUp.Text = "Teams to send up from each game: " + (numericTeamsPerGame.Value - numericTeamsToCut.Value).ToString();
 
-			var report = Finals.Ascension(Holder.Fixture, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
+			report = Finals.Ascension(Holder.Fixture, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
 
 			using (StringWriter sw = new StringWriter())
 			{
@@ -375,6 +378,36 @@ namespace Torn.UI
 			numericTracks.Value = 3;
 			numericTeamsToCut.Value = 2;
 			numericFreeRides.Value = 0;
+		}
+
+		string fileName;
+		private void ButtonSaveClick(object sender, EventArgs e)
+		{
+			var outputFormat = radioSvg.Checked ? OutputFormat.Svg :
+				radioTables.Checked ? OutputFormat.HtmlTable :
+				radioTsv.Checked ? OutputFormat.Tsv :
+				OutputFormat.Csv;
+
+			string file = (Holder.League.Title + " " + report.Title).Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace space with _ to make URLs easier if this file is uploaded to the web.
+			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace invalid chars with _.
+
+			var reports = new ZoomReports()
+			{
+				report
+			};
+
+			if (saveFileDialog.ShowDialog() == DialogResult.OK)
+			{
+				using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
+					sw.Write(reports.ToOutput(outputFormat));
+				fileName = saveFileDialog.FileName;
+				buttonShow.Enabled = true;
+			}
+		}
+
+		private void ButtonShowClick(object sender, EventArgs e)
+		{
+			System.Diagnostics.Process.Start(fileName);
 		}
 
 		void NumericSizeValueChanged(object sender, EventArgs e)
