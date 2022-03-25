@@ -2,31 +2,20 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Svg;
 using Zoom;
 
 namespace Torn.UI
 {
 	public partial class FormAdhoc : Form
 	{
-		SvgDocument document;
 		ZoomReport report;
-		double aspectRatio = 1.0;
-
 		public ZoomReport Report
 		{
 			get { return report; }
 			set
 			{
 				report = value;
-				using (StringWriter sw = new StringWriter())
-				{
-					sw.Write(report.ToSvg(true));
-					document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
-				}
 				Text = report.Title;
-				aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
-
 				TimerRedrawTick(null, null);
 			}
 		}
@@ -43,9 +32,7 @@ namespace Torn.UI
 
 		private void TimerRedrawTick(object sender, EventArgs e)
 		{
-			document.Width = new SvgUnit(SvgUnitType.Pixel, panelDisplay.Width);
-			document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(panelDisplay.Width / aspectRatio));
-			panelDisplay.BackgroundImage = document.Draw();
+			panelDisplay.BackgroundImage = report.ToBitmap(panelDisplay.Width, panelDisplay.Height);
 			timerRedraw.Enabled = false;
 		}
 

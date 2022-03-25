@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Svg;
 using Torn;
 using Torn.Report;
 using Zoom;
@@ -22,9 +21,6 @@ namespace Torn.UI
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
 		bool resizing;
-		SvgDocument document;
-		double aspectRatio = 1.0;
-
 		ZoomReport report;
 
 		public FormFixture()
@@ -329,8 +325,6 @@ namespace Torn.UI
 			using (StringWriter sw = new StringWriter())
 			{
 				sw.Write(report.ToSvg(true));
-				document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
-				aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
 				TimerRedrawTick(null, null);
 			}
 		}
@@ -350,12 +344,8 @@ namespace Torn.UI
 
 		private void TimerRedrawTick(object sender, EventArgs e)
 		{
-			if (document != null)
-			{
-				document.Width = new SvgUnit(SvgUnitType.Pixel, panelFinals.Width);
-				document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(panelFinals.Width / aspectRatio));
-				panelFinals.BackgroundImage = document.Draw();
-			}
+			if (report != null)
+				panelFinals.BackgroundImage = report.ToBitmap(panelFinals.Width, panelFinals.Height);
 			timerRedraw.Enabled = false;
 		}
 

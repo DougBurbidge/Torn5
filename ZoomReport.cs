@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Svg;
 
 namespace Zoom
 {
@@ -631,6 +633,34 @@ namespace Zoom
 		{
 			return Rows.SelectMany(row => row.Where(cell => cell.ChartCell != null)
 			                   .Select(cell => cell.GetBarColor())).Distinct();
+		}
+
+		SvgDocument document;
+		/// <summary>Render a report to bitmap. If report has different aspect ratio to width/height, then returned bitmap will be either narrower than width, or shorter than height.</summary>
+		/// <param name="width">Maximum width to render.</param>
+		/// <param name="height">Maximum height to render.</param>
+		/// <returns>The bitmap.</returns>
+		public Bitmap ToBitmap(int width, int height)
+		{
+			if (document == null)
+				using (StringWriter sw = new StringWriter())
+				{
+					sw.Write(ToSvg(true));
+					document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
+				}
+			double aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
+
+			if (aspectRatio > 1.0 * width / height)
+			{
+				document.Width = new SvgUnit(SvgUnitType.Pixel, width);
+				document.Height = new SvgUnit(SvgUnitType.Pixel, (int)(width / aspectRatio));
+			}
+			else
+			{
+				document.Width = new SvgUnit(SvgUnitType.Pixel, (int)(height * aspectRatio));
+				document.Height = new SvgUnit(SvgUnitType.Pixel, height);
+			}
+			return document.Draw();
 		}
 
 		public override string ToCsv(char separator)
