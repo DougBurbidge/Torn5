@@ -29,8 +29,11 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAdhoc));
 			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
 			this.groupBoxOutputFormat = new System.Windows.Forms.GroupBox();
+			this.buttonPrintPreview = new System.Windows.Forms.Button();
+			this.buttonPrint = new System.Windows.Forms.Button();
 			this.buttonShow = new System.Windows.Forms.Button();
 			this.radioCsv = new System.Windows.Forms.RadioButton();
 			this.buttonSave = new System.Windows.Forms.Button();
@@ -41,6 +44,8 @@
 			this.radioSvg = new System.Windows.Forms.RadioButton();
 			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.panelDisplay = new System.Windows.Forms.Panel();
+			this.printDialog = new System.Windows.Forms.PrintDialog();
+			this.printPreviewDialog = new System.Windows.Forms.PrintPreviewDialog();
 			this.groupBoxOutputFormat.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -51,6 +56,8 @@
 			// 
 			// groupBoxOutputFormat
 			// 
+			this.groupBoxOutputFormat.Controls.Add(this.buttonPrintPreview);
+			this.groupBoxOutputFormat.Controls.Add(this.buttonPrint);
 			this.groupBoxOutputFormat.Controls.Add(this.buttonShow);
 			this.groupBoxOutputFormat.Controls.Add(this.radioCsv);
 			this.groupBoxOutputFormat.Controls.Add(this.buttonSave);
@@ -66,6 +73,26 @@
 			this.groupBoxOutputFormat.TabIndex = 7;
 			this.groupBoxOutputFormat.TabStop = false;
 			this.groupBoxOutputFormat.Text = "Save As";
+			// 
+			// buttonPrintPreview
+			// 
+			this.buttonPrintPreview.Location = new System.Drawing.Point(6, 432);
+			this.buttonPrintPreview.Name = "buttonPrintPreview";
+			this.buttonPrintPreview.Size = new System.Drawing.Size(53, 23);
+			this.buttonPrintPreview.TabIndex = 9;
+			this.buttonPrintPreview.Text = "Preview";
+			this.buttonPrintPreview.UseVisualStyleBackColor = true;
+			this.buttonPrintPreview.Click += new System.EventHandler(this.buttonPrintPreviewClick);
+			// 
+			// buttonPrint
+			// 
+			this.buttonPrint.Location = new System.Drawing.Point(6, 403);
+			this.buttonPrint.Name = "buttonPrint";
+			this.buttonPrint.Size = new System.Drawing.Size(52, 23);
+			this.buttonPrint.TabIndex = 8;
+			this.buttonPrint.Text = "&Print";
+			this.buttonPrint.UseVisualStyleBackColor = true;
+			this.buttonPrint.Click += new System.EventHandler(this.buttonPrintClick);
 			// 
 			// buttonShow
 			// 
@@ -155,6 +182,20 @@
 			this.panelDisplay.Size = new System.Drawing.Size(720, 689);
 			this.panelDisplay.TabIndex = 8;
 			// 
+			// printDialog
+			// 
+			this.printDialog.UseEXDialog = true;
+			// 
+			// printPreviewDialog
+			// 
+			this.printPreviewDialog.AutoScrollMargin = new System.Drawing.Size(0, 0);
+			this.printPreviewDialog.AutoScrollMinSize = new System.Drawing.Size(0, 0);
+			this.printPreviewDialog.ClientSize = new System.Drawing.Size(400, 300);
+			this.printPreviewDialog.Enabled = true;
+			this.printPreviewDialog.Icon = ((System.Drawing.Icon)(resources.GetObject("printPreviewDialog.Icon")));
+			this.printPreviewDialog.Name = "printPreviewDialog";
+			this.printPreviewDialog.Visible = false;
+			// 
 			// FormAdhoc
 			// 
 			this.AcceptButton = this.buttonSave;
@@ -186,5 +227,9 @@
 		private System.Windows.Forms.SaveFileDialog saveFileDialog;
 		private System.Windows.Forms.Panel panelDisplay;
 		private System.Windows.Forms.Button buttonShow;
+		private System.Windows.Forms.Button buttonPrint;
+		private System.Windows.Forms.Button buttonPrintPreview;
+		private System.Windows.Forms.PrintDialog printDialog;
+		private System.Windows.Forms.PrintPreviewDialog printPreviewDialog;
 	}
 }

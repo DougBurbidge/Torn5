@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -852,6 +853,29 @@ namespace Zoom
 
 			s.Append("<br /><br />\n\n");
 			return s.ToString();
+		}
+
+		public PrintDocument ToPrint()
+		{
+			var pd = new PrintDocument();
+			pd.PrintPage += new PrintPageEventHandler(this.PrintPage);
+			pd.OriginAtMargins = true;
+			return pd;
+		}
+
+		private void PrintPage(object sender, PrintPageEventArgs ev)
+		{
+			var bounds = ev.MarginBounds;
+			var image = ToBitmap((int)(bounds.Width * ev.PageSettings.PrinterResolution.X / 100), (int)(bounds.Height * ev.PageSettings.PrinterResolution.Y / 100));  // Page dimensions are in 1/100ths of an inch.
+			float imageRatio = 1.0F * image.Width / image.Height;
+			float pageRatio = 1.0F * bounds.Width / bounds.Height;
+			if (imageRatio > pageRatio)  // Report is wider than page: leave white space at bottom of page.
+				ev.Graphics.DrawImage(image, 0, 0, bounds.Width, bounds.Width / imageRatio);
+			else  // Report is taller than page: leave space at left and right.
+			{
+				float newWidth = bounds.Height * imageRatio;
+				ev.Graphics.DrawImage(image, (bounds.Width - newWidth) / 2, 0, newWidth, bounds.Height);
+			}
 		}
 
 		// Write a <rect> tag, and a <text> tag on top of it.
