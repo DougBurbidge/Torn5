@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -467,6 +468,28 @@ namespace Torn.UI
 					labelStatus.Text = "";
 					Cursor.Current = Cursors.Default;
 				}
+			}
+		}
+
+		private void ButtonPrintReportsClick(object sender, EventArgs e)
+		{
+			if (listViewLeagues.SelectedItems.Count > 0)
+			{
+				var holder = (Holder)listViewLeagues.SelectedItems[0].Tag;
+				PrintDocument pd;
+				Cursor.Current = Cursors.WaitCursor;
+				try
+				{
+					pd = ReportPages.OverviewReports(holder, true).ToPrint();
+				}
+				finally
+				{
+					Cursor.Current = Cursors.Default;
+				}
+
+				pd.DocumentName = holder.League.Title;
+				if (printDialog.ShowDialog() == DialogResult.OK)
+					pd.Print();
 			}
 		}
 

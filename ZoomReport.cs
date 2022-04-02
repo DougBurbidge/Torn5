@@ -958,7 +958,8 @@ namespace Zoom
 		}
 
 		/// <summary>This overload formats the value of a cell then calls the other overload.
-		/// If you specify a format starting with 'E' or 'G', it changes values like 0.0000123 to a style like 1.23x10^-5, but with Unicode superscript digits.</summary>
+		/// If you specify a format starting with 'E' or 'G', it changes values like 0.0000123 to a style like 1.23x10^-5, but with Unicode superscript digits.
+		/// Special format lowercase 'f' will trim trailing 0's after a deciaml, so "1.00" becomes "1"; "1.20" becomes "1.2".</summary>
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell, bool pure)
 		{
 			if (cell.Empty())
@@ -1840,6 +1841,66 @@ namespace Zoom
 
 			sb.Append("</body>\n");
 			return sb.ToString();
+		}
+
+		List<List<Bitmap>> images = new List<List<Bitmap>>();  // Each List<Bitmap> represents one page worth of reports.
+		int pageNumber = 0;
+		public PrintDocument ToPrint()
+		{
+			var pd = new PrintDocument();
+			pd.PrintPage += new PrintPageEventHandler(this.PrintPage);
+			pd.OriginAtMargins = true;
+			return pd;
+		}
+
+		private void PrintPage(object sender, PrintPageEventArgs ev)
+		{
+			var bounds = ev.MarginBounds;
+			List<Bitmap> page;
+
+			if (!images.Any())  // This code runs on the first call of PrintPage, to build the list of images that need to be printed.
+			{
+				page = new List<Bitmap>();
+				images.Add(page);
+				foreach (ZoomReportBase report in this)
+				{
+					if (report is ZoomReport r)
+						page.Add(r.ToBitmap((int)(bounds.Width * ev.PageSettings.PrinterResolution.X / 100), (int)(bounds.Height * ev.PageSettings.PrinterResolution.Y / 100)));
+					else if (report is ZoomSeparator)
+					{
+						page = new List<Bitmap>();
+						images.Add(page);
+					}
+				}
+				pageNumber = 0;
+			}
+
+			page = images[pageNumber];
+			var totalHeight = page.Sum(i => i.Height + 50) - 50;  // If there are several images on each page, put 50 "pixels" between them. These "pixels" are in the SVG's internal scale; i.e. about the height of two rows.
+			float scale = 1.0F * totalHeight / bounds.Height;
+			float top = 0;
+
+			foreach (var image in page)
+			{
+				float pagePart = 1.0F * image.Height / totalHeight;  // How much of the available page height is dedicated to this image? From 0 to 1.
+				float imageAspectRatio = 1.0F * image.Width / image.Height;
+				float pagePartAspectRatio = 1.0F * bounds.Width / bounds.Height / pagePart;
+				if (imageAspectRatio > pagePartAspectRatio)  // Report is wider than page part: use that full width but not the full height.
+				{
+					ev.Graphics.DrawImage(image, 0, top, bounds.Width, bounds.Width / imageAspectRatio);
+					top += bounds.Width / imageAspectRatio + 50 / scale;
+				}
+				else  // Report is taller than page: leave space at left and right.
+				{
+					float newHeight = bounds.Height * pagePart;
+					float newWidth = newHeight * imageAspectRatio;
+					ev.Graphics.DrawImage(image, (bounds.Width - newWidth) / 2, top, newWidth, newHeight);
+					top += newHeight + 50 / scale;
+				}
+			}
+
+			pageNumber++;
+			ev.HasMorePages = pageNumber < images.Count;
 		}
 
 		public string ToSvg()
