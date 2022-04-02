@@ -47,7 +47,7 @@ Things not yet implemented: fixture generation, pushing scores to a scoreboard, 
 <p>
 Torn's window is divided into several areas. At the top are the toolbars. Note that the left-most on each toolbar is a drop-down menu button. Toolbars can be torn off and floated, or docked at different edges of the window.
 </p><p>
-At the left is the Leagues list, showing the currently open leagues, with details on the currently focused league shown below it. 
+At the left is the Leagues list, showing the currently open leagues, with details on the currently focused league shown below it. (There's a splitter between the list and the details.)
 </p><p>
 To the right of the Leagues list is the Games list showing all the games Torn knows about (because they exist in an open .Torn file, or in the lasergame server database, or both). Clicking a game will show its details to the right.
 </p><p>
@@ -173,9 +173,9 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 </div>
 <div style="float:left">
 <svg viewBox="0 0 293 100" width="410" align="center">
-	<rect x="1.0" y="1" width="285.0" height="30" style="fill:Gray" />
+	<rect x="1" y="1" width="284" height="30" style="fill:Gray" />
 	<text text-anchor="middle" x="143" y="23" width="284" font-size="12" fill="White">Team ladder to end of Round Robin from 28/02/2019 to 3/03/2019</text>
-	<rect x="1.0" y="32" width="21.9" height="15" style="fill:Gray" />
+	<rect x="1" y="32" width="21.9" height="15" style="fill:Gray" />
 	<text text-anchor="middle" x="11" y="43" width="21" font-size="9" fill="White">Rank</text>
 	<rect x="23.9" y="32" width="162.8" height="15" style="fill:Gray" />
 	<text x="24" y="43" width="162" font-size="11" fill="White">Team</text>
@@ -186,7 +186,7 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 	<rect x="263.2" y="32" width="21.9" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="283" y="43" width="21" font-size="9" fill="White">Games</text>
 
-	<rect x="1.0" y="48" width="286.0" height="15" style="fill:#EEFFFF" />
+	<rect x="1" y="48" width="286" height="15" style="fill:#EEFFFF" />
 	<rect x="-147.2" y="48" width="432.3" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="11" y="59" width="21" font-size="11">1</text>
@@ -195,7 +195,7 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 	<text text-anchor="end" x="260" y="59" width="51" font-size="11">43,459</text>
 	<text text-anchor="end" x="283" y="59" width="21" font-size="11">12</text>
 
-	<rect x="1.0" y="64" width="286.0" height="15" style="fill:White" />
+	<rect x="1" y="64" width="286" height="15" style="fill:White" />
 	<rect x="-147.2" y="64" width="419.9" height="15" style="fill:#FFC0A0" />
 
 	<text text-anchor="middle" x="11" y="75" width="21" font-size="11">2</text>
@@ -204,7 +204,7 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 	<text text-anchor="end" x="260" y="75" width="51" font-size="11">44,202</text>
 	<text text-anchor="end" x="283" y="75" width="21" font-size="11">12</text>
 
-	<rect x="1.0" y="80" width="286.0" height="15" style="fill:#EEFFFF" />
+	<rect x="1" y="80" width="286" height="15" style="fill:#EEFFFF" />
 	<rect x="-147.2" y="80" width="407.6" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="11" y="91" width="21" font-size="11">3</text>
@@ -213,7 +213,7 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 	<text text-anchor="end" x="260" y="91" width="51" font-size="11">43,502</text>
 	<text text-anchor="end" x="283" y="91" width="21" font-size="11">12</text>
 
-	<rect x="1.0" y="96" width="286.0" height="15" style="fill:White" />
+	<rect x="1" y="96" width="286" height="15" style="fill:White" />
 	<rect x="-147.2" y="96" width="407.6" height="15" style="fill:#FFC0A0" />
 </svg></div>
 <div style="max-width:800px; margin:auto">
@@ -344,14 +344,14 @@ If you tick "longitudinal chart" you'll get an extra column at the right of the 
 	<path d="M 246.9,128.2 c 7.8,0 7.8,-11.5 7.8,-15.8 s 0,-7.2 3.4,-7.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -7.8,0 -7.8,11.5 -7.8,15.8 s 0,7.2 -3.4,7.2 Z" fill="#788358" />
 	<path d="M 246.9,105.2 c 3.4,0 3.4,11.5 3.4,15.8 s 0,7.2 7.8,7.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -3.4,0 -3.4,-11.5 -3.4,-15.8 s 0,-7.2 -7.8,-7.2 Z" fill="#2E5018" />
 	<path d="M 246.9,174.2 c 3.4,0 3.4,11.5 3.4,15.8 s 0,7.2 7.8,7.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -3.4,0 -3.4,-11.5 -3.4,-15.8 s 0,-7.2 -7.8,-7.2 Z" fill="#05C967" />
-	<path d="M 252.4,146.8 H 246.9 v 4.3 H 252.4 	H 260.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 H 259.0 Z" fill="#785A59" />
+	<path d="M 252.4,146.8 H 246.9 v 4.3 H 252.4 	H 260.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 H 259 Z" fill="#785A59" />
 
 	<path d="M 486.4,174.2 c 3.4,0 3.4,57.5 3.4,61.8 s 0,53.2 7.8,53.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -3.4,0 -3.4,-57.5 -3.4,-61.8 s 0,-53.2 -7.8,-53.2 Z" fill="#8A2208" />
-	<path d="M 486.4,151.2 c 7.8,0 7.8,-23.0 7.8,-27.3 s 0,-18.7 3.4,-18.7 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -7.8,0 -7.8,23.0 -7.8,27.3 s 0,18.7 -3.4,18.7 Z" fill="#785A59" />
-	<path d="M 486.4,105.2 c 3.4,0 3.4,23.0 3.4,27.3 s 0,18.7 7.8,18.7 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -3.4,0 -3.4,-23.0 -3.4,-27.3 s 0,-18.7 -7.8,-18.7 Z" fill="#788358" />
+	<path d="M 486.4,151.2 c 7.8,0 7.8,-23 7.8,-27.3 s 0,-18.7 3.4,-18.7 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -7.8,0 -7.8,23 -7.8,27.3 s 0,18.7 -3.4,18.7 Z" fill="#785A59" />
+	<path d="M 486.4,105.2 c 3.4,0 3.4,23 3.4,27.3 s 0,18.7 7.8,18.7 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -3.4,0 -3.4,-23 -3.4,-27.3 s 0,-18.7 -7.8,-18.7 Z" fill="#788358" />
 	<path d="M 486.4,197.2 c 7.8,0 7.8,-11.5 7.8,-15.8 s 0,-7.2 3.4,-7.2 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 c -7.8,0 -7.8,11.5 -7.8,15.8 s 0,7.2 -3.4,7.2 Z" fill="#05C967" />
 
-	<path d="M 492.0,123.8 H 486.4 v 4.3 H 492.0 	H 499.7 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 H 498.5 Z" fill="#2E5018" />
+	<path d="M 492,123.8 H 486.4 v 4.3 H 492 	H 499.7 v 2.2 l 4.3,-4.3 l -4.3,-4.3 v 2.2 H 498.5 Z" fill="#2E5018" />
 </svg></div>
 <div style="max-width:800px; margin:auto">
 <p>
@@ -511,15 +511,15 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<text text-decoration="underline" x="395" y="177" width="162" font-size="16" fill="Navy">Box Hill Sentinels</text></a>
 </svg><br/><br/>
 <svg viewBox="0 0 357 112" width="500" align="center">
-	<rect x="1.0" y="1" width="349.0" height="30" style="fill:Gray" />
+	<rect x="1" y="1" width="349" height="30" style="fill:Gray" />
 	<text text-anchor="middle" x="175" y="23" width="348" font-size="22" fill="White">Grand Finals for 8/03/2019</text>
 
-	<rect x="1.0" y="32" width="138.5" height="15" style="fill:Gray" />
+	<rect x="1" y="32" width="138.5" height="15" style="fill:Gray" />
 	<rect x="140.5" y="32" width="156.8" height="15" style="fill:Gray" />
 	<text text-anchor="middle" x="218" y="43" width="156" font-size="11" fill="White">Grand Finals</text>
 	<rect x="298.3" y="32" width="51.6" height="15" style="fill:Gray" />
 
-	<rect x="1.0" y="48" width="13.4" height="15" style="fill:Gray" />
+	<rect x="1" y="48" width="13.4" height="15" style="fill:Gray" />
 	<text text-anchor="middle" x="7" y="59" width="13" font-size="5" fill="White">Rank</text>
 	<rect x="15.4" y="48" width="124.1" height="15" style="fill:Gray" />
 	<text x="16" y="59" width="124" font-size="11" fill="White">Team</text>
@@ -532,7 +532,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<rect x="298.3" y="48" width="51.6" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="348" y="59" width="51" font-size="11" fill="White">Average</text>
 
-	<rect x="1.0" y="64" width="350.0" height="15" style="fill:#EEFFFF" />
+	<rect x="1" y="64" width="350" height="15" style="fill:#EEFFFF" />
 	<rect x="140.5" y="64" width="51.6" height="15" style="fill:#A0D0FF" />
 	<rect x="140.5" y="64" width="43.7" height="15" style="fill:#75AAD0" />
 	<rect x="193.1" y="64" width="51.6" height="15" style="fill:#FFA0A0" />
@@ -548,7 +548,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<text text-anchor="end" x="295" y="75" width="51" font-size="11">27,984</text>
 	<text text-anchor="end" x="348" y="75" width="51" font-size="11">24,327</text>
 
-	<rect x="1.0" y="80" width="350.0" height="15" style="fill:White" />
+	<rect x="1" y="80" width="350" height="15" style="fill:White" />
 	<rect x="140.5" y="80" width="51.6" height="15" style="fill:#A0FFA0" />
 	<rect x="140.5" y="80" width="46.4" height="15" style="fill:#82D082" />
 	<rect x="193.1" y="80" width="51.6" height="15" style="fill:#A0D0FF" />
@@ -564,14 +564,14 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 	<text text-anchor="end" x="295" y="91" width="51" font-size="11">19,101</text>
 	<text text-anchor="end" x="348" y="91" width="51" font-size="11">23,966</text>
 
-	<rect x="1.0" y="96" width="350.0" height="15" style="fill:#EEFFFF" />
+	<rect x="1" y="96" width="350" height="15" style="fill:#EEFFFF" />
 	<rect x="140.5" y="96" width="51.6" height="15" style="fill:#FFA0A0" />
-	<rect x="140.5" y="96" width="42.0" height="15" style="fill:#C28282" />
+	<rect x="140.5" y="96" width="42" height="15" style="fill:#C28282" />
 	<rect x="193.1" y="96" width="51.6" height="15" style="fill:#A0FFA0" />
 	<rect x="193.1" y="96" width="51.2" height="15" style="fill:#75D082" />
 	<rect x="245.7" y="96" width="51.6" height="15" style="fill:#A0D0FF" />
 	<rect x="245.7" y="96" width="38.7" height="15" style="fill:#75AAD0" />
-	<rect x="298.3" y="96" width="44.0" height="15" style="fill:#EEC0A0" />
+	<rect x="298.3" y="96" width="44" height="15" style="fill:#EEC0A0" />
 
 	<text text-anchor="middle" x="7" y="107" width="13" font-size="11">3</text>
 	<text text-decoration="underline" x="16" y="107" width="124" font-size="11" fill="Navy">Spartans</text></a>
@@ -614,7 +614,7 @@ The <strong>Game grid condensed</strong> report (see Pyramid condensed illustrat
 	<text text-anchor="end" x="280" y="59" width="69" font-size="11" fill="White">Time</text>
 	<rect x="282.9" y="48" width="43.1" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="324" y="59" width="43" font-size="11" fill="White">Score</text>
-	<rect x="327.0" y="48" width="21.9" height="15" style="fill:Gray" />
+	<rect x="327" y="48" width="21.9" height="15" style="fill:Gray" />
 	<text text-anchor="end" x="347" y="59" width="21" font-size="9" fill="White">Rank</text>
 
 	<rect x="1" y="64" width="349" height="15" style="fill:#EEFFFF" />
@@ -623,7 +623,7 @@ The <strong>Game grid condensed</strong> report (see Pyramid condensed illustrat
 	<rect x="189.5" y="64" width="21.9" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="64" width="43.1" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="64" width="22.7" height="15" style="fill:#75AAD0" />
-	<rect x="327.0" y="64" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="327" y="64" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="75" width="30" font-size="11">1</text>
 	<text text-decoration="underline" x="33" y="75" width="101" font-size="11" fill="Navy">ninja</text></a>
@@ -639,8 +639,8 @@ The <strong>Game grid condensed</strong> report (see Pyramid condensed illustrat
 	<rect x="145.4" y="80" width="39.7" height="15" style="fill:#82AAD0" />
 	<rect x="189.5" y="80" width="21.9" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="80" width="43.1" height="15" style="fill:#A0D0FF" />
-	<rect x="282.9" y="80" width="32.0" height="15" style="fill:#82AAD0" />
-	<rect x="327.0" y="80" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="282.9" y="80" width="32" height="15" style="fill:#82AAD0" />
+	<rect x="327" y="80" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="91" width="30" font-size="11">2</text>
 	<text text-decoration="underline" x="33" y="91" width="101" font-size="11" fill="Navy">Bootza</text></a>
@@ -653,11 +653,11 @@ The <strong>Game grid condensed</strong> report (see Pyramid condensed illustrat
 
 	<rect x="1" y="96" width="349" height="15" style="fill:#EEFFFF" />
 	<rect x="145.4" y="96" width="43.1" height="15" style="fill:#A0D0FF" />
-	<rect x="145.4" y="96" width="28.0" height="15" style="fill:#75AAD0" />
+	<rect x="145.4" y="96" width="28" height="15" style="fill:#75AAD0" />
 	<rect x="189.5" y="96" width="21.9" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="96" width="43.1" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="96" width="36.4" height="15" style="fill:#75AAD0" />
-	<rect x="327.0" y="96" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="327" y="96" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="107" width="30" font-size="11">3</text>
 	<text text-decoration="underline" x="33" y="107" width="101" font-size="11" fill="Navy">lakeo</text></a>
@@ -674,7 +674,7 @@ The <strong>Game grid condensed</strong> report (see Pyramid condensed illustrat
 	<rect x="189.5" y="112" width="21.9" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="112" width="43.1" height="15" style="fill:#A0D0FF" />
 	<rect x="282.9" y="112" width="15.8" height="15" style="fill:#82AAD0" />
-	<rect x="327.0" y="112" width="21.9" height="15" style="fill:#A0D0FF" />
+	<rect x="327" y="112" width="21.9" height="15" style="fill:#A0D0FF" />
 
 	<text text-anchor="middle" x="16" y="123" width="30" font-size="11">4</text>
 	<text text-decoration="underline" x="33" y="123" width="101" font-size="11" fill="Navy">Blitz</text></a>
@@ -699,11 +699,11 @@ An asccension report is like a game grid, with one team per row and one game per
 </div>
 <div style="float:left">
 <svg viewBox="0 0 133 138" width="150" align="center">
-	<rect x="1.0" y="1" width="125.0" height="44" style="fill:Gray" />
+	<rect x="1" y="1" width="125" height="44" style="fill:Gray" />
 	<text text-anchor="middle" x="63" y="19" width="124" font-size="14" fill="White">2019 ZLTAC Team </text>
 	<text text-anchor="middle" x="63" y="35" width="124" font-size="14" fill="White">Colour Performance</text>
 
-	<rect x="1.0" y="46" width="30.1" height="22" style="fill:Gray" />
+	<rect x="1" y="46" width="30.1" height="22" style="fill:Gray" />
 	<text text-anchor="middle" x="16" y="62" width="30" font-size="11" fill="White">Rank</text>
 	<rect x="32.1" y="46" width="30.4" height="22" style="fill:Gray" />
 	<text text-anchor="end" x="61" y="62" width="30" font-size="11" fill="White">Green</text>
@@ -712,7 +712,7 @@ An asccension report is like a game grid, with one team per row and one game per
 	<rect x="94.9" y="46" width="30.4" height="22" style="fill:Gray" />
 	<text text-anchor="end" x="123" y="62" width="30" font-size="14" fill="White">Blue</text>
 
-	<rect x="1.0" y="69" width="126.0" height="22" style="fill:#EEFFFF" />
+	<rect x="1" y="69" width="126" height="22" style="fill:#EEFFFF" />
 	<rect x="32.1" y="69" width="30.4" height="22" style="fill:#A0FFA0" />
 	<rect x="32.1" y="69" width="28.1" height="22" style="fill:#75D082" />
 	<rect x="63.5" y="69" width="30.4" height="22" style="fill:#FFA0A0" />
@@ -725,7 +725,7 @@ An asccension report is like a game grid, with one team per row and one game per
 	<text text-anchor="end" x="92" y="85" width="30" font-size="16">110</text>
 	<text text-anchor="end" x="123" y="85" width="30" font-size="16">90</text>
 
-	<rect x="1.0" y="92" width="126.0" height="22" style="fill:White" />
+	<rect x="1" y="92" width="126" height="22" style="fill:White" />
 	<rect x="32.1" y="92" width="30.4" height="22" style="fill:#A0FFA0" />
 	<rect x="32.1" y="92" width="25.9" height="22" style="fill:#82D082" />
 	<rect x="63.5" y="92" width="30.4" height="22" style="fill:#FFA0A0" />
@@ -738,7 +738,7 @@ An asccension report is like a game grid, with one team per row and one game per
 	<text text-anchor="end" x="92" y="108" width="30" font-size="16">108</text>
 	<text text-anchor="end" x="123" y="108" width="30" font-size="16">101</text>
 
-	<rect x="1.0" y="115" width="126.0" height="22" style="fill:#EEFFFF" />
+	<rect x="1" y="115" width="126" height="22" style="fill:#EEFFFF" />
 	<rect x="32.1" y="115" width="30.4" height="22" style="fill:#A0FFA0" />
 	<rect x="32.1" y="115" width="23.9" height="22" style="fill:#75D082" />
 	<rect x="63.5" y="115" width="30.4" height="22" style="fill:#FFA0A0" />
@@ -767,11 +767,11 @@ This report helps you pick up common errors: games with atypical numbers of play
 	<rect x="1" y="1" width="239" height="44" style="fill:Gray" />
 	<text text-anchor="middle" x="119" y="34" width="238" font-size="25" fill="White">[redacted] Pack Report</text>
 
-	<rect x="1.0" y="46" width="21.9" height="22" style="fill:Gray" />
+	<rect x="1" y="46" width="21.9" height="22" style="fill:Gray" />
 	<text text-anchor="middle" x="11" y="62" width="21" font-size="10" fill="White">Rank</text>
 	<rect x="23.9" y="46" width="68.7" height="22" style="fill:Gray" />
 	<text x="24" y="62" width="68" font-size="16" fill="White">Pack</text>
-	<rect x="93.6" y="46" width="44.0" height="22" style="fill:Gray" />
+	<rect x="93.6" y="46" width="44" height="22" style="fill:Gray" />
 	<text text-anchor="end" x="135" y="62" width="43" font-size="10" fill="White">Tag Ratio</text>
 	<rect x="138.6" y="46" width="34.6" height="22" style="fill:Gray" />
 	<text text-anchor="end" x="171" y="62" width="34" font-size="16" fill="White">t</text>
