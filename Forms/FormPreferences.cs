@@ -67,6 +67,12 @@ namespace Torn.UI
 		public bool AutoUpdateTeams { get { return checkBoxAutoUpdateTeams.Checked; }
 		                              set { checkBoxAutoUpdateTeams.Checked = value; } }
 
+		public string ReportsFolder
+		{
+			get { return textBoxReportsFolder.Text; }
+			set { textBoxReportsFolder.Text = value; }
+		}
+
 		public string UploadMethod {
 			get {
 				if (radioFtp.Checked) return (string)radioFtp.Tag;
@@ -145,13 +151,15 @@ namespace Torn.UI
 				textBoxSqlUser.Text = "sa";
 		}
 
-		void ButtonLogFolderClick(object sender, EventArgs e)
+		void ButtonFolderClick(object sender, EventArgs e)
 		{
-			if (!string.IsNullOrEmpty(textBoxLogFolder.Text))
-			    folderBrowserDialog1.SelectedPath = textBoxLogFolder.Text;
+			TextBox textBox = sender == buttonLogFolder ? textBoxLogFolder : textBoxReportsFolder;
+
+			if (!string.IsNullOrEmpty(textBox.Text))
+			    folderBrowserDialog1.SelectedPath = textBox.Text;
 
 			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-				textBoxLogFolder.Text = folderBrowserDialog1.SelectedPath;
+				textBox.Text = folderBrowserDialog1.SelectedPath;
 		}
 	}
 }

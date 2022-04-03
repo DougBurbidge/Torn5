@@ -93,14 +93,13 @@ namespace Torn.UI
 			this.toolStripDropDownReports = new System.Windows.Forms.ToolStripDropDownButton();
 			this.buttonAdHocReport = new System.Windows.Forms.ToolStripMenuItem();
 			this.buttonExportFixtures = new System.Windows.Forms.ToolStripMenuItem();
-			this.buttonSetFolder = new System.Windows.Forms.ToolStripButton();
 			this.buttonExportReports = new System.Windows.Forms.ToolStripButton();
 			this.buttonUploadReports = new System.Windows.Forms.ToolStripButton();
+			this.buttonPrintReports = new System.Windows.Forms.ToolStripButton();
 			this.buttonConfigureReports = new System.Windows.Forms.ToolStripButton();
 			this.imageListPacks = new System.Windows.Forms.ImageList(this.components);
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-			this.buttonPrintReports = new System.Windows.Forms.ToolStripButton();
 			this.printDialog = new System.Windows.Forms.PrintDialog();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -615,7 +614,6 @@ namespace Torn.UI
 			this.toolStripReports.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStripReports.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripDropDownReports,
-            this.buttonSetFolder,
             this.buttonExportReports,
             this.buttonUploadReports,
             this.buttonPrintReports,
@@ -651,15 +649,6 @@ namespace Torn.UI
 			this.buttonExportFixtures.Text = "Export Fixtures";
 			this.buttonExportFixtures.Click += new System.EventHandler(this.ButtonExportFixturesClick);
 			// 
-			// buttonSetFolder
-			// 
-			this.buttonSetFolder.Image = ((System.Drawing.Image)(resources.GetObject("buttonSetFolder.Image")));
-			this.buttonSetFolder.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.buttonSetFolder.Name = "buttonSetFolder";
-			this.buttonSetFolder.Size = new System.Drawing.Size(88, 22);
-			this.buttonSetFolder.Text = "Set &Folder...";
-			this.buttonSetFolder.Click += new System.EventHandler(this.ButtonSetExportFolderClick);
-			// 
 			// buttonExportReports
 			// 
 			this.buttonExportReports.Image = ((System.Drawing.Image)(resources.GetObject("buttonExportReports.Image")));
@@ -677,6 +666,15 @@ namespace Torn.UI
 			this.buttonUploadReports.Size = new System.Drawing.Size(65, 22);
 			this.buttonUploadReports.Text = "&Upload";
 			this.buttonUploadReports.Click += new System.EventHandler(this.ButtonUploadClick);
+			// 
+			// buttonPrintReports
+			// 
+			this.buttonPrintReports.Image = ((System.Drawing.Image)(resources.GetObject("buttonPrintReports.Image")));
+			this.buttonPrintReports.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttonPrintReports.Name = "buttonPrintReports";
+			this.buttonPrintReports.Size = new System.Drawing.Size(65, 24);
+			this.buttonPrintReports.Text = "&Print...";
+			this.buttonPrintReports.Click += new System.EventHandler(this.ButtonPrintReportsClick);
 			// 
 			// buttonConfigureReports
 			// 
@@ -719,15 +717,6 @@ namespace Torn.UI
 			// saveFileDialog1
 			// 
 			this.saveFileDialog1.Filter = "Torn files|*.Torn|All files|*.*";
-			// 
-			// buttonPrintReports
-			// 
-			this.buttonPrintReports.Image = ((System.Drawing.Image)(resources.GetObject("buttonPrintReports.Image")));
-			this.buttonPrintReports.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.buttonPrintReports.Name = "buttonPrintReports";
-			this.buttonPrintReports.Size = new System.Drawing.Size(61, 22);
-			this.buttonPrintReports.Text = "&Print...";
-			this.buttonPrintReports.Click += new System.EventHandler(this.ButtonPrintReportsClick);
 			// 
 			// printDialog
 			// 
@@ -784,7 +773,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem buttonPreferences;
 		private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownLeagues;
 		private System.Windows.Forms.ToolStripButton buttonConfigureReports;
-		private System.Windows.Forms.ToolStripButton buttonSetFolder;
 		private System.Windows.Forms.ToolStripButton buttonUploadReports;
 		private System.Windows.Forms.ToolStripButton buttonExportReports;
 		private System.Windows.Forms.ToolStrip toolStripReports;

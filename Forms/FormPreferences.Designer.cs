@@ -41,6 +41,7 @@ namespace Torn.UI
 			this.textBoxServerAddress = new System.Windows.Forms.TextBox();
 			this.label3 = new System.Windows.Forms.Label();
 			this.panelSystemType = new System.Windows.Forms.Panel();
+			this.radioOZone = new System.Windows.Forms.RadioButton();
 			this.radioTorn = new System.Windows.Forms.RadioButton();
 			this.radioDemo = new System.Windows.Forms.RadioButton();
 			this.radioLaserforce = new System.Windows.Forms.RadioButton();
@@ -57,6 +58,10 @@ namespace Torn.UI
 			this.label4 = new System.Windows.Forms.Label();
 			this.radioColour = new System.Windows.Forms.RadioButton();
 			this.radioAlias = new System.Windows.Forms.RadioButton();
+			this.tabPageReports = new System.Windows.Forms.TabPage();
+			this.buttonReportsFolder = new System.Windows.Forms.Button();
+			this.textBoxReportsFolder = new System.Windows.Forms.TextBox();
+			this.labelReportsFolder = new System.Windows.Forms.Label();
 			this.tabPageUpload = new System.Windows.Forms.TabPage();
 			this.textBoxSite = new System.Windows.Forms.TextBox();
 			this.labelSite = new System.Windows.Forms.Label();
@@ -70,7 +75,7 @@ namespace Torn.UI
 			this.label2 = new System.Windows.Forms.Label();
 			this.radioSftp = new System.Windows.Forms.RadioButton();
 			this.radioFtp = new System.Windows.Forms.RadioButton();
-			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.tabPageWebServer = new System.Windows.Forms.TabPage();
 			this.labelPort = new System.Windows.Forms.Label();
 			this.numericPort = new System.Windows.Forms.NumericUpDown();
 			this.checkBoxWebServer = new System.Windows.Forms.CheckBox();
@@ -82,7 +87,6 @@ namespace Torn.UI
 			this.buttonCancel = new System.Windows.Forms.Button();
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-			this.radioOZone = new System.Windows.Forms.RadioButton();
 			this.tabControl1.SuspendLayout();
 			this.tabPageSystem.SuspendLayout();
 			this.panel1.SuspendLayout();
@@ -90,9 +94,10 @@ namespace Torn.UI
 			this.tabPageConfiguration.SuspendLayout();
 			this.panel4.SuspendLayout();
 			this.panel2.SuspendLayout();
+			this.tabPageReports.SuspendLayout();
 			this.tabPageUpload.SuspendLayout();
 			this.panel3.SuspendLayout();
-			this.tabPage1.SuspendLayout();
+			this.tabPageWebServer.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericPort)).BeginInit();
 			this.tabPageLaserforce.SuspendLayout();
 			this.panelBottom.SuspendLayout();
@@ -102,8 +107,9 @@ namespace Torn.UI
 			// 
 			this.tabControl1.Controls.Add(this.tabPageSystem);
 			this.tabControl1.Controls.Add(this.tabPageConfiguration);
+			this.tabControl1.Controls.Add(this.tabPageReports);
 			this.tabControl1.Controls.Add(this.tabPageUpload);
-			this.tabControl1.Controls.Add(this.tabPage1);
+			this.tabControl1.Controls.Add(this.tabPageWebServer);
 			this.tabControl1.Controls.Add(this.tabPageLaserforce);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -231,6 +237,17 @@ namespace Torn.UI
 			this.panelSystemType.Name = "panelSystemType";
 			this.panelSystemType.Size = new System.Drawing.Size(340, 115);
 			this.panelSystemType.TabIndex = 0;
+			// 
+			// radioOZone
+			// 
+			this.radioOZone.AutoSize = true;
+			this.radioOZone.Location = new System.Drawing.Point(3, 62);
+			this.radioOZone.Name = "radioOZone";
+			this.radioOZone.Size = new System.Drawing.Size(61, 17);
+			this.radioOZone.TabIndex = 2;
+			this.radioOZone.TabStop = true;
+			this.radioOZone.Text = "O-Zone";
+			this.radioOZone.UseVisualStyleBackColor = true;
 			// 
 			// radioTorn
 			// 
@@ -405,6 +422,47 @@ namespace Torn.UI
 			this.radioAlias.Text = "by alias";
 			this.radioAlias.UseVisualStyleBackColor = true;
 			// 
+			// tabPageReports
+			// 
+			this.tabPageReports.Controls.Add(this.buttonReportsFolder);
+			this.tabPageReports.Controls.Add(this.textBoxReportsFolder);
+			this.tabPageReports.Controls.Add(this.labelReportsFolder);
+			this.tabPageReports.Location = new System.Drawing.Point(4, 22);
+			this.tabPageReports.Name = "tabPageReports";
+			this.tabPageReports.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageReports.Size = new System.Drawing.Size(356, 303);
+			this.tabPageReports.TabIndex = 5;
+			this.tabPageReports.Text = "Reports";
+			this.tabPageReports.UseVisualStyleBackColor = true;
+			// 
+			// buttonReportsFolder
+			// 
+			this.buttonReportsFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonReportsFolder.Location = new System.Drawing.Point(324, 24);
+			this.buttonReportsFolder.Name = "buttonReportsFolder";
+			this.buttonReportsFolder.Size = new System.Drawing.Size(24, 23);
+			this.buttonReportsFolder.TabIndex = 5;
+			this.buttonReportsFolder.Text = "...";
+			this.buttonReportsFolder.UseVisualStyleBackColor = true;
+			this.buttonReportsFolder.Click += new System.EventHandler(this.ButtonFolderClick);
+			// 
+			// textBoxReportsFolder
+			// 
+			this.textBoxReportsFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxReportsFolder.Location = new System.Drawing.Point(8, 26);
+			this.textBoxReportsFolder.Name = "textBoxReportsFolder";
+			this.textBoxReportsFolder.Size = new System.Drawing.Size(310, 20);
+			this.textBoxReportsFolder.TabIndex = 4;
+			// 
+			// labelReportsFolder
+			// 
+			this.labelReportsFolder.Location = new System.Drawing.Point(8, 9);
+			this.labelReportsFolder.Name = "labelReportsFolder";
+			this.labelReportsFolder.Size = new System.Drawing.Size(126, 23);
+			this.labelReportsFolder.TabIndex = 3;
+			this.labelReportsFolder.Text = "Reports export folder:";
+			// 
 			// tabPageUpload
 			// 
 			this.tabPageUpload.Controls.Add(this.textBoxSite);
@@ -543,18 +601,18 @@ namespace Torn.UI
 			this.radioFtp.Text = "ftp";
 			this.radioFtp.UseVisualStyleBackColor = true;
 			// 
-			// tabPage1
+			// tabPageWebServer
 			// 
-			this.tabPage1.Controls.Add(this.labelPort);
-			this.tabPage1.Controls.Add(this.numericPort);
-			this.tabPage1.Controls.Add(this.checkBoxWebServer);
-			this.tabPage1.Location = new System.Drawing.Point(4, 22);
-			this.tabPage1.Name = "tabPage1";
-			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(356, 303);
-			this.tabPage1.TabIndex = 3;
-			this.tabPage1.Text = "Web Server";
-			this.tabPage1.UseVisualStyleBackColor = true;
+			this.tabPageWebServer.Controls.Add(this.labelPort);
+			this.tabPageWebServer.Controls.Add(this.numericPort);
+			this.tabPageWebServer.Controls.Add(this.checkBoxWebServer);
+			this.tabPageWebServer.Location = new System.Drawing.Point(4, 22);
+			this.tabPageWebServer.Name = "tabPageWebServer";
+			this.tabPageWebServer.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageWebServer.Size = new System.Drawing.Size(356, 303);
+			this.tabPageWebServer.TabIndex = 3;
+			this.tabPageWebServer.Text = "Web Server";
+			this.tabPageWebServer.UseVisualStyleBackColor = true;
 			// 
 			// labelPort
 			// 
@@ -609,21 +667,21 @@ namespace Torn.UI
 			// buttonLogFolder
 			// 
 			this.buttonLogFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonLogFolder.Location = new System.Drawing.Point(324, 4);
+			this.buttonLogFolder.Location = new System.Drawing.Point(324, 24);
 			this.buttonLogFolder.Name = "buttonLogFolder";
 			this.buttonLogFolder.Size = new System.Drawing.Size(24, 23);
 			this.buttonLogFolder.TabIndex = 2;
 			this.buttonLogFolder.Text = "...";
 			this.buttonLogFolder.UseVisualStyleBackColor = true;
-			this.buttonLogFolder.Click += new System.EventHandler(this.ButtonLogFolderClick);
+			this.buttonLogFolder.Click += new System.EventHandler(this.ButtonFolderClick);
 			// 
 			// textBoxLogFolder
 			// 
 			this.textBoxLogFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxLogFolder.Location = new System.Drawing.Point(77, 6);
+			this.textBoxLogFolder.Location = new System.Drawing.Point(8, 26);
 			this.textBoxLogFolder.Name = "textBoxLogFolder";
-			this.textBoxLogFolder.Size = new System.Drawing.Size(241, 20);
+			this.textBoxLogFolder.Size = new System.Drawing.Size(310, 20);
 			this.textBoxLogFolder.TabIndex = 1;
 			// 
 			// labelLogFolder
@@ -666,17 +724,6 @@ namespace Torn.UI
 			this.buttonOK.Text = "&OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
-			// radioOZone
-			// 
-			this.radioOZone.AutoSize = true;
-			this.radioOZone.Location = new System.Drawing.Point(3, 62);
-			this.radioOZone.Name = "radioOZone";
-			this.radioOZone.Size = new System.Drawing.Size(61, 17);
-			this.radioOZone.TabIndex = 2;
-			this.radioOZone.TabStop = true;
-			this.radioOZone.Text = "O-Zone";
-			this.radioOZone.UseVisualStyleBackColor = true;
-			// 
 			// FormPreferences
 			// 
 			this.AcceptButton = this.buttonOK;
@@ -700,11 +747,13 @@ namespace Torn.UI
 			this.panel4.PerformLayout();
 			this.panel2.ResumeLayout(false);
 			this.panel2.PerformLayout();
+			this.tabPageReports.ResumeLayout(false);
+			this.tabPageReports.PerformLayout();
 			this.tabPageUpload.ResumeLayout(false);
 			this.tabPageUpload.PerformLayout();
 			this.panel3.ResumeLayout(false);
 			this.panel3.PerformLayout();
-			this.tabPage1.ResumeLayout(false);
+			this.tabPageWebServer.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.numericPort)).EndInit();
 			this.tabPageLaserforce.ResumeLayout(false);
 			this.tabPageLaserforce.PerformLayout();
@@ -726,7 +775,7 @@ namespace Torn.UI
 		private System.Windows.Forms.CheckBox checkBoxWebServer;
 		private System.Windows.Forms.NumericUpDown numericPort;
 		private System.Windows.Forms.Label labelPort;
-		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabPage tabPageWebServer;
 		private System.Windows.Forms.Label labelSite;
 		private System.Windows.Forms.TextBox textBoxSite;
 		private System.Windows.Forms.RadioButton radioFtp;
@@ -766,5 +815,9 @@ namespace Torn.UI
 		private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.RadioButton radioTorn;
 		private System.Windows.Forms.RadioButton radioOZone;
+		private System.Windows.Forms.TabPage tabPageReports;
+		private System.Windows.Forms.Button buttonReportsFolder;
+		private System.Windows.Forms.TextBox textBoxReportsFolder;
+		private System.Windows.Forms.Label labelReportsFolder;
 	}
 }
