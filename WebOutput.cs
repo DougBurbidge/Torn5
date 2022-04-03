@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Windows.Forms;
 using Zoom;
@@ -238,6 +237,7 @@ namespace Torn.Report
 		public Game MostRecentGame { get; set; }
 		public FixtureGame NextGame { get; set; }
 		public ServerGame MostRecentServerGame { get; set; }
+		public string ExportFolder { get; set; }
 		public Func<int> Elapsed { get; set; }  // Learn you Func Prog on five minute quick!
 		public Func<List<ServerGame>> Games { get; set; }
 		public Action<ServerGame> PopulateGame { get; set; }
@@ -285,12 +285,12 @@ namespace Torn.Report
 			else
 			{
 				if (MostRecentServerGame == null)
-					sb.Append("<a href=\"" + MostRecentHolder.Key + "/game" +
+					sb.Append("<a href=\"" + MostRecentHolder?.Key + "/game" +
 					          MostRecentGame.Time.ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture) + ".html\">Just Played</a>: " +
-					          MostRecentHolder.League.GameString(MostRecentGame));
+					          MostRecentHolder?.League.GameString(MostRecentGame));
 				else
 					sb.Append((MostRecentServerGame.InProgress ? "Now Playing: " : Utility.JustPlayed(MostRecentServerGame.EndTime) + ": " ) +
-					          MostRecentHolder.League.GameString(MostRecentServerGame));
+					          MostRecentHolder?.League.GameString(MostRecentServerGame));
 			}
 
 			if (NextGame != null)
@@ -309,38 +309,31 @@ namespace Torn.Report
 
 		string ScoreboardPage(League league, OutputFormat outputFormat = OutputFormat.Svg)
 		{
-			if (MostRecentGame == null)
-				Update();
-
-			if (MostRecentGame == null)
-				return NowPage();
-
 			ZoomReports reports = new ZoomReports();
 			reports.Colors.BackgroundColor = Color.Empty;
 			reports.Colors.OddColor = Color.Empty;
-			reports.Add(Reports.OneGame(league, MostRecentGame));
-
-			if (NextGame != null)
-			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append("</div><br/><a href=\"fixture.html\">Up Next</a>:");
-
-				foreach (var ft in NextGame.Teams)
-					sb.Append(ft.Key.LeagueTeam.Name + "; ");
-				sb.Length -= 2;
-				sb.Append("<div>");
-				reports.Add(new ZoomHtmlInclusion(sb.ToString()));
-			}
-
-			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"index.html\">Index</a><div>"));
-/*
-			reports.Add(new ZoomHtmlInclusion(@"
+			reports.Add(new ZoomHtmlInclusion("<div id='scoreboard'>SCOREBOARD</div>"));
+			reports.Add(new ZoomSeparator());
+			reports.Add(new ZoomHtmlInclusion(@"</div>
+<br/><a href=\'index.html\'>Index</a><div>
 <script>
+var xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function () {
+	if (this.readyState == 4 && (this.status == 200 || this.status != 200))
+	{
+		document.getElementById('scoreboard').innerHTML = xhr.responseText;
+		window.onload();
+
+		for (const svg of  document.querySelectorAll('svg'))
+			if (svg.getAttribute('width') > document.documentElement.clientWidth)
+				svg.setAttribute('width', document.documentElement.clientWidth - 2);
+	}
+};
+xhr.open('GET', 'scoreboard', true);
+xhr.send();
 </script>
 "));
-*/
 			return reports.ToOutput(outputFormat);
-
 		}
 
 		string SendResponse(HttpListenerRequest request)
@@ -379,6 +372,8 @@ namespace Torn.Report
 		{
 			if (lastPart == "now.html")
 				return NowPage();
+			else if (lastPart == "scoreboard.html")
+				return ScoreboardPage(holder?.League);
 			else if (holder == null)
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Couldn't find a league key in \"<br>{0}\". Try <a href=\"now.html\">Now Playing</a> instead.</body></html>", rawUrl);
 			else if (lastPart == "index.html")
@@ -409,8 +404,6 @@ namespace Torn.Report
 			{
 				return ReportPages.FixturePage(holder.Fixture, holder.League);
 			}
-			else if (lastPart == "scoreboard.html")
-				return ScoreboardPage(holder.League);
 			else
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
@@ -455,6 +448,34 @@ namespace Torn.Report
 			return sb.ToString();
 		}
 
+		string XmlHttpRequestScoreBoard()
+		{
+			if (MostRecentGame == null)
+				Update();
+
+			if (MostRecentGame == null)
+				return "No game found.";
+
+			ZoomReports reports = new ZoomReports();
+			reports.Colors.BackgroundColor = Color.Empty;
+			reports.Colors.OddColor = Color.Empty;
+			reports.Add(Reports.OneGame(MostRecentHolder?.League, MostRecentGame));
+
+			if (NextGame != null)
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.Append("</div><br/><a href=\"fixture.html\">Up Next</a>:");
+
+				foreach (var ft in NextGame.Teams)
+					sb.Append(ft.Key.LeagueTeam.Name + "; ");
+				sb.Length -= 2;
+				sb.Append("<div>");
+				reports.Add(new ZoomHtmlInclusion(sb.ToString()));
+			}
+
+			return reports[0].ToSvg();
+		}
+
 		string RestResponse(HttpListenerRequest request)
 		{
 			string rawUrl = request.RawUrl;
@@ -466,6 +487,8 @@ namespace Torn.Report
 				return RestGame(rawUrl.Substring(rawUrl.IndexOf("game") + 4));  // return one detailed game: all the players, all the details.
 			else if (rawUrl.EndsWith("players"))
 				return RestPlayers("");  // return the list of all players available from this lasergame server.
+			else if (rawUrl.EndsWith("scoreboard"))
+				return XmlHttpRequestScoreBoard();
 			else
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
