@@ -66,14 +66,14 @@ namespace Torn.UI
 			System.Diagnostics.Process.Start(fileName);
 		}
 
-		private void buttonPrintClick(object sender, EventArgs e)
+		private void ButtonPrintClick(object sender, EventArgs e)
 		{
 			var pd = report.ToPrint();
 			if (printDialog.ShowDialog() == DialogResult.OK)
 				pd.Print();
 		}
 
-		private void buttonPrintPreviewClick(object sender, EventArgs e)
+		private void ButtonPrintPreviewClick(object sender, EventArgs e)
 		{
 			printPreviewDialog.Document = report.ToPrint();
 			printPreviewDialog.ShowDialog();

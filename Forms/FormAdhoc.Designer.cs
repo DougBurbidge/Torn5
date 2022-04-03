@@ -82,7 +82,7 @@
 			this.buttonPrintPreview.TabIndex = 9;
 			this.buttonPrintPreview.Text = "Preview";
 			this.buttonPrintPreview.UseVisualStyleBackColor = true;
-			this.buttonPrintPreview.Click += new System.EventHandler(this.buttonPrintPreviewClick);
+			this.buttonPrintPreview.Click += new System.EventHandler(this.ButtonPrintPreviewClick);
 			// 
 			// buttonPrint
 			// 
@@ -92,7 +92,7 @@
 			this.buttonPrint.TabIndex = 8;
 			this.buttonPrint.Text = "&Print";
 			this.buttonPrint.UseVisualStyleBackColor = true;
-			this.buttonPrint.Click += new System.EventHandler(this.buttonPrintClick);
+			this.buttonPrint.Click += new System.EventHandler(this.ButtonPrintClick);
 			// 
 			// buttonShow
 			// 
@@ -181,10 +181,6 @@
 			this.panelDisplay.Name = "panelDisplay";
 			this.panelDisplay.Size = new System.Drawing.Size(720, 689);
 			this.panelDisplay.TabIndex = 8;
-			// 
-			// printDialog
-			// 
-			this.printDialog.UseEXDialog = true;
 			// 
 			// printPreviewDialog
 			// 
