@@ -16,7 +16,7 @@ namespace Torn
 	{
 		protected string _server;
 
-		private const int PORT_NO = 12121;
+		private const int PORT_NO = 12123;
 
 		private List<ServerGame> serverGames = new List<ServerGame>();
 		private List<LaserGamePlayer> laserPlayers = new List<LaserGamePlayer>();
@@ -32,7 +32,6 @@ namespace Torn
 		{
 			string textToSend = "{\"command\": \"list\"}";
 			string result = QueryServer(textToSend);
-			Console.WriteLine(result);
 
 			List<ServerGame> games = new List<ServerGame>();
 
@@ -75,7 +74,6 @@ namespace Torn
 				serverGames.Add(game);
 			}
 			
-			System.Console.WriteLine(games);
 			return games;
 		}
 
@@ -89,12 +87,8 @@ namespace Torn
 			while(reading)
             {
 				byte[] bytesToRead = new byte[BYTE_LIMIT];
-				Console.WriteLine("bytesToRead " + bytesToRead.Length);
 				int bytesRead = nwStream.Read(bytesToRead, 0, BYTE_LIMIT);
-				Console.WriteLine("Bytes read " + bytesRead);
 				string current = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-
-				Console.WriteLine("Current " + current);
 
 				str += current;
 
@@ -115,12 +109,10 @@ namespace Torn
 			ReadFromOzone(client, nwStream);
 
 			//---send the text---
-			Console.WriteLine("Sending : " + query);
 			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
 
 			//---read back the text---
 			string result = ReadFromOzone(client, nwStream);
-			Console.WriteLine("Result : " + result);
 
 
 			client.Close();
@@ -136,7 +128,6 @@ namespace Torn
 			if (game.Events.Count != 0)
 				return;
 
-			Console.WriteLine("PopulateGame");
 			string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 			string result = QueryServer(textToSend);
 			string[] separatingStrings = { "}{" };
@@ -144,8 +135,6 @@ namespace Torn
 
 			string gameData = objects[0] + "}";
 			string eventData = "{" + objects[1];
-			Console.WriteLine("GameData: " + gameData);
-			Console.WriteLine("EventData: " + eventData);
 
 
 			JObject eventDataRoot = JObject.Parse(eventData);
@@ -234,7 +223,6 @@ namespace Torn
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
 
-			Console.WriteLine("Get Players");
 			GetGames();
 			foreach (ServerGame game in serverGames)
 			{
@@ -244,7 +232,6 @@ namespace Torn
 				string[] objects = result.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
 
 				string gameData = objects[0] + "}";
-				Console.WriteLine(gameData);
 
 
 				JObject root = JObject.Parse(gameData);
