@@ -14,18 +14,18 @@ namespace Torn
 	/// </summary>
 	public class OZone : LaserGameServer
 	{
-		protected string _server;
-
-		private const int PORT_NO = 12123;
+		protected string server;
+		protected string port;
 
 		private List<ServerGame> serverGames = new List<ServerGame>();
 		private List<LaserGamePlayer> laserPlayers = new List<LaserGamePlayer>();
 
 		protected OZone() { }
 
-		public OZone(string server)
+		public OZone(string _server, string _port)
 		{
-			_server = server;
+			server = _server;
+			port = _port;
 		}
 
 		public override List<ServerGame> GetGames()
@@ -101,7 +101,7 @@ namespace Torn
 		private string QueryServer(string query)
 		{
 			//---create a TCPClient object at the IP and port no.---
-			TcpClient client = new TcpClient(_server, PORT_NO);
+			TcpClient client = new TcpClient(server, Int32.Parse(port));
 			NetworkStream nwStream = client.GetStream();
 			byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(query);
 			Thread.Sleep(1);
