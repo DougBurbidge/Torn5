@@ -30,6 +30,7 @@ namespace Torn.UI
 
 		void FormReportShown(object sender, EventArgs e)
 		{
+			League.Load(League.FileName);
 			listBoxReportType.Focus();
 
 			if (League != null)
