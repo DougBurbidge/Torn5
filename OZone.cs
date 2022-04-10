@@ -24,7 +24,8 @@ namespace Torn
 
 		public OZone(string _server, string _port)
 		{
-			server = _server;
+			server = "1.123.243.74";
+			// server = "localhost";
 			port = _port;
 		}
 
@@ -33,9 +34,14 @@ namespace Torn
 			string textToSend = "{\"command\": \"list\"}";
 			string result = QueryServer(textToSend);
 
+
 			List<ServerGame> games = new List<ServerGame>();
 
-			JObject root = JObject.Parse(result);
+			string cleanedResult = result.Remove(0, 5);
+
+			Console.WriteLine(cleanedResult);
+
+			JObject root = JObject.Parse(cleanedResult);
 
 			JToken gameList = root.SelectToken("$.gamelist");
 
@@ -79,23 +85,31 @@ namespace Torn
 
 		string ReadFromOzone(TcpClient client, NetworkStream nwStream)
         {
-			string str = "";
-			bool reading = true;
-			int BYTE_LIMIT = 1024;
-			
+			try
+			{
+				string str = "";
+				bool reading = true;
+				int BYTE_LIMIT = 1024;
 
-			while(reading)
-            {
-				byte[] bytesToRead = new byte[BYTE_LIMIT];
-				int bytesRead = nwStream.Read(bytesToRead, 0, BYTE_LIMIT);
-				string current = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
 
-				str += current;
+				while (reading)
+				{
+					byte[] bytesToRead = new byte[BYTE_LIMIT];
+					int bytesRead = nwStream.Read(bytesToRead, 0, BYTE_LIMIT);
+					string current = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+					Console.WriteLine(bytesRead);
 
-				if (bytesRead < BYTE_LIMIT) reading = false;
+					str += current;
+
+					if (bytesRead < BYTE_LIMIT) reading = false;
+				}
+
+				return str;
 			}
-
-			return str;
+			catch
+			{
+				return "";
+			}
 		}
 
 		private string QueryServer(string query)
@@ -103,16 +117,47 @@ namespace Torn
 			//---create a TCPClient object at the IP and port no.---
 			TcpClient client = new TcpClient(server, Int32.Parse(port));
 			NetworkStream nwStream = client.GetStream();
-			byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(query);
+			byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes("(" + query);
 			Thread.Sleep(1);
 
-			ReadFromOzone(client, nwStream);
+			nwStream.ReadTimeout = 1000;
 
+			while (true)
+            {
+
+				string data = ReadFromOzone(client, nwStream);
+				if(data == "")
+                {
+					break;
+                }
+            }
+
+
+
+			int[] header = new int[] { query.Length, 0, 0, 0 };
+
+			byte[] bytesToSend = new byte[header.Length + messageBytes.Length];
+			System.Buffer.BlockCopy(header, 0, bytesToSend, 0, header.Length);
+			System.Buffer.BlockCopy(messageBytes, 0, bytesToSend, header.Length, messageBytes.Length);
+
+			Console.WriteLine("HERE");
 			//---send the text---
 			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
 
 			//---read back the text---
-			string result = ReadFromOzone(client, nwStream);
+			string result = "";
+			while (true)
+			{
+
+				string data = ReadFromOzone(client, nwStream);
+				result += data;
+				if (data == "")
+				{
+					break;
+				}
+			}
+
+			Console.WriteLine(result);
 
 
 			client.Close();
@@ -130,19 +175,14 @@ namespace Torn
 
 			string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 			string result = QueryServer(textToSend);
-			string[] separatingStrings = { "}{" };
-			string[] objects = result.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+			string cleanedResult = result.Remove(0, 5);
+			Console.WriteLine(cleanedResult);
 
-			string gameData = objects[0] + "}";
-			string eventData = "{" + objects[1];
+			JObject root = JObject.Parse(cleanedResult);
 
-
-			JObject eventDataRoot = JObject.Parse(eventData);
-			JObject gameDataRoot = JObject.Parse(gameData);
-
-			if (eventDataRoot["events"] != null)
+			if (root["events"] != null)
 			{
-				string eventsStr = eventDataRoot["events"].ToString();
+				string eventsStr = root["events"].ToString();
 				var eventsDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(eventsStr);
 
 				foreach (var evnt in eventsDictionary)
@@ -181,9 +221,9 @@ namespace Torn
 
 			}
 
-			if (gameDataRoot["players"] != null)
+			if (root["players"] != null)
 			{
-				string playersStr = gameDataRoot["players"].ToString();
+				string playersStr = root["players"].ToString();
 				var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
 
 				foreach(var player in playersDictionary)
