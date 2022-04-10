@@ -24,8 +24,7 @@ namespace Torn
 
 		public OZone(string _server, string _port)
 		{
-			server = "1.123.243.74";
-			// server = "localhost";
+			server = _server;
 			port = _port;
 		}
 
