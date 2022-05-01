@@ -290,7 +290,16 @@ namespace Torn.UI
 		
 		void MenuMergePlayerClick(object sender, EventArgs e)
 		{
-			
+			var player1 = (ServerPlayer)ListView.SelectedItems[0].Tag;
+			var player2 = (ServerPlayer)ListView.SelectedItems[0].Tag;
+
+			player1.Score = player1.Score + player2.Score;
+
+			ListView.SelectedItems[0].SubItems[2].Text = player1.Score.ToString();
+
+			ListView.SelectedItems[1].Remove();
+
+			Recalculate();
 		}
 	}
 

@@ -20,12 +20,38 @@ namespace Torn
 		private List<ServerGame> serverGames = new List<ServerGame>();
 		private List<LaserGamePlayer> laserPlayers = new List<LaserGamePlayer>();
 
+		private TcpClient client;
+		private NetworkStream nwStream;
+
+		private bool connected;
+
 		protected OZone() { }
 
 		public OZone(string _server, string _port)
 		{
 			server = _server;
 			port = _port;
+			Connect();
+		}
+
+		private bool Connect()
+        {
+			if (connected) return connected;
+			client = new TcpClient(server, Int32.Parse(port));
+			nwStream = client.GetStream();
+			connected = true;
+			nwStream.ReadTimeout = 500;
+
+			while (true)
+			{
+
+				string data = ReadFromOzone(client, nwStream);
+				if (data == "")
+				{
+					break;
+				}
+			}
+			return connected;
 		}
 
 		public override List<ServerGame> GetGames()
@@ -114,24 +140,10 @@ namespace Torn
 		private string QueryServer(string query)
 		{
 			//---create a TCPClient object at the IP and port no.---
-			TcpClient client = new TcpClient(server, Int32.Parse(port));
-			NetworkStream nwStream = client.GetStream();
+			Connect();
 			byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes("(" + query);
-			Thread.Sleep(1);
 
 			nwStream.ReadTimeout = 1000;
-
-			while (true)
-            {
-
-				string data = ReadFromOzone(client, nwStream);
-				if(data == "")
-                {
-					break;
-                }
-            }
-
-
 
 			int[] header = new int[] { query.Length, 0, 0, 0 };
 
@@ -155,11 +167,6 @@ namespace Torn
 					break;
 				}
 			}
-
-			Console.WriteLine(result);
-
-
-			client.Close();
 
 			return result;
 		}
@@ -223,6 +230,7 @@ namespace Torn
 			if (root["players"] != null)
 			{
 				string playersStr = root["players"].ToString();
+				Console.WriteLine(playersStr);
 				var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
 
 				foreach(var player in playersDictionary)
@@ -234,9 +242,16 @@ namespace Torn
 					if (playerRoot["alias"] != null) serverPlayer.Alias = playerRoot["alias"].ToString();
 					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
 					if (playerRoot["omid"] != null) 
-					{ 
-						serverPlayer.PlayerId = playerRoot["omid"].ToString(); 
-						serverPlayer.ServerPlayerId = playerRoot["omid"].ToString(); 
+					{
+						string id = playerRoot["omid"].ToString();
+						// If pack was not logged in use alias as identifier
+						if(id == "-1")
+                        {
+							id = playerRoot["alias"].ToString();
+
+						}
+						serverPlayer.PlayerId = id; 
+						serverPlayer.ServerPlayerId = id; 
 					};
 					if (playerRoot["tid"] != null)
 					{
@@ -248,6 +263,11 @@ namespace Torn
 							serverPlayer.Colour = Colour.None;
 					}
 					if(!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
+
+					Console.WriteLine(serverPlayer.Alias);
+					Console.WriteLine(serverPlayer.Score);
+					Console.WriteLine(serverPlayer.PlayerId);
+					Console.WriteLine(serverPlayer.ServerPlayerId);
 
 					game.Players.Add(serverPlayer);
 
@@ -267,13 +287,10 @@ namespace Torn
 			{
 				string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 				string result = QueryServer(textToSend);
-				string[] separatingStrings = { "}{" };
-				string[] objects = result.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
-
-				string gameData = objects[0] + "}";
+				string cleanedResult = result.Remove(0, 5);
 
 
-				JObject root = JObject.Parse(gameData);
+				JObject root = JObject.Parse(cleanedResult);
 
 				if (root["players"] != null)
 				{
