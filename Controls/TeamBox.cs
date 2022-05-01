@@ -136,6 +136,7 @@ namespace Torn.UI
 			menuIdentifyTeam.Enabled   = League != null;
 			menuIdentifyPlayer.Enabled = ListView.SelectedItems.Count == 1;
 			menuHandicapPlayer.Enabled = ListView.SelectedItems.Count == 1;
+			adjustPlayerScoreToolStripMenuItem.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
 			//menuAdjustTeamScore.Enabled = always true.
 
@@ -299,11 +300,25 @@ namespace Torn.UI
 
 			ListView.SelectedItems[1].Remove();
 
-			Recalculate();
+			Recalculate(false);
 		}
-	}
 
-	class SortByScore : IComparer
+        private void adjustPlayerScoreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			Console.WriteLine(ListView.SelectedItems[0].SubItems[2].Text);
+			double penalty = -1000;
+			InputDialog.GetDouble("Adjustment", "Set team score adjustment", ref penalty);
+			var player1 = (ServerPlayer)ListView.SelectedItems[0].Tag;
+
+			player1.Score = player1.Score + penalty;
+
+			ListView.SelectedItems[0].SubItems[2].Text = player1.Score.ToString();
+
+			Recalculate(false);
+		}
+    }
+
+    class SortByScore : IComparer
 	{
 		int IComparer.Compare(object x, object y)
 		{
