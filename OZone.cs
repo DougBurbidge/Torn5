@@ -34,7 +34,9 @@ namespace Torn
 
 		private bool Connect()
         {
-			if (connected) return connected;
+			if (connected) {
+				client.Close();
+			};
 			client = new TcpClient(server, Int32.Parse(port));
 			nwStream = client.GetStream();
 			connected = true;
@@ -135,7 +137,6 @@ namespace Torn
 		private string QueryServer(string query)
 		{
 			//---create a TCPClient object at the IP and port no.---
-			Connect();
 			byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes("(" + query);
 
 			nwStream.ReadTimeout = 1000;
