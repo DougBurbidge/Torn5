@@ -23,8 +23,6 @@ namespace Torn
 		private TcpClient client;
 		private NetworkStream nwStream;
 
-		private bool connected;
-
 		protected OZone() { }
 
 		public OZone(string _server, string _port)
@@ -63,8 +61,6 @@ namespace Torn
 			List<ServerGame> games = new List<ServerGame>();
 
 			string cleanedResult = result.Remove(0, 5);
-
-			Console.WriteLine(cleanedResult);
 
 			JObject root = JObject.Parse(cleanedResult);
 
@@ -122,7 +118,6 @@ namespace Torn
 					byte[] bytesToRead = new byte[BYTE_LIMIT];
 					int bytesRead = nwStream.Read(bytesToRead, 0, BYTE_LIMIT);
 					string current = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-					Console.WriteLine(bytesRead);
 
 					str += current;
 
@@ -151,7 +146,6 @@ namespace Torn
 			System.Buffer.BlockCopy(header, 0, bytesToSend, 0, header.Length);
 			System.Buffer.BlockCopy(messageBytes, 0, bytesToSend, header.Length, messageBytes.Length);
 
-			Console.WriteLine("HERE");
 			//---send the text---
 			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
 
@@ -182,7 +176,6 @@ namespace Torn
 			string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 			string result = QueryServer(textToSend);
 			string cleanedResult = result.Remove(0, 5);
-			Console.WriteLine(cleanedResult);
 
 			JObject root = JObject.Parse(cleanedResult);
 
@@ -230,7 +223,6 @@ namespace Torn
 			if (root["players"] != null)
 			{
 				string playersStr = root["players"].ToString();
-				Console.WriteLine(playersStr);
 				var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
 
 				foreach(var player in playersDictionary)
@@ -263,11 +255,6 @@ namespace Torn
 							serverPlayer.Colour = Colour.None;
 					}
 					if(!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
-
-					Console.WriteLine(serverPlayer.Alias);
-					Console.WriteLine(serverPlayer.Score);
-					Console.WriteLine(serverPlayer.PlayerId);
-					Console.WriteLine(serverPlayer.ServerPlayerId);
 
 					game.Players.Add(serverPlayer);
 
