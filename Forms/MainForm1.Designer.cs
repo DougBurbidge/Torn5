@@ -61,146 +61,6 @@ namespace Torn5.Forms {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonAddColumn_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonAddColumn.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonAddRow_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonAddRow.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonClose_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonClose.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonCommit_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonCommit.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonConfigureReports_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonConfigureReports.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonEdit_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonEdit.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonExportReports_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonExportReports.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonLatestGame_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonLatestGame.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonNew_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonNew.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonOpen_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonOpen.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonPrintReports_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonPrintReports.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonRemoveColumn_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonRemoveColumn.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonRemoveRow_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonRemoveRow.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap buttonUploadReports_Image {
-            get {
-                object obj = ResourceManager.GetObject("buttonUploadReports.Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=277,Y=18}.
         /// </summary>
         internal static System.Drawing.Point folderBrowserDialog1_TrayLocation {
@@ -271,6 +131,756 @@ namespace Torn5.Forms {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButton1_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButton1.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButton1_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButton1.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButton1_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButton1.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButton2_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButton2.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButton2_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButton2.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButton2_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButton2.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAbout_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAbout.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAbout_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAbout.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAbout_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAbout.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAddColumn_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAddColumn.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAddColumn_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAddColumn.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAddColumn_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAddColumn.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAddRow_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAddRow.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAddRow_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAddRow.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAddRow_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAddRow.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAdHoc_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAdHoc.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAdHoc_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAdHoc.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonAdHoc_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonAdHoc.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonClose_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonClose.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonClose_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonClose.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonClose_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonClose.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonCommit_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonCommit.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonCommit_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonCommit.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonCommit_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonCommit.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonConfigure_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonConfigure.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonConfigure_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonConfigure.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonConfigure_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonConfigure.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonEdit_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonEdit.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonEdit_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonEdit.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonEdit_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonEdit.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonFixtures_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonFixtures.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonFixtures_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonFixtures.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonFixtures_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonFixtures.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonForget_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonForget.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonForget_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonForget.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonForget_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonForget.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonHelp_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonHelp.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonHelp_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonHelp.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonHelp_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonHelp.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonLatest_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonLatest.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonLatest_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonLatest.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonLatest_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonLatest.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonNew_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonNew.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonNew_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonNew.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonNew_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonNew.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonOpen_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonOpen.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonOpen_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonOpen.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonOpen_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonOpen.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonPreferences_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonPreferences.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonPreferences_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonPreferences.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonPreferences_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonPreferences.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonPrint_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonPrint.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonPrint_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonPrint.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonPrint_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonPrint.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRememberAllTeams_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRememberAllTeams.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRememberAllTeams_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRememberAllTeams.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRememberAllTeams_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRememberAllTeams.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRemoveColumn_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRemoveColumn.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRemoveColumn_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRemoveColumn.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRemoveColumn_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRemoveColumn.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRemoveRow_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRemoveRow.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRemoveRow_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRemoveRow.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonRemoveRow_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonRemoveRow.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonReport_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonReport.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonReport_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonReport.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonReport_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonReport.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonSave_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonSave.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonSave_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonSave.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonSave_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonSave.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonSetDescription_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonSetDescription.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonSetDescription_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonSetDescription.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonSetDescription_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonSetDescription.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonUpload_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonUpload.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonUpload_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonUpload.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonUpload_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonUpload.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=20,Y=48}.
         /// </summary>
         internal static System.Drawing.Point saveFileDialog1_TrayLocation {
@@ -286,46 +896,6 @@ namespace Torn5.Forms {
         internal static System.Drawing.Point timerGame_TrayLocation {
             get {
                 object obj = ResourceManager.GetObject("timerGame.TrayLocation", resourceCulture);
-                return ((System.Drawing.Point)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=836,Y=34}.
-        /// </summary>
-        internal static System.Drawing.Point toolStripGame_TrayLocation {
-            get {
-                object obj = ResourceManager.GetObject("toolStripGame.TrayLocation", resourceCulture);
-                return ((System.Drawing.Point)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=831,Y=17}.
-        /// </summary>
-        internal static System.Drawing.Point toolStripLeague_TrayLocation {
-            get {
-                object obj = ResourceManager.GetObject("toolStripLeague.TrayLocation", resourceCulture);
-                return ((System.Drawing.Point)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=696,Y=49}.
-        /// </summary>
-        internal static System.Drawing.Point toolStripReports_TrayLocation {
-            get {
-                object obj = ResourceManager.GetObject("toolStripReports.TrayLocation", resourceCulture);
-                return ((System.Drawing.Point)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=967,Y=20}.
-        /// </summary>
-        internal static System.Drawing.Point toolStripTeams_TrayLocation {
-            get {
-                object obj = ResourceManager.GetObject("toolStripTeams.TrayLocation", resourceCulture);
                 return ((System.Drawing.Point)(obj));
             }
         }

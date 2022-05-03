@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using Svg;
-using Torn;
 using Torn.Report;
-using Torn.UI;
 using Zoom;
 
 /*
@@ -126,11 +121,6 @@ namespace Torn.UI
 			systemType = SystemType.Demo;
 
 			LoadSettings();
-
-			toolStripReports.Location = new Point(0, 1);
-			toolStripTeams.Location = new Point(0, 1);
-			toolStripGame.Location = new Point(0, 1);
-			toolStripLeague.Location = new Point(0, 1);
 
 			webOutput = new WebOutput(webPort)
 			{
@@ -277,8 +267,8 @@ namespace Torn.UI
 
 		void EnableRemoveRowColumnButtons()
 		{
-			buttonRemoveColumn.Enabled = tableLayoutPanel1.ColumnCount > 4;
-			buttonRemoveRow.Enabled = tableLayoutPanel1.RowCount > 2;
+			ribbonButtonRemoveColumn.Enabled = tableLayoutPanel1.ColumnCount > 4;
+			ribbonButtonRemoveRow.Enabled = tableLayoutPanel1.RowCount > 2;
 		}
 
 		void AddTeamBoxes()
@@ -902,9 +892,9 @@ namespace Torn.UI
 
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
 		{
-			buttonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
-			buttonForget.Enabled = listViewGames.SelectedItems.Count > 0;
-			buttonCommit.Enabled = EnableCommit();
+			ribbonButtonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
+			ribbonButtonForget.Enabled = listViewGames.SelectedItems.Count > 0;
+			ribbonButtonCommit.Enabled = EnableCommit();
 
 			foreach (var tb in TeamBoxes())
 				tb.Clear();
@@ -940,11 +930,11 @@ namespace Torn.UI
 		{
 			Boolean b = listViewLeagues.SelectedItems.Count > 0;
 
-			buttonClose.Enabled = b;
-			buttonSave.Enabled = b;
-			buttonExportReports.Enabled = b;
-			buttonUploadReports.Enabled = b;
-			buttonConfigureReports.Enabled = listViewLeagues.SelectedItems.Count == 1;
+			ribbonButtonClose.Enabled = b;
+			ribbonButtonSave.Enabled = b;
+			ribbonButtonReport.Enabled = b;
+			ribbonButtonUpload.Enabled = b;
+			ribbonButtonConfigure.Enabled = listViewLeagues.SelectedItems.Count == 1;
 
 			if (listViewLeagues.Items.Count == 0)
 			{
