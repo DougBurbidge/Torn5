@@ -61,6 +61,16 @@ namespace Torn5.Forms {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=577,Y=49}.
+        /// </summary>
+        internal static System.Drawing.Point contextMenuStripGames_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("contextMenuStripGames.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=277,Y=18}.
         /// </summary>
         internal static System.Drawing.Point folderBrowserDialog1_TrayLocation {

@@ -95,12 +95,17 @@ namespace Torn.UI
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
 			this.printDialog = new System.Windows.Forms.PrintDialog();
+			this.contextMenuStripGames = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.forgetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.panelGames.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
+			this.contextMenuStripGames.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// openFileDialog1
@@ -150,6 +155,7 @@ namespace Torn.UI
 			// 
 			// ribbonPanelLeagues
 			// 
+			this.ribbonPanelLeagues.ButtonMoreVisible = false;
 			this.ribbonPanelLeagues.Items.Add(this.ribbonButtonNew);
 			this.ribbonPanelLeagues.Items.Add(this.ribbonButtonOpen);
 			this.ribbonPanelLeagues.Items.Add(this.ribbonButtonSave);
@@ -228,6 +234,7 @@ namespace Torn.UI
 			// 
 			// ribbonPanelGames
 			// 
+			this.ribbonPanelGames.ButtonMoreVisible = false;
 			this.ribbonPanelGames.Items.Add(this.ribbonButtonLatest);
 			this.ribbonPanelGames.Items.Add(this.ribbonButtonCommit);
 			this.ribbonPanelGames.Items.Add(this.ribbonButtonSetDescription);
@@ -277,6 +284,7 @@ namespace Torn.UI
 			// 
 			// ribbonPanelTeams
 			// 
+			this.ribbonPanelTeams.ButtonMoreVisible = false;
 			this.ribbonPanelTeams.Items.Add(this.ribbonButtonAddRow);
 			this.ribbonPanelTeams.Items.Add(this.ribbonButtonRemoveRow);
 			this.ribbonPanelTeams.Items.Add(this.ribbonButtonAddColumn);
@@ -334,6 +342,7 @@ namespace Torn.UI
 			// 
 			// ribbonPanelReports
 			// 
+			this.ribbonPanelReports.ButtonMoreVisible = false;
 			this.ribbonPanelReports.Items.Add(this.ribbonButtonReport);
 			this.ribbonPanelReports.Items.Add(this.ribbonButtonUpload);
 			this.ribbonPanelReports.Items.Add(this.ribbonButtonPrint);
@@ -408,6 +417,7 @@ namespace Torn.UI
 			// 
 			// ribbonPanelHelp
 			// 
+			this.ribbonPanelHelp.ButtonMoreVisible = false;
 			this.ribbonPanelHelp.Items.Add(this.ribbonButtonHelp);
 			this.ribbonPanelHelp.Items.Add(this.ribbonButtonAbout);
 			this.ribbonPanelHelp.Name = "ribbonPanelHelp";
@@ -472,6 +482,7 @@ namespace Torn.UI
             this.colGame,
             this.colLeague,
             this.colDescription});
+			this.listViewGames.ContextMenuStrip = this.contextMenuStripGames;
 			this.listViewGames.FullRowSelect = true;
 			this.listViewGames.HideSelection = false;
 			this.listViewGames.Location = new System.Drawing.Point(3, 3);
@@ -660,6 +671,36 @@ namespace Torn.UI
 			// 
 			this.printDialog.AllowSomePages = true;
 			// 
+			// contextMenuStripGames
+			// 
+			this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.commitToolStripMenuItem,
+            this.setDescriptionToolStripMenuItem,
+            this.forgetToolStripMenuItem});
+			this.contextMenuStripGames.Name = "contextMenuStripGames";
+			this.contextMenuStripGames.Size = new System.Drawing.Size(154, 70);
+			// 
+			// commitToolStripMenuItem
+			// 
+			this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
+			this.commitToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.commitToolStripMenuItem.Text = "Commit";
+			this.commitToolStripMenuItem.Click += new System.EventHandler(this.ButtonCommitClick);
+			// 
+			// setDescriptionToolStripMenuItem
+			// 
+			this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
+			this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.setDescriptionToolStripMenuItem.Text = "Set Description";
+			this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
+			// 
+			// forgetToolStripMenuItem
+			// 
+			this.forgetToolStripMenuItem.Name = "forgetToolStripMenuItem";
+			this.forgetToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.forgetToolStripMenuItem.Text = "Forget";
+			this.forgetToolStripMenuItem.Click += new System.EventHandler(this.ButtonForgetClick);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -681,6 +722,7 @@ namespace Torn.UI
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
+			this.contextMenuStripGames.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -741,5 +783,9 @@ namespace Torn.UI
 		private System.Windows.Forms.RibbonButton ribbonButtonAbout;
 		private System.Windows.Forms.RibbonButton ribbonButtonFixtures;
 		private System.Windows.Forms.RibbonButton ribbonButtonSave;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStripGames;
+		private System.Windows.Forms.ToolStripMenuItem commitToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem setDescriptionToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem forgetToolStripMenuItem;
 	}
 }
