@@ -1603,7 +1603,7 @@ namespace Zoom
 			}
 		}
 
-		// Write a single table row.
+		/// Write a single table row.
 		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int maxPoints, int width, ZRow row, bool odd, bool pure)
 		{
 			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(row, odd));  // Paint the background for the whole row.
@@ -1652,7 +1652,21 @@ namespace Zoom
 			return sb.ToString();
 		}
 
-		// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
+		internal const int RowHeight = 22;  // This is enough to fit default-sized text.
+
+		/// Return height of report in internal SVG "pixels".
+		internal int Height()
+		{
+			bool hasgroupheadings = false;
+			foreach (ZColumn col in Columns)
+				hasgroupheadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);
+
+			return (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (RowHeight + 1);
+		}
+
+		internal int Width;
+
+		/// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
 		public override void ToSvg(StringBuilder sb, bool pure = false)
 		{
 			bool hasgroupheadings = false;
@@ -1663,28 +1677,27 @@ namespace Zoom
 			var mins = new List<double>();   // Minimum numeric value in each column, or if all numbers are positive, 0.
 			var maxs = new List<double>();   // Maximum numeric value in each column.
 			Widths(widths, mins, maxs, out int maxPoints);
-			int width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
+			Width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
 			double max = maxs.DefaultIfEmpty(1).Max();
 
-			int rowHeight = 22;  // This is enough to fit default-sized text.
-			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (rowHeight + 1);
+			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (RowHeight + 1);
 
-			int rowTop = SvgHeader(sb, hasgroupheadings, rowHeight, widths, width, pure);
+			int rowTop = SvgHeader(sb, hasgroupheadings, RowHeight, widths, Width, pure);
 			int arrowTop = rowTop;
 
 			bool odd = true;
 
 			foreach (ZRow row in Rows)
 			{
-				SvgRow(sb, rowTop, rowHeight, widths, mins, maxs, maxPoints, width, row, odd, pure);
+				SvgRow(sb, rowTop, RowHeight, widths, mins, maxs, maxPoints, Width, row, odd, pure);
 
-				rowTop += rowHeight + 1;
+				rowTop += RowHeight + 1;
 				odd = !odd;
 			}
 
 			for (int col = 0; col < Columns.Count; col++)
 				foreach (var arrow in Columns[col].Arrows.OrderByDescending(a => (a.From.Count + a.To.Count) * 100 + Math.Abs((a.From.FirstOrDefault()?.Row - a.To.FirstOrDefault()?.Row) ?? 0)))
-					SvgArrow(sb, 1, col, arrow, widths, arrowTop - 0.5F, rowHeight + 1);
+					SvgArrow(sb, 1, col, arrow, widths, arrowTop - 0.5F, RowHeight + 1);
 
 			sb.Replace("<<<<<<<<", rowTop.ToString());
 			sb.Append("</svg>\n");
@@ -1843,7 +1856,14 @@ namespace Zoom
 			return sb.ToString();
 		}
 
-		List<List<Bitmap>> images = new List<List<Bitmap>>();  // Each List<Bitmap> represents one page worth of reports.
+		class ReportWithSize
+		{
+			public Bitmap Bitmap;
+			public int Width;
+			public int Height;
+		}
+
+		readonly List<List<ReportWithSize>> images = new List<List<ReportWithSize>>();  // Each List<Bitmap> represents one page worth of reports.
 		int pageNumber = 0;
 		public PrintDocument ToPrint()
 		{
@@ -1855,20 +1875,28 @@ namespace Zoom
 
 		private void PrintPage(object sender, PrintPageEventArgs ev)
 		{
-			var bounds = ev.MarginBounds;
-			List<Bitmap> page;
+			var bounds = ev.MarginBounds;  // Area of page to be printed on, dimensioned in hundredths of an inch for some Microsoftean reason.
+			List<ReportWithSize> page;
 
 			if (!images.Any())  // This code runs on the first call of PrintPage, to build the list of images that need to be printed.
 			{
-				page = new List<Bitmap>();
+				page = new List<ReportWithSize>();
 				images.Add(page);
 				foreach (ZoomReportBase report in this)
 				{
 					if (report is ZoomReport r)
-						page.Add(r.ToBitmap((int)(bounds.Width * ev.PageSettings.PrinterResolution.X / 100), (int)(bounds.Height * ev.PageSettings.PrinterResolution.Y / 100)));
+					{
+						var image = new ReportWithSize()
+						{
+							Height = r.Height(),
+							Bitmap = r.ToBitmap((bounds.Width * ev.PageSettings.PrinterResolution.X / 100), (bounds.Height * ev.PageSettings.PrinterResolution.Y / 100))
+						};
+						image.Width = r.Width;  // ZoomReport Width is only available _after_ it is rendered.
+						page.Add(image);
+					}
 					else if (report is ZoomSeparator)
 					{
-						page = new List<Bitmap>();
+						page = new List<ReportWithSize>();
 						images.Add(page);
 					}
 				}
@@ -1876,7 +1904,7 @@ namespace Zoom
 			}
 
 			page = images[pageNumber];
-			var totalHeight = page.Sum(i => i.Height + 50) - 50;  // If there are several images on each page, put 50 "pixels" between them. These "pixels" are in the SVG's internal scale; i.e. about the height of two rows.
+			var totalHeight = page.Sum(i => i.Height + ZoomReport.RowHeight * 2) - ZoomReport.RowHeight * 2;  // If there are several images on each page, put two rows' worth of "pixels" between them. These "pixels" are in the SVG's internal scale.
 			float scale = 1.0F * totalHeight / bounds.Height;
 			float top = 0;
 
@@ -1887,14 +1915,14 @@ namespace Zoom
 				float pagePartAspectRatio = 1.0F * bounds.Width / bounds.Height / pagePart;
 				if (imageAspectRatio > pagePartAspectRatio)  // Report is wider than page part: use that full width but not the full height.
 				{
-					ev.Graphics.DrawImage(image, 0, top, bounds.Width, bounds.Width / imageAspectRatio);
+					ev.Graphics.DrawImage(image.Bitmap, 0, top, bounds.Width, bounds.Width / imageAspectRatio);
 					top += bounds.Width / imageAspectRatio + 50 / scale;
 				}
 				else  // Report is taller than page: leave space at left and right.
 				{
 					float newHeight = bounds.Height * pagePart;
 					float newWidth = newHeight * imageAspectRatio;
-					ev.Graphics.DrawImage(image, (bounds.Width - newWidth) / 2, top, newWidth, newHeight);
+					ev.Graphics.DrawImage(image.Bitmap, (bounds.Width - newWidth) / 2, top, newWidth, newHeight);
 					top += newHeight + 50 / scale;
 				}
 			}
