@@ -396,7 +396,7 @@ namespace Zoom
 		/// <summary>Export to an HTML SVG element.</summary>
 		/// <param name="pure">True if this is standalone SVG that will not be embedded in an HTML file, and therefore cannot contain xlinks or javascript text resizing.</param>
 		public abstract string ToSvg(bool pure = false);
-		public abstract void ToSvg(StringBuilder sb, bool pure = false);
+		public abstract void ToSvg(StringBuilder sb, double? aspectRatio = null, bool pure = false);
 		public abstract IEnumerable<Color> BarCellColors();
 	}
 
@@ -646,7 +646,7 @@ namespace Zoom
 			if (document == null)
 				using (StringWriter sw = new StringWriter())
 				{
-					sw.Write(ToSvg(true));
+					sw.Write(ToSvg(1.0 * width / height));
 					document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
 				}
 			double aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
@@ -1255,13 +1255,13 @@ namespace Zoom
 			s.Append("\" />\n");
 		}
 
-		/// <summary>Write the opening <svg tag and the header row(s). Returns the amount of vertical height it has consumed.</summary>
-		int SvgHeader(StringBuilder s, bool hasGroupHeadings, int rowHeight, List<float> widths, int width, bool pure)
+		/// <summary>Write the opening <svg tag and the title row.</summary>
+		void SvgBegin(StringBuilder s, int rowHeight, int width, int height, bool pure)
 		{
 			if (!pure)
 				s.AppendFormat("<div>");
 
-			s.AppendFormat("<svg viewBox=\"0 0 {0} <<<<<<<<\" width=\"{0}\" align=\"center\">\n", width);  // The "<<<<<<<<" will be replaced later with the height, when we know what that height is.
+			s.AppendFormat("<svg viewBox=\"0 0 {0} {1}\" width=\"{0}\" align=\"center\">\n", width, height);
 
 			SvgRect(s, 1, 1, 1, width - 1, rowHeight * 2, Colors.TitleBackColor);  // Paint title "row" background.
 
@@ -1281,12 +1281,36 @@ namespace Zoom
 				s.AppendFormat("\t<text text-anchor=\"middle\" x=\"15\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', Math.min(this.parentNode.getAttribute('width') * 1.42, document.documentElement.clientWidth - 2))\">&#160;+&#160;</text>\n" +
 							   "\t<text text-anchor=\"middle\" x=\"45\" y=\"{0}\" width=\"30\" height=\"{1}\" font-size=\"22\" fill-opacity=\"9\" onclick=\"this.parentNode.setAttribute('width', this.parentNode.getAttribute('width') / 1.42)\">&#160;-&#160;</text>\n", rowHeight * 3 / 2 + 1, rowHeight * 2);
 			}
+		}
+
+		/// <summary>Returns the amount of vertical height the title and column headers will consume.</summary>
+		int SvgHeaderHeight(bool hasGroupHeadings, int rowHeight, int left, List<float> widths)
+		{
+			int rowTop = rowHeight * 2 + 2;
+			if (!Columns.Exists(col => !string.IsNullOrWhiteSpace(col.Text)))
+				return rowTop;
+
+			bool anyRotate = Columns.Exists(col => col.Rotate);
+
+			if (hasGroupHeadings)
+				rowTop += rowHeight + 1;
+
+			var graphics = Graphics.FromImage(new Bitmap(1000, 20));
+			var font = new Font("Arial", 11);
+			float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
+			double headerHeight = hasGroupHeadings && anyRotate ? widest : !hasGroupHeadings && anyRotate ? (widest + rowHeight) / Math.Sqrt(2) : rowHeight;
+
+			return rowTop + (int)headerHeight + 1;
+		}
+
+		/// <summary>Write the column header row(s). Returns the amount of vertical height it has consumed.</summary>
+		int SvgHeader(StringBuilder s, bool hasGroupHeadings, int rowHeight, int left, List<float> widths, bool pure)
+		{
 
 			int rowTop = rowHeight * 2 + 2;
 			if (!Columns.Exists(col => !string.IsNullOrWhiteSpace(col.Text)))
 				return rowTop;
 
-			float x = 1;
 			bool anyRotate = Columns.Exists(col => col.Rotate);
 
 			if (hasGroupHeadings)
@@ -1299,7 +1323,7 @@ namespace Zoom
 						end++;
 
 					if (!string.IsNullOrWhiteSpace(Columns[start].GroupHeading))
-						SvgRectText(s, 1, widths.Take(start).Sum() + start + 1, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
+						SvgRectText(s, 1, widths.Take(start).Sum() + start + left, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
 									Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
 
 					start = end + 1;
@@ -1313,6 +1337,7 @@ namespace Zoom
 			var font = new Font("Arial", 11);
 			float widest = Columns.DefaultIfEmpty(new ZColumn("")).Max(col => col.Rotate ? graphics.MeasureString(col.Text, font, 1000).Width : 0);
 			double headerHeight = hasGroupHeadings && anyRotate ? widest : !hasGroupHeadings && anyRotate ? (widest + rowHeight) / Math.Sqrt(2) : rowHeight;
+			float x = left;
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
@@ -1603,10 +1628,10 @@ namespace Zoom
 			}
 		}
 
-		/// Write a single table row.
-		void SvgRow(StringBuilder s, int top, int height, List<float> widths, List<double> mins, List<double> maxs, int maxPoints, int width, ZRow row, bool odd, bool pure)
+		/// <summary>Write a single table row.</summary>
+		void SvgRow(StringBuilder s, int top, int height, int left, List<float> widths, List<double> mins, List<double> maxs, int maxPoints, int width, ZRow row, bool odd, bool pure)
 		{
-			SvgRect(s, 1, 1, top, width, height, Colors.GetBackColor(row, odd));  // Paint the background for the whole row.
+			SvgRect(s, 1, left, top, width, height, Colors.GetBackColor(row, odd));  // Paint the background for the whole row.
 
 			// Ensure ChartCells point to themselves, where they're part of a multi-cell chart.
 			foreach (var cell in row)
@@ -1627,7 +1652,7 @@ namespace Zoom
 				int barSource = row.FindIndex(cell => cell == sourceCell);
 
 				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
-					SvgChart(s, top, height, widths.Take(start).Sum() + start + 1, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
+					SvgChart(s, top, height, widths.Take(start).Sum() + start + left, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
 					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), maxPoints,
 					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, row, barSource, row == Rows.Last());
 
@@ -1635,7 +1660,7 @@ namespace Zoom
 			}
 			s.Append('\n');
 
-			float x = 1;
+			float x = left;
 			for (int col = 0; col < Columns.Count && col < row.Count; col++)
 			{
 				SvgText(s, 1, (int)x, top, (int)widths[col], height, Columns[col], row[col], pure);  // Write a data cell.
@@ -1648,31 +1673,41 @@ namespace Zoom
 		public override string ToSvg(bool pure = false)
 		{
 			StringBuilder sb = new StringBuilder();
-			ToSvg(sb, pure);
+			ToSvg(sb, null, pure);
 			return sb.ToString();
+		}
+
+		public string ToSvg(double aspectRatio)
+		{
+			StringBuilder sb = new StringBuilder();
+			ToSvg(sb, aspectRatio, true);
+			return sb.ToString();
+		}
+
+		private bool? hasGroupHeadings = null;
+		/// <summary>Do any columns have their GroupHeading set?</summary>
+		bool HasGroupHeadings()
+		{
+			if (!hasGroupHeadings.HasValue)
+			{
+				hasGroupHeadings = false;
+				foreach (ZColumn col in Columns)
+					hasGroupHeadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);
+			}
+
+			return (bool)hasGroupHeadings;
 		}
 
 		internal const int RowHeight = 22;  // This is enough to fit default-sized text.
 
-		/// Return height of report in internal SVG "pixels".
-		internal int Height()
-		{
-			bool hasgroupheadings = false;
-			foreach (ZColumn col in Columns)
-				hasgroupheadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);
-
-			return (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (RowHeight + 1);
-		}
-
+		/// <summary>Height of report in internal SVG "pixels". Only valid after ToSvg() has been called.</summary>
+		internal int Height;
+		/// <summary>Width of report in internal SVG "pixels". Only valid after ToSvg() has been called.</summary>
 		internal int Width;
 
 		/// This writes an <svg> tag -- it does not include <head> or <body> tags etc.
-		public override void ToSvg(StringBuilder sb, bool pure = false)
+		public override void ToSvg(StringBuilder sb, double? aspectRatio, bool pure = false)
 		{
-			bool hasgroupheadings = false;
-			foreach (ZColumn col in Columns)
-				hasgroupheadings |= col != null && !string.IsNullOrEmpty(col.GroupHeading);
-
 			var widths = new List<float>();  // Width of each column in pixels. "float", because MeasureString().Width returns a float.
 			var mins = new List<double>();   // Minimum numeric value in each column, or if all numbers are positive, 0.
 			var maxs = new List<double>();   // Maximum numeric value in each column.
@@ -1680,26 +1715,35 @@ namespace Zoom
 			Width = (int)widths.Sum() + widths.Count + 1;  // Total width of the whole SVG -- the sum of each column, plus pixels for spacing left, right and between.
 			double max = maxs.DefaultIfEmpty(1).Max();
 
-			int height = (Rows.Count + 3 + (hasgroupheadings ? 1 : 0)) * (RowHeight + 1);
+			int left = 1;
+			int headerHeight = SvgHeaderHeight(HasGroupHeadings(), RowHeight, left, widths);
+			int arrowTop = headerHeight;
+			Height = headerHeight + Rows.Count * (RowHeight + 1);
+			int multiColumns = MultiColumnOK && aspectRatio.HasValue ? Math.Max((int)Math.Sqrt((double)aspectRatio / Width / 1.1 * Height), 1) : 1;
+			Height = headerHeight + (int)(Rows.Count / multiColumns + 0.999) * (RowHeight + 1);
 
-			int rowTop = SvgHeader(sb, hasgroupheadings, RowHeight, widths, Width, pure);
-			int arrowTop = rowTop;
-
-			bool odd = true;
-
-			foreach (ZRow row in Rows)
+			SvgBegin(sb, RowHeight, (int)(Width * 1.1 * multiColumns - Width * 0.1), Height, pure);
+			for (int col = 0; col < multiColumns; col++)
 			{
-				SvgRow(sb, rowTop, RowHeight, widths, mins, maxs, maxPoints, Width, row, odd, pure);
+				int thisLeft = (int)(left + Width * 1.1 * col);
+				SvgHeader(sb, HasGroupHeadings(), RowHeight, thisLeft, widths, pure);
+				int rowTop = headerHeight;
+				bool odd = true;
+				for (int row = Rows.Count * col / multiColumns; row < Rows.Count * (col + 1) / multiColumns; row++)
+				{
+					SvgRow(sb, rowTop, RowHeight, thisLeft, widths, mins, maxs, maxPoints, Width, Rows[row], odd, pure);
 
-				rowTop += RowHeight + 1;
-				odd = !odd;
+					rowTop += RowHeight + 1;
+					odd = !odd;
+				}
 			}
 
 			for (int col = 0; col < Columns.Count; col++)
 				foreach (var arrow in Columns[col].Arrows.OrderByDescending(a => (a.From.Count + a.To.Count) * 100 + Math.Abs((a.From.FirstOrDefault()?.Row - a.To.FirstOrDefault()?.Row) ?? 0)))
 					SvgArrow(sb, 1, col, arrow, widths, arrowTop - 0.5F, RowHeight + 1);
 
-			sb.Replace("<<<<<<<<", rowTop.ToString());
+			Width = (int)(Width * 1.1 * multiColumns - Width * 0.1);
+
 			sb.Append("</svg>\n");
 
 			if (!pure && !string.IsNullOrEmpty(Description))
@@ -1726,11 +1770,12 @@ namespace Zoom
 
 		public override string ToSvg(bool pure = false) { return Literal; }
 
-		public override void ToSvg(StringBuilder sb, bool pure = false) { sb.Append(Literal); }
+		public override void ToSvg(StringBuilder sb, double? aspectRatio, bool pure = false) { sb.Append(Literal); }
 
 		public override IEnumerable<Color> BarCellColors() { return new List<Color>(); }
 	}
 
+	/// <summary>An output-format-specific separator. In a multi-page printed report, this is a page break. In a CSV, it's some newlines and a "----".</summary>
 	public class ZoomSeparator : ZoomReportBase
 	{
 		public override string ToCsv(char separator) { return "\n\n----\n\n"; }
@@ -1739,7 +1784,7 @@ namespace Zoom
 
 		public override string ToSvg(bool pure = false) { return "</div>\n<div style=\"display: flex; flex-flow: row wrap; justify-content: space-around;\">\n"; }
 
-		public override void ToSvg(StringBuilder sb, bool pure = false) { sb.Append(ToSvg(pure)); }
+		public override void ToSvg(StringBuilder sb, double? aspectRatio, bool pure = false) { sb.Append(ToSvg(pure)); }
 
 		public override IEnumerable<Color> BarCellColors() { return new List<Color>(); }
 	}
@@ -1888,10 +1933,10 @@ namespace Zoom
 					{
 						var image = new ReportWithSize()
 						{
-							Height = r.Height(),
 							Bitmap = r.ToBitmap((bounds.Width * ev.PageSettings.PrinterResolution.X / 100), (bounds.Height * ev.PageSettings.PrinterResolution.Y / 100))
 						};
-						image.Width = r.Width;  // ZoomReport Width is only available _after_ it is rendered.
+						image.Height = r.Height;
+						image.Width = r.Width;  // ZoomReport Height and Width are only available _after_ it is rendered.
 						page.Add(image);
 					}
 					else if (report is ZoomSeparator)
@@ -1904,7 +1949,7 @@ namespace Zoom
 			}
 
 			page = images[pageNumber];
-			var totalHeight = page.Sum(i => i.Height + ZoomReport.RowHeight * 2) - ZoomReport.RowHeight * 2;  // If there are several images on each page, put two rows' worth of "pixels" between them. These "pixels" are in the SVG's internal scale.
+			var totalHeight = page.Sum(i => i.Height + ZoomReport.RowHeight * 2) - ZoomReport.RowHeight * 2;  // If there are several images on a page, put two rows' worth of "pixels" between them. These "pixels" are in the SVG's internal scale.
 			float scale = 1.0F * totalHeight / bounds.Height;
 			float top = 0;
 

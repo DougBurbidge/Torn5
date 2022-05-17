@@ -193,6 +193,7 @@ namespace Torn.Report
 											   ",,,,,Tags,Tags,Ratio,Ratio,Ratio,Base,Base,Base,Penalties,Penalties")
 			{
 				MaxChartByColumn = true,
+				MultiColumnOK = true,
 				NumberStyle = ZNumberStyle.Plain
 			};
 
@@ -302,7 +303,8 @@ namespace Torn.Report
 		{
 			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Time", "left")
 			{
-				CssClass = "fixturelist"
+				CssClass = "fixturelist",
+				MultiColumnOK = true
 			};
 
 			var match = new Dictionary<FixtureGame, Game>();
@@ -579,9 +581,10 @@ namespace Torn.Report
 		/// <summary>Build a list of games. One game per row.</summary>
 		public static ZoomReport GamesList(League league, bool includeSecret, ReportTemplate rt)
 		{
-			ZoomReport report = new ZoomReport("", "Game", "right");
-
-			//			report.MultiColumnOK = true;
+			ZoomReport report = new ZoomReport("", "Game", "right")
+			{
+				MultiColumnOK = true
+			};
 
 			int thisgame = 0;
 			List<Game> games = Games(league, includeSecret, rt);
@@ -1827,7 +1830,8 @@ namespace Torn.Report
 											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,float",
 											   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,,,")
 			{
-				MaxChartByColumn = true
+				MaxChartByColumn = true,
+				MultiColumnOK = true
 			};
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
@@ -1977,7 +1981,8 @@ namespace Torn.Report
 
 			ZoomReport report = new ZoomReport(ReportTitle("Team Ladder", league.Title, rt), "Rank,Team", "center,left")
 			{
-				MaxChartByColumn = true
+				MaxChartByColumn = true,
+				MultiColumnOK = true
 			};
 
 			List<Game> games = Games(league, includeSecret, rt);
