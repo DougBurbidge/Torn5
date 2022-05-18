@@ -640,10 +640,11 @@ namespace Zoom
 		/// <summary>Render a report to bitmap. If report has different aspect ratio to width/height, then returned bitmap will be either narrower than width, or shorter than height.</summary>
 		/// <param name="width">Maximum width to render.</param>
 		/// <param name="height">Maximum height to render.</param>
+		/// <param name="force">Force a from-scratch render even if one has already been done.</param>
 		/// <returns>The bitmap.</returns>
-		public Bitmap ToBitmap(int width, int height)
+		public Bitmap ToBitmap(int width, int height, bool force = false)
 		{
-			if (document == null)
+			if (force || document == null)
 				using (StringWriter sw = new StringWriter())
 				{
 					sw.Write(ToSvg(1.0 * width / height));
@@ -1719,7 +1720,7 @@ namespace Zoom
 			int headerHeight = SvgHeaderHeight(HasGroupHeadings(), RowHeight, left, widths);
 			int arrowTop = headerHeight;
 			Height = headerHeight + Rows.Count * (RowHeight + 1);
-			int multiColumns = MultiColumnOK && aspectRatio.HasValue ? Math.Max((int)Math.Sqrt((double)aspectRatio / Width / 1.1 * Height), 1) : 1;
+			int multiColumns = MultiColumnOK && aspectRatio.HasValue ? Math.Max((int)Math.Sqrt((double)aspectRatio / Width * Height), 1) : 1;
 			Height = headerHeight + (int)(Rows.Count / multiColumns + 0.999) * (RowHeight + 1);
 
 			SvgBegin(sb, RowHeight, (int)(Width * 1.1 * multiColumns - Width * 0.1), Height, pure);
@@ -1747,7 +1748,7 @@ namespace Zoom
 			sb.Append("</svg>\n");
 
 			if (!pure && !string.IsNullOrEmpty(Description))
-		    	AppendStrings(sb, "<p>", Description.Replace("\n", "<br/>\n"), "</p>\n");
+				AppendStrings(sb, "<p>", Description.Replace("\n", "<br/>\n"), "</p>\n");
 			if (!pure)
 				sb.Append("</div>");
 		}

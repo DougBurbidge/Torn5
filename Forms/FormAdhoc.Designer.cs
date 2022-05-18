@@ -46,7 +46,12 @@
 			this.panelDisplay = new System.Windows.Forms.Panel();
 			this.printDialog = new System.Windows.Forms.PrintDialog();
 			this.printPreviewDialog = new System.Windows.Forms.PrintPreviewDialog();
+			this.panelRight = new System.Windows.Forms.Panel();
+			this.panel2 = new System.Windows.Forms.Panel();
+			this.buttonRerender = new System.Windows.Forms.Button();
 			this.groupBoxOutputFormat.SuspendLayout();
+			this.panelRight.SuspendLayout();
+			this.panel2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// timerRedraw
@@ -66,11 +71,11 @@
 			this.groupBoxOutputFormat.Controls.Add(this.radioTsv);
 			this.groupBoxOutputFormat.Controls.Add(this.radioTables);
 			this.groupBoxOutputFormat.Controls.Add(this.radioSvg);
-			this.groupBoxOutputFormat.Dock = System.Windows.Forms.DockStyle.Right;
-			this.groupBoxOutputFormat.Location = new System.Drawing.Point(720, 0);
+			this.groupBoxOutputFormat.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBoxOutputFormat.Location = new System.Drawing.Point(0, 64);
 			this.groupBoxOutputFormat.Name = "groupBoxOutputFormat";
-			this.groupBoxOutputFormat.Size = new System.Drawing.Size(64, 689);
-			this.groupBoxOutputFormat.TabIndex = 7;
+			this.groupBoxOutputFormat.Size = new System.Drawing.Size(64, 625);
+			this.groupBoxOutputFormat.TabIndex = 1;
 			this.groupBoxOutputFormat.TabStop = false;
 			this.groupBoxOutputFormat.Text = "Save As";
 			// 
@@ -110,7 +115,7 @@
 			this.radioCsv.Location = new System.Drawing.Point(6, 228);
 			this.radioCsv.Name = "radioCsv";
 			this.radioCsv.Size = new System.Drawing.Size(56, 32);
-			this.radioCsv.TabIndex = 3;
+			this.radioCsv.TabIndex = 5;
 			this.radioCsv.Tag = 3;
 			this.radioCsv.Text = "CSV";
 			this.radioCsv.UseVisualStyleBackColor = true;
@@ -130,7 +135,7 @@
 			this.label2.Location = new System.Drawing.Point(6, 185);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(44, 48);
-			this.label2.TabIndex = 5;
+			this.label2.TabIndex = 4;
 			this.label2.Text = "(best for data export)";
 			// 
 			// label1
@@ -138,7 +143,7 @@
 			this.label1.Location = new System.Drawing.Point(6, 67);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(55, 23);
-			this.label1.TabIndex = 4;
+			this.label1.TabIndex = 1;
 			this.label1.Text = "(prettiest)";
 			// 
 			// radioTsv
@@ -146,7 +151,7 @@
 			this.radioTsv.Location = new System.Drawing.Point(6, 158);
 			this.radioTsv.Name = "radioTsv";
 			this.radioTsv.Size = new System.Drawing.Size(56, 24);
-			this.radioTsv.TabIndex = 2;
+			this.radioTsv.TabIndex = 3;
 			this.radioTsv.Tag = 2;
 			this.radioTsv.Text = "TSV";
 			this.radioTsv.UseVisualStyleBackColor = true;
@@ -156,7 +161,7 @@
 			this.radioTables.Location = new System.Drawing.Point(6, 93);
 			this.radioTables.Name = "radioTables";
 			this.radioTables.Size = new System.Drawing.Size(56, 32);
-			this.radioTables.TabIndex = 1;
+			this.radioTables.TabIndex = 2;
 			this.radioTables.Tag = 1;
 			this.radioTables.Text = "HTML tables";
 			this.radioTables.UseVisualStyleBackColor = true;
@@ -180,7 +185,7 @@
 			this.panelDisplay.Location = new System.Drawing.Point(0, 0);
 			this.panelDisplay.Name = "panelDisplay";
 			this.panelDisplay.Size = new System.Drawing.Size(720, 689);
-			this.panelDisplay.TabIndex = 8;
+			this.panelDisplay.TabIndex = 0;
 			// 
 			// printPreviewDialog
 			// 
@@ -192,6 +197,35 @@
 			this.printPreviewDialog.Name = "printPreviewDialog";
 			this.printPreviewDialog.Visible = false;
 			// 
+			// panelRight
+			// 
+			this.panelRight.Controls.Add(this.groupBoxOutputFormat);
+			this.panelRight.Controls.Add(this.panel2);
+			this.panelRight.Dock = System.Windows.Forms.DockStyle.Right;
+			this.panelRight.Location = new System.Drawing.Point(720, 0);
+			this.panelRight.Name = "panelRight";
+			this.panelRight.Size = new System.Drawing.Size(64, 689);
+			this.panelRight.TabIndex = 11;
+			// 
+			// panel2
+			// 
+			this.panel2.Controls.Add(this.buttonRerender);
+			this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panel2.Location = new System.Drawing.Point(0, 0);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(64, 64);
+			this.panel2.TabIndex = 0;
+			// 
+			// buttonRerender
+			// 
+			this.buttonRerender.Location = new System.Drawing.Point(6, 12);
+			this.buttonRerender.Name = "buttonRerender";
+			this.buttonRerender.Size = new System.Drawing.Size(52, 37);
+			this.buttonRerender.TabIndex = 0;
+			this.buttonRerender.Text = "Re- render";
+			this.buttonRerender.UseVisualStyleBackColor = true;
+			this.buttonRerender.Click += new System.EventHandler(this.ButtonRerenderClick);
+			// 
 			// FormAdhoc
 			// 
 			this.AcceptButton = this.buttonSave;
@@ -200,11 +234,13 @@
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(784, 689);
 			this.Controls.Add(this.panelDisplay);
-			this.Controls.Add(this.groupBoxOutputFormat);
+			this.Controls.Add(this.panelRight);
 			this.Name = "FormAdhoc";
 			this.Text = "FormAdhoc";
 			this.Resize += new System.EventHandler(this.FormAdhoc_Resize);
 			this.groupBoxOutputFormat.ResumeLayout(false);
+			this.panelRight.ResumeLayout(false);
+			this.panel2.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -227,5 +263,8 @@
 		private System.Windows.Forms.Button buttonPrintPreview;
 		private System.Windows.Forms.PrintDialog printDialog;
 		private System.Windows.Forms.PrintPreviewDialog printPreviewDialog;
+		private System.Windows.Forms.Panel panelRight;
+		private System.Windows.Forms.Panel panel2;
+		private System.Windows.Forms.Button buttonRerender;
 	}
 }

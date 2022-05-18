@@ -78,5 +78,18 @@ namespace Torn.UI
 			printPreviewDialog.Document = report.ToPrint();
 			printPreviewDialog.ShowDialog();
 		}
+
+		private void ButtonRerenderClick(object sender, EventArgs e)
+		{
+			Cursor.Current = Cursors.WaitCursor;
+			try
+			{
+				panelDisplay.BackgroundImage = report.ToBitmap(panelDisplay.Width, panelDisplay.Height, true);
+			}
+			finally
+			{
+				Cursor.Current = Cursors.Default;
+			}
+		}
 	}
 }
