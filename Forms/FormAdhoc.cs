@@ -42,20 +42,26 @@ namespace Torn.UI
 			var outputFormat = radioSvg.Checked ? OutputFormat.Svg :
 				radioTables.Checked ? OutputFormat.HtmlTable :
 				radioTsv.Checked ? OutputFormat.Tsv :
-				OutputFormat.Csv;
+				radioCsv.Checked ? OutputFormat.Csv :
+				OutputFormat.Png;
 
 			string file = report.Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
 			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace all other invalid chars with _.
 
-			var reports = new ZoomReports()
-			{
-				report 
-			};
-
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
-				using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
-					sw.Write(reports.ToOutput(outputFormat));
+				if (radioPng.Checked)
+					panelDisplay.BackgroundImage.Save(saveFileDialog.FileName);
+				else
+				{
+					var reports = new ZoomReports()
+					{
+						report
+					};
+
+					using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
+						sw.Write(reports.ToOutput(outputFormat));
+				}
 				fileName = saveFileDialog.FileName;
 				buttonShow.Enabled = true;
 			}

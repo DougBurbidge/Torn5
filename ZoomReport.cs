@@ -29,7 +29,7 @@ namespace Zoom
 		}
 	}
 
-	public enum OutputFormat { Svg = 0, HtmlTable, Tsv, Csv };
+	public enum OutputFormat { Svg = 0, HtmlTable, Tsv, Csv, Png };
 
 	public static class OutputFormatExtensions
 	{
@@ -40,6 +40,7 @@ namespace Zoom
 				case OutputFormat.HtmlTable: return "html";
 				case OutputFormat.Tsv: return "tsv";
 				case OutputFormat.Csv: return "csv";
+				case OutputFormat.Png: return "png";
 				default: return "";
 			}
 		}
