@@ -2,11 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
-using Torn;
 
 namespace Torn.UI
 {
