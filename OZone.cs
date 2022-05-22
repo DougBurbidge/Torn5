@@ -228,6 +228,7 @@ namespace Torn
 
 				foreach(var player in playersDictionary)
                 {
+					string id = player.Key.ToString();
 					string playerContent = player.Value.ToString();
 					JObject playerRoot = JObject.Parse(playerContent);
 
@@ -236,14 +237,14 @@ namespace Torn
 					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
 					if (playerRoot["omid"] != null) 
 					{
-						string id = playerRoot["omid"].ToString();
+						string omid = playerRoot["omid"].ToString();
 						// If pack was not logged in use alias as identifier
-						if(id == "-1")
+						if(omid == "-1")
                         {
-							id = playerRoot["alias"].ToString();
+							omid = playerRoot["alias"].ToString();
 
 						}
-						serverPlayer.PlayerId = id; 
+						serverPlayer.PlayerId = omid; 
 						serverPlayer.ServerPlayerId = id; 
 					};
 					if (playerRoot["tid"] != null)
@@ -263,7 +264,7 @@ namespace Torn
 
 
 			}
-				
+
 
 		}
 

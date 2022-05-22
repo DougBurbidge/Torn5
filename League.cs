@@ -1599,7 +1599,7 @@ namespace Torn
 		}
 
 		public void Populate(List<Event> events)
-		{
+		{		
 			HitsBy = events.Count(x => x.ServerPlayerId == ServerPlayerId &&
 								  (x.Event_Type <= 13 || x.Event_Type == 30 || x.Event_Type == 31 || x.Event_Type >= 37 && x.Event_Type <= 46));
 			HitsOn = events.Count(x => x.ServerPlayerId == ServerPlayerId &&
