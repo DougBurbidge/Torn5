@@ -15,6 +15,7 @@ namespace Torn.UI
 			set
 			{
 				report = value;
+				printReport.Report = value;
 				Text = report.Title;
 				TimerRedrawTick(null, null);
 			}
@@ -33,56 +34,8 @@ namespace Torn.UI
 		private void TimerRedrawTick(object sender, EventArgs e)
 		{
 			panelDisplay.BackgroundImage = report.ToBitmap(panelDisplay.Width, panelDisplay.Height);
+			printReport.Image = panelDisplay.BackgroundImage;
 			timerRedraw.Enabled = false;
-		}
-
-		string fileName;
-		private void ButtonSaveClick(object sender, EventArgs e)
-		{
-			var outputFormat = radioSvg.Checked ? OutputFormat.Svg :
-				radioTables.Checked ? OutputFormat.HtmlTable :
-				radioTsv.Checked ? OutputFormat.Tsv :
-				radioCsv.Checked ? OutputFormat.Csv :
-				OutputFormat.Png;
-
-			string file = report.Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
-			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace all other invalid chars with _.
-
-			if (saveFileDialog.ShowDialog() == DialogResult.OK)
-			{
-				if (radioPng.Checked)
-					panelDisplay.BackgroundImage.Save(saveFileDialog.FileName);
-				else
-				{
-					var reports = new ZoomReports()
-					{
-						report
-					};
-
-					using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
-						sw.Write(reports.ToOutput(outputFormat));
-				}
-				fileName = saveFileDialog.FileName;
-				buttonShow.Enabled = true;
-			}
-		}
-
-		private void ButtonShowClick(object sender, EventArgs e)
-		{
-			System.Diagnostics.Process.Start(fileName);
-		}
-
-		private void ButtonPrintClick(object sender, EventArgs e)
-		{
-			var pd = report.ToPrint();
-			if (printDialog.ShowDialog() == DialogResult.OK)
-				pd.Print();
-		}
-
-		private void ButtonPrintPreviewClick(object sender, EventArgs e)
-		{
-			printPreviewDialog.Document = report.ToPrint();
-			printPreviewDialog.ShowDialog();
 		}
 
 		private void ButtonRerenderClick(object sender, EventArgs e)
@@ -91,6 +44,7 @@ namespace Torn.UI
 			try
 			{
 				panelDisplay.BackgroundImage = report.ToBitmap(panelDisplay.Width, panelDisplay.Height, true);
+				printReport.Image = panelDisplay.BackgroundImage;
 			}
 			finally
 			{
