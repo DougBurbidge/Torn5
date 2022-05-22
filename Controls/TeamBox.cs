@@ -28,6 +28,7 @@ namespace Torn.UI
 		public int Score { get { return (int)score; } }
 
 		LeagueTeam leagueTeam;
+
 		public LeagueTeam LeagueTeam 
 		{ 
 			get { return leagueTeam; }
@@ -305,7 +306,6 @@ namespace Torn.UI
 
         private void adjustPlayerScoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
-			Console.WriteLine(ListView.SelectedItems[0].SubItems[2].Text);
 			double penalty = -1000;
 			InputDialog.GetDouble("Adjustment", "Set team score adjustment", ref penalty);
 			var player1 = (ServerPlayer)ListView.SelectedItems[0].Tag;

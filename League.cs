@@ -1445,6 +1445,8 @@ namespace Torn
 
 			score += gameTeam.Adjustment;
 
+			Console.WriteLine(score);
+
 			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
 			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
 		}
