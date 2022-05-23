@@ -162,6 +162,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\DisplayReport.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DisplayReport.Designer.cs">
+      <DependentUpon>DisplayReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PrintReport.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PrintReport.Designer.cs">
+      <DependentUpon>PrintReport.cs</DependentUpon>
+    </Compile>
     <Compile Include="Finals.cs" />
     <Compile Include="Forms\FormAdhoc.cs">
       <SubType>Form</SubType>
@@ -276,6 +288,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Controls\BaseBox.resx">
       <DependentUpon>BaseBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\DisplayReport.resx">
+      <DependentUpon>DisplayReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PrintReport.resx">
+      <DependentUpon>PrintReport.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormAdhoc.resx">
       <DependentUpon>FormAdhoc.cs</DependentUpon>

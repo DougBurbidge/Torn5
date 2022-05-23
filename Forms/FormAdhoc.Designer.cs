@@ -28,9 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
-			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
-			this.panelDisplay = new System.Windows.Forms.Panel();
+			this.displayReport = new Torn5.Controls.DisplayReport();
 			this.panelRight = new System.Windows.Forms.Panel();
 			this.printReport = new Torn5.Controls.PrintReport();
 			this.panelRerender = new System.Windows.Forms.Panel();
@@ -39,19 +37,15 @@
 			this.panelRerender.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// timerRedraw
+			// displayReport
 			// 
-			this.timerRedraw.Interval = 1000;
-			this.timerRedraw.Tick += new System.EventHandler(this.TimerRedrawTick);
-			// 
-			// panelDisplay
-			// 
-			this.panelDisplay.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-			this.panelDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelDisplay.Location = new System.Drawing.Point(0, 0);
-			this.panelDisplay.Name = "panelDisplay";
-			this.panelDisplay.Size = new System.Drawing.Size(720, 689);
-			this.panelDisplay.TabIndex = 0;
+			this.displayReport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.displayReport.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.displayReport.Location = new System.Drawing.Point(0, 0);
+			this.displayReport.Name = "displayReport";
+			this.displayReport.Report = null;
+			this.displayReport.Size = new System.Drawing.Size(720, 689);
+			this.displayReport.TabIndex = 0;
 			// 
 			// panelRight
 			// 
@@ -98,11 +92,10 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(784, 689);
-			this.Controls.Add(this.panelDisplay);
+			this.Controls.Add(this.displayReport);
 			this.Controls.Add(this.panelRight);
 			this.Name = "FormAdhoc";
 			this.Text = "FormAdhoc";
-			this.Resize += new System.EventHandler(this.FormAdhoc_Resize);
 			this.panelRight.ResumeLayout(false);
 			this.panelRerender.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -110,12 +103,10 @@
 		}
 
 		#endregion
-
-		private System.Windows.Forms.Timer timerRedraw;
-		private System.Windows.Forms.Panel panelDisplay;
 		private System.Windows.Forms.Panel panelRight;
 		private System.Windows.Forms.Panel panelRerender;
 		private System.Windows.Forms.Button buttonRerender;
 		private Torn5.Controls.PrintReport printReport;
+		private Torn5.Controls.DisplayReport displayReport;
 	}
 }
