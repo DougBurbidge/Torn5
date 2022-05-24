@@ -16,10 +16,9 @@ namespace Torn5.Controls
 			{
 				report = value;
 				if (Report != null)
-				{
 					Text = report.Title;
-					RedrawTimerTick(null, null);
-				}
+
+				RedrawTimerTick(null, null);
 			}
 		}
 
@@ -37,8 +36,11 @@ namespace Torn5.Controls
 		}
 		private void RedrawTimerTick(object sender, EventArgs e)
 		{
-			if (Report != null)
+			if (Report == null)
+				BackgroundImage = null;
+			else
 				BackgroundImage = Report.ToBitmap(Width, Height);
+
 			RedrawTimer.Enabled = false;
 		}
 	}
