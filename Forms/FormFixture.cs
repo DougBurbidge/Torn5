@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Torn;
 using Torn.Report;
-using Zoom;
 
 namespace Torn.UI
 {
@@ -21,7 +19,6 @@ namespace Torn.UI
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
 		bool resizing;
-		ZoomReport report;
 
 		public FormFixture()
 		{
@@ -49,6 +46,8 @@ namespace Torn.UI
 		void ButtonClearClick(object sender, EventArgs e)
 		{
 			Holder.Fixture.Games.Clear();
+			displayReportGames.Report = null;
+			displayReportGrid.Report = null;
 		}
 
 		void ButtonImportTeamsClick(object sender, EventArgs e)
@@ -65,9 +64,7 @@ namespace Torn.UI
 				(ModifierKeys.HasFlag(Keys.Shift) && ModifierKeys.HasFlag(Keys.Alt));
 
 			if (fromLeague)
-			{
 				Holder.Fixture.Games.Parse(Holder.League, Holder.Fixture.Teams);
-			}
 			else
 			{
 				if (radioButtonTab.Checked)
@@ -78,6 +75,8 @@ namespace Torn.UI
 
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
+			displayReportGames.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+			displayReportGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
 		}
 
 		void ButtonImportGridClick(object sender, EventArgs e)
@@ -86,6 +85,8 @@ namespace Torn.UI
 			                                        datePicker.Value.Date + timePicker.Value.TimeOfDay, 
 			                                        TimeSpan.FromMinutes((double)numericMinutes.Value));
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
+			displayReportGames.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+			displayReportGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
 		}
 
 		List<LeagueTeam> Ladder()
@@ -129,6 +130,16 @@ namespace Torn.UI
 				}
 
 				textBoxTeams.Text = Holder.Fixture.Teams.ToString();
+				if (Holder.Fixture.Games.Any())
+				{
+					displayReportGames.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+					displayReportGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+				}
+				else
+				{
+					displayReportGames.Report = null;
+					displayReportGrid.Report = null;
+				}
 
 				if (Holder.Fixture.Games.Any())
 				{
@@ -320,13 +331,9 @@ namespace Torn.UI
 		{
 			labelTeamsToSendUp.Text = "Teams to send up from each game: " + (numericTeamsPerGame.Value - numericTeamsToCut.Value).ToString();
 
-			report = Finals.Ascension(Holder.Fixture, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
-
-			using (StringWriter sw = new StringWriter())
-			{
-				sw.Write(report.ToSvg(true));
-				TimerRedrawTick(null, null);
-			}
+			displayReportFinals.Report = Finals.Ascension(Holder.Fixture, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
+			printReportFinals.Report = displayReportFinals.Report;
+			printReportFinals.Image = displayReportFinals.BackgroundImage;
 		}
 
 		private void NumericTeamsPerGameValueChanged(object sender, EventArgs e)
@@ -335,18 +342,6 @@ namespace Torn.UI
 			numericFreeRides.Maximum = numericTeamsPerGame.Value - 1;
 
 			RefreshFinals(sender, e);
-		}
-
-		private void PanelFinalsResize(object sender, EventArgs e)
-		{
-			timerRedraw.Enabled = true;
-		}
-
-		private void TimerRedrawTick(object sender, EventArgs e)
-		{
-			if (report != null)
-				panelFinals.BackgroundImage = report.ToBitmap(panelFinals.Width, panelFinals.Height);
-			timerRedraw.Enabled = false;
 		}
 
 		private void ButtonAscensionClick(object sender, EventArgs e)
@@ -368,36 +363,6 @@ namespace Torn.UI
 			numericTracks.Value = 3;
 			numericTeamsToCut.Value = 2;
 			numericFreeRides.Value = 0;
-		}
-
-		string fileName;
-		private void ButtonSaveClick(object sender, EventArgs e)
-		{
-			var outputFormat = radioSvg.Checked ? OutputFormat.Svg :
-				radioTables.Checked ? OutputFormat.HtmlTable :
-				radioTsv.Checked ? OutputFormat.Tsv :
-				OutputFormat.Csv;
-
-			string file = (Holder.League.Title + " " + report.Title).Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace space with _ to make URLs easier if this file is uploaded to the web.
-			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace invalid chars with _.
-
-			var reports = new ZoomReports()
-			{
-				report
-			};
-
-			if (saveFileDialog.ShowDialog() == DialogResult.OK)
-			{
-				using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
-					sw.Write(reports.ToOutput(outputFormat));
-				fileName = saveFileDialog.FileName;
-				buttonShow.Enabled = true;
-			}
-		}
-
-		private void ButtonShowClick(object sender, EventArgs e)
-		{
-			System.Diagnostics.Process.Start(fileName);
 		}
 
 		void NumericSizeValueChanged(object sender, EventArgs e)
@@ -475,6 +440,9 @@ class TeamComparer : IComparer<FixtureTeam>
 
 	public int Compare(FixtureTeam x, Torn.FixtureTeam y)
 	{
+		if (LeagueTeams == null)
+			return 0;
+
 		int ix = LeagueTeams.FindIndex(lt => lt == x.LeagueTeam);
 		int iy = LeagueTeams.FindIndex(lt => lt == y.LeagueTeam);
 		if (ix == -1) ix = 999999;

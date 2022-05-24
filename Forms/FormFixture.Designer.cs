@@ -29,7 +29,6 @@ namespace Torn.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
 			this.textBoxTeams = new System.Windows.Forms.TextBox();
 			this.buttonImportTeams = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
@@ -44,8 +43,10 @@ namespace Torn.UI
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabTeams = new System.Windows.Forms.TabPage();
 			this.tabGamesList = new System.Windows.Forms.TabPage();
+			this.displayReportGames = new Torn5.Controls.DisplayReport();
 			this.buttonClearGames = new System.Windows.Forms.Button();
 			this.tabGamesGrid = new System.Windows.Forms.TabPage();
+			this.displayReportGrid = new Torn5.Controls.DisplayReport();
 			this.buttonClearGrid = new System.Windows.Forms.Button();
 			this.numericMinutes = new System.Windows.Forms.NumericUpDown();
 			this.timePicker = new System.Windows.Forms.DateTimePicker();
@@ -58,15 +59,8 @@ namespace Torn.UI
 			this.numericSize = new System.Windows.Forms.NumericUpDown();
 			this.panelGraphic = new System.Windows.Forms.Panel();
 			this.tabFinals = new System.Windows.Forms.TabPage();
-			this.groupBoxOutputFormat = new System.Windows.Forms.GroupBox();
-			this.buttonShow = new System.Windows.Forms.Button();
-			this.radioCsv = new System.Windows.Forms.RadioButton();
-			this.buttonSave = new System.Windows.Forms.Button();
-			this.label11 = new System.Windows.Forms.Label();
-			this.label12 = new System.Windows.Forms.Label();
-			this.radioTsv = new System.Windows.Forms.RadioButton();
-			this.radioTables = new System.Windows.Forms.RadioButton();
-			this.radioSvg = new System.Windows.Forms.RadioButton();
+			this.printReportFinals = new Torn5.Controls.PrintReport();
+			this.displayReportFinals = new Torn5.Controls.DisplayReport();
 			this.labelTeamsToSendUp = new System.Windows.Forms.Label();
 			this.numericFreeRides = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
@@ -78,10 +72,7 @@ namespace Torn.UI
 			this.label8 = new System.Windows.Forms.Label();
 			this.numericTracks = new System.Windows.Forms.NumericUpDown();
 			this.label7 = new System.Windows.Forms.Label();
-			this.panelFinals = new System.Windows.Forms.Panel();
 			this.buttonAscension = new System.Windows.Forms.Button();
-			this.timerRedraw = new System.Windows.Forms.Timer(this.components);
-			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.tabControl1.SuspendLayout();
 			this.tabTeams.SuspendLayout();
 			this.tabGamesList.SuspendLayout();
@@ -90,7 +81,6 @@ namespace Torn.UI
 			this.tabGraphic.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).BeginInit();
 			this.tabFinals.SuspendLayout();
-			this.groupBoxOutputFormat.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
@@ -145,7 +135,7 @@ namespace Torn.UI
 			// buttonImportGames
 			// 
 			this.buttonImportGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonImportGames.Location = new System.Drawing.Point(519, 604);
+			this.buttonImportGames.Location = new System.Drawing.Point(519, 603);
 			this.buttonImportGames.Name = "buttonImportGames";
 			this.buttonImportGames.Size = new System.Drawing.Size(75, 23);
 			this.buttonImportGames.TabIndex = 19;
@@ -250,6 +240,7 @@ namespace Torn.UI
 			// 
 			// tabGamesList
 			// 
+			this.tabGamesList.Controls.Add(this.displayReportGames);
 			this.tabGamesList.Controls.Add(this.buttonClearGames);
 			this.tabGamesList.Controls.Add(this.radioButtonTab);
 			this.tabGamesList.Controls.Add(this.label2);
@@ -266,6 +257,17 @@ namespace Torn.UI
 			this.tabGamesList.Text = "Games as a list";
 			this.tabGamesList.UseVisualStyleBackColor = true;
 			// 
+			// displayReportGames
+			// 
+			this.displayReportGames.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.displayReportGames.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.displayReportGames.Location = new System.Drawing.Point(600, 6);
+			this.displayReportGames.Name = "displayReportGames";
+			this.displayReportGames.Report = null;
+			this.displayReportGames.Size = new System.Drawing.Size(618, 620);
+			this.displayReportGames.TabIndex = 26;
+			// 
 			// buttonClearGames
 			// 
 			this.buttonClearGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -279,6 +281,7 @@ namespace Torn.UI
 			// 
 			// tabGamesGrid
 			// 
+			this.tabGamesGrid.Controls.Add(this.displayReportGrid);
 			this.tabGamesGrid.Controls.Add(this.buttonClearGrid);
 			this.tabGamesGrid.Controls.Add(this.numericMinutes);
 			this.tabGamesGrid.Controls.Add(this.timePicker);
@@ -295,6 +298,15 @@ namespace Torn.UI
 			this.tabGamesGrid.TabIndex = 2;
 			this.tabGamesGrid.Text = "Games as a grid";
 			this.tabGamesGrid.UseVisualStyleBackColor = true;
+			// 
+			// displayReportGrid
+			// 
+			this.displayReportGrid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.displayReportGrid.Location = new System.Drawing.Point(760, 6);
+			this.displayReportGrid.Name = "displayReportGrid";
+			this.displayReportGrid.Report = null;
+			this.displayReportGrid.Size = new System.Drawing.Size(458, 620);
+			this.displayReportGrid.TabIndex = 32;
 			// 
 			// buttonClearGrid
 			// 
@@ -436,7 +448,8 @@ namespace Torn.UI
 			// 
 			// tabFinals
 			// 
-			this.tabFinals.Controls.Add(this.groupBoxOutputFormat);
+			this.tabFinals.Controls.Add(this.printReportFinals);
+			this.tabFinals.Controls.Add(this.displayReportFinals);
 			this.tabFinals.Controls.Add(this.labelTeamsToSendUp);
 			this.tabFinals.Controls.Add(this.numericFreeRides);
 			this.tabFinals.Controls.Add(this.label10);
@@ -448,7 +461,6 @@ namespace Torn.UI
 			this.tabFinals.Controls.Add(this.label8);
 			this.tabFinals.Controls.Add(this.numericTracks);
 			this.tabFinals.Controls.Add(this.label7);
-			this.tabFinals.Controls.Add(this.panelFinals);
 			this.tabFinals.Controls.Add(this.buttonAscension);
 			this.tabFinals.Location = new System.Drawing.Point(4, 22);
 			this.tabFinals.Name = "tabFinals";
@@ -458,101 +470,27 @@ namespace Torn.UI
 			this.tabFinals.UseVisualStyleBackColor = true;
 			this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
 			// 
-			// groupBoxOutputFormat
+			// printReportFinals
 			// 
-			this.groupBoxOutputFormat.Controls.Add(this.buttonShow);
-			this.groupBoxOutputFormat.Controls.Add(this.radioCsv);
-			this.groupBoxOutputFormat.Controls.Add(this.buttonSave);
-			this.groupBoxOutputFormat.Controls.Add(this.label11);
-			this.groupBoxOutputFormat.Controls.Add(this.label12);
-			this.groupBoxOutputFormat.Controls.Add(this.radioTsv);
-			this.groupBoxOutputFormat.Controls.Add(this.radioTables);
-			this.groupBoxOutputFormat.Controls.Add(this.radioSvg);
-			this.groupBoxOutputFormat.Location = new System.Drawing.Point(741, 5);
-			this.groupBoxOutputFormat.Name = "groupBoxOutputFormat";
-			this.groupBoxOutputFormat.Size = new System.Drawing.Size(487, 60);
-			this.groupBoxOutputFormat.TabIndex = 13;
-			this.groupBoxOutputFormat.TabStop = false;
-			this.groupBoxOutputFormat.Text = "Save As";
+			this.printReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.printReportFinals.Image = null;
+			this.printReportFinals.Location = new System.Drawing.Point(1154, 5);
+			this.printReportFinals.Name = "printReportFinals";
+			this.printReportFinals.Report = null;
+			this.printReportFinals.Size = new System.Drawing.Size(64, 480);
+			this.printReportFinals.TabIndex = 15;
 			// 
-			// buttonShow
+			// displayReportFinals
 			// 
-			this.buttonShow.Enabled = false;
-			this.buttonShow.Location = new System.Drawing.Point(363, 14);
-			this.buttonShow.Name = "buttonShow";
-			this.buttonShow.Size = new System.Drawing.Size(114, 40);
-			this.buttonShow.TabIndex = 7;
-			this.buttonShow.Text = "Show saved report in web browser";
-			this.buttonShow.UseVisualStyleBackColor = true;
-			this.buttonShow.Click += new System.EventHandler(this.ButtonShowClick);
-			// 
-			// radioCsv
-			// 
-			this.radioCsv.Location = new System.Drawing.Point(243, 16);
-			this.radioCsv.Name = "radioCsv";
-			this.radioCsv.Size = new System.Drawing.Size(56, 20);
-			this.radioCsv.TabIndex = 3;
-			this.radioCsv.Tag = 3;
-			this.radioCsv.Text = "CSV";
-			this.radioCsv.UseVisualStyleBackColor = true;
-			// 
-			// buttonSave
-			// 
-			this.buttonSave.Location = new System.Drawing.Point(305, 14);
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.Size = new System.Drawing.Size(52, 40);
-			this.buttonSave.TabIndex = 6;
-			this.buttonSave.Text = "&Save";
-			this.buttonSave.UseVisualStyleBackColor = true;
-			this.buttonSave.Click += new System.EventHandler(this.ButtonSaveClick);
-			// 
-			// label11
-			// 
-			this.label11.Location = new System.Drawing.Point(138, 39);
-			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(124, 21);
-			this.label11.TabIndex = 5;
-			this.label11.Text = "(best for data export)";
-			// 
-			// label12
-			// 
-			this.label12.Location = new System.Drawing.Point(22, 39);
-			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(55, 23);
-			this.label12.TabIndex = 4;
-			this.label12.Text = "(prettiest)";
-			// 
-			// radioTsv
-			// 
-			this.radioTsv.Location = new System.Drawing.Point(181, 16);
-			this.radioTsv.Name = "radioTsv";
-			this.radioTsv.Size = new System.Drawing.Size(56, 20);
-			this.radioTsv.TabIndex = 2;
-			this.radioTsv.Tag = 2;
-			this.radioTsv.Text = "TSV";
-			this.radioTsv.UseVisualStyleBackColor = true;
-			// 
-			// radioTables
-			// 
-			this.radioTables.Location = new System.Drawing.Point(88, 16);
-			this.radioTables.Name = "radioTables";
-			this.radioTables.Size = new System.Drawing.Size(87, 20);
-			this.radioTables.TabIndex = 1;
-			this.radioTables.Tag = 1;
-			this.radioTables.Text = "HTML tables";
-			this.radioTables.UseVisualStyleBackColor = true;
-			// 
-			// radioSvg
-			// 
-			this.radioSvg.Checked = true;
-			this.radioSvg.Location = new System.Drawing.Point(6, 16);
-			this.radioSvg.Name = "radioSvg";
-			this.radioSvg.Size = new System.Drawing.Size(84, 20);
-			this.radioSvg.TabIndex = 0;
-			this.radioSvg.TabStop = true;
-			this.radioSvg.Tag = 0;
-			this.radioSvg.Text = "HTML SVG";
-			this.radioSvg.UseVisualStyleBackColor = true;
+			this.displayReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.displayReportFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.displayReportFinals.Location = new System.Drawing.Point(3, 70);
+			this.displayReportFinals.Name = "displayReportFinals";
+			this.displayReportFinals.Report = null;
+			this.displayReportFinals.Size = new System.Drawing.Size(1145, 559);
+			this.displayReportFinals.TabIndex = 14;
 			// 
 			// labelTeamsToSendUp
 			// 
@@ -701,18 +639,6 @@ namespace Torn.UI
 			this.label7.TabIndex = 0;
 			this.label7.Text = "Tracks:";
 			// 
-			// panelFinals
-			// 
-			this.panelFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.panelFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-			this.panelFinals.Location = new System.Drawing.Point(3, 68);
-			this.panelFinals.Name = "panelFinals";
-			this.panelFinals.Size = new System.Drawing.Size(1218, 561);
-			this.panelFinals.TabIndex = 9;
-			this.panelFinals.Resize += new System.EventHandler(this.PanelFinalsResize);
-			// 
 			// buttonAscension
 			// 
 			this.buttonAscension.Location = new System.Drawing.Point(13, 29);
@@ -722,11 +648,6 @@ namespace Torn.UI
 			this.buttonAscension.Text = "Ascension";
 			this.buttonAscension.UseVisualStyleBackColor = true;
 			this.buttonAscension.Click += new System.EventHandler(this.ButtonAscensionClick);
-			// 
-			// timerRedraw
-			// 
-			this.timerRedraw.Interval = 1000;
-			this.timerRedraw.Tick += new System.EventHandler(this.TimerRedrawTick);
 			// 
 			// FormFixture
 			// 
@@ -751,7 +672,6 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericSize)).EndInit();
 			this.tabFinals.ResumeLayout(false);
 			this.tabFinals.PerformLayout();
-			this.groupBoxOutputFormat.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
@@ -787,9 +707,7 @@ namespace Torn.UI
 		private System.Windows.Forms.TextBox textBoxGames;
 		private System.Windows.Forms.TextBox textBoxTeams;
 		private System.Windows.Forms.TabPage tabFinals;
-		private System.Windows.Forms.Panel panelFinals;
 		private System.Windows.Forms.Button buttonAscension;
-		private System.Windows.Forms.Timer timerRedraw;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.NumericUpDown numericTeamsPerGame;
 		private System.Windows.Forms.Label label9;
@@ -801,15 +719,9 @@ namespace Torn.UI
 		private System.Windows.Forms.NumericUpDown numericFreeRides;
 		private System.Windows.Forms.Label label10;
 		private System.Windows.Forms.Label labelTeamsToSendUp;
-		private System.Windows.Forms.GroupBox groupBoxOutputFormat;
-		private System.Windows.Forms.Button buttonShow;
-		private System.Windows.Forms.RadioButton radioCsv;
-		private System.Windows.Forms.Button buttonSave;
-		private System.Windows.Forms.Label label11;
-		private System.Windows.Forms.Label label12;
-		private System.Windows.Forms.RadioButton radioTsv;
-		private System.Windows.Forms.RadioButton radioTables;
-		private System.Windows.Forms.RadioButton radioSvg;
-		private System.Windows.Forms.SaveFileDialog saveFileDialog;
+		private Torn5.Controls.DisplayReport displayReportGames;
+		private Torn5.Controls.DisplayReport displayReportGrid;
+		private Torn5.Controls.PrintReport printReportFinals;
+		private Torn5.Controls.DisplayReport displayReportFinals;
 	}
 }
