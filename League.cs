@@ -1224,7 +1224,8 @@ namespace Torn
 			}
 			finally
 			{
-				Watcher.EnableRaisingEvents = true;
+				if (!string.IsNullOrEmpty(Watcher.Path))
+					Watcher.EnableRaisingEvents = true;
 			}
 		}
 
