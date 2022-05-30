@@ -1126,7 +1126,7 @@ namespace Torn.UI
 					var leaguelist = leagues.Select(h => h.League);  // Grab the leagues out, because the below loop takes a long time, during which the user may add/remove leagues, modifying the "leagues" list.
 					foreach (var league in leaguelist)
 						if (PopulateGameIfIdle(league, serverGame, oldGames?.Find(x => x.Time == serverGame.Time)))
-							ProgressBar(0.95 * i / serverGames.Count, "Populated " + Utility.FriendlyDate(serverGame.Time) + serverGame.Time.ToString(" HH:mm"));
+							ProgressBar(0.95 * i / serverGames.Count, "Populated " + Utility.FriendlyDateTime(serverGame.Time));
 				}
 
 				for (int i = 0; i < leagues.Count; i++)
@@ -1165,7 +1165,7 @@ namespace Torn.UI
 				{
 					ListViewItem item = new ListViewItem
 					{
-						Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDate()) + serverGame.Time.ToString(" HH:mm"),
+						Text = (serverGame.InProgress ? "In Progress " : serverGame.Time.FriendlyDateTime()),
 						Tag = serverGame
 					};
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
@@ -1252,7 +1252,7 @@ namespace Torn.UI
 				{
 					laserGameServer.PopulateGame(serverGame);
 					item.SubItems.Clear();
-					item.Text = serverGame.Time.FriendlyDate() + serverGame.Time.ToString(" HH:mm");
+					item.Text = serverGame.Time.FriendlyDateTime();
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
 											   serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
 				}

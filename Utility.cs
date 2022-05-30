@@ -20,6 +20,11 @@ namespace Torn
 			return date.ToShortDateString();
 		}
 
+		public static string FriendlyDateTime(this DateTime dateTime)
+		{
+			return FriendlyDate(dateTime) + dateTime.ToString(" HH:mm");
+		}
+
 		public static string JustPlayed(this DateTime date)
 		{
 			int hoursAgo = (int)DateTime.Now.Date.Subtract(date.Date).TotalHours;
