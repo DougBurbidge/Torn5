@@ -342,7 +342,7 @@ namespace Torn.Report
 					Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description" }));
 			}
 
-			Add(new ReportTemplate(ReportType.SoloLadder, new string[] { "ChartType=bar with rug", "description" }));
+			Add(new ReportTemplate(ReportType.SoloLadder, new string[] { "ChartType=bar", "description" }));
 		}
 
 		public void Parse(string s)
