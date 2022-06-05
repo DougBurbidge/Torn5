@@ -270,8 +270,6 @@ namespace Torn
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
-
-			GetGames();
 			foreach (ServerGame game in serverGames)
 			{
 				string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
