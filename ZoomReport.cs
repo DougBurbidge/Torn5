@@ -480,6 +480,13 @@ namespace Zoom
 			return col;
 		}
 
+		///<summary>Just like Add(), but returns the added ZColumn.</summary> 
+		public ZRow AddRow(ZRow row)
+		{
+			Rows.Add(row);
+			return row;
+		}
+
 		static void AppendStrings(StringBuilder builder, params string[] strings)
 		{
 			foreach (string s in strings)

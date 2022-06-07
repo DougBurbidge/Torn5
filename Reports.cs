@@ -160,8 +160,7 @@ namespace Torn.Report
 
 			for (int rank = 0; rank < maxRank; rank++)
 			{
-				ZRow row = new ZRow();
-				report.Rows.Add(row);
+				ZRow row = report.AddRow(new ZRow());
 				row.Add(new ZCell(Utility.Ordinate(rank + 1)));
 
 				foreach (Colour c in coloursUsed)
@@ -596,14 +595,9 @@ namespace Torn.Report
 			{
 				Game game = games[thisgame];
 				if (thisgame == 0 || (games[thisgame - 1].Time.Date < game.Time.Date))  // We've crossed a date boundary, so
-				{
-					ZRow dateRow = new ZRow();  // create a row
-					report.Rows.Add(dateRow);
-					dateRow.Add(new ZCell(game.Time.ToShortDateString()));  // to show the new date.
-				}
+					report.AddRow(new ZRow()).Add(new ZCell(game.Time.ToShortDateString()));  // Create a row to show the new date.
 
-				ZRow row = new ZRow(); ;
-				report.Rows.Add(row);
+				ZRow row = report.AddRow(new ZRow());
 
 				ZCell dateCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
 				{
@@ -736,8 +730,7 @@ namespace Torn.Report
 				int game = 0;
 				for (int i = 0; i < rows; i++)
 				{
-					ZRow row = new ZRow();  // create a row
-					report.Rows.Add(row);
+					ZRow row = report.AddRow(new ZRow());
 					if (string.IsNullOrEmpty(group.First().Title))  // No titles?
 						row.Add(new ZCell(group.First().Time.Date.ToShortDateString()));  // Show the date.
 					else
@@ -790,10 +783,7 @@ namespace Torn.Report
 			int columnsPerGroup = league.IsPoints() ? 5 : 4;
 
 			foreach (var team in league.Teams)
-			{
-				report.Rows.Add(new ZRow());
-				report.Rows.Last().Add(new ZCell(report.Rows.Count));  // Rank
-			}
+				report.AddRow(new ZRow()).Add(new ZCell(report.Rows.Count));  // Rank
 
 			List<TeamLadderEntry> previousLadder = null;
 			for (int group = 0; group < groups.Count(); group++)  // for each group of games
@@ -1379,11 +1369,7 @@ namespace Torn.Report
 				{
 					var game = league.Game(gameTeam);
 					if (game.Time.Date > previousGameDate)  // We've crossed a date boundary, so
-					{
-						ZRow dateRow = new ZRow();  // create a row
-						report.Rows.Add(dateRow);
-						dateRow.Add(new ZCell(game.Time.ToShortDateString()));  // to show the new date.
-					}
+						report.AddRow(new ZRow()).Add(new ZCell(game.Time.ToShortDateString()));  // Create a row to show the new date.
 
 					ZRow gameRow = new ZRow()
 					{
@@ -1566,8 +1552,7 @@ namespace Torn.Report
 
 			foreach (string pack in packs)
 			{
-				var row = new ZRow();
-				report.Rows.Add(row);
+				ZRow row = report.AddRow(new ZRow());
 
 				row.Add(new ZCell(0, ChartType.None));  // 0: put in a temporary Rank
 				row.Add(new ZCell(pack));  // 1: set up pack name
@@ -1851,8 +1836,7 @@ namespace Torn.Report
 
 				if (games.Count() >= atLeastN)
 				{
-					ZRow row = new ZRow();
-					report.Rows.Add(row);
+					ZRow row = report.AddRow(new ZRow());
 					row.Add(new ZCell(0, ChartType.None, "N0"));  // Temporary rank
 					row.AddCell(new ZCell(player.Name)).Hyper = PlayerHyper(pt.Value[0], player);  // Player alias
 
@@ -2187,8 +2171,7 @@ namespace Torn.Report
 			int maxTotal = 1;
 			if (showColours)  // Add a Totals row at the bottom of the report.
 			{
-				ZRow row = new ZRow();
-				report.Rows.Add(row);
+				ZRow row = report.AddRow(new ZRow());
 				row.Add(new ZCell("", Color.Gray));  // Blank rank.
 				row.Add(new ZCell("Totals", Color.Gray));  // "Team" name.
 
@@ -2289,8 +2272,7 @@ namespace Torn.Report
 				};
 				report.AddColumn(column);
 
-				var row = new ZRow();
-				report.Rows.Add(row);
+				ZRow row = report.AddRow(new ZRow());
 
 				row.Add(TeamCell(team1));
 
