@@ -270,31 +270,18 @@ namespace Torn
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
-			foreach (ServerGame game in serverGames)
+			return new List<LaserGamePlayer>();
+		}
+
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			foreach (LeaguePlayer player in players)
 			{
-				string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
-				string result = QueryServer(textToSend);
-				string cleanedResult = result.Remove(0, 5);
 
-
-				JObject root = JObject.Parse(cleanedResult);
-
-				if (root["players"] != null)
-				{
-					string playersStr = root["players"].ToString();
-					var playersDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(playersStr);
-
-					foreach (var player in playersDictionary)
-					{
-						string playerContent = player.Value.ToString();
-						JObject playerRoot = JObject.Parse(playerContent);
-
-						LaserGamePlayer laserPlayer = new LaserGamePlayer();
-						if (playerRoot["alias"] != null) laserPlayer.Alias = playerRoot["alias"].ToString();
-						if (playerRoot["omid"] != null) laserPlayer.Id = playerRoot["omid"].ToString();
-						if(laserPlayers.Find((p) => p.Id == laserPlayer.Id) == null) laserPlayers.Add(laserPlayer);
-					}
-				}
+				LaserGamePlayer laserPlayer = new LaserGamePlayer();
+				laserPlayer.Alias = player.Name;
+				laserPlayer.Id = player.Id;
+				if(laserPlayers.Find((p) => p.Id == laserPlayer.Id) == null) laserPlayers.Add(laserPlayer);
 
 			}
 			

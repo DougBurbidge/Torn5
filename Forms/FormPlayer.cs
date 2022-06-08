@@ -12,6 +12,7 @@ namespace Torn.UI
 	public partial class FormPlayer : Form
 	{
 		public LaserGameServer LaserGameServer { get; set; }
+		public League CurrentLeague { get; set; }
 		public string PlayerId { get { return textId.Text; }  set { textId.Text = value; } }
 		public string PlayerAlias { get { return textSearch.Text; }  set { textSearch.Text = value; } }
 		
@@ -61,7 +62,7 @@ namespace Torn.UI
 			}
 			else
 			{
-				var players = LaserGameServer.GetPlayers(search);
+				var players = LaserGameServer.GetPlayers(search, CurrentLeague?.Players);
 
 				listViewPlayers.Items.Clear();
 				foreach (var player in players)

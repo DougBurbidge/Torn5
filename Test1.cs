@@ -402,7 +402,12 @@ namespace TornWeb
 			players.Add(NewGamePlayer("C", "1-50-3"));
 			return players;
 		}
-		
+
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			return GetPlayers(mask);
+		}
+
 		LaserGamePlayer NewGamePlayer(string alias, string id)
 		{
 			var player = new LaserGamePlayer();

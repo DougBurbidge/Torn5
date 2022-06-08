@@ -34,6 +34,7 @@ namespace Torn
 		public abstract void PopulateGame(ServerGame game);
 
 		public abstract List<LaserGamePlayer> GetPlayers(string mask);
+		public abstract List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players);
 
 		public virtual List<LaserGamePlayer> ReadPlayers(DbDataReader reader)
 		{
@@ -160,6 +161,11 @@ namespace Torn
 				new LaserGamePlayer { Alias = "Alias 3", Name = "Name 3", Id = "ABC-003" },
 				new LaserGamePlayer { Alias = "Alias 4", Name = "Name 4", Id = "ABC-004" }
 			};
+		}
+
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			return GetPlayers(mask);
 		}
 	}
 }

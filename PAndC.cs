@@ -236,6 +236,11 @@ namespace Torn
 			}
 		}
 
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			return GetPlayers(mask);
+		}
+
 		public override bool HasNames() 
 		{
 			return heliosType < 47;
