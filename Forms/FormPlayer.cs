@@ -101,5 +101,10 @@ namespace Torn.UI
 			}
 			buttonOK.Enabled = !string.IsNullOrEmpty(textId.Text);
 		}
-	}
+
+        private void textId_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

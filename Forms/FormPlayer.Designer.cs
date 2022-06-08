@@ -29,102 +29,105 @@ namespace Torn.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.listViewPlayers = new System.Windows.Forms.ListView();
-			this.colAlias = new System.Windows.Forms.ColumnHeader();
-			this.colName = new System.Windows.Forms.ColumnHeader();
-			this.buttonOK = new System.Windows.Forms.Button();
-			this.buttonCancel = new System.Windows.Forms.Button();
-			this.textSearch = new System.Windows.Forms.TextBox();
-			this.textId = new System.Windows.Forms.TextBox();
-			this.SuspendLayout();
-			// 
-			// listViewPlayers
-			// 
-			this.listViewPlayers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
-			this.listViewPlayers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-									this.colAlias,
-									this.colName});
-			this.listViewPlayers.Location = new System.Drawing.Point(12, 12);
-			this.listViewPlayers.Name = "listViewPlayers";
-			this.listViewPlayers.Size = new System.Drawing.Size(266, 483);
-			this.listViewPlayers.TabIndex = 2;
-			this.listViewPlayers.UseCompatibleStateImageBehavior = false;
-			this.listViewPlayers.View = System.Windows.Forms.View.Details;
-			this.listViewPlayers.SelectedIndexChanged += new System.EventHandler(this.ListViewPlayersSelectedIndexChanged);
-			this.listViewPlayers.DoubleClick += new System.EventHandler(this.ListViewPlayersDoubleClick);
-			// 
-			// colAlias
-			// 
-			this.colAlias.Text = "Alias";
-			this.colAlias.Width = 120;
-			// 
-			// colName
-			// 
-			this.colName.Text = "Name";
-			this.colName.Width = 120;
-			// 
-			// buttonOK
-			// 
-			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.Location = new System.Drawing.Point(122, 527);
-			this.buttonOK.Name = "buttonOK";
-			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 3;
-			this.buttonOK.Text = "OK";
-			this.buttonOK.UseVisualStyleBackColor = true;
-			// 
-			// buttonCancel
-			// 
-			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.Location = new System.Drawing.Point(203, 527);
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 4;
-			this.buttonCancel.Text = "Cancel";
-			this.buttonCancel.UseVisualStyleBackColor = true;
-			// 
-			// textSearch
-			// 
-			this.textSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.textSearch.Location = new System.Drawing.Point(12, 501);
-			this.textSearch.Name = "textSearch";
-			this.textSearch.Size = new System.Drawing.Size(120, 20);
-			this.textSearch.TabIndex = 0;
-			this.textSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextSearchKeyDown);
-			this.textSearch.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TextSearchKeyUp);
-			// 
-			// textId
-			// 
-			this.textId.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
-			this.textId.Location = new System.Drawing.Point(138, 501);
-			this.textId.Name = "textId";
-			this.textId.ReadOnly = true;
-			this.textId.Size = new System.Drawing.Size(140, 20);
-			this.textId.TabIndex = 1;
-			// 
-			// FormPlayer
-			// 
-			this.AcceptButton = this.buttonOK;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(290, 562);
-			this.Controls.Add(this.textId);
-			this.Controls.Add(this.textSearch);
-			this.Controls.Add(this.buttonCancel);
-			this.Controls.Add(this.buttonOK);
-			this.Controls.Add(this.listViewPlayers);
-			this.Name = "FormPlayer";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Select Player";
-			this.Shown += new System.EventHandler(this.FormPlayerShown);
-			this.ResumeLayout(false);
-			this.PerformLayout();
+            this.listViewPlayers = new System.Windows.Forms.ListView();
+            this.colAlias = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.buttonOK = new System.Windows.Forms.Button();
+            this.buttonCancel = new System.Windows.Forms.Button();
+            this.textSearch = new System.Windows.Forms.TextBox();
+            this.textId = new System.Windows.Forms.TextBox();
+            this.SuspendLayout();
+            // 
+            // listViewPlayers
+            // 
+            this.listViewPlayers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listViewPlayers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colAlias,
+            this.colName});
+            this.listViewPlayers.HideSelection = false;
+            this.listViewPlayers.Location = new System.Drawing.Point(12, 12);
+            this.listViewPlayers.Name = "listViewPlayers";
+            this.listViewPlayers.Size = new System.Drawing.Size(266, 483);
+            this.listViewPlayers.TabIndex = 2;
+            this.listViewPlayers.UseCompatibleStateImageBehavior = false;
+            this.listViewPlayers.View = System.Windows.Forms.View.Details;
+            this.listViewPlayers.SelectedIndexChanged += new System.EventHandler(this.ListViewPlayersSelectedIndexChanged);
+            this.listViewPlayers.DoubleClick += new System.EventHandler(this.ListViewPlayersDoubleClick);
+            // 
+            // colAlias
+            // 
+            this.colAlias.Text = "Alias";
+            this.colAlias.Width = 120;
+            // 
+            // colName
+            // 
+            this.colName.Text = "Name";
+            this.colName.Width = 120;
+            // 
+            // buttonOK
+            // 
+            this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.buttonOK.Location = new System.Drawing.Point(122, 527);
+            this.buttonOK.Name = "buttonOK";
+            this.buttonOK.Size = new System.Drawing.Size(75, 23);
+            this.buttonOK.TabIndex = 3;
+            this.buttonOK.Text = "OK";
+            this.buttonOK.UseVisualStyleBackColor = true;
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.buttonCancel.Location = new System.Drawing.Point(203, 527);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.TabIndex = 4;
+            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            // 
+            // textSearch
+            // 
+            this.textSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textSearch.Location = new System.Drawing.Point(12, 501);
+            this.textSearch.Name = "textSearch";
+            this.textSearch.Size = new System.Drawing.Size(120, 20);
+            this.textSearch.TabIndex = 0;
+            this.textSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextSearchKeyDown);
+            this.textSearch.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TextSearchKeyUp);
+            // 
+            // textId
+            // 
+            this.textId.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textId.Location = new System.Drawing.Point(138, 501);
+            this.textId.Name = "textId";
+            this.textId.ReadOnly = false;
+            this.textId.Size = new System.Drawing.Size(140, 20);
+            this.textId.TabIndex = 1;
+            this.textId.TextChanged += new System.EventHandler(this.textId_TextChanged);
+            // 
+            // FormPlayer
+            // 
+            this.AcceptButton = this.buttonOK;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.buttonCancel;
+            this.ClientSize = new System.Drawing.Size(290, 562);
+            this.Controls.Add(this.textId);
+            this.Controls.Add(this.textSearch);
+            this.Controls.Add(this.buttonCancel);
+            this.Controls.Add(this.buttonOK);
+            this.Controls.Add(this.listViewPlayers);
+            this.Name = "FormPlayer";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Select Player";
+            this.Shown += new System.EventHandler(this.FormPlayerShown);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
 		}
 		private System.Windows.Forms.TextBox textId;
 		private System.Windows.Forms.TextBox textSearch;
