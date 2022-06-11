@@ -59,6 +59,8 @@ namespace Torn
 			string textToSend = "{\"command\": \"list\"}";
 			string result = QueryServer(textToSend);
 
+			Console.WriteLine(result);
+
 
 			List<ServerGame> games = new List<ServerGame>();
 
@@ -96,11 +98,15 @@ namespace Torn
 				if (jgame["valid"] != null)
 				{
 					int isValid = Int16.Parse(jgame["valid"].ToString());
-					if (isValid > 0) game.OnServer = true;
+					if (isValid > 0)
+					{
+						game.OnServer = true;
+						games.Add(game);
+					}
 					else game.OnServer = false;
+
+					serverGames.Add(game);
 				}
-				games.Add(game);
-				serverGames.Add(game);
 			}
 			
 			return games;
@@ -139,7 +145,7 @@ namespace Torn
 			//---create a TCPClient object at the IP and port no.---
 			byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes("(" + query);
 
-			nwStream.ReadTimeout = 1000;
+			nwStream.ReadTimeout = 2000;
 
 			int[] header = new int[] { query.Length, 0, 0, 0 };
 
@@ -176,6 +182,7 @@ namespace Torn
 
 			string textToSend = "{\"gamenumber\": " + game.GameId + ", \"command\": \"all\"}";
 			string result = QueryServer(textToSend);
+
 			string cleanedResult = result.Remove(0, 5);
 
 			JObject root = JObject.Parse(cleanedResult);
@@ -256,7 +263,10 @@ namespace Torn
 						else
 							serverPlayer.Colour = Colour.None;
 					}
-					if(!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
+
+					if (playerRoot["qrcode"] != null) serverPlayer.qrcode = playerRoot["qrcode"].ToString();
+
+					if (!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
 
 					game.Players.Add(serverPlayer);
 

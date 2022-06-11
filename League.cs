@@ -379,6 +379,7 @@ namespace Torn
 		public int? TeamId { get; set; }
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
+		public string qrcode { get; set; }
 		public string Pack { get; set; }
 		public double Score { get; set; }
 		public uint Rank { get; set; }
@@ -416,6 +417,7 @@ namespace Torn
 		{
 			target.TeamId = TeamId;
 			target.PlayerId = PlayerId;
+			target.qrcode = qrcode;
 			target.Pack = Pack;
 			target.Score = Score;
 			target.Rank = Rank;
@@ -461,7 +463,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return "GamePlayer " + PlayerId;
+			return "GamePlayer " + PlayerId + "qr: " + qrcode;
 		}
 	}
 
@@ -1040,6 +1042,7 @@ namespace Torn
 					GamePlayer gamePlayer = new GamePlayer
 					{
 						PlayerId = xplayer.GetString("playerid"),
+						qrcode = xplayer.GetString("qrcode"),
 						TeamId = xplayer.GetInt("teamid"),
 						Pack = xplayer.GetString("pack"),
 						Score = xplayer.GetInt("score"),
@@ -1199,6 +1202,7 @@ namespace Torn
 
 					doc.AppendNode(playerNode, "teamid", player.TeamId ?? -1);
 					doc.AppendNode(playerNode, "playerid", player.PlayerId);
+					doc.AppendNode(playerNode, "qrcode", player.qrcode);
 					doc.AppendNode(playerNode, "pack", player.Pack);
 					doc.AppendNonZero(playerNode, "score", player.Score);
 					doc.AppendNode(playerNode, "rank", (int)player.Rank);
@@ -1478,7 +1482,7 @@ namespace Torn
 	public class Event
 	{
 		public DateTime Time { get; set; }
-
+		public string qrcode;  // QR code from ozone of player that this record is about
 		[JsonPropertyName("eventType")]
 		public int Event_Type { get; set; }  // see below
 
@@ -1514,6 +1518,7 @@ namespace Torn
 		//  1401: score denial points, friendly;
 		//  1402: score denial points;
 		//  1403: lose points for being denied, friendly;
+		//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
 		//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
 
 		public override string ToString()
@@ -1562,7 +1567,6 @@ namespace Torn
 			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + (OnServer ? "on server " : "") + Events.Count.ToString();
 		}
 	}
-
 	/// <summary>Used to publish a ServerGame without its players or events.</summary>
 	public class JsonGame: ServerGame
 	{
@@ -1571,7 +1575,7 @@ namespace Torn
 		public override List<ServerPlayer> Players { get; set; }
 		[JsonIgnore]
 		public override IEnumerable<Event> FilteredEvents { get; }
-
+		public override IEnumerable<Event> FilteredEvents { get; }
 		public static JsonGame ShallowClone(ServerGame serverGame)
 		{
 			return new JsonGame
@@ -1581,11 +1585,12 @@ namespace Torn
 				EndTime = serverGame.EndTime,
 				InProgress = serverGame.InProgress
 			};
+			};
 		}
 	}
 
 	/// <summary>Represents a player as stored on the laser game server.</summary>
-	public class ServerPlayer: GamePlayer
+	public class ServerPlayer : GamePlayer
 	{
 		public string ServerPlayerId { get; set; }  // This is the under-the-hood PAndC table ID field.
 		public int ServerTeamId { get; set; }   // Ditto. These two are only used by systems with in-game data available.
