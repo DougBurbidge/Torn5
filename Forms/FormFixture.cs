@@ -419,7 +419,13 @@ namespace Torn.UI
 				point = new Point(-1, -1);
 			}
 		}
-		
+
+		private void TabControl1Selected(object sender, TabControlEventArgs e)
+		{
+			if (e.Action == TabControlAction.Selected && e.TabPage == tabPyramidRound)
+				TabPyramidRoundSelected();
+		}
+
 		void FormFixtureResizeBegin(object sender, EventArgs e)
 		{
 			resizing = true;
@@ -430,6 +436,166 @@ namespace Torn.UI
 			resizing = false;
 			panelGraphic.Invalidate();
 		}
+
+		const int ColTitle = 1;
+		const int ColNumTeams = 2;
+		const int ColTeamsToTake = 3;
+		const int ColPriority = 4;
+		const int ColSecret = 5;
+
+		League PreviousLeague;
+		private void TabPyramidRoundSelected()
+		{
+			listViewGames.BeginUpdate();
+			try
+			{
+				if (PreviousLeague != Holder.League)
+					listViewGames.Items.Clear();
+				PreviousLeague = Holder.League;
+
+				// Add or update items in the list view, one for each game.
+				foreach (Game leagueGame in Holder.League.AllGames)
+				{
+					string key = leagueGame.Time.ToString("o");
+					ListViewItem[] matches = listViewGames.Items.Find(key, false);
+					ListViewItem item = matches.Any() ? matches[0] : listViewGames.Items.Add(new ListViewItem { Name = key });
+
+					item.Text = leagueGame.ServerGame?.InProgress ?? false ? "In Progress" : leagueGame.Time.FriendlyDateTime();
+					item.Tag = new PyramidGame() { Game = leagueGame };
+					while (item.SubItems.Count < listViewGames.Columns.Count)
+						item.SubItems.Add("");
+
+					item.SubItems[ColTitle].Text = leagueGame.Title;  // Description
+					item.SubItems[ColNumTeams].Text = leagueGame.Teams.Count.ToString();  // # teams
+					item.SubItems[ColSecret].Text = leagueGame.Secret ? "Y" : "";  // Secret?
+				}
+			}
+			finally
+			{
+				listViewGames.EndUpdate();
+			}
+		}
+
+		private void PyramidSpinChanged(object sender, EventArgs e)
+		{
+			decimal numberOfTeams = numericTeamsFromLastRound.Value + numericTeamsFromLastRepechage.Value;
+			labelNumberOfTeams.Text = numberOfTeams.ToString();
+			if (numericGames.Value > 0)
+				labelTeamsPerGame.Text = (numberOfTeams / numericGames.Value).ToString("N2");
+			RefreshPyramid();
+		}
+
+		private void ListViewGamesDoubleClick(object sender, EventArgs e)
+		{
+			ButtonEditPyramidGamesClick(sender, e);
+		}
+
+		readonly FormPyramidGame formPyramidGame = new FormPyramidGame();
+
+		private void LabelRoundTitleDoubleClick(object sender, EventArgs e)
+		{
+			textBoxTitle.Text = "Repêchage ";
+		}
+
+		private void PyramidSpinKeyUp(object sender, KeyEventArgs e)
+		{
+			var v = ((NumericUpDown)sender).Value;  // This piece of black magic forces the control's ValueChanged to fire after the user edits the text in the control.
+		}
+
+		private void ButtonEditPyramidGamesClick(object sender, EventArgs e)
+		{
+			if (listViewGames.SelectedItems.Count == 0)
+				return;
+
+			var games = new List<PyramidGame>();
+			foreach (ListViewItem item in listViewGames.SelectedItems)
+				games.Add((PyramidGame)item.Tag);
+
+			formPyramidGame.Games = games;
+			if (formPyramidGame.ShowDialog() == DialogResult.OK)
+			{
+				foreach (ListViewItem item in listViewGames.SelectedItems)
+				{
+					PyramidGame pg = (PyramidGame)item.Tag;
+					pg.TeamsToTake = formPyramidGame.TeamsToTake;
+					pg.Priority = formPyramidGame.Priority;
+
+					while (item.SubItems.Count < listViewGames.Columns.Count)
+						item.SubItems.Add("");
+
+					item.SubItems[ColTeamsToTake].Text = formPyramidGame.TeamsToTake.ToString();
+					item.SubItems[ColPriority].Text = formPyramidGame.Priority.ToString();
+				}
+
+				RefreshPyramid();
+				CalculateSpins();
+			}
+		}
+
+		private void ButtonClearPyramidGames(object sender, EventArgs e)
+		{
+			foreach (ListViewItem item in listViewGames.SelectedItems)
+			{
+				PyramidGame pg = (PyramidGame)item.Tag;
+				pg.TeamsToTake = null;
+				pg.Priority = Priority.Unmarked;
+
+				while (item.SubItems.Count < listViewGames.Columns.Count)
+					item.SubItems.Add("");
+
+				item.SubItems[ColTeamsToTake].Text = "";
+				item.SubItems[ColPriority].Text = "";
+			}
+			RefreshPyramid();
+			CalculateSpins();
+		}
+
+		private void RefreshPyramid()
+		{
+			// Build a list of all the teams from the previous round followed by all the teams from the previous repechage.
+			// Then pull off that list into the report, either from the low end or the high end.
+
+			var roundList = new ListTeamGames();
+			var repechageList = new ListTeamGames();
+
+			var pyramidGames = new List<PyramidGame>();
+			foreach (ListViewItem item in listViewGames.Items)
+				pyramidGames.Add((PyramidGame)item.Tag);
+
+			var pr = new PyramidRound() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
+
+			pr.BuildOneList(roundList, pyramidGames.Where(p => p.Priority == Priority.Round), (int)numericTeamsFromLastRound.Value);
+			pr.BuildOneList(repechageList, pyramidGames.Where(p => p.Priority == Priority.Repechage), (int)numericTeamsFromLastRepechage.Value);
+
+			roundList.AddRange(repechageList);  // Add the repechage games into the main list.
+
+			displayReportTaken.Report = pr.PastReport(roundList, pyramidGames, Holder.League);
+			displayReportDraw.Report = pr.DrawReport(roundList, pyramidGames, Holder.League, (int)numericGames.Value, textBoxTitle.Text);
+		}
+
+		private void CalculateSpins()
+		{
+			int roundTeams = 0;
+			int repechageTeams = 0;
+			foreach (ListViewItem item in listViewGames.Items)
+			{
+				PyramidGame pg = (PyramidGame)item.Tag;
+				if (pg.TeamsToTake is int take)
+				{
+					if (pg.Priority == Priority.Round)
+						roundTeams += take;
+					else if (pg.Priority == Priority.Repechage)
+						repechageTeams += take;
+				}
+				else
+				{
+					if (pg.Priority == Priority.Round)
+						roundTeams += pg.Game.Teams.Count;
+					else if (pg.Priority == Priority.Repechage)
+						repechageTeams += pg.Game.Teams.Count;
+				}
+			}
+		}
 	}
 }
 
@@ -438,7 +604,7 @@ class TeamComparer : IComparer<FixtureTeam>
 	/// <summary>Sorted list of league teams.</summary>
 	public List<LeagueTeam> LeagueTeams { get; set; }
 
-	public int Compare(FixtureTeam x, Torn.FixtureTeam y)
+	public int Compare(FixtureTeam x, FixtureTeam y)
 	{
 		if (LeagueTeams == null)
 			return 0;

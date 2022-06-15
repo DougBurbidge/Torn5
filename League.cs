@@ -573,6 +573,11 @@ namespace Torn
 			return SortedPlayers().FindIndex(x => x.PlayerId == playerId) + 1;
 		}
 
+		public int Rank(GameTeam gt)
+		{
+			return Teams.IndexOf(gt) + 1;
+		}
+
 		public override string ToString()
 		{
 			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + 
@@ -1348,6 +1353,12 @@ namespace Torn
 		{
 			return teams.Find(t => t.Players.Contains(leaguePlayer));
 		}
+
+		public LeagueTeam LeagueTeam(int teamId)
+		{
+			return teams.Find(t => t.TeamId == teamId);
+		}
+
 
 		class TeamPlayerCount
 		{

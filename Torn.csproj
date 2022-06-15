@@ -181,6 +181,12 @@
     <Compile Include="Forms\FormAdhoc.Designer.cs">
       <DependentUpon>FormAdhoc.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormPyramidGame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormPyramidGame.Designer.cs">
+      <DependentUpon>FormPyramidGame.cs</DependentUpon>
+    </Compile>
     <Compile Include="JsonServer.cs" />
     <Compile Include="Forms\MainForm1.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -198,6 +204,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Torn5.settings</DependentUpon>
     </Compile>
+    <Compile Include="Pyramid.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="DemoServer.cs" />
     <Compile Include="Forms\FormPlayer.cs">
@@ -309,6 +316,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormFixture.resx">
       <DependentUpon>FormFixture.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormPyramidGame.resx">
+      <DependentUpon>FormPyramidGame.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormReport.resx">
       <DependentUpon>FormReport.cs</DependentUpon>
