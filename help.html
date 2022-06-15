@@ -62,17 +62,15 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 </p><p>
 <strong>Open</strong>: Open one or more existing .Torn files. (This dialog supports multi-select.)
 </p><p>
+<strong>Save</strong>: Commit the .Torn file to disk. Most of the time you don't need this button: if you Commit a game, Edit the league, etc., your changes will be automatically saved.
+</p><p>
 <strong>Close</strong>: Remove the selected leagues from the Leagues list. (Of course, you can re-Open them later.)
 </p><p>
 <strong>Edit</strong>: Here you can set a title for the league file, edit team names and player line-ups, and set victory points for the league. (Victory points options are not yet quite as rich as those in Torn 4.) (Victory points need not be whole numbers.)
 </p><p>
-<strong>Leagues &#x25b8 Preferences</strong>: brings up the Preferences dialog. These preferences are global to all of Torn, and are not specific to a league.
+<strong>Preferences</strong>: brings up the Preferences dialog. These preferences are global to all of Torn, and are not specific to a league.
 </p><p>
-<strong>Leagues &#x25b8 Save</strong>: Commit the .Torn file to disk. Most of the time you don't need this button: if you Commit a game, Edit the league, etc., your changes will be automatically saved.
-</p><p>
-<strong>Leagues &#x25b8 Set up Pyramid round</strong>: not yet implemented.
-</p><p>
-<strong>Leagues &#x25b8 Set up Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
+<strong>Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
 </p><p>
 The Fixtures dialog has five tabs: Teams, Games as a list, Games as a grid, Graphic, and Finals. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
 </p><p>
@@ -94,12 +92,6 @@ The Finals page lets you set up finals schemes, such as Ascension, Format D, etc
 </p><p>
 The team list shown at the left of the finals grid is from your team ladder. If it's not showing the order you want, adjust the settings on your Team Ladder report, then come back here.
 </p><p>
-<strong>Leagues &#x25b8 Match</strong>: not yet implemented. This is intended for things like Laserforce Space Marines, where two games form a match.
-</p><p>
-<strong>Leagues &#x25b8 Help</strong>: this document.
-</p><p>
-<strong>Leagues &#x25b8 About</strong>: a brief About dialog.
-</p><p>
 </p>
 <h2>Games</h2>
 <p>
@@ -107,13 +99,9 @@ The team list shown at the left of the finals grid is from your team ladder. If 
 </p><p>
 <strong>Commit</strong>: this button commits the details of this game, as shown in the team boxes at the right, to Torn's list of remembered games.
 </p><p>
-<strong>Games &#x25b8 Create</strong>: not yet implemented.
+<strong>Set Description</strong>: lets you title committed games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
 </p><p>
-<strong>Games &#x25b8 Edit</strong>: not yet implemented.
-</p><p>
-<strong>Games &#x25b8 Set Description</strong>: lets you title committed games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
-</p><p>
-<strong>Games &#x25b8 Forget</strong>: removes the selected games from the league.
+<strong>Forget</strong>: removes the selected games from the league.
 </p><p>
 </p>
 <h2>Teams</h2>
@@ -126,26 +114,28 @@ The team list shown at the left of the finals grid is from your team ladder. If 
 </p><p>
 <strong>Remove Column</strong>: Removes a column of team boxes.
 </p><p>
-<strong>Teams &#x25b8 Remember All Teams</strong>: for any teams in this game that aren't already on the list of teams in this league, Torn will add those teams to the league. You can then edit them under Leagues &#x25b8 Edit.
+<strong>Remember Teams</strong>: for any teams in this game that aren't already on the list of teams in this league, Torn will add those teams to the league. You can then edit them under Leagues &#x25b8 Edit.
 </p><p>
 </p>
 <h2>Reports</h2>
 <p>
-<strong>Set Folder</strong>: lets you set a folder that reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
-</p><p>
 <strong>Report</strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used, which may include a team ladder, a games list, a games pyramid or games grid, and a solo ladder. Exactly what reports are in the default set depends on the type of league: if Torn recognises that you're using a pyramid-style fixture, it will include a games pyramid. If not, it won't. If it detects that you're titling groups of games, it will include a report for your semifinals and a report for your grand finals; if not, it won't. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
 </p><p>
 <strong>Upload</strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
 </p><p>
+<strong>Print</strong>: Print whatever reports you have configured. Windows has print-to-PDF available as a default prionter device, so if you'd like to save reports as a PDF, that's how to do it.
+</p><p>
 <strong>Configure</strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-<strong>Reports &#x25b8 Ad Hoc Report</strong>: Choose a report type, and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
+<strong>Ad Hoc</strong>: Choose a report type, and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
 </p><p>
-<strong>Reports &#x25b8 Pack Report</strong>: see below.
+<strong>Set Folder</strong>: lets you set a folder that your reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
+</p>
+<h2>Misc</h2>
+<p>
+<strong>Help</strong>: this document.
 </p><p>
-<strong>Reports &#x25b8 Update Scoreboard</strong>: not yet implemented.
-</p><p>
-<strong>Reports &#x25b8 Export Fixtures</strong>: exports any fixtures you have set up in Leagues &#x25b8 Set up Fixtures, as HTML.
+<strong>About</strong>: a brief About dialog.
 </p>
 <h3>Report Types</h3>
 <p>
