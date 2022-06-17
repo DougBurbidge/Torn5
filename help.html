@@ -41,7 +41,7 @@ If you have enabled the web server under Preferences, any web browser that can s
 </p><p>
 For P&amp;C systems, for games that are still in the lasergame server, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
 </p><p>
-Things not yet implemented: fixture generation, pushing scores to a scoreboard, setting up pyramid rounds, and a variety of other bits and bobs.
+Things not yet implemented: fixture generation, pushing scores to a scoreboard, and a variety of other bits and bobs.
 </p>
 <h2>The Main Window</h2>
 <p>
@@ -72,13 +72,13 @@ To Torn, a league is a collection of games, teams, players and scores. Each leag
 </p><p>
 <strong>Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
 </p><p>
-The Fixtures dialog has five tabs: Teams, Games as a list, Games as a grid, Graphic, and Finals. On the Teams tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
+The Fixtures dialog has seven tabs: Teams, Games as a list, Games as a grid, Graphic, Finals, Pyramid and Pyramid Round. On the <strong>Teams</strong> tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
 </p><p>
-The Games as a list page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
+The <strong>Games as a list</strong> page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
 </p><p>
-The Games as a grid page is similar. Each row is a team; each column is a game.
+The <strong>Games as a grid</strong> page is similar. Each row is a team; each column is a game.
 </p><p>
-The Graphics page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
+The <strong>Graphics</strong> page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
 </p><p>
 At the bottom of the grid is a number showing how many teams are in each game. At the right are numbers showing how many games each team plays. To the right of that is a difficulty number, calculated by averaging the difficulty of all the teams this team plays against, plus a graph plotting those difficulties. To the right of that is the who-plays-who grid. When you click a square in the main grid, the who-plays-who grid highlights the selected team in silver, and the teams this team plays against in this game in the relevant colours.
 </p><p>
@@ -91,7 +91,22 @@ At the moment the Graphics page assumes that teams are contiguously numbered &md
 The Finals page lets you set up finals schemes, such as Ascension, Format D, etc. Click the buttons for the various named finals schemes, or individually adjust parameters such as how many teams should be cut from each elimination game, how many tracks there should be, etc.
 </p><p>
 The team list shown at the left of the finals grid is from your team ladder. If it's not showing the order you want, adjust the settings on your Team Ladder report, then come back here.
+</p>
+<h3>Pyramids</h3>
+<p>
+The <strong>Pyramid</strong> tab is not yet implemented. The <strong>Pyramid round</strong> is though:
 </p><p>
+For tournaments with a large number of teams, with many teams in each game (such as solos, doubles and triples) the Pyramid round tool may be useful. In the Australasian ZLTAC tournament, we give a second chance repêchage round after each main round – so: round 1, repêchage 1, round 2, repêchage 2, etc.
+</p><p>
+To construct a <strong>repêchage</strong> round, select games in the list at the right and click on "Edit Game(s)". This pops a dialog where you can define details for the game, including how many teams from this particular game go to the repêchage. If your rule is “top 2 teams from each game advance” then you would fill this value in. For a game with 7 teams you would mark 5 teams to go to the repêchage; for a game with 8 teams you would mark 6 teams to go the repêchage; etc. Note that as you select games (and optionally specify number of teams from each), the value at the left for Number of teams from last round will change appropriately.
+</p><p>
+Set choices at the left, for the number of games, teams, etc., overriding the automatic values if necessary. For example, if your scheme is "top 10 teams overall advance" and you have 50 teams in the round, you would set Number of teams from last round to 40. Under Top or bottom, you want bottom for a repêchage – the way to get into the repêchage is to be low-scoring or low-ranking. Under Score or Rank, select appropriately for your nominated scheme.
+</p><p>
+As you make changes, a sample draw is updated in the bottom half of the window. Keep changing settings until it looks correct. We zig-zag down, so the top-ranked team in the draw (in the case of the repêchage, this is the "best of the worst" team) is at the top left, then we work across the games until we run out of games, then down to the second row, and right-to-left back across the second row.
+</p><p>
+Your selections in this window are remembered if you close the dialog (but not if you close and re-open Torn). So as you approach the end of the round, you can set up the repêchage with the last game of the round not yet decided, as a "practice" run. Before you display the draw to players, ensure that the results seem sensible: the bottom team is low on the draw, the team that just barely missed the cut is at the top left of the draw, teams appears only once each, etc.
+</p><p>
+For a round draw, you typically want to take the top teams from each game in the previous round, and the top teams from each repêchage game.
 </p>
 <h2>Games</h2>
 <p>
@@ -363,7 +378,7 @@ If you have set descriptions for groups of games, this report will show you seve
 	<polygon points="203,32 229,32 354,157 328,157" style="fill:Gray" />
 	<polygon points="230,32 256,32 381,157 355,157" style="fill:Gray" />
 
-	<text x="2" y="114" width="175"  font-size="11" fill="White">Team</text>
+	<text x="2" y="114" width="175" font-size="11" fill="White">Team</text>
 	<text text-anchor="end" x="130" y="114" width="175" transform="rotate(45 130,114)" font-size="11" fill="White">Spartans</text>
 	<text text-anchor="end" x="157" y="114" width="175" transform="rotate(45 157,114)" font-size="11" fill="White">Brisbane Beavers</text>
 	<text text-anchor="end" x="185" y="114" width="175" transform="rotate(45 185,114)" font-size="11" fill="White">GP</text>
@@ -435,7 +450,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 <div style="float:left">
 <svg viewBox="0 0 490 176" width="490" align="center">
 	<rect x="1" y="1" width="855" height="44" style="fill:Gray" />
-	<text x="9" y="34" width="854" font-size="33" fill="White">2019 ZLTAC Team Games  from 28/02/2019 to 8/03/2019</text>
+	<text x="9" y="34" width="854" font-size="33" fill="White">2019 ZLTAC Team Games from 28/02/2019 to 8/03/2019</text>
 
 	<rect x="1" y="46" width="161.9" height="22" style="fill:Gray" />
 	<text text-anchor="end" x="161" y="62" width="161" font-size="16" fill="White">Game</text>
