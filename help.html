@@ -1,4 +1,9 @@
 <html><head><title>Torn 5 Help</title></head><body>
+<style type="text/css" media="screen">
+.mnu { font-family: Sans-Serif; outline: 1px solid #aaf }
+.url { font-family: Sans-Serif }
+</style>
+
 <div style="max-width:800px; margin:auto">
 <h1>Torn 5</h1>
 <p>
@@ -15,29 +20,29 @@ If you're familiar with Torn 4, here's the very quick guide:
 </p>
 <h2>Quick Start</h2>
 </p><p>
-Run the program. Click the Leagues button, then Preferences. If you have a lasergame system, select the appropriate system and enter the laser game database server address. 
+Run the program. Click <span class="mnu">Preferences</span>. If you have a lasergame system, select the appropriate system and enter the laser game database server address. 
 <ul>
 <li>For P&amp;C systems, this is the name or IP address of the database server machine.</li>
 <li>For Laserforce, this is probably lf-main\lf6. (Depending on firewall and SQL Server configuration, you may need to run Torn 5 on the database PC.)</li>
 <li>If you don't have a lasergame system, just leave it at Demo.</li>
 </ul>
 </p><p>
-Click OK. Click Latest. This will cause Torn to query the server. A list of games should appear.
+Click <span class="mnu">OK</span>. Click <span class="mnu">Latest</span>. This will cause Torn to query the lasergame server. A list of games should appear.
 </p><p>
-On the Leagues toolbar, click New or Open. Torn 5 can open Torn 4 .Torn files. When it saves those files it will write extra information. The latest version of Torn 4 will ignore all that extra information, so you <em>should</em> be able to open the file in one, make changes, then open it in the other, and then back again. But after Torn 4 has opened the file, made changes and saved it again, the extra Torn 5 data will be missing. For your new (or newly opened) .Torn file, click in the Tag cell at the left of the .Torn file's row in the Leagues list. Enter a tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
+On the Leagues toolbar, click <span class="mnu">New</span> or <span class="mnu">Open</span>. Torn 5 can open Torn 4 .Torn files. When it saves those files it will write extra information. The latest version of Torn 4 will ignore all that extra information, so you <em>should</em> be able to open the file in one, make changes, then open it in the other, and then back again. But after Torn 4 has opened the file, made changes and saved it again, the extra Torn 5 data will be missing. For your new (or newly opened) .Torn file, click in the Tag cell at the left of the .Torn file's row in the Leagues list. Enter a tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
 </p><p>
 If you like, you can open more league files. This is a difference between Torn 4 and Torn 5 &mdash; Torn 5 allows you to have several league files open at once.
 </p><p>
-Click a game to see its packs/players. Now you can do all the usual Torn things &mdash; right-click on a team box and Remember that team, Commit the game, Edit the league, etc.
+Click a game to see its packs/players. Now you can do all the usual Torn things &mdash; right-click on a team box and <span class="mnu">Remember</span> that team, <span class="mnu">Commit</span> the game, <span class="mnu">Edit</span> the league, etc.
 </p><p>
-Because the games listing is now an always-visible list instead of being a drop-down "combo box", you can now select multiple games. Some features work on all selected games &mdash; e.g. Forget will remove all the selected games from whatever league they had been committed to. Set Description lets you title committed games or groups of games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
+Because the games listing is now an always-visible list instead of being a drop-down "combo box", you can now select multiple games. Some features work on all selected games &mdash; e.g. <span class="mnu">Forget</span> will remove all the selected games from whatever league they had been committed to. <span class="mnu">Set Description</span> lets you title committed games or groups of games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
 Games present in the game server are shown in white. Games only present in Torn files are shown slightly greyed.
 </p><p>
-Reporting is different in Torn 5 &mdash; click Set Folder to set an initial folder for reports to be exported to. Then click Report. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click Configure and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
+Reporting is different in Torn 5 &mdash; click <span class="mnu">Set Folder</span> to set an initial folder for reports to be exported to. Then click <span class="mnu">Report</span>. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click <span class="mnu">Configure</span> and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-If you select multiple leagues (select one, then hold down the ctrl key as you select more) and click Report, all the selected leagues will have reports exported.
+If you select multiple leagues (select one, then hold down the ctrl key as you select more) and click <span class="mnu">Report</span>, all the selected leagues will have reports exported.
 </p><p>
-If you have enabled the web server under Preferences, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click Report. If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
+If you have enabled the web server under <span class="mnu">Preferences</span>, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click <span class="mnu">Report</span>. If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
 </p><p>
 For P&amp;C systems, for games that are still in the lasergame server, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
 </p><p>
@@ -45,7 +50,7 @@ Things not yet implemented: fixture generation, pushing scores to a scoreboard, 
 </p>
 <h2>The Main Window</h2>
 <p>
-Torn's window is divided into several areas. At the top are the toolbars. Note that the left-most on each toolbar is a drop-down menu button. Toolbars can be torn off and floated, or docked at different edges of the window.
+Torn's window is divided into several areas. At the top is the "ribbon" bar.
 </p><p>
 At the left is the Leagues list, showing the currently open leagues, with details on the currently focused league shown below it. (There's a splitter between the list and the details.)
 </p><p>
@@ -53,32 +58,32 @@ To the right of the Leagues list is the Games list showing all the games Torn kn
 </p><p>
 To the right of the games list is the unallocated players box: players who are in the game focused in the games list but not yet allocated to a team will show here.
 </p><p>
-To the right of this are the team boxes. These hold players from a single team. If you need more team boxes, Click Add Row or Ad Column in the Teams toolbar. Right-click on team box for a variety of functions, including changing the identity of the team or of a player, or applying a handicap.</p>
+To the right of this are the team boxes. These hold players from a single team. If you need more team boxes, Click <span class="mnu">Add Row</span> or <span class="mnu">Add Column</span> in the Teams toolbar. Right-click on team box for a variety of functions, including changing the identity of the team or of a player, or applying a handicap.</p>
 <h2>Leagues</h2>
 <p>
 To Torn, a league is a collection of games, teams, players and scores. Each league is saved as a .Torn file.
 </p><p>
-<strong>New</strong>: create a new league and its coresponding .Torn file. Once you've done this you'll likely want to click in the Tag cell in the Leagues list and give this league a Tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
+<strong><span class="mnu">New</span></strong>: create a new league and its coresponding .Torn file. Once you've done this you'll likely want to click in the Tag cell in the Leagues list and give this league a Tag. This will be used as a sub-folder for this league's reports exports, so use a tag name that is a legal folder name (i.e. does not contain special characters like /\:*?"&lt;&gt;|).
 </p><p>
-<strong>Open</strong>: Open one or more existing .Torn files. (This dialog supports multi-select.)
+<strong><span class="mnu">Open</span></strong>: Open one or more existing .Torn files. (This dialog supports multi-select.)
 </p><p>
-<strong>Save</strong>: Commit the .Torn file to disk. Most of the time you don't need this button: if you Commit a game, Edit the league, etc., your changes will be automatically saved.
+<strong><span class="mnu">Save</span></strong>: Commit the .Torn file to disk. Most of the time you don't need this button: if you Commit a game, Edit the league, etc., your changes will be automatically saved.
 </p><p>
-<strong>Close</strong>: Remove the selected leagues from the Leagues list. (Of course, you can re-Open them later.)
+<strong><span class="mnu">Close</span></strong>: Remove the selected leagues from the Leagues list. (Of course, you can re-Open them later.)
 </p><p>
-<strong>Edit</strong>: Here you can set a title for the league file, edit team names and player line-ups, and set victory points for the league. (Victory points options are not yet quite as rich as those in Torn 4.) (Victory points need not be whole numbers.)
+<strong><span class="mnu">Edit</span></strong>: Here you can set a title for the league file, edit team names and player line-ups, and set victory points for the league. (Victory points options are not yet quite as rich as those in Torn 4.) (Victory points need not be whole numbers.)
 </p><p>
-<strong>Preferences</strong>: brings up the Preferences dialog. These preferences are global to all of Torn, and are not specific to a league.
+<strong><span class="mnu">Preferences</span></strong>: brings up the Preferences dialog. These preferences are global to all of Torn, and are not specific to a league.
 </p><p>
-<strong>Fixtures</strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
+<strong><span class="mnu">Fixtures</span></strong>: Torn 5 can import fixtures from text. (Generation of fixtures within Torn 5 is not yet supported.) Once generated, Torn 5 will serve a list of these games from its internal web server, and can export the fixtures as HTML for upload to the web. It will also endeavour to keep track of where you are up to in your fixtures &mdash; the Now page from its internal web server will endeavour to identify the game just played (from lasergame server data) and the next game (from fixtures) automatically.
 </p><p>
-The Fixtures dialog has seven tabs: Teams, Games as a list, Games as a grid, Graphic, Finals, Pyramid and Pyramid Round. On the <strong>Teams</strong> tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click Import.
+The Fixtures dialog has seven tabs: Teams, Games as a list, Games as a grid, Graphic, Finals, Pyramid and Pyramid Round. On the <strong>Teams</strong> tab, you'll see a list of teams that the fixture system already knows about. If your league has teams, they will appear here. (League teams and fixture teams are technically separate under the hood.) If not, type or paste a list here, one team per row, and click <span class="mnu">Import</span>.
 </p><p>
-The <strong>Games as a list</strong> page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click Import; if you want to clear existing games, click Clear first.
+The <strong><span class="mnu">Games as a list</span></strong> page lets you import games for the teams you just created (or already have). If your games have three teams, each line should be a date/time followed by three numbers that represent teams. Existing games are not automatically cleared when you click <span class="mnu">Import</span>; if you want to clear existing games, click <span class="mnu">Clear</span> first.
 </p><p>
-The <strong>Games as a grid</strong> page is similar. Each row is a team; each column is a game.
+The <strong><span class="mnu">Games as a grid</span></strong> page is similar. Each row is a team; each column is a game.
 </p><p>
-The <strong>Graphics</strong> page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
+The <strong><span class="mnu">Graphics</span></strong> page gives you a graphical editor for fixtures. Pick colours by clicking a mouse button on the palette at the bottom left &mdash; e.g. if you click the middle mouse button on the pink box, the middle mouse button is now pink, and clicking on squares in the grid with the middle mouse button will clear them (if they were not already clear) or mark them as pink (if they were already clear). If your mouse has five buttons, all five can likely be assigned colours in this way.
 </p><p>
 At the bottom of the grid is a number showing how many teams are in each game. At the right are numbers showing how many games each team plays. To the right of that is a difficulty number, calculated by averaging the difficulty of all the teams this team plays against, plus a graph plotting those difficulties. To the right of that is the who-plays-who grid. When you click a square in the main grid, the who-plays-who grid highlights the selected team in silver, and the teams this team plays against in this game in the relevant colours.
 </p><p>
@@ -98,9 +103,9 @@ The <strong>Pyramid</strong> tab is not yet implemented. The <strong>Pyramid rou
 </p><p>
 For tournaments with a large number of teams, with many teams in each game (such as solos, doubles and triples) the Pyramid round tool may be useful. In the Australasian ZLTAC tournament, we give a second chance repêchage round after each main round – so: round 1, repêchage 1, round 2, repêchage 2, etc.
 </p><p>
-To construct a <strong>repêchage</strong> round, select games in the list at the right and click on "Edit Game(s)". This pops a dialog where you can define details for the game, including how many teams from this particular game go to the repêchage. If your rule is “top 2 teams from each game advance” then you would fill this value in. For a game with 7 teams you would mark 5 teams to go to the repêchage; for a game with 8 teams you would mark 6 teams to go the repêchage; etc. Note that as you select games (and optionally specify number of teams from each), the value at the left for Number of teams from last round will change appropriately.
+To construct a <strong>repêchage</strong> round, select games in the list at the right and click on <span class="mnu">Edit Game(s)</span>. This pops a dialog where you can define details for the game, including how many teams from this particular game go to the repêchage. If your rule is “top 2 teams from each game advance” then you would fill this value in. For a game with 7 teams you would mark 5 teams to go to the repêchage; for a game with 8 teams you would mark 6 teams to go the repêchage; etc. Note that as you select games (and optionally specify number of teams from each), the value at the left for Number of teams from last round will change appropriately.
 </p><p>
-Set choices at the left, for the number of games, teams, etc., overriding the automatic values if necessary. For example, if your scheme is "top 10 teams overall advance" and you have 50 teams in the round, you would set Number of teams from last round to 40. Under Top or bottom, you want bottom for a repêchage – the way to get into the repêchage is to be low-scoring or low-ranking. Under Score or Rank, select appropriately for your nominated scheme.
+Set choices at the left, for the number of games, teams, etc., overriding the automatic values if necessary. For example, if your scheme is "top 10 teams overall advance" and you have 50 teams in the round, you would set <span class="mnu">Number of teams from last round</span> to 40. Under <span class="mnu">Top or bottom</span>, you want bottom for a repêchage – the way to get into the repêchage is to be low-scoring or low-ranking. Under <span class="mnu">Score or Rank</span>, select appropriately for your nominated scheme.
 </p><p>
 As you make changes, a sample draw is updated in the bottom half of the window. Keep changing settings until it looks correct. We zig-zag down, so the top-ranked team in the draw (in the case of the repêchage, this is the "best of the worst" team) is at the top left, then we work across the games until we run out of games, then down to the second row, and right-to-left back across the second row.
 </p><p>
@@ -110,47 +115,47 @@ For a round draw, you typically want to take the top teams from each game in the
 </p>
 <h2>Games</h2>
 <p>
-<strong>Latest</strong>: clicking this button re-queries the lasergame server, and selects the most recent game in the list.
+<strong><span class="mnu">Latest</span></strong>: clicking this button re-queries the lasergame server, and selects the most recent game in the list.
 </p><p>
-<strong>Commit</strong>: this button commits the details of this game, as shown in the team boxes at the right, to Torn's list of remembered games.
+<strong><span class="mnu">Commit</span></strong>: this button commits the details of this game, as shown in the team boxes at the right, to Torn's list of remembered games.
 </p><p>
-<strong>Set Description</strong>: lets you title committed games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
+<strong><span class="mnu">Set Description</span></strong>: lets you title committed games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
 </p><p>
-<strong>Forget</strong>: removes the selected games from the league.
+<strong><span class="mnu">Forget</span></strong>: removes the selected games from the league.
 </p><p>
 </p>
 <h2>Teams</h2>
 <p>
-<strong>Add Row</strong>: Adds a row of team boxes.
+<strong><span class="mnu">Add Row</span></strong>: Adds a row of team boxes.
 </p><p>
-<strong> Remove Row</strong>: Removes a row of team boxes.
+<strong><span class="mnu">Remove Row</span></strong>: Removes a row of team boxes.
 </p><p>
-<strong>Add Column</strong>: Adds a column of team boxes.
+<strong><span class="mnu">Add Column</span></strong>: Adds a column of team boxes.
 </p><p>
-<strong>Remove Column</strong>: Removes a column of team boxes.
+<strong><span class="mnu">Remove Column</span></strong>: Removes a column of team boxes.
 </p><p>
-<strong>Remember Teams</strong>: for any teams in this game that aren't already on the list of teams in this league, Torn will add those teams to the league. You can then edit them under Leagues &#x25b8 Edit.
+<strong><span class="mnu">Remember Teams</span></strong>: for any teams in this game that aren't already on the list of teams in this league, Torn will add those teams to the league. You can then edit them under Leagues &#x25b8 Edit.
 </p><p>
 </p>
 <h2>Reports</h2>
 <p>
-<strong>Report</strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used, which may include a team ladder, a games list, a games pyramid or games grid, and a solo ladder. Exactly what reports are in the default set depends on the type of league: if Torn recognises that you're using a pyramid-style fixture, it will include a games pyramid. If not, it won't. If it detects that you're titling groups of games, it will include a report for your semifinals and a report for your grand finals; if not, it won't. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
+<strong><span class="mnu">Report</span></strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used, which may include a team ladder, a games list, a games pyramid or games grid, and a solo ladder. Exactly what reports are in the default set depends on the type of league: if Torn recognises that you're using a pyramid-style fixture, it will include a games pyramid. If not, it won't. If it detects that you're titling groups of games, it will include a report for your semifinals and a report for your grand finals; if not, it won't. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
 </p><p>
-<strong>Upload</strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
+<strong><span class="mnu">Upload</span></strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
 </p><p>
-<strong>Print</strong>: Print whatever reports you have configured. Windows has print-to-PDF available as a default prionter device, so if you'd like to save reports as a PDF, that's how to do it.
+<strong><span class="mnu">Print</span></strong>: Print whatever reports you have configured. Windows has print-to-PDF available as a default prionter device, so if you'd like to save reports as a PDF, that's how to do it.
 </p><p>
-<strong>Configure</strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
+<strong><span class="mnu">Configure</span></strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-<strong>Ad Hoc</strong>: Choose a report type, and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
+<strong><span class="mnu">Ad Hoc</span></strong>: Choose a report type, and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
 </p><p>
-<strong>Set Folder</strong>: lets you set a folder that your reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
+<strong><span class="mnu">Set Folder</span></strong>: lets you set a folder that your reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
 </p>
 <h2>Misc</h2>
 <p>
-<strong>Help</strong>: this document.
+<strong><span class="mnu">Help</span></strong>: this document.
 </p><p>
-<strong>About</strong>: a brief About dialog.
+<strong><span class="mnu">About</span></strong>: a brief About dialog.
 </p>
 <h3>Report Types</h3>
 <p>
@@ -164,11 +169,11 @@ In the Filters section you can limit reports to games within a certain date/time
 </p>
 <h4>Drops</h4>
 <p>
-
+You can tell Torn to drop some scores: for example, drop each team's worst game. You can specify by number of games or by percentage. If each team has played four games and you want to drop their worst, but one team missed out a game and thus you want to count just the three they played, tell Torn to drop the worst 25% of games for each team. For teams that played all four games, that'll drop one game; for the team that played three, it'll drop zero games.
 </p>
 <h4>Chart Types</h4>
 <p>
-You can choose various chart types for various reports, though not every type makes sense for every report. "Bar chart" will show little embedded bar charts in the background of each cell. These are good where each cell holds a single value -- for example, in a game grid. Where cells hold many values (for example in a team ladder, where "Average Score" is, well, an average of many scores) the bar will show the aggregate (e.g. the average). "Rug" shows a series of "tick marks" along the bottom of the cell showing each value. So in a team ladder, that would be every individual score. <a href="https://en.wikipedia.org/wiki/Rug_plot">Wikipedia</a> has more. In Torn, if several tick marks coincide or nearly coincide, they stack vertically, into a sort of drunk histogram. Speaking of which, there's also an actual histogram option, which <a href="https://en.wikipedia.org/wiki/Histogram">does what you'd expect</a>. Much more technical is the <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">kernel density estimate</a>, only useful for large amounts of data (e.g. the Pack Report).
+You can choose various chart types for various reports, though not every type makes sense for every report. <span class="mnu">Bar chart</span> will show little embedded bar charts in the background of each cell. These are good where each cell holds a single value -- for example, in a game grid. Where cells hold many values (for example in a team ladder, where "Average Score" is, well, an average of many scores) the bar will show the aggregate (e.g. the average). <span class="mnu">Rug</span> shows a series of "tick marks" along the bottom of the cell showing each value. So in a team ladder, that would be every individual score. <a href="https://en.wikipedia.org/wiki/Rug_plot">Wikipedia</a> has more. In Torn, if several tick marks coincide or nearly coincide, they stack vertically, into a sort of drunk histogram. Speaking of which, there's also an actual <span class="mnu">histogram</span> option, which <a href="https://en.wikipedia.org/wiki/Histogram">does what you'd expect</a>. Much more technical is the <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation"><span class="mnu">kernel density estimate</span></a>, only useful for large amounts of data (e.g. the Pack Report).
 </p>
 <h4>Clickability</h4>
 <p>
@@ -223,15 +228,17 @@ If you export reports as HTML SVG or HTML tables, your reports will contain hype
 </svg></div>
 <div style="max-width:800px; margin:auto">
 <p>
-Rank teams by average score, score ratio, or victory points (with average score or score ratio as a tie-breaker). Illustration shown at left.
+Illustration shown at left.
 </p><p>
-You can tick a box to scale up teams with less games. This is useful when you are halfway through a round and you want to show a comparison of how well each team is going so far.
+Rank teams by average score, score ratio, or victory points (with average score or score ratio as a tie-breaker). 
 </p><p>
-If you tick "show colours" you'll get columns in the report showing how many times each team places first, second, third, etc. on each colour. Whatever colours are used in your league are shown in the report.
+You can tick a box to <span class="mnu">scale up teams with less games</span>. This is useful when you are halfway through a round and you want to show a comparison of how well each team is going so far.
 </p><p>
-You can limit the report to only show the top <i>n</i> teams, or to only show teams with a certain minimum number of games. 
+If you tick <span class="mnu">show colours</span> you'll get columns in the report showing how many times each team places first, second, third, etc. on each colour. Whatever colours are used in your league are shown in the report.
 </p><p>
-If you tick "longitudinal chart" you'll get an extra column at the right of the report that shows how well each team did in each game.
+You can limit the report to <span class="mnu">show only the top <i>n</i> teams</span>, or to <span class="mnu">show only teams with at least <i>n</i> games</span>.
+</p><p>
+If you tick <span class="mnu">longitudinal chart</span> you'll get an extra column at the right of the report that shows how well each team did in each game.
 </p>
 <h3>Multi Team Ladder</h3>
 </div>
@@ -439,11 +446,11 @@ If you have set descriptions for groups of games, this report will show you seve
 </svg></div>
 <div style="max-width:800px; margin:auto">
 <p>
-This report (illustrated) shows a square array of teams versus teams. Each cell within the array shows how many times those teams have won against each other. If a cell represents one game (because those teams have played each other exactly once), it will be hyperlinked, and clicking the link will take you to that game. If you choose the "show average victory points" option, then in addition to the number of wins you'll also see the average number of victory points the team scored in games against the other team.
+This report (illustrated) shows a square array of teams versus teams. Each cell within the array shows how many times those teams have won against each other. If a cell represents one game (because those teams have played each other exactly once), it will be hyperlinked, and clicking the link will take you to that game. If you choose the <span class="mnu">show average victory points</span> option, then in addition to the number of wins you'll also see the average number of victory points the team scored in games against the other team.
 </p>
 <h3>Solo Ladder</h3>
 <p>
-The solo ladder has most of the same options as the team ladder. No "show colours" option though.
+The solo ladder has most of the same options as the team ladder. No <span class="mnu">show colours</span> option though.
 </p>
 <h3>Game Reports</h3>
 </div>
@@ -590,7 +597,7 @@ The solo ladder has most of the same options as the team ladder. No "show colour
 <p>
 A <strong>Game by game</strong> report (illustrated) shows games as a list, with each game being a single row in the list. It's useful when there's only a few teams in a game (e.g. a team game), and when there are lots of games in the league. It's not so good when there's lots of teams in a game (e.g. solos or doubles).
 </p><p>
-A <strong>Game grid</strong> (illustrated) shows results in a grid, with a row for each team and a column for each game. It's good when there's lots of teams in each game, but not all that many games (say 20 or less). It also has a column at the end for average score. If you configure the report to drop best/worst games, then the average will be on only the games not dropped. So this is handy for e.g. a finals series where you get to drop your worst score or whatever.
+A <strong>Game grid</strong> (illustrated) shows results in a grid, with a row for each team and a column for each game. It's good when there's lots of teams in each game, but not all that many games (say 20 or less). It also has a column at the end for average score. If you configure the report to <span class="mnu">drop best/worst games</span>, then the average will be on only the games not dropped. So this is handy for e.g. a finals series where you get to drop your worst score or whatever.
 </p><p>
 The <strong>Game grid condensed</strong> report (see Pyramid condensed illustration below right) is like the game grid, with each row being a team's results, but columns are condensed, so that each team's games are just shown in consecutive columns. If you have set descriptions for groups of games, then there will be groups of columns for each named group of games. The condensed grid is good when there are too many games for an ordinary game grid, but each team plays just a few games.
 </p>
@@ -692,13 +699,13 @@ The <strong>Game grid condensed</strong> report (see Pyramid condensed illustrat
 </svg></div>
 <div style="max-width:800px; margin:auto">
 <p>
-The pyramid report is useful when you're running a competition that gradually eliminates teams that fail to make the cut each round. (We do this for ZLTAC solos, doubles and triples.) It's laid out in a similar way to the game grid: there is a row for each team and a column for each game. It ranks teams by the last round they survived into, and within rounds by average score. You'll need to set descriptions for the games, so the report can figure out which games are in each round.
+The pyramid report is useful when you're running a competition that gradually eliminates teams that fail to make the cut each round. (We do this for ZLTAC solos, doubles and triples.) It's laid out in a similar way to the game grid: there is a row for each team and a column for each game. It ranks teams by the last round they survived into, and within rounds by average score. You'll need to <span class="mnu">set description</span>s for the games, so the report can figure out which games are in each round.
 </p><p>
-The <strong>Pyramid condensed</strong> report (illustrated) still has a row for each team, but similar to the game grid condensed, it doesn't try to put each game in a column; instead just listing all a teams games across that team's row.
+The <strong>Pyramid condensed</strong> report (illustrated) still has a row for each team, but similar to the game grid condensed, it doesn't try to put each game in a column; instead just listing all a team's games across that team's row.
 </p>
 <h3>Ascension</h3>
 <p>
-An asccension report is like a game grid, with one team per row and one game per column, but teams are ranked by the last game they survived in. This is useful for semifinals series.
+An ascension report is like a game grid, with one team per row and one game per column, but teams are ranked by the last game they survived in. This is useful for semifinals series.
 </p>
 <h3>Colours</h3>
 </div>
@@ -819,7 +826,7 @@ This report helps you pick up common errors: games with atypical numbers of play
 <p>
 The pack report (illustrated) endeavours to tell you how "good" or "bad" packs are. It does this via <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Student's t-test</a>.
 </p><p>
-Select one or more leagues (hold down the ctrl key to select additional leagues), then click Reports &#x25b8 Ad Hoc Report and select Pack Report.
+Select one or more leagues (hold down the ctrl key to select additional leagues), then click <span class="mnu">Ad Hoc</span> and select <span class="mnu">Pack Report</span>.
 </p><p>
 If Torn 5 has hit data, it will fill in columns for tag ratios. 
 Here's how those are calculated: first we generate a solo ladder showing how "good" each player is. Then, for each pack in each game, we scale the number of tags that pack scored against other players by the "goodness" of the player waering it: if the pack scored 50 hits in a game but was being worn by a player who was 125% as good as the average player, we scale that to 50 / 1.25 = 40 hits. Then we take the ratio of that to the number of tags the pack received during the game.
@@ -833,11 +840,11 @@ Small p values will be highlighted in pink. Very small p values will be highligh
 </p><p>
 If pack hardware has been re-arranged (e.g. you've swapped guns between packs) or renumbered midway through data collection (e.g. you re-ID'ed packs to prevent players from picking favourites), these things will of course limit data quality.
 </p><p>
-If you tick the "longitudinal" checkbox, you'll get an extra column showing when each pack played and how well it did. Higher is better.
+If you tick the <span class="mnu">longitudinal</span> checkbox, you'll get an extra column showing when each pack played and how well it did. Higher is better.
 </p>
 <h3>Tech Report</h3>
 <p>
-This report shows the number of times each pack got hit in each location in the average game. Like the pack report, if you generate this from Reports &#x25b8 Ad Hoc Report, you can select more than one league as input. But if you do this, be sure to only select leagues that are comparable to each other -- players are going to get hit a lot less in an elimination game format, for example.
+This report shows the number of times each pack got hit in each location in the average game. Like the pack report, if you generate this from <span class="mnu">Ad Hoc</span>, you can select more than one league as input. But if you do this, be sure to only select leagues that are comparable to each other -- players are going to get hit a lot less in an elimination game format, for example.
 </p><p>
 If you see a pack getting hit a lot less than other packs in its left shoulder, for example, that pack might have a problem.
 </p>
@@ -847,18 +854,18 @@ List every player in every game. Useful for data export. Export to TSV (tab-sepa
 </p>
 <h2>Web Server</h2>
 <p>
-Torn 5 has an internal web server. You can enable/disable it from Leagues &#x25b8 Preferences. You can also set its port number. The default, 8080, is a common port number for web servers that don't want to get in the way of anything else on the same machine that might be using port 80. If you're confident that nothing else is using port 80, you can set it to that if you like.
+Torn 5 has an internal web server. You can enable/disable it from <span class="mnu">Preferences</span>. You can also set its port number. The default, 8080, is a common port number for web servers that don't want to get in the way of anything else on the same machine that might be using port 80. If you're confident that nothing else is using port 80, you can set it to that if you like.
 </p><p>
-If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at http://mymachine:8080. From the computer running Torn 5, you can use <a href="http://localhost:8080">http://localhost:8080</a>.
+If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at <span class="url">http://mymachine:8080</span>. From the computer running Torn 5, you can use <a href="http://localhost:8080" class="url">http://localhost:8080</a>.
 </p><p>
-There's a scoreboard showing the most recent committed game at http://localhost:8080/[tag]/scoreboard.html, where [tag] is the tag you set for this league file. This doesn't auto-refresh when new games are committed, so you'll have to press F5 to cause that refresh.
+There's a scoreboard showing the most recent committed game at <span class="url">http://localhost:8080/</span>[tag]<span class="url">/scoreboard.html</span>, where [tag] is the tag you set for this league file. This doesn't auto-refresh when new games are committed, so you'll have to press F5 to cause that refresh.
 </p><p>
 In addition to HTML, Torn 5's internal web server will serve JSON.
 <ul>
-<li>Query <a href="http://localhost:8080/elapsed">http://localhost:8080/elapsed</a> to get the time elapsed in the current game. This will return a number of seconds elapsed, or -1 if no game is in progress. (This query doesn't return JSON; it just returns a bare integer.)</li>
-<li>Query <a href="http://localhost:8080/games">http://localhost:8080/games</a> to get a list of games known to Torn. This lists the games in the game server, even the uncommitted ones.</li>
-<li>Query a URL like http://localhost:8080/game2020-01-02T13:45:56 to get a specific game. That date/time is in .NET's "<a href="https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#UniversalSortable">sortable</a>" date/time format, which in turn follows ISO 8601. No timezone is given &mdash; the timezone of the Torn 5 machine is assumed. You can copy a game start time from the games list, remove the timezone and use it for a game query.</li>
-<li>Query <a href="http://localhost:8080/players">http://localhost:8080/players</a> to get a list of players known to Torn. This lists the players known to the game server, not just the players in Torn's league file. This is the list used in Torn 5's Re-ID dialog. For Laserforce servers, this list may be long.</li>
+<li>Query <a href="http://localhost:8080/elapsed" class="url">http://localhost:8080/elapsed</a> to get the time elapsed in the current game. This will return a number of seconds elapsed, or -1 if no game is in progress. (This query doesn't return JSON; it just returns a bare integer.)</li>
+<li>Query <a href="http://localhost:8080/games" class="url">http://localhost:8080/games</a> to get a list of games known to Torn. This lists the games in the game server, even the uncommitted ones.</li>
+<li>Query a URL like <span class="url">http://localhost:8080/game2020-01-02T13:45:56</span> to get a specific game. That date/time is in .NET's "<a href="https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#UniversalSortable">sortable</a>" date/time format, which in turn follows ISO 8601. No timezone is given &mdash; the timezone of the Torn 5 machine is assumed. You can copy a game start time from the games list, remove the timezone and use it for a game query.</li>
+<li>Query <a href="http://localhost:8080/players" class="url">http://localhost:8080/players</a> to get a list of players known to Torn. This lists the players known to the game server, not just the players in Torn's league file. This is the list used in Torn 5's Re-ID dialog. For Laserforce servers, this list may be long.</li>
 </ul>
 The object of all this is to eventually allow a remote copy of Torn 5 to pull the statistics it needs from a lasergame server via a local copy of Torn 5 &mdash; the local copy pulls results from the lasergame server and in turn passes them as JSON to the remote copy of Torn 5. This avoids any need to directly expose the lasergame server to the internet. But this feature isn't well tested. It's also eventually intended to be able to push these files from the local Torn 5 to a web location, so that a remote Torn 5 can query those static files from an ordinary web server. This isn't implemented.
 </p>
