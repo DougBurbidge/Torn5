@@ -14,7 +14,7 @@ namespace Torn.UI
 	/// </summary>
 	public partial class FormFixture : Form
 	{
-		public Holder Holder { get; private set; }
+		public Holder Holder { get; set; }
 		
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
@@ -36,11 +36,6 @@ namespace Torn.UI
 			xButton2 = Colour.Purple;
 			point = new Point(-1, -1);
 			resizing = false;
-		}
-
-		public FormFixture(Holder holder): this()
-		{
-			Holder = holder;
 		}
 
 		void ButtonClearClick(object sender, EventArgs e)

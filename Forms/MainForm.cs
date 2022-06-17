@@ -530,16 +530,15 @@ namespace Torn.UI
 				ExportPages.ExportFixtures(exportFolder, SelectedLeagues());
 		}
 
+		FormFixture formFixture = new FormFixture();
 		void ButtonFixtureClick(object sender, EventArgs e)
 		{
+			if (formFixture == null)
+				formFixture = new FormFixture() { Icon = (Icon)Icon.Clone() };
 			if (listViewLeagues.SelectedItems.Count == 1)
 			{
-				var item = listViewLeagues.SelectedItems[0];
-				using (var form = new FormFixture((Holder)item.Tag))
-				{
-					form.Icon = (Icon)Icon.Clone();
-					form.ShowDialog();
-				}
+				formFixture.Holder = (Holder)listViewLeagues.SelectedItems[0].Tag;
+				formFixture.ShowDialog();
 			}
 		}
 
