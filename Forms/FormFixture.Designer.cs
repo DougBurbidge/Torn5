@@ -786,6 +786,7 @@ namespace Torn.UI
 			this.textBoxTitle.Name = "textBoxTitle";
 			this.textBoxTitle.Size = new System.Drawing.Size(194, 20);
 			this.textBoxTitle.TabIndex = 17;
+			this.textBoxTitle.TextChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// checkBoxColour
 			// 
@@ -819,7 +820,7 @@ namespace Torn.UI
 			this.radioTakeBottom.TabStop = true;
 			this.radioTakeBottom.Text = "Take the bottom teams from previous games (i.e. repêchage:).";
 			this.radioTakeBottom.UseVisualStyleBackColor = true;
-			this.radioTakeBottom.CheckedChanged += new System.EventHandler(this.PyramidSpinChanged);
+			this.radioTakeBottom.CheckedChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// radioTakeTop
 			// 
@@ -853,7 +854,7 @@ namespace Torn.UI
 			this.radioCompareRank.TabStop = true;
 			this.radioCompareRank.Text = "Compare teams on rank; only compare scores if ranks are tied.";
 			this.radioCompareRank.UseVisualStyleBackColor = true;
-			this.radioCompareRank.CheckedChanged += new System.EventHandler(this.PyramidSpinChanged);
+			this.radioCompareRank.CheckedChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// radioCompareScore
 			// 
@@ -889,7 +890,7 @@ namespace Torn.UI
 			this.numericTeamsFromLastRepechage.Name = "numericTeamsFromLastRepechage";
 			this.numericTeamsFromLastRepechage.Size = new System.Drawing.Size(64, 20);
 			this.numericTeamsFromLastRepechage.TabIndex = 8;
-			this.numericTeamsFromLastRepechage.ValueChanged += new System.EventHandler(this.PyramidSpinChanged);
+			this.numericTeamsFromLastRepechage.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
 			this.numericTeamsFromLastRepechage.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 
 			// numericTeamsFromLastRound
@@ -898,7 +899,7 @@ namespace Torn.UI
 			this.numericTeamsFromLastRound.Name = "numericTeamsFromLastRound";
 			this.numericTeamsFromLastRound.Size = new System.Drawing.Size(64, 20);
 			this.numericTeamsFromLastRound.TabIndex = 7;
-			this.numericTeamsFromLastRound.ValueChanged += new System.EventHandler(this.PyramidSpinChanged);
+			this.numericTeamsFromLastRound.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
 			this.numericTeamsFromLastRound.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 
 			// numericGames
@@ -907,7 +908,7 @@ namespace Torn.UI
 			this.numericGames.Name = "numericGames";
 			this.numericGames.Size = new System.Drawing.Size(64, 20);
 			this.numericGames.TabIndex = 6;
-			this.numericGames.ValueChanged += new System.EventHandler(this.PyramidSpinChanged);
+			this.numericGames.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
 			this.numericGames.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 
 			// labelRoundTitle

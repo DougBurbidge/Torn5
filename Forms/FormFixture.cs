@@ -471,7 +471,7 @@ namespace Torn.UI
 			}
 		}
 
-		private void PyramidSpinChanged(object sender, EventArgs e)
+		private void PyramidValueChanged(object sender, EventArgs e)
 		{
 			decimal numberOfTeams = numericTeamsFromLastRound.Value + numericTeamsFromLastRepechage.Value;
 			labelNumberOfTeams.Text = numberOfTeams.ToString();
@@ -494,7 +494,7 @@ namespace Torn.UI
 
 		private void PyramidSpinKeyUp(object sender, KeyEventArgs e)
 		{
-			var v = ((NumericUpDown)sender).Value;  // This piece of black magic forces the control's ValueChanged to fire after the user edits the text in the control.
+			var _ = ((NumericUpDown)sender).Value;  // This piece of black magic forces the control's ValueChanged to fire after the user edits the text in the control.
 		}
 
 		private void ButtonEditPyramidGamesClick(object sender, EventArgs e)
@@ -547,25 +547,14 @@ namespace Torn.UI
 
 		private void RefreshPyramid()
 		{
-			// Build a list of all the teams from the previous round followed by all the teams from the previous repechage.
-			// Then pull off that list into the report, either from the low end or the high end.
-
-			var roundList = new ListTeamGames();
-			var repechageList = new ListTeamGames();
-
 			var pyramidGames = new List<PyramidGame>();
 			foreach (ListViewItem item in listViewGames.Items)
 				pyramidGames.Add((PyramidGame)item.Tag);
 
 			var pr = new PyramidRound() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
 
-			pr.BuildOneList(roundList, pyramidGames.Where(p => p.Priority == Priority.Round), (int)numericTeamsFromLastRound.Value);
-			pr.BuildOneList(repechageList, pyramidGames.Where(p => p.Priority == Priority.Repechage), (int)numericTeamsFromLastRepechage.Value);
-
-			roundList.AddRange(repechageList);  // Add the repechage games into the main list.
-
-			displayReportTaken.Report = pr.PastReport(roundList, pyramidGames, Holder.League);
-			displayReportDraw.Report = pr.DrawReport(roundList, pyramidGames, Holder.League, (int)numericGames.Value, textBoxTitle.Text);
+			(displayReportTaken.Report, displayReportDraw.Report) = pr.Reports(pyramidGames, Holder.League, (int)numericGames.Value, 
+				(int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, textBoxTitle.Text);
 		}
 
 		private void CalculateSpins()

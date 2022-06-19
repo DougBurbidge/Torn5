@@ -17,6 +17,28 @@ namespace Torn
 		/// <summary>If true, take best teams from each game. If false, take worst teams from each game.</summary>
 		public bool TakeTop { get; set; }
 
+		/// <summary>Build a list of all the teams from the previous round followed by all the teams from the previous repechage.</summary>
+		ListTeamGames BuildList(List<PyramidGame> pyramidGames, int teamsFromRound, int teamsFromRepechage)
+		{
+			var roundList = new ListTeamGames();
+			var repechageList = new ListTeamGames();
+
+			BuildOneList(roundList, pyramidGames.Where(p => p.Priority == Priority.Round), teamsFromRound);
+			BuildOneList(repechageList, pyramidGames.Where(p => p.Priority == Priority.Repechage), teamsFromRepechage);
+
+			roundList.AddRange(repechageList);  // Add the repechage games into the main list.
+			return roundList;
+		}
+
+		void BuildOneList(ListTeamGames list, IEnumerable<PyramidGame> pyramidGames, int length)
+		{
+			foreach (var pg in pyramidGames)
+				if (pg.TeamsToTake is int take)
+					list.Add(pg.Game, TakeTop, 0, take);
+
+			GetRest(list, pyramidGames, length);
+		}
+
 		void GetRest(ListTeamGames list, IEnumerable<PyramidGame> pyramidGames, int length)
 		{
 			var comparer = new TeamGamesComparer() { CompareOnRank = CompareRank };
@@ -48,71 +70,68 @@ namespace Torn
 			}
 		}
 
-		public void BuildOneList(ListTeamGames list, IEnumerable<PyramidGame> pyramidGames, int length)
+		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, League league, int games, int teamsFromRound, int teamsFromRepechage, string title)
 		{
-			foreach (var pg in pyramidGames)
-				if (pg.TeamsToTake is int take)
-					list.Add(pg.Game, TakeTop, 0, take);
-
-			GetRest(list, pyramidGames, length);
+			var list = BuildList(pyramidGames, teamsFromRound, teamsFromRepechage);
+			return Reports(list, pyramidGames, league, games, title);
 		}
 
-		public ZoomReport PastReport(ListTeamGames roundList, List<PyramidGame> pyramidGames, League league)
+		(ZoomReport past, ZoomReport draw) Reports(ListTeamGames teamGamesList, List<PyramidGame> pyramidGames, League league, int games, string title)
 		{
 			// Build the "past" report showing which teams made the cut: one row per team, one game per column.
-			var report = new Zoom.ZoomReport("From", "Rank,Team", "center,left");
+			var pastReport = new Zoom.ZoomReport("From", "Rank,Team", "center,left");
 
 			var times = pyramidGames.Select(pg => pg.Game.Time);
 			bool oneDay = times.Min().Date == times.Max().Date;
 
 			// Add columns for each game used from pyramidGames.
 			foreach (var pg in pyramidGames.Where(pg => pg.Priority != Priority.Unmarked))
-				report.Columns.Add(new Zoom.ZColumn(pg.Game.Time.ToShortTimeString(), Zoom.ZAlignment.Left, pg.Game.Title + " " + (oneDay ? "" : Utility.FriendlyDate(pg.Game.Time))) { Tag = pg });
+				pastReport.Columns.Add(new Zoom.ZColumn(pg.Game.Time.ToShortTimeString(), Zoom.ZAlignment.Left, pg.Game.Title + " " + (oneDay ? "" : Utility.FriendlyDate(pg.Game.Time))) { Tag = pg });
 
-			for (int team = 0; team < roundList.Count; team++)
+			for (int team = 0; team < teamGamesList.Count; team++)
 			{
-				var teamGames = roundList[team];
-				var row = report.AddRow(new Zoom.ZRow());
+				var teamGames = teamGamesList[team];
+				var row = pastReport.AddRow(new Zoom.ZRow());
 				row.Add(new Zoom.ZCell((team + 1).ToString()));  // Rank
 				row.Add(new Zoom.ZCell(league.LeagueTeam(teamGames.TeamId).Name, Color.FromArgb(0xFF, 0xE8, 0xD0)));  // Team
-				for (int col = 2; col < report.Columns.Count; col++)
+				for (int col = 2; col < pastReport.Columns.Count; col++)
 				{
-					PyramidGame pg = (PyramidGame)report.Columns[col].Tag;
+					PyramidGame pg = (PyramidGame)pastReport.Columns[col].Tag;
 					var teamGame = teamGames.Find(tg => tg.Game == pg.Game);
 					if (teamGame == null)
 						row.Add(new Zoom.ZCell(""));
-					else if (CompareRank)
-						row.Add(new Zoom.ZCell(Utility.Ordinate(teamGame.Game.Rank(teamGame.GameTeam)) + ": " + teamGame.GameTeam.Score,
-							teamGame.Priority == Priority.Round ? Color.FromArgb(0xE0, 0xFF, 0xE0) : Color.FromArgb(0xFF, 0xE0, 0xE0)));
 					else
-						row.Add(new Zoom.ZCell(teamGame.GameTeam.Score));
+					{
+						var color = teamGame.Priority == Priority.Round ? Color.FromArgb(0xE0, 0xFF, 0xE0) : Color.FromArgb(0xFF, 0xE0, 0xE0);
+						if (CompareRank)
+							row.Add(new Zoom.ZCell(Utility.Ordinate(teamGame.Game.Rank(teamGame.GameTeam)) + ": " + teamGame.GameTeam.Score, color));
+						else
+							row.Add(new Zoom.ZCell(teamGame.GameTeam.Score, ChartType.Bar, "", color));
+					}
 				}
 			}
-			return report;
-		}
 
-		internal ZoomReport DrawReport(ListTeamGames roundList, List<PyramidGame> pyramidGames, League league, int games, string title)
-		{
 			// Build the Draw report: one future game per column.
-			var report = new Zoom.ZoomReport(title);
+			var drawReport = new Zoom.ZoomReport(title);
 
 			for (int col = 1; col <= games; col++)
-				report.Columns.Add(new Zoom.ZColumn("Game " + col.ToString(), Zoom.ZAlignment.Left));
+				drawReport.Columns.Add(new Zoom.ZColumn("Game " + col.ToString(), Zoom.ZAlignment.Left));
 
+			// Pull off teamGamesList into drawReport, either from the low end or the high end.
 			int i = 0;
-			while (i < roundList.Count)
+			while (i < teamGamesList.Count)
 			{
-				var row = report.AddRow(new Zoom.ZRow());
+				var row = drawReport.AddRow(new Zoom.ZRow());
 
-				if (i + games <= roundList.Count)  // This is a complete row.
+				if (i + games <= teamGamesList.Count)  // This is a complete row.
 					for (int j = 0; j < games; j++)
 					{
 						LeagueTeam team;
-						int rowNum = report.Rows.Count;
+						int rowNum = drawReport.Rows.Count;
 						if (rowNum % 2 == 1)
-							team = league.LeagueTeam(roundList[i].TeamId);  // Zig.  Run this row forward: team1 in game 1, etc.
+							team = league.LeagueTeam(teamGamesList[i].TeamId);  // Zig.  Run this row forward: team1 in game 1, etc.
 						else
-							team = league.LeagueTeam(roundList[rowNum * games - j - 1].TeamId);  // Zag.  Run this row backwards: first team in last game, etc.
+							team = league.LeagueTeam(teamGamesList[rowNum * games - j - 1].TeamId);  // Zag.  Run this row backwards: first team in last game, etc.
 
 						if (team != null)
 						{
@@ -127,9 +146,9 @@ namespace Torn
 				else  // This is the final, partial row.
 					for (int j = 0; j < games; j++)
 					{
-						if (i < roundList.Count)
+						if (i < teamGamesList.Count)
 						{
-							LeagueTeam team = league.LeagueTeam(roundList[i].TeamId);
+							LeagueTeam team = league.LeagueTeam(teamGamesList[i].TeamId);
 							if (team != null)
 							{
 								row.Add(new Zoom.ZCell(team.Name));
@@ -144,7 +163,7 @@ namespace Torn
 						i++;
 					}
 			}
-			return report;
+			return (pastReport, drawReport);
 		}
 	}
 
