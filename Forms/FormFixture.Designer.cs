@@ -786,6 +786,7 @@ namespace Torn.UI
 			this.textBoxTitle.Name = "textBoxTitle";
 			this.textBoxTitle.Size = new System.Drawing.Size(194, 20);
 			this.textBoxTitle.TabIndex = 17;
+			this.textBoxTitle.Text = "Next Round ";
 			this.textBoxTitle.TextChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// checkBoxColour
@@ -812,12 +813,10 @@ namespace Torn.UI
 			// radioTakeBottom
 			// 
 			this.radioTakeBottom.AutoSize = true;
-			this.radioTakeBottom.Checked = true;
 			this.radioTakeBottom.Location = new System.Drawing.Point(6, 42);
 			this.radioTakeBottom.Name = "radioTakeBottom";
 			this.radioTakeBottom.Size = new System.Drawing.Size(317, 17);
 			this.radioTakeBottom.TabIndex = 1;
-			this.radioTakeBottom.TabStop = true;
 			this.radioTakeBottom.Text = "Take the bottom teams from previous games (i.e. repêchage:).";
 			this.radioTakeBottom.UseVisualStyleBackColor = true;
 			this.radioTakeBottom.CheckedChanged += new System.EventHandler(this.PyramidValueChanged);
@@ -825,10 +824,12 @@ namespace Torn.UI
 			// radioTakeTop
 			// 
 			this.radioTakeTop.AutoSize = true;
+			this.radioTakeTop.Checked = true;
 			this.radioTakeTop.Location = new System.Drawing.Point(6, 19);
 			this.radioTakeTop.Name = "radioTakeTop";
 			this.radioTakeTop.Size = new System.Drawing.Size(273, 17);
 			this.radioTakeTop.TabIndex = 0;
+			this.radioTakeTop.TabStop = true;
 			this.radioTakeTop.Text = "Take the top teams from previous games (i.e. round).";
 			this.radioTakeTop.UseVisualStyleBackColor = true;
 			// 
@@ -846,12 +847,10 @@ namespace Torn.UI
 			// radioCompareRank
 			// 
 			this.radioCompareRank.AutoSize = true;
-			this.radioCompareRank.Checked = true;
 			this.radioCompareRank.Location = new System.Drawing.Point(6, 42);
 			this.radioCompareRank.Name = "radioCompareRank";
 			this.radioCompareRank.Size = new System.Drawing.Size(318, 17);
 			this.radioCompareRank.TabIndex = 1;
-			this.radioCompareRank.TabStop = true;
 			this.radioCompareRank.Text = "Compare teams on rank; only compare scores if ranks are tied.";
 			this.radioCompareRank.UseVisualStyleBackColor = true;
 			this.radioCompareRank.CheckedChanged += new System.EventHandler(this.PyramidValueChanged);
@@ -859,10 +858,12 @@ namespace Torn.UI
 			// radioCompareScore
 			// 
 			this.radioCompareScore.AutoSize = true;
+			this.radioCompareScore.Checked = true;
 			this.radioCompareScore.Location = new System.Drawing.Point(6, 19);
 			this.radioCompareScore.Name = "radioCompareScore";
 			this.radioCompareScore.Size = new System.Drawing.Size(245, 17);
 			this.radioCompareScore.TabIndex = 0;
+			this.radioCompareScore.TabStop = true;
 			this.radioCompareScore.Text = "Compare teams on victory points and/or score.";
 			this.radioCompareScore.UseVisualStyleBackColor = true;
 			// 
@@ -905,9 +906,19 @@ namespace Torn.UI
 			// numericGames
 			// 
 			this.numericGames.Location = new System.Drawing.Point(200, 42);
+			this.numericGames.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
 			this.numericGames.Name = "numericGames";
 			this.numericGames.Size = new System.Drawing.Size(64, 20);
 			this.numericGames.TabIndex = 6;
+			this.numericGames.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
 			this.numericGames.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
 			this.numericGames.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 

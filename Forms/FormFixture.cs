@@ -475,8 +475,7 @@ namespace Torn.UI
 		{
 			decimal numberOfTeams = numericTeamsFromLastRound.Value + numericTeamsFromLastRepechage.Value;
 			labelNumberOfTeams.Text = numberOfTeams.ToString();
-			if (numericGames.Value > 0)
-				labelTeamsPerGame.Text = (numberOfTeams / numericGames.Value).ToString("N2");
+			labelTeamsPerGame.Text = (numberOfTeams / numericGames.Value).ToString("N2");
 			RefreshPyramid();
 		}
 
@@ -490,6 +489,8 @@ namespace Torn.UI
 		private void LabelRoundTitleDoubleClick(object sender, EventArgs e)
 		{
 			textBoxTitle.Text = "Repêchage ";
+			textBoxTitle.Focus();
+			textBoxTitle.SelectionStart = 10;
 		}
 
 		private void PyramidSpinKeyUp(object sender, KeyEventArgs e)
@@ -549,7 +550,11 @@ namespace Torn.UI
 		{
 			var pyramidGames = new List<PyramidGame>();
 			foreach (ListViewItem item in listViewGames.Items)
-				pyramidGames.Add((PyramidGame)item.Tag);
+			{
+				var pg = (PyramidGame)item.Tag;
+				if (pg.Priority != Priority.Unmarked)
+					pyramidGames.Add((PyramidGame)item.Tag);
+			}
 
 			var pr = new PyramidRound() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
 
@@ -566,6 +571,9 @@ namespace Torn.UI
 				PyramidGame pg = (PyramidGame)item.Tag;
 				if (pg.TeamsToTake is int take)
 				{
+					if (take == 0)
+						take = pg.Game.Teams.Count;
+
 					if (pg.Priority == Priority.Round)
 						roundTeams += take;
 					else if (pg.Priority == Priority.Repechage)
