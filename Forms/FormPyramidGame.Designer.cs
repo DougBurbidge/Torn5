@@ -62,7 +62,7 @@ namespace Torn.UI
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(12, 130);
+			this.label2.Location = new System.Drawing.Point(12, 100);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(64, 13);
 			this.label2.TabIndex = 1;
@@ -71,7 +71,7 @@ namespace Torn.UI
 			// labelGameTime
 			// 
 			this.labelGameTime.AutoSize = true;
-			this.labelGameTime.Location = new System.Drawing.Point(160, 130);
+			this.labelGameTime.Location = new System.Drawing.Point(180, 100);
 			this.labelGameTime.Name = "labelGameTime";
 			this.labelGameTime.Size = new System.Drawing.Size(80, 13);
 			this.labelGameTime.TabIndex = 2;
@@ -80,7 +80,7 @@ namespace Torn.UI
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(12, 156);
+			this.label4.Location = new System.Drawing.Point(12, 126);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(63, 13);
 			this.label4.TabIndex = 3;
@@ -88,7 +88,7 @@ namespace Torn.UI
 			// 
 			// textBoxDescription
 			// 
-			this.textBoxDescription.Location = new System.Drawing.Point(160, 153);
+			this.textBoxDescription.Location = new System.Drawing.Point(180, 123);
 			this.textBoxDescription.Name = "textBoxDescription";
 			this.textBoxDescription.Size = new System.Drawing.Size(200, 20);
 			this.textBoxDescription.TabIndex = 4;
@@ -96,7 +96,7 @@ namespace Torn.UI
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(12, 182);
+			this.label5.Location = new System.Drawing.Point(12, 152);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(97, 13);
 			this.label5.TabIndex = 5;
@@ -105,7 +105,7 @@ namespace Torn.UI
 			// labelTeamsInGame
 			// 
 			this.labelTeamsInGame.AutoSize = true;
-			this.labelTeamsInGame.Location = new System.Drawing.Point(160, 182);
+			this.labelTeamsInGame.Location = new System.Drawing.Point(180, 152);
 			this.labelTeamsInGame.Name = "labelTeamsInGame";
 			this.labelTeamsInGame.Size = new System.Drawing.Size(98, 13);
 			this.labelTeamsInGame.TabIndex = 6;
@@ -114,50 +114,50 @@ namespace Torn.UI
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(12, 208);
+			this.label7.Location = new System.Drawing.Point(12, 178);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(81, 13);
+			this.label7.Size = new System.Drawing.Size(160, 13);
 			this.label7.TabIndex = 7;
-			this.label7.Text = "# teams to take";
+			this.label7.Text = "# teams to take from each game";
 			// 
 			// label8
 			// 
 			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(12, 234);
+			this.label8.Location = new System.Drawing.Point(12, 204);
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(38, 13);
-			this.label8.TabIndex = 9;
+			this.label8.TabIndex = 10;
 			this.label8.Text = "Priority";
 			// 
 			// label9
 			// 
 			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(12, 260);
+			this.label9.Location = new System.Drawing.Point(12, 230);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(101, 13);
-			this.label9.TabIndex = 11;
+			this.label9.TabIndex = 13;
 			this.label9.Text = "Make game secret?";
 			// 
 			// checkBoxSecret
 			// 
 			this.checkBoxSecret.AutoSize = true;
-			this.checkBoxSecret.Location = new System.Drawing.Point(160, 259);
+			this.checkBoxSecret.Location = new System.Drawing.Point(180, 229);
 			this.checkBoxSecret.Name = "checkBoxSecret";
 			this.checkBoxSecret.Size = new System.Drawing.Size(57, 17);
-			this.checkBoxSecret.TabIndex = 12;
+			this.checkBoxSecret.TabIndex = 14;
 			this.checkBoxSecret.Text = "Secret";
 			this.checkBoxSecret.UseVisualStyleBackColor = true;
 			// 
 			// numericTeamsToTake
 			// 
-			this.numericTeamsToTake.Location = new System.Drawing.Point(160, 206);
+			this.numericTeamsToTake.Location = new System.Drawing.Point(180, 176);
 			this.numericTeamsToTake.Name = "numericTeamsToTake";
 			this.numericTeamsToTake.Size = new System.Drawing.Size(64, 20);
-			this.numericTeamsToTake.TabIndex = 14;
+			this.numericTeamsToTake.TabIndex = 8;
 			// 
 			// buttonOK
 			// 
-			this.buttonOK.Location = new System.Drawing.Point(296, 286);
+			this.buttonOK.Location = new System.Drawing.Point(296, 256);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 15;
@@ -168,7 +168,7 @@ namespace Torn.UI
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.Location = new System.Drawing.Point(377, 286);
+			this.buttonCancel.Location = new System.Drawing.Point(377, 256);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 16;
@@ -179,10 +179,10 @@ namespace Torn.UI
 			// 
 			this.radioRound.AutoSize = true;
 			this.radioRound.Checked = true;
-			this.radioRound.Location = new System.Drawing.Point(160, 232);
+			this.radioRound.Location = new System.Drawing.Point(180, 202);
 			this.radioRound.Name = "radioRound";
 			this.radioRound.Size = new System.Drawing.Size(57, 17);
-			this.radioRound.TabIndex = 17;
+			this.radioRound.TabIndex = 11;
 			this.radioRound.TabStop = true;
 			this.radioRound.Text = "Round";
 			this.radioRound.UseVisualStyleBackColor = true;
@@ -191,19 +191,20 @@ namespace Torn.UI
 			// radioRepechage
 			// 
 			this.radioRepechage.AutoSize = true;
-			this.radioRepechage.Location = new System.Drawing.Point(223, 232);
+			this.radioRepechage.Location = new System.Drawing.Point(243, 202);
 			this.radioRepechage.Name = "radioRepechage";
 			this.radioRepechage.Size = new System.Drawing.Size(81, 17);
-			this.radioRepechage.TabIndex = 18;
+			this.radioRepechage.TabIndex = 12;
 			this.radioRepechage.Text = "Repêchage";
 			this.radioRepechage.UseVisualStyleBackColor = true;
+			this.radioRepechage.CheckedChanged += new System.EventHandler(this.RadioCheckedChanged);
 			// 
 			// buttonClear
 			// 
-			this.buttonClear.Location = new System.Drawing.Point(230, 206);
+			this.buttonClear.Location = new System.Drawing.Point(250, 176);
 			this.buttonClear.Name = "buttonClear";
 			this.buttonClear.Size = new System.Drawing.Size(64, 20);
-			this.buttonClear.TabIndex = 19;
+			this.buttonClear.TabIndex = 9;
 			this.buttonClear.Text = "Clear";
 			this.buttonClear.UseVisualStyleBackColor = true;
 			this.buttonClear.Click += new System.EventHandler(this.ButtonClearClick);
@@ -214,7 +215,7 @@ namespace Torn.UI
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(464, 321);
+			this.ClientSize = new System.Drawing.Size(464, 289);
 			this.Controls.Add(this.buttonClear);
 			this.Controls.Add(this.radioRepechage);
 			this.Controls.Add(this.radioRound);

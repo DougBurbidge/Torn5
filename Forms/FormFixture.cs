@@ -486,7 +486,7 @@ namespace Torn.UI
 
 		readonly FormPyramidGame formPyramidGame = new FormPyramidGame();
 
-		private void LabelRoundTitleDoubleClick(object sender, EventArgs e)
+		private void ButtonRepechageClick(object sender, EventArgs e)
 		{
 			textBoxTitle.Text = "Repêchage ";
 			textBoxTitle.Focus();
@@ -559,7 +559,7 @@ namespace Torn.UI
 			var pr = new PyramidRound() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
 
 			(displayReportTaken.Report, displayReportDraw.Report) = pr.Reports(pyramidGames, Holder.League, (int)numericGames.Value, 
-				(int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, textBoxTitle.Text);
+				(int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, textBoxTitle.Text, checkBoxColour.Checked);
 		}
 
 		private void CalculateSpins()
@@ -569,24 +569,16 @@ namespace Torn.UI
 			foreach (ListViewItem item in listViewGames.Items)
 			{
 				PyramidGame pg = (PyramidGame)item.Tag;
-				if (pg.TeamsToTake is int take)
-				{
-					if (take == 0)
-						take = pg.Game.Teams.Count;
+				int take = pg.TeamsToTake == null ? pg.Game.Teams.Count : (int)pg.TeamsToTake;
 
-					if (pg.Priority == Priority.Round)
-						roundTeams += take;
-					else if (pg.Priority == Priority.Repechage)
-						repechageTeams += take;
-				}
-				else
-				{
-					if (pg.Priority == Priority.Round)
-						roundTeams += pg.Game.Teams.Count;
-					else if (pg.Priority == Priority.Repechage)
-						repechageTeams += pg.Game.Teams.Count;
-				}
+				if (pg.Priority == Priority.Round)
+					roundTeams += take;
+				else if (pg.Priority == Priority.Repechage)
+					repechageTeams += take;
 			}
+
+			numericTeamsFromLastRound.Value = roundTeams;
+			numericTeamsFromLastRepechage.Value = repechageTeams;
 		}
 	}
 }

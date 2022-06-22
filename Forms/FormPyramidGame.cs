@@ -72,10 +72,10 @@ namespace Torn.UI
 			}
 		}
 
-		public int TeamsToTake
+		public int? TeamsToTake
 		{
-			get { return (int)numericTeamsToTake.Value; }
-			set { numericTeamsToTake.Value = value; }
+			get { return string.IsNullOrWhiteSpace(numericTeamsToTake.Text) ? null : (int?)numericTeamsToTake.Value; }
+			set { if (value.HasValue) numericTeamsToTake.Value = (int)value; }
 		}
 
 		public Priority Priority

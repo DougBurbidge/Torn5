@@ -84,13 +84,14 @@ namespace Torn
 			return notTaken;
 		}
 
-		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, League league, int games, int teamsFromRound, int teamsFromRepechage, string title)
+		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, League league, int games, int teamsFromRound, int teamsFromRepechage, string title, bool colour)
 		{
 			var list = BuildList(pyramidGames, teamsFromRound, teamsFromRepechage);
-			return Reports(list, pyramidGames, league, games, title);
+			return Reports(list, pyramidGames, league, games, title, colour);
 		}
 
-		(ZoomReport past, ZoomReport draw) Reports(ListTeamGames teamGamesList, List<PyramidGame> pyramidGames, League league, int games, string title)
+		private static readonly Random random = new Random();
+		(ZoomReport past, ZoomReport draw) Reports(ListTeamGames teamGamesList, List<PyramidGame> pyramidGames, League league, int games, string title, bool colour)
 		{
 			// Build the "past" report showing which teams made the cut: one row per team, one game per column.
 			var pastReport = new Zoom.ZoomReport("From", "Rank,Team", "center,left");
@@ -160,6 +161,23 @@ namespace Torn
 						i++;
 					}
 			}
+
+			Colour[] colours = { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };
+
+			if (colour)
+			{
+				var assignColours = new List<Colour>();
+				for (int row = 0; row < drawReport.Rows.Count; row++)
+					assignColours.Add(colours[row % 8]);
+
+				for (int col = 0; col < drawReport.Columns.Count; col++)
+				{
+					var shuffledColours = assignColours.OrderBy(x => random.Next()).ToList();
+					for (int row = 0; row < drawReport.Rows.Count; row++)
+						drawReport.Rows[row][col].Color = shuffledColours[row].ToColor();
+				}
+			}
+
 			return (pastReport, drawReport);
 		}
 

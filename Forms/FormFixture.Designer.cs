@@ -76,6 +76,7 @@ namespace Torn.UI
 			this.tabPyramid = new System.Windows.Forms.TabPage();
 			this.tabPyramidRound = new System.Windows.Forms.TabPage();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.buttonRepechage = new System.Windows.Forms.Button();
 			this.buttonClearPyramidGames = new System.Windows.Forms.Button();
 			this.buttonEditPyramidGames = new System.Windows.Forms.Button();
 			this.textBoxTitle = new System.Windows.Forms.TextBox();
@@ -730,6 +731,7 @@ namespace Torn.UI
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.buttonRepechage);
 			this.splitContainer1.Panel1.Controls.Add(this.buttonClearPyramidGames);
 			this.splitContainer1.Panel1.Controls.Add(this.buttonEditPyramidGames);
 			this.splitContainer1.Panel1.Controls.Add(this.textBoxTitle);
@@ -758,13 +760,23 @@ namespace Torn.UI
 			this.splitContainer1.SplitterDistance = 232;
 			this.splitContainer1.TabIndex = 21;
 			// 
+			// buttonRepechage
+			// 
+			this.buttonRepechage.Location = new System.Drawing.Point(218, 169);
+			this.buttonRepechage.Name = "buttonRepechage";
+			this.buttonRepechage.Size = new System.Drawing.Size(73, 23);
+			this.buttonRepechage.TabIndex = 13;
+			this.buttonRepechage.Text = "Repêchage ";
+			this.buttonRepechage.UseVisualStyleBackColor = true;
+			this.buttonRepechage.Click += new System.EventHandler(this.ButtonRepechageClick);
+			// 
 			// buttonClearPyramidGames
 			// 
 			this.buttonClearPyramidGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.buttonClearPyramidGames.Location = new System.Drawing.Point(766, 190);
 			this.buttonClearPyramidGames.Name = "buttonClearPyramidGames";
 			this.buttonClearPyramidGames.Size = new System.Drawing.Size(88, 23);
-			this.buttonClearPyramidGames.TabIndex = 20;
+			this.buttonClearPyramidGames.TabIndex = 19;
 			this.buttonClearPyramidGames.Text = "Clear Game(s)";
 			this.buttonClearPyramidGames.UseVisualStyleBackColor = true;
 			this.buttonClearPyramidGames.Click += new System.EventHandler(this.ButtonClearPyramidGames);
@@ -784,20 +796,21 @@ namespace Torn.UI
 			// 
 			this.textBoxTitle.Location = new System.Drawing.Point(70, 171);
 			this.textBoxTitle.Name = "textBoxTitle";
-			this.textBoxTitle.Size = new System.Drawing.Size(194, 20);
-			this.textBoxTitle.TabIndex = 17;
+			this.textBoxTitle.Size = new System.Drawing.Size(142, 20);
+			this.textBoxTitle.TabIndex = 12;
 			this.textBoxTitle.Text = "Next Round ";
 			this.textBoxTitle.TextChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// checkBoxColour
 			// 
 			this.checkBoxColour.AutoSize = true;
-			this.checkBoxColour.Location = new System.Drawing.Point(300, 194);
+			this.checkBoxColour.Location = new System.Drawing.Point(306, 194);
 			this.checkBoxColour.Name = "checkBoxColour";
 			this.checkBoxColour.Size = new System.Drawing.Size(56, 17);
-			this.checkBoxColour.TabIndex = 19;
+			this.checkBoxColour.TabIndex = 16;
 			this.checkBoxColour.Text = "Colour";
 			this.checkBoxColour.UseVisualStyleBackColor = true;
+			this.checkBoxColour.CheckedChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// groupTopOrBottom
 			// 
@@ -806,7 +819,7 @@ namespace Torn.UI
 			this.groupTopOrBottom.Location = new System.Drawing.Point(300, 42);
 			this.groupTopOrBottom.Name = "groupTopOrBottom";
 			this.groupTopOrBottom.Size = new System.Drawing.Size(336, 67);
-			this.groupTopOrBottom.TabIndex = 11;
+			this.groupTopOrBottom.TabIndex = 14;
 			this.groupTopOrBottom.TabStop = false;
 			this.groupTopOrBottom.Text = "Top or bottom";
 			// 
@@ -840,7 +853,7 @@ namespace Torn.UI
 			this.groupScoreOrRank.Location = new System.Drawing.Point(300, 115);
 			this.groupScoreOrRank.Name = "groupScoreOrRank";
 			this.groupScoreOrRank.Size = new System.Drawing.Size(336, 69);
-			this.groupScoreOrRank.TabIndex = 12;
+			this.groupScoreOrRank.TabIndex = 15;
 			this.groupScoreOrRank.TabStop = false;
 			this.groupScoreOrRank.Text = "Score or rank";
 			// 
@@ -882,7 +895,7 @@ namespace Torn.UI
 			this.labelNumberOfTeams.Location = new System.Drawing.Point(199, 122);
 			this.labelNumberOfTeams.Name = "labelNumberOfTeams";
 			this.labelNumberOfTeams.Size = new System.Drawing.Size(13, 13);
-			this.labelNumberOfTeams.TabIndex = 9;
+			this.labelNumberOfTeams.TabIndex = 8;
 			this.labelNumberOfTeams.Text = "0";
 			// 
 			// numericTeamsFromLastRepechage
@@ -890,7 +903,7 @@ namespace Torn.UI
 			this.numericTeamsFromLastRepechage.Location = new System.Drawing.Point(200, 94);
 			this.numericTeamsFromLastRepechage.Name = "numericTeamsFromLastRepechage";
 			this.numericTeamsFromLastRepechage.Size = new System.Drawing.Size(64, 20);
-			this.numericTeamsFromLastRepechage.TabIndex = 8;
+			this.numericTeamsFromLastRepechage.TabIndex = 6;
 			this.numericTeamsFromLastRepechage.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
 			this.numericTeamsFromLastRepechage.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 
@@ -899,7 +912,7 @@ namespace Torn.UI
 			this.numericTeamsFromLastRound.Location = new System.Drawing.Point(200, 68);
 			this.numericTeamsFromLastRound.Name = "numericTeamsFromLastRound";
 			this.numericTeamsFromLastRound.Size = new System.Drawing.Size(64, 20);
-			this.numericTeamsFromLastRound.TabIndex = 7;
+			this.numericTeamsFromLastRound.TabIndex = 4;
 			this.numericTeamsFromLastRound.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
 			this.numericTeamsFromLastRound.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 
@@ -913,7 +926,7 @@ namespace Torn.UI
             0});
 			this.numericGames.Name = "numericGames";
 			this.numericGames.Size = new System.Drawing.Size(64, 20);
-			this.numericGames.TabIndex = 6;
+			this.numericGames.TabIndex = 2;
 			this.numericGames.Value = new decimal(new int[] {
             1,
             0,
@@ -928,9 +941,8 @@ namespace Torn.UI
 			this.labelRoundTitle.Location = new System.Drawing.Point(3, 174);
 			this.labelRoundTitle.Name = "labelRoundTitle";
 			this.labelRoundTitle.Size = new System.Drawing.Size(61, 13);
-			this.labelRoundTitle.TabIndex = 16;
+			this.labelRoundTitle.TabIndex = 11;
 			this.labelRoundTitle.Text = "Round title:";
-			this.labelRoundTitle.DoubleClick += new System.EventHandler(this.LabelRoundTitleDoubleClick);
 			// 
 			// label16
 			// 
@@ -938,7 +950,7 @@ namespace Torn.UI
 			this.label16.Location = new System.Drawing.Point(3, 148);
 			this.label16.Name = "label16";
 			this.label16.Size = new System.Drawing.Size(137, 13);
-			this.label16.TabIndex = 5;
+			this.label16.TabIndex = 9;
 			this.label16.Text = "Number of teams per game:";
 			// 
 			// label15
@@ -947,7 +959,7 @@ namespace Torn.UI
 			this.label15.Location = new System.Drawing.Point(3, 122);
 			this.label15.Name = "label15";
 			this.label15.Size = new System.Drawing.Size(154, 13);
-			this.label15.TabIndex = 4;
+			this.label15.TabIndex = 7;
 			this.label15.Text = "Number of teams in next round:";
 			// 
 			// label14
@@ -956,7 +968,7 @@ namespace Torn.UI
 			this.label14.Location = new System.Drawing.Point(3, 96);
 			this.label14.Name = "label14";
 			this.label14.Size = new System.Drawing.Size(186, 13);
-			this.label14.TabIndex = 3;
+			this.label14.TabIndex = 5;
 			this.label14.Text = "Number of teams from last repêchage:";
 			// 
 			// label13
@@ -965,7 +977,7 @@ namespace Torn.UI
 			this.label13.Location = new System.Drawing.Point(3, 70);
 			this.label13.Name = "label13";
 			this.label13.Size = new System.Drawing.Size(162, 13);
-			this.label13.TabIndex = 2;
+			this.label13.TabIndex = 3;
 			this.label13.Text = "Number of teams from last round:";
 			// 
 			// label12
@@ -1005,7 +1017,7 @@ namespace Torn.UI
 			this.listViewGames.Location = new System.Drawing.Point(672, 8);
 			this.listViewGames.Name = "listViewGames";
 			this.listViewGames.Size = new System.Drawing.Size(540, 176);
-			this.listViewGames.TabIndex = 13;
+			this.listViewGames.TabIndex = 17;
 			this.listViewGames.UseCompatibleStateImageBehavior = false;
 			this.listViewGames.View = System.Windows.Forms.View.Details;
 			this.listViewGames.DoubleClick += new System.EventHandler(this.ListViewGamesDoubleClick);
@@ -1034,6 +1046,7 @@ namespace Torn.UI
 			// columnPriority
 			// 
 			this.columnPriority.Text = "Priority";
+			this.columnPriority.Width = 70;
 			// 
 			// columnSecret
 			// 
@@ -1215,5 +1228,6 @@ namespace Torn.UI
 		private System.Windows.Forms.Label labelRoundTitle;
 		private System.Windows.Forms.Button buttonClearPyramidGames;
 		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.Button buttonRepechage;
 	}
 }
