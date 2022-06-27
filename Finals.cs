@@ -91,8 +91,8 @@ namespace Torn
 						gameCol.Arrows.Remove(dupArrow);
 				}
 
-				Report.Rows[row].AddCell(new ZCell(" ... ", Colour.Referee.ToColor()));
-				Report.Rows[row].AddCell(new ZCell());
+				Report.Rows[row].Add(new ZCell(" ") { Border = Color.Black });
+				Report.Rows[row].Add(new ZCell());
 
 				arrow.From.Add(new ZArrowEnd(row, 5) { Expand = true } );
 				arrow.To.Add(new ZArrowEnd(row, 5) { Expand = true } );
@@ -125,7 +125,7 @@ namespace Torn
 					games.Add(finalCol);
 
 				for (int j = 0; j < TeamsPerGame; j++)
-					Report.Rows[i].AddCell(new ZCell(" ... ", ((Colour)((j + TeamsPerGame - i) % TeamsPerGame + 1)).ToColor()));
+					Report.Rows[i].Add(new ZCell(" ", ((Colour)((j + TeamsPerGame - i) % TeamsPerGame + 1)).ToColor()) { Border = Color.Black });
 			}
 		}
 

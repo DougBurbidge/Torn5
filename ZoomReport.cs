@@ -228,6 +228,8 @@ namespace Zoom
 		public ZCell ChartCell { get; set; }  
 		/// <summary>Color of optional horizontal chart bar.</summary>
 		public Color BarColor { get; set; }
+		/// <summary>Color of optional cell outline.</summary>
+		public Color Border { get; set; }
 		/// <summary>List of values to be shown as a scatter plot / quartile plot / stem-and-leaf plot / rug map / kernel density estimation.</summary>
 		public List<double> Data { get; private set; }
 
@@ -894,15 +896,36 @@ namespace Zoom
 			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text);
 		}
 
-		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fillColor)
+		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fill, Color outline = default)
 		{
-			if (fillColor != Color.Empty && width != 0 && height != 0)
+			if ((fill != default || outline != default) && width != 0 && height != 0)
 			{
 				s.Append('\t', indent);
-				int len = s.Length;
-				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
-				s.Replace(".0", "", len, s.Length - len);
-				s.Append(System.Drawing.ColorTranslator.ToHtml(fillColor));
+				if (outline == default)
+				{
+					int len = s.Length;
+					s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
+					s.Replace(".0", "", len, s.Length - len);
+					s.Append(System.Drawing.ColorTranslator.ToHtml(fill));
+				}
+				else
+				{
+					int len = s.Length;
+					s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 0.5, width + 1, height + 1);
+					s.Replace(".0", "", len, s.Length - len);
+
+					if (fill == default)
+						s.Append("fill-opacity:0");
+					else
+					{
+						s.Append("fill:");
+						s.Append(System.Drawing.ColorTranslator.ToHtml(fill));
+					}
+
+					s.Append(";stroke:");
+					s.Append(System.Drawing.ColorTranslator.ToHtml(outline));
+				}
+
 				s.Append("\" />\n");
 			}
 		}
@@ -1105,7 +1128,7 @@ namespace Zoom
 						!Columns[col + 1].Arrows.Exists(a => a.From.Exists(f => f.Row == end.Row) || a.To.Exists(t => t.Row == end.Row)))
 					col++;
 
-			return widths.Take(col + 1).Sum(w => w + 1) + 0.5F;
+			return widths.Take(col + 1).Sum(w => w + 1) - 1.5F;
 		}
 
 		/// <summary>Draw one complete vertical arrow plus its horizontal ends.</summary>
@@ -1456,8 +1479,8 @@ namespace Zoom
 
 		void SvgChart(StringBuilder s, int top, int height, double left, double width, double chartMin, double chartMax, int maxPoints, Color backColor, Color chartColor, ZCell cell, ZRow row, int column, bool lastRow)
 		{
-			if (cell.Color != Color.Empty)
-				SvgRect(s, 1, left, top, width, height, backColor);  // Paint chart cell(s) background.
+			if (cell.Color != Color.Empty || cell.Border != Color.Empty)
+				SvgRect(s, 1, left, top, width, height, backColor, cell.Border);  // Paint chart cell(s) background.
 
 			if ((cell.ChartType == ChartType.None || cell.ChartType.HasFlag(ChartType.Bar)) && cell.Number != null)  // Bar
 			{
@@ -1660,7 +1683,7 @@ namespace Zoom
 				var sourceCell = row[start].ChartCell ?? row[start];
 				int barSource = row.FindIndex(cell => cell == sourceCell);
 
-				if (sourceCell.Color != Color.Empty || sourceCell.ChartCell != null)
+				if (sourceCell.Color != Color.Empty || sourceCell.Border != Color.Empty || sourceCell.ChartCell != null)
 					SvgChart(s, top, height, widths.Take(start).Sum() + start + left, widths.Skip(start).Take(end - start + 1).Sum() + end - start,
 					         MaxChartByColumn ? mins[barSource] : mins.Min(), MaxChartByColumn ? maxs[barSource] : maxs.Max(), maxPoints,
 					         Colors.GetBackColor(row, odd, sourceCell.Color), sourceCell.GetBarColor(Colors.GetBackColor(row, odd), Colors.BarNone), sourceCell, row, barSource, row == Rows.Last());
