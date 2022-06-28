@@ -233,6 +233,10 @@ namespace Zoom
 		/// <summary>List of values to be shown as a scatter plot / quartile plot / stem-and-leaf plot / rug map / kernel density estimation.</summary>
 		public List<double> Data { get; private set; }
 
+		public ZCell()
+		{
+		}
+
 		public ZCell(string text = "", Color color = default, ZCell barCell = null)
 		{
 			Text = text;
@@ -409,6 +413,19 @@ namespace Zoom
 		{
 			return 0 <= i && i < list.Count;
 		}
+
+		public static T Force<T>(this IList<T> list, int i) where T: new()
+		{
+			if (list.Valid(i))
+				return list[i];
+
+			while (list.Count < i)
+				list.Add(new T());
+
+			T item = new T();
+			list.Add(item);
+			return item;
+		}
 	}
 
 	public delegate void CalculateFill(ZRow row, int col, double chartMin, double chartMax, ref double? fill);  // Callback to custom-set bar cell filledness.
@@ -482,7 +499,7 @@ namespace Zoom
 			return col;
 		}
 
-		///<summary>Just like Add(), but returns the added ZColumn.</summary> 
+		///<summary>Just like Add(), but returns the added ZRow.</summary> 
 		public ZRow AddRow(ZRow row)
 		{
 			Rows.Add(row);
@@ -890,44 +907,44 @@ namespace Zoom
 		}
 
 		// Write a <rect> tag, and a <text> tag on top of it.
-		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text)
+		void SvgRectText(StringBuilder s, int indent, double x, double y, double width, double height, Color fontColor, Color backColor, Color barColor, ZAlignment alignment, string text, bool pure)
 		{
 			SvgRect(s, indent, x, y, width, height, backColor);
-			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text);
+			SvgText(s, indent, (int)x, (int)y, (int)width, (int)height, fontColor, alignment, text, null, null, pure);
 		}
 
 		void SvgRect(StringBuilder s, int indent, double x, double y, double width, double height, Color fill, Color outline = default)
 		{
-			if ((fill != default || outline != default) && width != 0 && height != 0)
+			if ((fill == default && outline == default) || width == 0 || height == 0)
+				return;
+
+			s.Append('\t', indent);
+			if (outline == default)
 			{
-				s.Append('\t', indent);
-				if (outline == default)
-				{
-					int len = s.Length;
-					s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
-					s.Replace(".0", "", len, s.Length - len);
-					s.Append(System.Drawing.ColorTranslator.ToHtml(fill));
-				}
+				int len = s.Length;
+				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"fill:", x, y, width, height);
+				s.Replace(".0", "", len, s.Length - len);
+				s.Append(System.Drawing.ColorTranslator.ToHtml(fill));
+			}
+			else
+			{
+				int len = s.Length;
+				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 1, width + 1, height + 1);
+				s.Replace(".0", "", len, s.Length - len);
+
+				if (fill == default)
+					s.Append("fill-opacity:0");
 				else
 				{
-					int len = s.Length;
-					s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 0.5, width + 1, height + 1);
-					s.Replace(".0", "", len, s.Length - len);
-
-					if (fill == default)
-						s.Append("fill-opacity:0");
-					else
-					{
-						s.Append("fill:");
-						s.Append(System.Drawing.ColorTranslator.ToHtml(fill));
-					}
-
-					s.Append(";stroke:");
-					s.Append(System.Drawing.ColorTranslator.ToHtml(outline));
+					s.Append("fill:");
+					s.Append(System.Drawing.ColorTranslator.ToHtml(fill));
 				}
 
-				s.Append("\" />\n");
+				s.Append(";stroke:");
+				s.Append(System.Drawing.ColorTranslator.ToHtml(outline));
 			}
+
+			s.Append("\" />\n");
 		}
 
 		/// <summary>Like SvgRect() but with 2 decimal places of precision for x,y,width,height instead of 1.</summary>
@@ -1169,7 +1186,7 @@ namespace Zoom
 			var halfScaleWidth = arrow.MaxWidth() / rowHeight * 2;  // Scaling factor used to convert an unscaled arrow width into half a scaled arrow width. 
 			var halfArrowH = arrow.MaxWidth() * halfScaleWidth;  // Half the width of the vertical part of the arrow, in output SVG units.
 
-			if (arrow.From.Count == 1 && arrow.To.Count == 1 && arrow.From[0].Width == arrow.To[0].Width)
+			if (arrow.From.Count == 1 && arrow.To.Count == 1 && arrow.From[0].Width == arrow.To[0].Width)  // Arrow has one start, one end, of constant width: draw one spline-curved arrow.
 			{
 				var leftEnd = arrow.From[0];
 				var rightEnd = arrow.To[0];
@@ -1193,21 +1210,22 @@ namespace Zoom
 				s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width - fullArrow / 2F, RowMid(top, rightEnd.Row, rowHeight));
 				s.AppendFormat("v {0:F1} l {0:F1},{1:F1} l {1:F1},{1:F1} z\" fill=\"", fullArrow, -fullArrow);
 			}
-			else
+			else  // Complex arrow: draw an assembly with multiple starts and/or ends, connected by a vertical "bus" via 90 degree turns.
 			{
 				float left = widths.Take(col).Sum(w => w + 1) + 0.5F;
 				float width = widths[col] + 0.5F;
+				float centre = left + width / 2 - (float)halfArrowH / 2;
 
 				if (topType == TopBottomType.Right)
 				{
 					// Start in the horizontal middle, draw the top left corner arc. 
-					s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 + halfArrowH, RowMid(top, arrow.To.First().Row, rowHeight) - arrow.To.First().Width * halfScaleWidth);
+					s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", centre + halfArrowH, RowMid(top, arrow.To.First().Row, rowHeight) - arrow.To.First().Width * halfScaleWidth);
 					s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {1:F1},{0:F1} ", halfArrowH * 2, -halfArrowH * 2);
 					if (!arrow.From.Any())
 						s.AppendFormat("V {2:F1}\n", RowMid(top, arrow.To.Last().Row, rowHeight) + arrow.To.Last().Width * halfScaleWidth);
 				}
 				else  // Move cursor to top right end of first arrow.
-					s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", left + width / 2 - halfArrowH, RowMid(top, topRow, rowHeight) - arrow.From.First().Width * halfScaleWidth);
+					s.AppendFormat("<path d=\"M {0:F1},{1:F1} ", centre - halfArrowH, RowMid(top, topRow, rowHeight) - arrow.From.First().Width * halfScaleWidth);
 
 				// Draw left-side "From" ends.
 				for (int i = 0; i < arrow.From.Count; i++)
@@ -1225,7 +1243,7 @@ namespace Zoom
 					s.AppendFormat("v {0:F1} ", halfArrow * 2);
 					if (end.Row != bottomRow)
 					{
-						s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH - halfArrow);
+						s.AppendFormat("H {0:F1} ", centre - halfArrowH - halfArrow);
 						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {0:F1},{0:F1} ", halfArrow);
 					}
 				}
@@ -1233,12 +1251,12 @@ namespace Zoom
 				// Handle transition between "From" and "To": draw the very bottom.
 				if (bottomType == TopBottomType.Left)
 				{
-					s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
+					s.AppendFormat("H {0:F1} ", centre - halfArrowH);
 					s.AppendFormat("a {0:F1},{0:F1} 0 0 0 {0:F1},{1:F1} \n", halfArrowH * 2, -halfArrowH * 2);
 				}
 				else if (bottomType == TopBottomType.Both)
 				{
-					s.AppendFormat("H {0:F1} ", left + width / 2 - halfArrowH);
+					s.AppendFormat("H {0:F1} ", centre - halfArrowH);
 					if (arrow.From.Last().Width != arrow.To.Last().Width)
 						s.AppendFormat("c {0:F1},0 {0:F1},{2:F1} {1:F1},{2:F1}\n", halfArrowH, halfArrowH * 2, (arrow.To.Last().Width - arrow.From.Last().Width) / 2);
 				}
@@ -1267,7 +1285,7 @@ namespace Zoom
 					s.AppendFormat("l {0:F1},{1:F1} ", halfArrow * 2, -halfArrow * 2);
 					s.AppendFormat("l {0:F1},{0:F1} ", -halfArrow * 2);
 					s.AppendFormat("v {0:F1} ", halfArrow);
-					s.AppendFormat("H {0:F1} ", left + width / 2 + halfArrowH + halfArrow);
+					s.AppendFormat("H {0:F1} ", centre + halfArrowH + halfArrow);
 
 					if (end.Row != topRow)
 						s.AppendFormat("a {0:F1},{0:F1} 0 0 1 {1:F1},{1:F1} ", halfArrow, -halfArrow);
@@ -1356,7 +1374,7 @@ namespace Zoom
 
 					if (!string.IsNullOrWhiteSpace(Columns[start].GroupHeading))
 						SvgRectText(s, 1, widths.Take(start).Sum() + start + left, rowTop, widths.Skip(start).Take(end - start + 1).Sum() + end - start, rowHeight,
-									Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading);  // Paint group heading.
+									Colors.TitleFontColor, Colors.TitleBackColor, Colors.BarColor, ZAlignment.Center, Columns[start].GroupHeading, pure);  // Paint group heading.
 
 					start = end + 1;
 				}
