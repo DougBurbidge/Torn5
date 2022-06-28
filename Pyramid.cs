@@ -6,7 +6,7 @@ using Zoom;
 
 namespace Torn
 {
-	class PyramidRound
+	class PyramidDraw
 	{
 		/// <summary>
 		/// If true, compare teams on rank, then on victory points then score.
@@ -198,7 +198,7 @@ namespace Torn
 				{
 					var teamGame = teamGames.Find(tg => tg.Game == pg.Game);
 					if (teamGame == null)
-						row.Add(new Zoom.ZCell(""));
+						row.Add(new Zoom.ZCell());
 					else
 						row.Add(FillOnePastCell(teamGame, hasPoints, teamGame.Priority.ToColor()));
 				}

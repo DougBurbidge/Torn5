@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Torn;
 using Torn.Report;
+using Zoom;
 
 namespace Torn.UI
 {
@@ -417,6 +418,8 @@ namespace Torn.UI
 
 		private void TabControl1Selected(object sender, TabControlEventArgs e)
 		{
+			if (e.Action == TabControlAction.Selected && e.TabPage == tabPyramid)
+				TabPyramidSelected();
 			if (e.Action == TabControlAction.Selected && e.TabPage == tabPyramidRound)
 				TabPyramidRoundSelected();
 		}
@@ -430,6 +433,110 @@ namespace Torn.UI
 		{
 			resizing = false;
 			panelGraphic.Invalidate();
+		}
+
+		private void TabPyramidSelected()
+		{
+			RefreshPyramidFixture();
+		}
+
+		private void NumericPyramidGamesPerTeamValueChanged(object sender, EventArgs e)
+		{
+			pyramidRound1.RoundGamesPerTeam = (int)numericPyramidGamesPerTeam.Value;
+			RefreshPyramidFixture();
+		}
+
+		private void NumericPyramidTeamsValueChanged(object sender, EventArgs e)
+		{
+			pyramidRound1.TeamsIn = (int)numericPyramidTeams.Value;
+			RefreshPyramidFixture();
+		}
+
+		private void PyramidRound1ValueChanged(object sender, EventArgs e)
+		{
+			pyramidRound2.TeamsIn = pyramidRound1.TeamsOut;
+			RefreshPyramidFixture();
+		}
+
+		private void PyramidRound2ValueChanged(object sender, EventArgs e)
+		{
+			pyramidRound3.TeamsIn = pyramidRound2.TeamsOut;
+			RefreshPyramidFixture();
+		}
+
+		private void PyramidRound3ValueChanged(object sender, EventArgs e)
+		{
+			numericPyramidFinalsTeams.Value = pyramidRound3.TeamsOut;
+			RefreshPyramidFixture();
+		}
+
+		private void NumericPyramidFinalsGamesValueChanged(object sender, EventArgs e)
+		{
+			RefreshPyramidFixture();
+		}
+
+		int AddRound(ZoomReport report, string title, int games, int nextGames, int col)
+		{
+			if (games == 0)
+				return col;
+
+			report.Columns.Add(new ZColumn(games.ToString() + " games", ZAlignment.Center, title));
+
+			var column = report.AddColumn(new ZColumn("", ZAlignment.Center, ""));  // Arrow column.
+			var arrow = new Arrow();
+			column.Arrows.Add(arrow);
+
+			for (int i = 0; i < games; i++)
+			{
+				var row = report.Rows.Force(i);
+				var cell = row.Force(col);
+				cell.Border = Color.Black;
+				cell.Text = ". . .";
+				arrow.From.Add(new ZArrowEnd(i, 5));
+			}
+
+			for (int i = 0; i < nextGames; i++)
+				arrow.To.Add(new ZArrowEnd(i, 5));
+
+			return col + 2;
+		}
+
+		void RefreshPyramidFixture()
+		{
+			var report = new ZoomReport(Holder.League.Title + " Pyramid");
+			report.Colors.OddColor = report.Colors.BackgroundColor;
+
+			var col = AddRound(report, "Round 1", pyramidRound1.RoundGames, pyramidRound1.RepechageGames, 0);
+			col = AddRound(report, "Rep 1", pyramidRound1.RepechageGames, pyramidRound2.RoundGames, col);
+			col = AddRound(report, "Round 2", pyramidRound2.RoundGames, pyramidRound2.RepechageGames, col);
+			col = AddRound(report, "Rep 2", pyramidRound2.RepechageGames, pyramidRound3.RoundGames, col);
+			col = AddRound(report, "Round 3", pyramidRound3.RoundGames, pyramidRound3.RepechageGames, col);
+			col = AddRound(report, "Rep 3", pyramidRound3.RepechageGames, 1, col);
+
+			for (int i = 0; i < numericPyramidFinalsGames.Value; i++)
+			{
+				report.Columns.Add(new ZColumn(((char)((int)'A' + i)).ToString(), ZAlignment.Center, "Finals"));
+				var cell = report.Rows.Force(0).Force(i + col);
+				cell.Border = Color.Black;
+				cell.Text = ". . .";
+			}
+
+			displayReportPyramid.Report = report;
+
+			textDescription.Text = "Round 1: ";
+			if (numericPyramidGamesPerTeam.Value != 1)
+				textDescription.Text += "You play " + numericPyramidGamesPerTeam.Value + " games. ";
+			textDescription.Text += "Top " + pyramidRound1.RoundAdvance + " teams advance to Round 2. Remaining " + (pyramidRound1.TeamsIn - pyramidRound1.RoundAdvance) + " to Repêchage 1.\r\n";
+			textDescription.Text += "Repêchage 1: ";
+			if (numericPyramidGamesPerTeam.Value != 1)
+				textDescription.Text += "You play 1 game. ";
+			textDescription.Text += "Top " + pyramidRound1.RepechageAdvance + " teams advance to Round 2. Remaining " + (pyramidRound1.TeamsIn - pyramidRound1.RoundAdvance - pyramidRound1.RepechageAdvance) + " eliminated.\r\n\r\n\r\n\r\n\r\n";
+
+			textDescription.Text += "Round 2: Top " + pyramidRound2.RoundAdvance + " teams advance to Round 2. Remaining " + (pyramidRound2.TeamsIn - pyramidRound2.RoundAdvance) + " to Repêchage 2.\r\n";
+			textDescription.Text += "Repêchage 2: Top " + pyramidRound2.RepechageAdvance + " teams advance to Round 2. Remaining " + (pyramidRound2.TeamsIn - pyramidRound2.RoundAdvance - pyramidRound2.RepechageAdvance) + " eliminated.\r\n\r\n\r\n\r\n\r\n";
+
+			textDescription.Text += "Round 3: Top " + pyramidRound3.RoundAdvance + " teams advance to finals. Remaining " + (pyramidRound3.TeamsIn - pyramidRound3.RoundAdvance) + " to Repêchage 3.\r\n";
+			textDescription.Text += "Repêchage 3: Top " + pyramidRound3.RepechageAdvance + " teams advance to finals. Remaining " + (pyramidRound3.TeamsIn - pyramidRound3.RoundAdvance - pyramidRound3.RepechageAdvance) + " eliminated.\r\n";
 		}
 
 		const int ColTitle = 1;
@@ -476,7 +583,7 @@ namespace Torn.UI
 			decimal numberOfTeams = numericTeamsFromLastRound.Value + numericTeamsFromLastRepechage.Value;
 			labelNumberOfTeams.Text = numberOfTeams.ToString();
 			labelTeamsPerGame.Text = (numberOfTeams / numericGames.Value).ToString("N2");
-			RefreshPyramid();
+			RefreshPyramidDraw();
 		}
 
 		private void ListViewGamesDoubleClick(object sender, EventArgs e)
@@ -523,7 +630,7 @@ namespace Torn.UI
 					item.SubItems[ColPriority].Text = formPyramidGame.Priority.ToString();
 				}
 
-				RefreshPyramid();
+				RefreshPyramidDraw();
 				CalculateSpins();
 			}
 		}
@@ -542,11 +649,11 @@ namespace Torn.UI
 				item.SubItems[ColTeamsToTake].Text = "";
 				item.SubItems[ColPriority].Text = "";
 			}
-			RefreshPyramid();
+			RefreshPyramidDraw();
 			CalculateSpins();
 		}
 
-		private void RefreshPyramid()
+		private void RefreshPyramidDraw()
 		{
 			var pyramidGames = new List<PyramidGame>();
 			foreach (ListViewItem item in listViewGames.Items)
@@ -556,7 +663,7 @@ namespace Torn.UI
 					pyramidGames.Add((PyramidGame)item.Tag);
 			}
 
-			var pr = new PyramidRound() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
+			var pr = new PyramidDraw() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
 
 			(displayReportTaken.Report, displayReportDraw.Report) = pr.Reports(pyramidGames, Holder.League, (int)numericGames.Value, 
 				(int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, textBoxTitle.Text, checkBoxColour.Checked);

@@ -74,6 +74,23 @@ namespace Torn.UI
 			this.label7 = new System.Windows.Forms.Label();
 			this.buttonAscension = new System.Windows.Forms.Button();
 			this.tabPyramid = new System.Windows.Forms.TabPage();
+			this.textDescription = new System.Windows.Forms.TextBox();
+			this.printReportPyramid = new Torn5.Controls.PrintReport();
+			this.numericPyramidFinalsGames = new System.Windows.Forms.NumericUpDown();
+			this.label19 = new System.Windows.Forms.Label();
+			this.numericPyramidFinalsTeams = new System.Windows.Forms.NumericUpDown();
+			this.label18 = new System.Windows.Forms.Label();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.label20 = new System.Windows.Forms.Label();
+			this.numericPyramidGamesPerTeam = new System.Windows.Forms.NumericUpDown();
+			this.numericPyramidTeams = new System.Windows.Forms.NumericUpDown();
+			this.label17 = new System.Windows.Forms.Label();
+			this.numericPyramidRounds = new System.Windows.Forms.NumericUpDown();
+			this.label11 = new System.Windows.Forms.Label();
+			this.displayReportPyramid = new Torn5.Controls.DisplayReport();
+			this.pyramidRound3 = new Torn5.Controls.PyramidFixture();
+			this.pyramidRound2 = new Torn5.Controls.PyramidFixture();
+			this.pyramidRound1 = new Torn5.Controls.PyramidFixture();
 			this.tabPyramidRound = new System.Windows.Forms.TabPage();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.buttonRepechage = new System.Windows.Forms.Button();
@@ -109,7 +126,7 @@ namespace Torn.UI
 			this.splitContainerReports = new System.Windows.Forms.SplitContainer();
 			this.displayReportTaken = new Torn5.Controls.DisplayReport();
 			this.displayReportDraw = new Torn5.Controls.DisplayReport();
-			this.printReport1 = new Torn5.Controls.PrintReport();
+			this.printReportDraw = new Torn5.Controls.PrintReport();
 			this.tabControl1.SuspendLayout();
 			this.tabTeams.SuspendLayout();
 			this.tabGamesList.SuspendLayout();
@@ -122,6 +139,13 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTracks)).BeginInit();
+			this.tabPyramid.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsGames)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsTeams)).BeginInit();
+			this.panel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidGamesPerTeam)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidTeams)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidRounds)).BeginInit();
 			this.tabPyramidRound.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -705,12 +729,271 @@ namespace Torn.UI
 			// 
 			// tabPyramid
 			// 
+			this.tabPyramid.Controls.Add(this.textDescription);
+			this.tabPyramid.Controls.Add(this.printReportPyramid);
+			this.tabPyramid.Controls.Add(this.numericPyramidFinalsGames);
+			this.tabPyramid.Controls.Add(this.label19);
+			this.tabPyramid.Controls.Add(this.numericPyramidFinalsTeams);
+			this.tabPyramid.Controls.Add(this.label18);
+			this.tabPyramid.Controls.Add(this.panel1);
+			this.tabPyramid.Controls.Add(this.displayReportPyramid);
+			this.tabPyramid.Controls.Add(this.pyramidRound3);
+			this.tabPyramid.Controls.Add(this.pyramidRound2);
+			this.tabPyramid.Controls.Add(this.pyramidRound1);
 			this.tabPyramid.Location = new System.Drawing.Point(4, 22);
 			this.tabPyramid.Name = "tabPyramid";
 			this.tabPyramid.Size = new System.Drawing.Size(1224, 632);
 			this.tabPyramid.TabIndex = 5;
 			this.tabPyramid.Text = "Pyramid";
 			this.tabPyramid.UseVisualStyleBackColor = true;
+			// 
+			// textDescription
+			// 
+			this.textDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.textDescription.BackColor = System.Drawing.SystemColors.Window;
+			this.textDescription.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.textDescription.Location = new System.Drawing.Point(910, 122);
+			this.textDescription.Multiline = true;
+			this.textDescription.Name = "textDescription";
+			this.textDescription.ReadOnly = true;
+			this.textDescription.Size = new System.Drawing.Size(311, 205);
+			this.textDescription.TabIndex = 8;
+			this.textDescription.Text = "textDescription";
+			// 
+			// printReportPyramid
+			// 
+			this.printReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.printReportPyramid.Image = null;
+			this.printReportPyramid.Location = new System.Drawing.Point(1160, 333);
+			this.printReportPyramid.Name = "printReportPyramid";
+			this.printReportPyramid.Report = null;
+			this.printReportPyramid.Size = new System.Drawing.Size(64, 480);
+			this.printReportPyramid.TabIndex = 10;
+			// 
+			// numericPyramidFinalsGames
+			// 
+			this.numericPyramidFinalsGames.Location = new System.Drawing.Point(138, 349);
+			this.numericPyramidFinalsGames.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+			this.numericPyramidFinalsGames.Name = "numericPyramidFinalsGames";
+			this.numericPyramidFinalsGames.Size = new System.Drawing.Size(60, 20);
+			this.numericPyramidFinalsGames.TabIndex = 7;
+			this.numericPyramidFinalsGames.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+			this.numericPyramidFinalsGames.ValueChanged += new System.EventHandler(this.NumericPyramidFinalsGamesValueChanged);
+			// 
+			// label19
+			// 
+			this.label19.AutoSize = true;
+			this.label19.Location = new System.Drawing.Point(135, 333);
+			this.label19.Name = "label19";
+			this.label19.Size = new System.Drawing.Size(78, 13);
+			this.label19.TabIndex = 6;
+			this.label19.Text = "Games in finals";
+			// 
+			// numericPyramidFinalsTeams
+			// 
+			this.numericPyramidFinalsTeams.Enabled = false;
+			this.numericPyramidFinalsTeams.Location = new System.Drawing.Point(63, 349);
+			this.numericPyramidFinalsTeams.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericPyramidFinalsTeams.Name = "numericPyramidFinalsTeams";
+			this.numericPyramidFinalsTeams.Size = new System.Drawing.Size(60, 20);
+			this.numericPyramidFinalsTeams.TabIndex = 5;
+			this.numericPyramidFinalsTeams.Value = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+			// 
+			// label18
+			// 
+			this.label18.AutoSize = true;
+			this.label18.Location = new System.Drawing.Point(47, 333);
+			this.label18.Name = "label18";
+			this.label18.Size = new System.Drawing.Size(77, 13);
+			this.label18.TabIndex = 4;
+			this.label18.Text = "Teams in finals";
+			// 
+			// panel1
+			// 
+			this.panel1.Controls.Add(this.label20);
+			this.panel1.Controls.Add(this.numericPyramidGamesPerTeam);
+			this.panel1.Controls.Add(this.numericPyramidTeams);
+			this.panel1.Controls.Add(this.label17);
+			this.panel1.Controls.Add(this.numericPyramidRounds);
+			this.panel1.Controls.Add(this.label11);
+			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panel1.Location = new System.Drawing.Point(0, 0);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(1224, 100);
+			this.panel1.TabIndex = 0;
+			// 
+			// label20
+			// 
+			this.label20.AutoSize = true;
+			this.label20.Location = new System.Drawing.Point(210, 24);
+			this.label20.Name = "label20";
+			this.label20.Size = new System.Drawing.Size(139, 13);
+			this.label20.TabIndex = 4;
+			this.label20.Text = "Games per team in Round 1";
+			// 
+			// numericPyramidGamesPerTeam
+			// 
+			this.numericPyramidGamesPerTeam.Location = new System.Drawing.Point(213, 40);
+			this.numericPyramidGamesPerTeam.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			this.numericPyramidGamesPerTeam.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericPyramidGamesPerTeam.Name = "numericPyramidGamesPerTeam";
+			this.numericPyramidGamesPerTeam.Size = new System.Drawing.Size(60, 20);
+			this.numericPyramidGamesPerTeam.TabIndex = 5;
+			this.numericPyramidGamesPerTeam.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+			this.numericPyramidGamesPerTeam.ValueChanged += new System.EventHandler(this.NumericPyramidGamesPerTeamValueChanged);
+			// 
+			// numericPyramidTeams
+			// 
+			this.numericPyramidTeams.Location = new System.Drawing.Point(63, 40);
+			this.numericPyramidTeams.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+			this.numericPyramidTeams.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericPyramidTeams.Name = "numericPyramidTeams";
+			this.numericPyramidTeams.Size = new System.Drawing.Size(60, 20);
+			this.numericPyramidTeams.TabIndex = 1;
+			this.numericPyramidTeams.Value = new decimal(new int[] {
+            56,
+            0,
+            0,
+            0});
+			this.numericPyramidTeams.ValueChanged += new System.EventHandler(this.NumericPyramidTeamsValueChanged);
+			// 
+			// label17
+			// 
+			this.label17.AutoSize = true;
+			this.label17.Location = new System.Drawing.Point(60, 24);
+			this.label17.Name = "label17";
+			this.label17.Size = new System.Drawing.Size(74, 13);
+			this.label17.TabIndex = 0;
+			this.label17.Text = "Starting teams";
+			// 
+			// numericPyramidRounds
+			// 
+			this.numericPyramidRounds.Enabled = false;
+			this.numericPyramidRounds.Location = new System.Drawing.Point(138, 40);
+			this.numericPyramidRounds.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+			this.numericPyramidRounds.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericPyramidRounds.Name = "numericPyramidRounds";
+			this.numericPyramidRounds.Size = new System.Drawing.Size(60, 20);
+			this.numericPyramidRounds.TabIndex = 3;
+			this.numericPyramidRounds.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+			// 
+			// label11
+			// 
+			this.label11.AutoSize = true;
+			this.label11.Location = new System.Drawing.Point(140, 24);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(44, 13);
+			this.label11.TabIndex = 2;
+			this.label11.Text = "Rounds";
+			// 
+			// displayReportPyramid
+			// 
+			this.displayReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.displayReportPyramid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.displayReportPyramid.Location = new System.Drawing.Point(3, 375);
+			this.displayReportPyramid.Name = "displayReportPyramid";
+			this.displayReportPyramid.Report = null;
+			this.displayReportPyramid.Size = new System.Drawing.Size(1151, 254);
+			this.displayReportPyramid.TabIndex = 9;
+			// 
+			// pyramidRound3
+			// 
+			this.pyramidRound3.HasRepechage = true;
+			this.pyramidRound3.Location = new System.Drawing.Point(3, 258);
+			this.pyramidRound3.Name = "pyramidRound3";
+			this.pyramidRound3.RepechageAdvance = 4;
+			this.pyramidRound3.RepechageGames = 2;
+			this.pyramidRound3.Round = 3;
+			this.pyramidRound3.RoundAdvance = 4;
+			this.pyramidRound3.RoundGames = 2;
+			this.pyramidRound3.RoundGamesPerTeam = 1;
+			this.pyramidRound3.Size = new System.Drawing.Size(914, 70);
+			this.pyramidRound3.TabIndex = 3;
+			this.pyramidRound3.TeamsIn = 16;
+			this.pyramidRound3.ValueChanged += new System.EventHandler(this.PyramidRound3ValueChanged);
+			// 
+			// pyramidRound2
+			// 
+			this.pyramidRound2.HasRepechage = true;
+			this.pyramidRound2.Location = new System.Drawing.Point(3, 182);
+			this.pyramidRound2.Name = "pyramidRound2";
+			this.pyramidRound2.RepechageAdvance = 8;
+			this.pyramidRound2.RepechageGames = 3;
+			this.pyramidRound2.Round = 2;
+			this.pyramidRound2.RoundAdvance = 8;
+			this.pyramidRound2.RoundGames = 4;
+			this.pyramidRound2.RoundGamesPerTeam = 1;
+			this.pyramidRound2.Size = new System.Drawing.Size(914, 70);
+			this.pyramidRound2.TabIndex = 2;
+			this.pyramidRound2.TeamsIn = 32;
+			this.pyramidRound2.ValueChanged += new System.EventHandler(this.PyramidRound2ValueChanged);
+			// 
+			// pyramidRound1
+			// 
+			this.pyramidRound1.HasRepechage = true;
+			this.pyramidRound1.Location = new System.Drawing.Point(3, 106);
+			this.pyramidRound1.Name = "pyramidRound1";
+			this.pyramidRound1.RepechageAdvance = 8;
+			this.pyramidRound1.RepechageGames = 4;
+			this.pyramidRound1.Round = 1;
+			this.pyramidRound1.RoundAdvance = 24;
+			this.pyramidRound1.RoundGames = 14;
+			this.pyramidRound1.RoundGamesPerTeam = 2;
+			this.pyramidRound1.Size = new System.Drawing.Size(914, 70);
+			this.pyramidRound1.TabIndex = 1;
+			this.pyramidRound1.TeamsIn = 56;
+			this.pyramidRound1.ValueChanged += new System.EventHandler(this.PyramidRound1ValueChanged);
 			// 
 			// tabPyramidRound
 			// 
@@ -755,7 +1038,7 @@ namespace Torn.UI
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.splitContainerReports);
-			this.splitContainer1.Panel2.Controls.Add(this.printReport1);
+			this.splitContainer1.Panel2.Controls.Add(this.printReportDraw);
 			this.splitContainer1.Size = new System.Drawing.Size(1224, 632);
 			this.splitContainer1.SplitterDistance = 232;
 			this.splitContainer1.TabIndex = 21;
@@ -1091,15 +1374,15 @@ namespace Torn.UI
 			this.displayReportDraw.Size = new System.Drawing.Size(771, 396);
 			this.displayReportDraw.TabIndex = 0;
 			// 
-			// printReport1
+			// printReportDraw
 			// 
-			this.printReport1.Dock = System.Windows.Forms.DockStyle.Right;
-			this.printReport1.Image = null;
-			this.printReport1.Location = new System.Drawing.Point(1160, 0);
-			this.printReport1.Name = "printReport1";
-			this.printReport1.Report = null;
-			this.printReport1.Size = new System.Drawing.Size(64, 396);
-			this.printReport1.TabIndex = 15;
+			this.printReportDraw.Dock = System.Windows.Forms.DockStyle.Right;
+			this.printReportDraw.Image = null;
+			this.printReportDraw.Location = new System.Drawing.Point(1160, 0);
+			this.printReportDraw.Name = "printReportDraw";
+			this.printReportDraw.Report = null;
+			this.printReportDraw.Size = new System.Drawing.Size(64, 396);
+			this.printReportDraw.TabIndex = 15;
 			// 
 			// FormFixture
 			// 
@@ -1128,6 +1411,15 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericTracks)).EndInit();
+			this.tabPyramid.ResumeLayout(false);
+			this.tabPyramid.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsGames)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsTeams)).EndInit();
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidGamesPerTeam)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidTeams)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidRounds)).EndInit();
 			this.tabPyramidRound.ResumeLayout(false);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel1.PerformLayout();
@@ -1216,7 +1508,7 @@ namespace Torn.UI
 		private System.Windows.Forms.ColumnHeader columnTeams;
 		private System.Windows.Forms.ColumnHeader columnTake;
 		private System.Windows.Forms.ColumnHeader columnSecret;
-		private Torn5.Controls.PrintReport printReport1;
+		private Torn5.Controls.PrintReport printReportDraw;
 		private System.Windows.Forms.SplitContainer splitContainerReports;
 		private Torn5.Controls.DisplayReport displayReportTaken;
 		private Torn5.Controls.DisplayReport displayReportDraw;
@@ -1229,5 +1521,22 @@ namespace Torn.UI
 		private System.Windows.Forms.Button buttonClearPyramidGames;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private System.Windows.Forms.Button buttonRepechage;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.NumericUpDown numericPyramidFinalsGames;
+		private System.Windows.Forms.Label label19;
+		private System.Windows.Forms.NumericUpDown numericPyramidFinalsTeams;
+		private System.Windows.Forms.Label label18;
+		private System.Windows.Forms.NumericUpDown numericPyramidTeams;
+		private System.Windows.Forms.Label label17;
+		private System.Windows.Forms.NumericUpDown numericPyramidRounds;
+		private System.Windows.Forms.Label label11;
+		private Torn5.Controls.PyramidFixture pyramidRound3;
+		private Torn5.Controls.PyramidFixture pyramidRound2;
+		private Torn5.Controls.PyramidFixture pyramidRound1;
+		private System.Windows.Forms.Label label20;
+		private System.Windows.Forms.NumericUpDown numericPyramidGamesPerTeam;
+		private Torn5.Controls.DisplayReport displayReportPyramid;
+		private Torn5.Controls.PrintReport printReportPyramid;
+		private System.Windows.Forms.TextBox textDescription;
 	}
 }
