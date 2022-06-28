@@ -551,6 +551,7 @@ namespace Torn.UI
 			// printReportFinals
 			// 
 			this.printReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.printReportFinals.DisplayReport = this.displayReportFinals;
 			this.printReportFinals.Image = null;
 			this.printReportFinals.Location = new System.Drawing.Point(1154, 5);
 			this.printReportFinals.Name = "printReportFinals";
@@ -764,6 +765,7 @@ namespace Torn.UI
 			// printReportPyramid
 			// 
 			this.printReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.printReportPyramid.DisplayReport = this.displayReportPyramid;
 			this.printReportPyramid.Image = null;
 			this.printReportPyramid.Location = new System.Drawing.Point(1160, 333);
 			this.printReportPyramid.Name = "printReportPyramid";
@@ -1376,6 +1378,7 @@ namespace Torn.UI
 			// 
 			// printReportDraw
 			// 
+			this.printReportDraw.DisplayReport = this.displayReportDraw;
 			this.printReportDraw.Dock = System.Windows.Forms.DockStyle.Right;
 			this.printReportDraw.Image = null;
 			this.printReportDraw.Location = new System.Drawing.Point(1160, 0);

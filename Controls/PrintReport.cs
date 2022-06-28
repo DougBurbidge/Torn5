@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace Torn5.Controls
 	{
 		public ZoomReport Report { get; set; }
 		public Image Image { get; set; }
+
+		[Browsable(true)]
+		public DisplayReport DisplayReport { get; set; }
 
 		readonly SaveFileDialog saveFileDialog = new SaveFileDialog();
 		readonly PrintDialog printDialog = new PrintDialog();
@@ -33,18 +37,18 @@ namespace Torn5.Controls
 				radioCsv.Checked ? OutputFormat.Csv :
 				OutputFormat.Png;
 
-			string file = Report.Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
+			string file = (Report ?? DisplayReport.Report).Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
 			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace all other invalid chars with _.
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				if (radioPng.Checked)
-					Image.Save(saveFileDialog.FileName);
+					(Image ?? DisplayReport.BackgroundImage).Save(saveFileDialog.FileName);
 				else
 				{
 					var reports = new ZoomReports()
 					{
-						Report
+						(Report ?? DisplayReport.Report)
 					};
 
 					using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
@@ -62,14 +66,14 @@ namespace Torn5.Controls
 
 		private void ButtonPrintClick(object sender, EventArgs e)
 		{
-			var pd = Report.ToPrint();
+			var pd = (Report ?? DisplayReport.Report).ToPrint();
 			if (printDialog.ShowDialog() == DialogResult.OK)
 				pd.Print();
 		}
 
 		private void ButtonPrintPreviewClick(object sender, EventArgs e)
 		{
-			printPreviewDialog.Document = Report.ToPrint();
+			printPreviewDialog.Document = (Report ?? DisplayReport.Report).ToPrint();
 			printPreviewDialog.ShowDialog();
 		}
 	}
