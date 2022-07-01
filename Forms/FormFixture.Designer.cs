@@ -76,18 +76,21 @@ namespace Torn.UI
 			this.tabPyramid = new System.Windows.Forms.TabPage();
 			this.textDescription = new System.Windows.Forms.TextBox();
 			this.printReportPyramid = new Torn5.Controls.PrintReport();
+			this.displayReportPyramid = new Torn5.Controls.DisplayReport();
 			this.numericPyramidFinalsGames = new System.Windows.Forms.NumericUpDown();
 			this.label19 = new System.Windows.Forms.Label();
 			this.numericPyramidFinalsTeams = new System.Windows.Forms.NumericUpDown();
 			this.label18 = new System.Windows.Forms.Label();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.buttonIdealise = new System.Windows.Forms.Button();
+			this.numericPyramidDesiredTeamsPerGame = new System.Windows.Forms.NumericUpDown();
+			this.label21 = new System.Windows.Forms.Label();
 			this.label20 = new System.Windows.Forms.Label();
 			this.numericPyramidGamesPerTeam = new System.Windows.Forms.NumericUpDown();
 			this.numericPyramidTeams = new System.Windows.Forms.NumericUpDown();
 			this.label17 = new System.Windows.Forms.Label();
 			this.numericPyramidRounds = new System.Windows.Forms.NumericUpDown();
 			this.label11 = new System.Windows.Forms.Label();
-			this.displayReportPyramid = new Torn5.Controls.DisplayReport();
 			this.pyramidRound3 = new Torn5.Controls.PyramidFixture();
 			this.pyramidRound2 = new Torn5.Controls.PyramidFixture();
 			this.pyramidRound1 = new Torn5.Controls.PyramidFixture();
@@ -143,6 +146,7 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsGames)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsTeams)).BeginInit();
 			this.panel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidDesiredTeamsPerGame)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidGamesPerTeam)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidTeams)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidRounds)).BeginInit();
@@ -750,15 +754,14 @@ namespace Torn.UI
 			// 
 			// textDescription
 			// 
-			this.textDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
 			this.textDescription.BackColor = System.Drawing.SystemColors.Window;
 			this.textDescription.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.textDescription.Location = new System.Drawing.Point(910, 122);
 			this.textDescription.Multiline = true;
 			this.textDescription.Name = "textDescription";
 			this.textDescription.ReadOnly = true;
-			this.textDescription.Size = new System.Drawing.Size(311, 205);
+			this.textDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.textDescription.Size = new System.Drawing.Size(600, 200);
 			this.textDescription.TabIndex = 8;
 			this.textDescription.Text = "textDescription";
 			// 
@@ -773,9 +776,21 @@ namespace Torn.UI
 			this.printReportPyramid.Size = new System.Drawing.Size(64, 480);
 			this.printReportPyramid.TabIndex = 10;
 			// 
+			// displayReportPyramid
+			// 
+			this.displayReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.displayReportPyramid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.displayReportPyramid.Location = new System.Drawing.Point(3, 375);
+			this.displayReportPyramid.Name = "displayReportPyramid";
+			this.displayReportPyramid.Report = null;
+			this.displayReportPyramid.Size = new System.Drawing.Size(1151, 254);
+			this.displayReportPyramid.TabIndex = 9;
+			// 
 			// numericPyramidFinalsGames
 			// 
-			this.numericPyramidFinalsGames.Location = new System.Drawing.Point(138, 349);
+			this.numericPyramidFinalsGames.Location = new System.Drawing.Point(138, 337);
 			this.numericPyramidFinalsGames.Maximum = new decimal(new int[] {
             99,
             0,
@@ -794,7 +809,7 @@ namespace Torn.UI
 			// label19
 			// 
 			this.label19.AutoSize = true;
-			this.label19.Location = new System.Drawing.Point(135, 333);
+			this.label19.Location = new System.Drawing.Point(135, 321);
 			this.label19.Name = "label19";
 			this.label19.Size = new System.Drawing.Size(78, 13);
 			this.label19.TabIndex = 6;
@@ -803,7 +818,7 @@ namespace Torn.UI
 			// numericPyramidFinalsTeams
 			// 
 			this.numericPyramidFinalsTeams.Enabled = false;
-			this.numericPyramidFinalsTeams.Location = new System.Drawing.Point(63, 349);
+			this.numericPyramidFinalsTeams.Location = new System.Drawing.Point(63, 337);
 			this.numericPyramidFinalsTeams.Minimum = new decimal(new int[] {
             1,
             0,
@@ -821,7 +836,7 @@ namespace Torn.UI
 			// label18
 			// 
 			this.label18.AutoSize = true;
-			this.label18.Location = new System.Drawing.Point(47, 333);
+			this.label18.Location = new System.Drawing.Point(47, 321);
 			this.label18.Name = "label18";
 			this.label18.Size = new System.Drawing.Size(77, 13);
 			this.label18.TabIndex = 4;
@@ -829,6 +844,9 @@ namespace Torn.UI
 			// 
 			// panel1
 			// 
+			this.panel1.Controls.Add(this.buttonIdealise);
+			this.panel1.Controls.Add(this.numericPyramidDesiredTeamsPerGame);
+			this.panel1.Controls.Add(this.label21);
 			this.panel1.Controls.Add(this.label20);
 			this.panel1.Controls.Add(this.numericPyramidGamesPerTeam);
 			this.panel1.Controls.Add(this.numericPyramidTeams);
@@ -841,10 +859,46 @@ namespace Torn.UI
 			this.panel1.Size = new System.Drawing.Size(1224, 100);
 			this.panel1.TabIndex = 0;
 			// 
+			// buttonIdealise
+			// 
+			this.buttonIdealise.Location = new System.Drawing.Point(437, 46);
+			this.buttonIdealise.Name = "buttonIdealise";
+			this.buttonIdealise.Size = new System.Drawing.Size(75, 23);
+			this.buttonIdealise.TabIndex = 13;
+			this.buttonIdealise.Text = "Idealise";
+			this.buttonIdealise.UseVisualStyleBackColor = true;
+			this.buttonIdealise.Click += new System.EventHandler(this.ButtonIdealiseClick);
+			// 
+			// numericPyramidDesiredTeamsPerGame
+			// 
+			this.numericPyramidDesiredTeamsPerGame.Location = new System.Drawing.Point(362, 49);
+			this.numericPyramidDesiredTeamsPerGame.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericPyramidDesiredTeamsPerGame.Name = "numericPyramidDesiredTeamsPerGame";
+			this.numericPyramidDesiredTeamsPerGame.Size = new System.Drawing.Size(60, 20);
+			this.numericPyramidDesiredTeamsPerGame.TabIndex = 12;
+			this.numericPyramidDesiredTeamsPerGame.Value = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+			// 
+			// label21
+			// 
+			this.label21.AutoSize = true;
+			this.label21.Location = new System.Drawing.Point(359, 33);
+			this.label21.Name = "label21";
+			this.label21.Size = new System.Drawing.Size(121, 13);
+			this.label21.TabIndex = 11;
+			this.label21.Text = "Desired teams per game";
+			// 
 			// label20
 			// 
 			this.label20.AutoSize = true;
-			this.label20.Location = new System.Drawing.Point(210, 24);
+			this.label20.Location = new System.Drawing.Point(210, 33);
 			this.label20.Name = "label20";
 			this.label20.Size = new System.Drawing.Size(139, 13);
 			this.label20.TabIndex = 4;
@@ -852,7 +906,7 @@ namespace Torn.UI
 			// 
 			// numericPyramidGamesPerTeam
 			// 
-			this.numericPyramidGamesPerTeam.Location = new System.Drawing.Point(213, 40);
+			this.numericPyramidGamesPerTeam.Location = new System.Drawing.Point(213, 49);
 			this.numericPyramidGamesPerTeam.Maximum = new decimal(new int[] {
             10,
             0,
@@ -875,7 +929,7 @@ namespace Torn.UI
 			// 
 			// numericPyramidTeams
 			// 
-			this.numericPyramidTeams.Location = new System.Drawing.Point(63, 40);
+			this.numericPyramidTeams.Location = new System.Drawing.Point(63, 49);
 			this.numericPyramidTeams.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -899,7 +953,7 @@ namespace Torn.UI
 			// label17
 			// 
 			this.label17.AutoSize = true;
-			this.label17.Location = new System.Drawing.Point(60, 24);
+			this.label17.Location = new System.Drawing.Point(60, 33);
 			this.label17.Name = "label17";
 			this.label17.Size = new System.Drawing.Size(74, 13);
 			this.label17.TabIndex = 0;
@@ -908,7 +962,7 @@ namespace Torn.UI
 			// numericPyramidRounds
 			// 
 			this.numericPyramidRounds.Enabled = false;
-			this.numericPyramidRounds.Location = new System.Drawing.Point(138, 40);
+			this.numericPyramidRounds.Location = new System.Drawing.Point(138, 49);
 			this.numericPyramidRounds.Maximum = new decimal(new int[] {
             99,
             0,
@@ -931,28 +985,16 @@ namespace Torn.UI
 			// label11
 			// 
 			this.label11.AutoSize = true;
-			this.label11.Location = new System.Drawing.Point(140, 24);
+			this.label11.Location = new System.Drawing.Point(140, 33);
 			this.label11.Name = "label11";
 			this.label11.Size = new System.Drawing.Size(44, 13);
 			this.label11.TabIndex = 2;
 			this.label11.Text = "Rounds";
 			// 
-			// displayReportPyramid
-			// 
-			this.displayReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.displayReportPyramid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-			this.displayReportPyramid.Location = new System.Drawing.Point(3, 375);
-			this.displayReportPyramid.Name = "displayReportPyramid";
-			this.displayReportPyramid.Report = null;
-			this.displayReportPyramid.Size = new System.Drawing.Size(1151, 254);
-			this.displayReportPyramid.TabIndex = 9;
-			// 
 			// pyramidRound3
 			// 
 			this.pyramidRound3.HasRepechage = true;
-			this.pyramidRound3.Location = new System.Drawing.Point(3, 258);
+			this.pyramidRound3.Location = new System.Drawing.Point(3, 246);
 			this.pyramidRound3.Name = "pyramidRound3";
 			this.pyramidRound3.RepechageAdvance = 4;
 			this.pyramidRound3.RepechageGames = 2;
@@ -968,7 +1010,7 @@ namespace Torn.UI
 			// pyramidRound2
 			// 
 			this.pyramidRound2.HasRepechage = true;
-			this.pyramidRound2.Location = new System.Drawing.Point(3, 182);
+			this.pyramidRound2.Location = new System.Drawing.Point(3, 174);
 			this.pyramidRound2.Name = "pyramidRound2";
 			this.pyramidRound2.RepechageAdvance = 8;
 			this.pyramidRound2.RepechageGames = 3;
@@ -984,7 +1026,7 @@ namespace Torn.UI
 			// pyramidRound1
 			// 
 			this.pyramidRound1.HasRepechage = true;
-			this.pyramidRound1.Location = new System.Drawing.Point(3, 106);
+			this.pyramidRound1.Location = new System.Drawing.Point(3, 102);
 			this.pyramidRound1.Name = "pyramidRound1";
 			this.pyramidRound1.RepechageAdvance = 8;
 			this.pyramidRound1.RepechageGames = 4;
@@ -1420,6 +1462,7 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsTeams)).EndInit();
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericPyramidDesiredTeamsPerGame)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidGamesPerTeam)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidTeams)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericPyramidRounds)).EndInit();
@@ -1541,5 +1584,8 @@ namespace Torn.UI
 		private Torn5.Controls.DisplayReport displayReportPyramid;
 		private Torn5.Controls.PrintReport printReportPyramid;
 		private System.Windows.Forms.TextBox textDescription;
+		private System.Windows.Forms.Button buttonIdealise;
+		private System.Windows.Forms.NumericUpDown numericPyramidDesiredTeamsPerGame;
+		private System.Windows.Forms.Label label21;
 	}
 }

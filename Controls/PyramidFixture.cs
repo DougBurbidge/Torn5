@@ -20,6 +20,7 @@ namespace Torn5.Controls
 
 		public int TeamsIn { get => (int)numericRoundTeams.Value; set => numericRoundTeams.Value = value; }
 		public int TeamsOut { get => (int)(numericRoundAdvance.Value + numericRepAdvance.Value); }
+		public int RepechageTeams {  get => (int)numericRoundTeams.Value - (int)numericRoundAdvance.Value; }
 		public int RoundGames { get => (int)numericRoundGames.Value; set => numericRoundGames.Value = value; }
 		public int RepechageGames { get => (int)numericRepGames.Value; set => numericRepGames.Value = value; }
 		public int RoundAdvance { get => (int)numericRoundAdvance.Value; set => numericRoundAdvance.Value = value; }
@@ -45,7 +46,9 @@ namespace Torn5.Controls
 		private void NumericChanged(object sender, System.EventArgs e)
 		{
 			numericRoundTeamsPerGame.Value = numericRoundTeams.Value * RoundGamesPerTeam / numericRoundGames.Value;
-			numericRoundAdvancePercent.Value = numericRoundAdvance.Value / numericRoundTeams.Value * 100;
+
+			if (numericRoundTeams.Value > 0)
+				numericRoundAdvancePercent.Value = numericRoundAdvance.Value / numericRoundTeams.Value * 100;
 
 			if (numericRoundTeams.Value > numericRoundAdvance.Value)
 				numericRepTeams.Value = numericRoundTeams.Value - numericRoundAdvance.Value;

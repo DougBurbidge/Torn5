@@ -118,6 +118,11 @@ namespace Torn5.Controls
 			// 
 			this.numericRoundTeams.Enabled = false;
 			this.numericRoundTeams.Location = new System.Drawing.Point(60, 19);
+			this.numericRoundTeams.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
 			this.numericRoundTeams.Name = "numericRoundTeams";
 			this.numericRoundTeams.Size = new System.Drawing.Size(60, 20);
 			this.numericRoundTeams.TabIndex = 5;
@@ -256,6 +261,11 @@ namespace Torn5.Controls
 			// 
 			this.numericRepTeams.Enabled = false;
 			this.numericRepTeams.Location = new System.Drawing.Point(526, 19);
+			this.numericRepTeams.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
 			this.numericRepTeams.Name = "numericRepTeams";
 			this.numericRepTeams.Size = new System.Drawing.Size(60, 20);
 			this.numericRepTeams.TabIndex = 17;

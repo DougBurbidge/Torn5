@@ -225,7 +225,9 @@ namespace Zoom
 		/// <summary>If set, show a chart for this cell. If ChartCell is not set, use this cell's number; otherwise use the cell specified in ChartCell.</summary>
 		public ChartType ChartType { get; set; }
 		/// <summary>Optional pointer to cell whose value we are to show as a chart. If no ChartType is set, we assume ChartType.Bar.</summary>
-		public ZCell ChartCell { get; set; }  
+		public ZCell ChartCell { get; set; }
+		/// <summary>Color of text in the cell.</summary>
+		public Color TextColor { get; set; }
 		/// <summary>Color of optional horizontal chart bar.</summary>
 		public Color BarColor { get; set; }
 		/// <summary>Color of optional cell outline.</summary>
@@ -928,6 +930,9 @@ namespace Zoom
 			}
 			else
 			{
+				if (width > Width - x - 1)
+					width = Width - x - 1;
+
 				int len = s.Length;
 				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 1, width + 1, height + 1);
 				s.Replace(".0", "", len, s.Length - len);
@@ -1060,7 +1065,7 @@ namespace Zoom
 						s2.Append(digits[(int)((Math.Abs(magnitude) / Math.Pow(10, i)) % 10)]);
 			}
 
-			SvgTextEscaped(s, indent, x, y, width, height, Colors.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure, column.FillWidth);
+			SvgTextEscaped(s, indent, x, y, width, height, cell.TextColor == Color.Empty ? Colors.TextColor : cell.TextColor, column.Alignment, s2.ToString(), cell.CssClass, cell.Hyper, pure, column.FillWidth);
 		}
 
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, Color fontColor, ZAlignment alignment, string text, string cssClass = null, string hyper = null, bool pure = false)
