@@ -136,7 +136,7 @@ namespace Zoom
 
 		public double MaxWidth()
 		{
-			return Math.Max(From.Max(x => x.Width), To.Max(x => x.Width));
+			return Math.Max(From.Any() ? From.Max(x => x.Width) : 0, To.Any() ? To.Max(x => x.Width) : 0);
 		}
 	}
 
@@ -563,7 +563,7 @@ namespace Zoom
 		int MaxArrowCount(int col)
 		{
 			var rowsCrossed = new List<int>();
-			foreach (var arrow in Columns[col].Arrows)
+			foreach (var arrow in Columns[col].Arrows.Where(a => a.From.Any() && a.To.Any()))
 			{
 				int min = Math.Min(arrow.From.Min(x => x.Row), arrow.To.Min(x => x.Row));
 				int max = Math.Max(arrow.From.Max(x => x.Row), arrow.To.Max(x => x.Row));
@@ -930,8 +930,8 @@ namespace Zoom
 			}
 			else
 			{
-				if (width > Width - x - 1)
-					width = Width - x - 1;
+				if (width > Width - x - 1)  // If we're at the extreme right edge of the report,
+					width = Width - x - 1;  // tuck in so we don't draw off the edge.
 
 				int len = s.Length;
 				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 1, width + 1, height + 1);
