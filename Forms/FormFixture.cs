@@ -551,22 +551,13 @@ namespace Torn.UI
 			var advanceRatePerRound = Math.Pow((double)(numericPyramidDesiredTeamsPerGame.Value / numericPyramidTeams.Value), 1.0 / (double)numericPyramidRounds.Value);
 			var advanceRatePerPartRound = 1 - Math.Sqrt(1 - advanceRatePerRound);
 
-			pyramidRound1.RoundGames = (int)Math.Round(pyramidRound1.TeamsIn * pyramidRound1.RoundGamesPerTeam  / numericPyramidDesiredTeamsPerGame.Value);
-			pyramidRound1.RoundAdvance = (int)Math.Round(pyramidRound1.TeamsIn * advanceRatePerPartRound);
-			pyramidRound1.RepechageGames = (int)Math.Round(pyramidRound1.RepechageTeams / numericPyramidDesiredTeamsPerGame.Value);
-			pyramidRound1.RepechageAdvance = (int)Math.Round(pyramidRound1.RepechageTeams * advanceRatePerPartRound);
+			pyramidRound1.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, advanceRatePerPartRound);
 
 			pyramidRound2.TeamsIn = pyramidRound1.TeamsOut;
-			pyramidRound2.RoundGames = (int)Math.Round(pyramidRound2.TeamsIn * pyramidRound2.RoundGamesPerTeam / numericPyramidDesiredTeamsPerGame.Value);
-			pyramidRound2.RoundAdvance = (int)Math.Round(pyramidRound2.TeamsIn * advanceRatePerPartRound);
-			pyramidRound2.RepechageGames = (int)Math.Round(pyramidRound2.RepechageTeams / numericPyramidDesiredTeamsPerGame.Value);
-			pyramidRound2.RepechageAdvance = (int)Math.Round(pyramidRound2.RepechageTeams * advanceRatePerPartRound);
+			pyramidRound2.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, advanceRatePerPartRound);
 
 			pyramidRound3.TeamsIn = pyramidRound2.TeamsOut;
-			pyramidRound3.RoundGames = (int)Math.Round(pyramidRound3.TeamsIn * pyramidRound3.RoundGamesPerTeam / numericPyramidDesiredTeamsPerGame.Value);
-			pyramidRound3.RoundAdvance = (int)Math.Round(pyramidRound3.TeamsIn * advanceRatePerPartRound);
-			pyramidRound3.RepechageGames = (int)Math.Round(pyramidRound3.RepechageTeams / numericPyramidDesiredTeamsPerGame.Value);
-			pyramidRound3.RepechageAdvance = (int)Math.Round(pyramidRound3.RepechageTeams * advanceRatePerPartRound);
+			pyramidRound3.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, advanceRatePerPartRound);
 		}
 
 		const int ColTitle = 1;

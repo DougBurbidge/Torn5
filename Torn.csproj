@@ -180,6 +180,12 @@
     <Compile Include="Controls\PyramidFixture.Designer.cs">
       <DependentUpon>PyramidFixture.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PyramidHalfFixture.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PyramidHalfFixture.Designer.cs">
+      <DependentUpon>PyramidHalfFixture.cs</DependentUpon>
+    </Compile>
     <Compile Include="Finals.cs" />
     <Compile Include="Forms\FormAdhoc.cs">
       <SubType>Form</SubType>
@@ -310,6 +316,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PyramidFixture.resx">
       <DependentUpon>PyramidFixture.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PyramidHalfFixture.resx">
+      <DependentUpon>PyramidHalfFixture.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormAdhoc.resx">
       <DependentUpon>FormAdhoc.cs</DependentUpon>

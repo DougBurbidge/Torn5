@@ -13,27 +13,20 @@ namespace Torn5.Controls
 				round = value;
 				labelRound.Text = "Round " + round.ToString();
 				checkBoxRepechage.Text = "Repêchage " + round.ToString();
-				labelRoundTeams.Text = round == 1 ? "Starting teams" : "From round " + (round - 1).ToString();
-				labelRepTeams.Text = "From round " + round.ToString();
+				fixtureRound.RoundNumber = value;
+				fixtureRepechage.RoundNumber = value;
 			}
 		}
 
-		public int TeamsIn { get => (int)numericRoundTeams.Value; set => numericRoundTeams.Value = value; }
-		public int TeamsOut { get => (int)(numericRoundAdvance.Value + numericRepAdvance.Value); }
-		public int RepechageTeams {  get => (int)numericRoundTeams.Value - (int)numericRoundAdvance.Value; }
-		public int RoundGames { get => (int)numericRoundGames.Value; set => numericRoundGames.Value = value; }
-		public int RepechageGames { get => (int)numericRepGames.Value; set => numericRepGames.Value = value; }
-		public int RoundAdvance { get => (int)numericRoundAdvance.Value; set => numericRoundAdvance.Value = value; }
-		public int RepechageAdvance { get => (int)numericRepAdvance.Value; set => numericRepAdvance.Value = value; }
+		public int TeamsIn { get => fixtureRound.TeamsIn; set => fixtureRound.TeamsIn = value; }
+		public int TeamsOut { get => fixtureRound.Advance + fixtureRepechage.Advance; }
+		public int RepechageTeams {  get => checkBoxRepechage.Checked ? fixtureRepechage.TeamsIn : 0; }
+		public int RoundGames { get => fixtureRound.Games; set => fixtureRound.Games = value; }
+		public int RepechageGames { get => checkBoxRepechage.Checked ? fixtureRepechage.Games : 0; set => fixtureRepechage.Games = value; }
+		public int RoundAdvance { get => fixtureRound.Advance; set => fixtureRound.Advance = value; }
+		public int RepechageAdvance { get => checkBoxRepechage.Checked ? fixtureRepechage.Advance : 0; set => fixtureRepechage.Advance = value; }
 		public bool HasRepechage { get => checkBoxRepechage.Checked; set => checkBoxRepechage.Checked = value; }
-
-		int roundGamesPerTeam = 1;
-		public int RoundGamesPerTeam { get => roundGamesPerTeam; set
-			{
-				roundGamesPerTeam = value;
-				NumericChanged(null, null);
-			}
-		}
+		public int RoundGamesPerTeam { get => fixtureRound.GamesPerTeam; set => fixtureRound.GamesPerTeam = value; }
 
 		[Browsable(true)] [Category("Action")]
 		public event EventHandler ValueChanged;
@@ -43,40 +36,23 @@ namespace Torn5.Controls
 			InitializeComponent();
 		}
 
-		private void NumericChanged(object sender, System.EventArgs e)
+		public void Idealise(int desiredTeamsPerGame, double advanceRatePerPartRound)
 		{
-			numericRoundTeamsPerGame.Value = numericRoundTeams.Value * RoundGamesPerTeam / numericRoundGames.Value;
-
-			if (numericRoundTeams.Value > 0)
-				numericRoundAdvancePercent.Value = numericRoundAdvance.Value / numericRoundTeams.Value * 100;
-
-			if (numericRoundTeams.Value > numericRoundAdvance.Value)
-				numericRepTeams.Value = numericRoundTeams.Value - numericRoundAdvance.Value;
-
-			numericRepTeamsPerGame.Value = numericRepTeams.Value / numericRepGames.Value;
-			numericRepAdvancePercent.Value = numericRepAdvance.Value / numericRepTeams.Value * 100;
-			
-			ValueChanged?.Invoke(this, e);
+			fixtureRound.Idealise(desiredTeamsPerGame, advanceRatePerPartRound);
+			fixtureRepechage.Idealise(desiredTeamsPerGame, advanceRatePerPartRound);
 		}
 
-		private void NumericKeyUp(object sender, KeyEventArgs e)
+		private void HalfFixtureChanged(object sender, System.EventArgs e)
 		{
-			var _ = ((NumericUpDown)sender).Value;  // This black magic forces the control's ValueChanged to fire after the user edits the text in the control.
+			if (fixtureRound.TeamsIn > fixtureRound.Advance)
+				fixtureRepechage.TeamsIn = fixtureRound.TeamsIn - fixtureRound.Advance;
+
+			ValueChanged?.Invoke(this, e);
 		}
 
 		private void CheckBoxRepechageCheckedChanged(object sender, System.EventArgs e)
 		{
-			bool b = checkBoxRepechage.Checked;
-			labelRepAdvance.Visible = b;
-			labelRepAdvancePercent.Visible = b;
-			labelRepGames.Visible = b;
-			labelRepTeams.Visible = b;
-			labelRepTeamsPerGame.Visible = b;
-			numericRepAdvance.Visible = b;
-			numericRepAdvancePercent.Visible = b;
-			numericRepGames.Visible = b;
-			numericRepTeams.Visible = b;
-			numericRepTeamsPerGame.Visible = b;
+			fixtureRepechage.Visible = checkBoxRepechage.Checked;
 		}
 	}
 }
