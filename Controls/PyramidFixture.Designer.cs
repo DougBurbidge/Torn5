@@ -62,7 +62,7 @@ namespace Torn5.Controls
 			// panel1
 			// 
 			this.panel1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("panel1.BackgroundImage")));
-			this.panel1.Location = new System.Drawing.Point(75, 45);
+			this.panel1.Location = new System.Drawing.Point(77, 44);
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(700, 20);
 			this.panel1.TabIndex = 22;
@@ -105,7 +105,7 @@ namespace Torn5.Controls
 			this.Controls.Add(this.checkBoxRepechage);
 			this.Controls.Add(this.labelRound);
 			this.Name = "PyramidFixture";
-			this.Size = new System.Drawing.Size(914, 70);
+			this.Size = new System.Drawing.Size(914, 64);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

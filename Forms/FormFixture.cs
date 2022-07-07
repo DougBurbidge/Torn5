@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Torn;
 using Torn.Report;
+using Torn5.Controls;
 using Zoom;
 
 namespace Torn.UI
@@ -473,30 +474,52 @@ namespace Torn.UI
 			RefreshPyramidFixture();
 		}
 
-		int AddRound(ZoomReport report, string title, List<ZColumn> gameColumns, int plays, int games, int nextGames, int col)
+		int AddRound(ZoomReport report, string title, List<ZColumn> gameColumns, int col, PyramidHalfFixture previousRound, PyramidHalfFixture thisRound, PyramidHalfFixture nextRound)
 		{
-			if (games == 0)
+			if (thisRound.Games == 0)
 				return col;
 
-			gameColumns.Add(report.AddColumn(new ZColumn(games.ToString() + " games", ZAlignment.Center, title)));
+			gameColumns.Add(report.AddColumn(new ZColumn(thisRound.Games.ToString() + " games", ZAlignment.Center, title)));
 
-			var column = report.AddColumn(new ZColumn("", ZAlignment.Center, ""));  // Arrow column.
-			var arrow = new Arrow();
-			column.Arrows.Add(arrow);
+			var arrowColumn = report.AddColumn(new ZColumn("", ZAlignment.Center, ""));
+			var arrow = new Arrow();  // This arrow shows teams leaving this round, and skipping ahead, going to next round or repechage, or being eliminated.
+			arrowColumn.Arrows.Add(arrow);
 
-			for (int i = 0; i < games; i++)
+			if (!thisRound.IsRound)  // This is a repechage
+				arrow.From.Add(new ZArrowEnd(0, Math.Min(previousRound.Advance, 5)));// { Expand = true } );  // so add a From for teams traveling directly from previous round.
+
+			int startRow = thisRound.IsRound ? 0 : 1;
+			for (int i = 0; i < thisRound.Games; i++)
 			{
-				var row = report.Rows.Force(i);
+				var row = report.Rows.Force(i + startRow);
 				var cell = row.Force(col);
 				cell.TextColor = Color.LightGray;
 				cell.Color = Color.White;
 				cell.Border = Color.Black;
-				cell.Text = ((plays + games - i - 1) / games).ToString();
-				arrow.From.Add(new ZArrowEnd(i, 5));
+				cell.Text = ((thisRound.TeamsIn * thisRound.GamesPerTeam + thisRound.Games - i - 1) / thisRound.Games).ToString();
+				arrow.From.Add(new ZArrowEnd(i + startRow, Math.Min((double)thisRound.TeamsIn / thisRound.Games, 5)));
 			}
 
-			for (int i = 0; i < nextGames; i++)
-				arrow.To.Add(new ZArrowEnd(i, 5));
+			if (nextRound == null)
+				arrow.To.Add(new ZArrowEnd(0, Math.Min(thisRound.Advance + (previousRound?.Advance ?? 0), 5)));
+			else
+			{
+				if (!nextRound.IsRound)  // Next is a repechage
+					arrow.To.Add(new ZArrowEnd(0, Math.Min(thisRound.Advance, 5)) { Expand = true } );  // so add a To for teams traveling directly to next round.
+
+				int startRow2 = nextRound.IsRound ? 0 : 1;
+				double teamsOut = nextRound.IsRound ? (previousRound?.Advance ?? 0) + thisRound.Advance : thisRound.TeamsOut;
+				for (int i = 0; i < nextRound.Games; i++)
+					arrow.To.Add(new ZArrowEnd(i + startRow2, Math.Min(teamsOut / nextRound.Games, 5)));
+			}
+
+			if (nextRound == null || nextRound.IsRound)  // This is an elimination round
+			{
+				arrow.To.Add(new ZArrowEnd(thisRound.Games + 1, Math.Min(thisRound.TeamsIn - thisRound.Advance, 5)));  // so add an arrow for eliminated teams
+				var row = report.Rows.Force(thisRound.Games + 1);
+				var cell = row.Force(col + 2);  // and a cell representing that elimination.
+				cell.Text = "X";
+			}
 
 			return col + 2;
 		}
@@ -510,12 +533,12 @@ namespace Torn.UI
 			var gameColumns = new List<ZColumn>();
 			report.SameWidths.Add(gameColumns);
 
-			var col = AddRound(report, "Round 1", gameColumns, pyramidRound1.TeamsIn * pyramidRound1.RoundGamesPerTeam, pyramidRound1.RoundGames, pyramidRound1.RepechageGames, 0);
-			col = AddRound(report, "Rep 1", gameColumns, pyramidRound1.RepechageTeams, pyramidRound1.RepechageGames, pyramidRound2.RoundGames, col);
-			col = AddRound(report, "Round 2", gameColumns, pyramidRound2.TeamsIn * pyramidRound2.RoundGamesPerTeam, pyramidRound2.RoundGames, pyramidRound2.RepechageGames, col);
-			col = AddRound(report, "Rep 2", gameColumns, pyramidRound2.RepechageTeams, pyramidRound2.RepechageGames, pyramidRound3.RoundGames, col);
-			col = AddRound(report, "Round 3", gameColumns, pyramidRound3.TeamsIn * pyramidRound3.RoundGamesPerTeam, pyramidRound3.RoundGames, pyramidRound3.RepechageGames, col);
-			col = AddRound(report, "Rep 3", gameColumns, pyramidRound3.RepechageTeams, pyramidRound3.RepechageGames, 1, col);
+			var col = AddRound(report, "Round 1", gameColumns, 0, null, pyramidRound1.FixtureRound, pyramidRound1.FixtureRepechage);
+			col = AddRound(report, "Rep 1", gameColumns, col, pyramidRound1.FixtureRound, pyramidRound1.FixtureRepechage, pyramidRound2.FixtureRound);
+			col = AddRound(report, "Round 2", gameColumns, col, null, pyramidRound2.FixtureRound, pyramidRound2.FixtureRepechage);
+			col = AddRound(report, "Rep 2", gameColumns, col, pyramidRound2.FixtureRound, pyramidRound2.FixtureRepechage, pyramidRound3.FixtureRound);
+			col = AddRound(report, "Round 3", gameColumns, col, null, pyramidRound3.FixtureRound, pyramidRound3.FixtureRepechage);
+			col = AddRound(report, "Rep 3", gameColumns, col, pyramidRound3.FixtureRound, pyramidRound3.FixtureRepechage, null);
 
 			for (int i = 0; i < numericPyramidFinalsGames.Value; i++)
 			{
@@ -530,20 +553,11 @@ namespace Torn.UI
 
 			displayReportPyramid.Report = report;
 
-			textDescription.Text = "Round 1: ";
-			if (numericPyramidGamesPerTeam.Value != 1)
-				textDescription.Text += "You play " + numericPyramidGamesPerTeam.Value + " games. ";
-			textDescription.Text += "Top " + pyramidRound1.RoundAdvance + " teams advance to Round 2. Remaining " + pyramidRound1.RepechageTeams + " to Repêchage 1.\r\n";
-			textDescription.Text += "Repêchage 1: ";
-			if (numericPyramidGamesPerTeam.Value != 1)
-				textDescription.Text += "You play 1 game. ";
-			textDescription.Text += "Top " + pyramidRound1.RepechageAdvance + " teams advance to Round 2. Remaining " + (pyramidRound1.TeamsIn - pyramidRound1.RoundAdvance - pyramidRound1.RepechageAdvance) + " eliminated.\r\n\r\n\r\n\r\n";
-
-			textDescription.Text += "Round 2: Top " + pyramidRound2.RoundAdvance + " teams advance to Round 2. Remaining " + pyramidRound2.RepechageTeams + " to Repêchage 2.\r\n";
-			textDescription.Text += "Repêchage 2: Top " + pyramidRound2.RepechageAdvance + " teams advance to Round 2. Remaining " + (pyramidRound2.TeamsIn - pyramidRound2.RoundAdvance - pyramidRound2.RepechageAdvance) + " eliminated.\r\n\r\n\r\n\r\n";
-
-			textDescription.Text += "Round 3: Top " + pyramidRound3.RoundAdvance + " teams advance to finals. Remaining " + pyramidRound3.RepechageTeams + " to Repêchage 3.\r\n";
-			textDescription.Text += "Repêchage 3: Top " + pyramidRound3.RepechageAdvance + " teams advance to finals. Remaining " + (pyramidRound3.TeamsIn - pyramidRound3.RoundAdvance - pyramidRound3.RepechageAdvance) + " eliminated.\r\n";
+			textDescription.Text = pyramidRound1.Description();
+			textDescription.Text += "\r\n\r\n\r\n";
+			textDescription.Text += pyramidRound2.Description();
+			textDescription.Text += "\r\n\r\n\r\n";
+			textDescription.Text += pyramidRound3.Description();
 		}
 
 		private void ButtonIdealiseClick(object sender, EventArgs e)

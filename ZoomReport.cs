@@ -119,6 +119,11 @@ namespace Zoom
 		{
 			return Row - ((ZArrowEnd)obj).Row;
 		}
+
+		public override string ToString()
+		{
+			return "Row " + Row + "; Width " + Width + (Expand ? " Expand" : "");
+		}
 	}
 
 	/// <summary>An Arrow is a connection between some cells. Cells in the column to the left are "From" entries. Cells in the column to the right are "To". The arrow will join all these in a pretty way.</summary>
@@ -559,19 +564,17 @@ namespace Zoom
 					RemoveColumn(i);
 		}
 
-		/// <summary>Return the largest number of arrows starting in, ending in, or crossing a row.</summary>
-		int MaxArrowCount(int col)
+		/// <summary>Return the largest total width of arrows at any single point in this column.</summary>
+		double MaxArrowWidth(int col)
 		{
-			var rowsCrossed = new List<int>();
-			foreach (var arrow in Columns[col].Arrows.Where(a => a.From.Any() && a.To.Any()))
-			{
-				int min = Math.Min(arrow.From.Min(x => x.Row), arrow.To.Min(x => x.Row));
-				int max = Math.Max(arrow.From.Max(x => x.Row), arrow.To.Max(x => x.Row));
-				for (int i = min; i <= max; i++)
-					rowsCrossed.Add(i);
-			}
+			if (!Columns[col].Arrows.Any(a => a.From.Any() && a.To.Any()))
+				return 0.0;
 
-			return rowsCrossed.Any() ? rowsCrossed.GroupBy(r => r).Max(g => g.Count()) : 0;
+			double maxWidth = 0.0;
+			for (int row = Columns[col].Arrows.Min(a => Math.Min(a.From.Min(x => x.Row), a.To.Min(x => x.Row))); row < Columns[col].Arrows.Max(a => Math.Max(a.From.Max(x => x.Row), a.To.Max(x => x.Row))); row++)
+				maxWidth = Math.Max(maxWidth, Columns[col].Arrows.Where(a => (a.From.Any(x => x.Row <= row) && a.To.Any(x => x.Row >= row)) || (a.From.Any(x => x.Row >= row) && a.To.Any(x => x.Row <= row))).Sum(a => a.MaxWidth()));
+
+			return maxWidth;
 		}
 
 		/// <summary>For each column, calculate a pixel width, and find the min and max values.</summary>
@@ -583,8 +586,8 @@ namespace Zoom
 
 			for (int col = 0; col < Columns.Count; col++)
 			{
-				int maxArrows = MaxArrowCount(col);
-				float widest = maxArrows == 0 ? 1 : maxArrows <= 3 ? 15 : maxArrows * 5; //Columns[col].Arrows.Any() ? 15 : 1;
+				var maxArrowWidth = MaxArrowWidth(col);
+				float widest = maxArrowWidth == 0 ? 1 : (float)maxArrowWidth * 3;
 				float total = widest;
 				int count = 1;
 				double min = 0.0;
@@ -1137,7 +1140,7 @@ namespace Zoom
 		{
 			if (end.Expand)
 				while (Columns.Valid(col - 1) && Rows[end.Row].Valid(col - 1) && Rows[end.Row][col - 1].Empty() &&
-						!Columns[col - 1].Arrows.Exists(a => a.From.Exists(f => f.Row == end.Row) || a.To.Exists(t => t.Row == end.Row)))
+						!Columns[col - 1].Arrows.Exists(a => a.To.Exists(t => t.Row == end.Row)))
 					col--;
 
 			return widths.Take(col).Sum(w => w + 1) + 0.5F;
@@ -1147,7 +1150,7 @@ namespace Zoom
 		{
 			if (end.Expand)
 				while (Columns.Valid(col + 1) && Rows[end.Row].Valid(col + 1) && Rows[end.Row][col + 1].Empty() &&
-						!Columns[col + 1].Arrows.Exists(a => a.From.Exists(f => f.Row == end.Row) || a.To.Exists(t => t.Row == end.Row)))
+						!Columns[col + 1].Arrows.Exists(a => a.From.Exists(f => f.Row == end.Row)))
 					col++;
 
 			return widths.Take(col + 1).Sum(w => w + 1) - 1.5F;
