@@ -43,7 +43,12 @@ namespace Torn5.Controls
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				if (radioPng.Checked)
+				{
+					if (numericScale.Visible)
+						Image = (Report ?? DisplayReport.Report).ToBitmap((float)numericScale.Value);
+
 					(Image ?? DisplayReport.BackgroundImage).Save(saveFileDialog.FileName);
+				}
 				else
 				{
 					var reports = new ZoomReports()
@@ -75,6 +80,13 @@ namespace Torn5.Controls
 		{
 			printPreviewDialog.Document = (Report ?? DisplayReport.Report).ToPrint();
 			printPreviewDialog.ShowDialog();
+		}
+
+		private void radioPng_Click(object sender, EventArgs e)
+		{
+			numericScale.Visible = (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift)) ||
+				(ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Alt)) ||
+				(ModifierKeys.HasFlag(Keys.Shift) && ModifierKeys.HasFlag(Keys.Alt));
 		}
 	}
 }

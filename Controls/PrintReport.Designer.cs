@@ -41,11 +41,14 @@ namespace Torn5.Controls
 			this.radioTsv = new System.Windows.Forms.RadioButton();
 			this.radioTables = new System.Windows.Forms.RadioButton();
 			this.radioSvg = new System.Windows.Forms.RadioButton();
+			this.numericScale = new System.Windows.Forms.NumericUpDown();
 			this.groupBoxOutputFormat.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericScale)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// groupBoxOutputFormat
 			// 
+			this.groupBoxOutputFormat.Controls.Add(this.numericScale);
 			this.groupBoxOutputFormat.Controls.Add(this.label2);
 			this.groupBoxOutputFormat.Controls.Add(this.radioPng);
 			this.groupBoxOutputFormat.Controls.Add(this.buttonPrintPreview);
@@ -75,13 +78,14 @@ namespace Torn5.Controls
 			// 
 			// radioPng
 			// 
-			this.radioPng.Location = new System.Drawing.Point(6, 276);
+			this.radioPng.Location = new System.Drawing.Point(6, 278);
 			this.radioPng.Name = "radioPng";
-			this.radioPng.Size = new System.Drawing.Size(56, 32);
+			this.radioPng.Size = new System.Drawing.Size(56, 23);
 			this.radioPng.TabIndex = 6;
 			this.radioPng.Tag = 3;
 			this.radioPng.Text = "PNG";
 			this.radioPng.UseVisualStyleBackColor = true;
+			this.radioPng.Click += new System.EventHandler(this.radioPng_Click);
 			// 
 			// buttonPrintPreview
 			// 
@@ -174,6 +178,25 @@ namespace Torn5.Controls
 			this.radioSvg.Text = "HTML SVG";
 			this.radioSvg.UseVisualStyleBackColor = true;
 			// 
+			// numericScale
+			// 
+			this.numericScale.DecimalPlaces = 2;
+			this.numericScale.Location = new System.Drawing.Point(6, 303);
+			this.numericScale.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+			this.numericScale.Name = "numericScale";
+			this.numericScale.Size = new System.Drawing.Size(52, 20);
+			this.numericScale.TabIndex = 11;
+			this.numericScale.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericScale.Visible = false;
+			// 
 			// PrintReport
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -182,6 +205,7 @@ namespace Torn5.Controls
 			this.Name = "PrintReport";
 			this.Size = new System.Drawing.Size(64, 480);
 			this.groupBoxOutputFormat.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.numericScale)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -200,5 +224,6 @@ namespace Torn5.Controls
 		private System.Windows.Forms.RadioButton radioTsv;
 		private System.Windows.Forms.RadioButton radioTables;
 		private System.Windows.Forms.RadioButton radioSvg;
+		private System.Windows.Forms.NumericUpDown numericScale;
 	}
 }

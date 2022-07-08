@@ -697,6 +697,17 @@ namespace Zoom
 			return document.Draw();
 		}
 
+		/// <summary>Render a report to bitmap.</summary>
+		public Bitmap ToBitmap(float scale)
+		{
+			double aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
+
+			document.Width = new SvgUnit(SvgUnitType.Pixel, document.Width * scale);
+			document.Height = new SvgUnit(SvgUnitType.Pixel, document.Height * scale);
+
+			return document.Draw();
+		}
+
 		public override string ToCsv(char separator)
 		{
 			StringBuilder s = new StringBuilder();
