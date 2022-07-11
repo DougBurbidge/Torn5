@@ -227,30 +227,5 @@ namespace Torn
 
 			return s + "s";
 		}
-
-		static void JsonKeyValueInternal(StringBuilder sb, int indent, string key, string value, bool comma)
-		{
-			sb.Append('\t', indent);
-			sb.Append('"');
-			sb.Append(key);
-			sb.Append('"');
-			sb.Append(':');
-			sb.Append(value);
-			if (comma)
-				sb.Append(',');
-			sb.Append('\n');
-		}
-	
-		public static void JsonKeyValue(StringBuilder sb, int indent, string key, string value, bool comma = true)
-		{
-			if (!string.IsNullOrEmpty(value) || !comma)
-				JsonKeyValueInternal(sb, indent, key, "\"" + value + "\"", comma);
-		}
-
-		public static void JsonKeyValue(StringBuilder sb, int indent, string key, int? value, int? defualt = null, bool comma = true)
-		{
-			if ((value != null && value != defualt) || !comma)
-				JsonKeyValueInternal(sb, indent, key, ((int)value).ToString(CultureInfo.InvariantCulture), comma);
-		}
 	}
 }

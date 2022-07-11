@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Torn
 {
@@ -38,13 +38,14 @@ namespace Torn
 		public virtual List<LaserGamePlayer> ReadPlayers(DbDataReader reader)
 		{
 			var players = new List<LaserGamePlayer>();
+			string name;
 			try
 			{
 				while (reader.Read())
 					players.Add(new LaserGamePlayer
 					            {
 					            	Alias = reader.GetString(0),
-					            	Name = reader.GetString(1),
+					            	Name = (name = reader.GetString(1)) == "" ? null : name,
 					            	Id = reader.GetString(2)
 					            }
 					           );
@@ -63,24 +64,15 @@ namespace Torn
 	/// <summary>Represents a player's identity.</summary>
 	public class LaserGamePlayer
 	{
+		[JsonPropertyName("alias")]
 		public string Alias { get; set; }
+
+		[JsonPropertyName("name")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] 
 		public string Name { get; set; }
+
+		[JsonPropertyName("id")]
 		public string Id { get; set; }
-
-		public void ToJson(StringBuilder sb, int indent)
-		{
-			sb.Append('\t', indent);
-			sb.Append('{');
-			sb.Append('\n');
-
-			Utility.JsonKeyValue(sb, indent + 1, "alias", Alias);
-			if (!string.IsNullOrEmpty(Name))
-				Utility.JsonKeyValue(sb, indent + 1, "name", Name);
-			Utility.JsonKeyValue(sb, indent + 1, "id", Id, false);
-
-			sb.Append('\t', indent);
-			sb.Append('}');
-		}
 	}
 
 	/// <summary>This is a fake stub lasergame server for test purposes.</summary>

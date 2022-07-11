@@ -5,10 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -1514,7 +1512,6 @@ namespace Torn
 	}
 
 	/// <summary>Represents a game as stored on the laser game server.</summary>
-	[DataContract]
 	public class ServerGame: IComparable<ServerGame>
 	{
 		[JsonIgnore]
@@ -1532,6 +1529,7 @@ namespace Torn
 		[JsonPropertyName("players")]
 		public List<ServerPlayer> Players { get; set; }
 		[JsonPropertyName("inProgress")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public bool InProgress { get; set; }
 		[JsonIgnore]
 		public bool OnServer { get; set; }
@@ -1553,58 +1551,6 @@ namespace Torn
 		{
 			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + (OnServer ? "on server " : "") + Events.Count.ToString();
 		}
-/*
-		public void ToJson(StringBuilder sb, int indent)
-		{
-			sb.Append('\t', indent);
-			sb.Append('{');
-			sb.Append('\n');
-
-			if (!string.IsNullOrEmpty(Description))
-				Utility.JsonKeyValue(sb, indent + 1, "description", Description);
-			Utility.JsonKeyValue(sb, indent + 1, "startTime", Time.ToString("s"));
-			if (InProgress)
-				Utility.JsonKeyValue(sb, indent + 1, "inProgress", 1, 0, false);
-			else
-				Utility.JsonKeyValue(sb, indent + 1, "endTime", Time.ToString("s"), false);
-
-			sb.Append('\t', indent);
-			sb.Append('}');
-		}
-
-		public void ToJson2(StringBuilder sb, int indent)
-		{
-			sb.Append('\t', indent);
-			sb.Append('{');
-			sb.Append('\n');
-
-			Utility.JsonKeyValue(sb, indent + 1, "description", Description);
-			Utility.JsonKeyValue(sb, indent + 1, "startTime", Time.ToString("s"));
-			if (InProgress)
-				Utility.JsonKeyValue(sb, indent + 1, "inProgress", 1);
-			else
-				Utility.JsonKeyValue(sb, indent + 1, "endTime", Time.ToString("s"));
-
-			sb.Append('\t', indent + 1);
-			sb.Append("players:[\n");
-			foreach (var player in Players)
-			{
-				player.ToJson(sb, indent + 2);
-				sb.Append(",\n");
-			}
-			sb.Length -= 2;
-			sb.Append('\n');
-			sb.Append('\t', indent + 1);
-			sb.Append("]\n");
-			sb.Append('\t', indent);
-			sb.Append('}');
-		}
-		
-		public ServerGame(string json)
-		{
-			
-		}
-*/
 	}
 
 	/// <summary>Represents a player as stored on the laser game server.</summary>
@@ -1638,40 +1584,6 @@ namespace Torn
 		public override string ToString()
 		{
 			return "ServerPlayer " + Alias + "; " + PlayerId;
-		}
-
-		public void ToJson(StringBuilder sb, int indent)
-		{
-			sb.Append('\t', indent);
-			sb.Append('{');
-			sb.Append('\n');
-
-			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerId", ServerPlayerId);
-			Utility.JsonKeyValue(sb, indent + 1, "pAndCPlayerTeamId", ServerTeamId);
-			Utility.JsonKeyValue(sb, indent + 1, "alias", Alias);
-
-			Utility.JsonKeyValue(sb, indent + 1, "teamId", TeamId);
-			Utility.JsonKeyValue(sb, indent + 1, "playerId", PlayerId);
-			Utility.JsonKeyValue(sb, indent + 1, "pack", Pack);
-			Utility.JsonKeyValue(sb, indent + 1, "score", Score.ToString());
-			Utility.JsonKeyValue(sb, indent + 1, "rank", (int)Rank, 0);
-
-			if (Colour != Colour.None)
-				Utility.JsonKeyValue(sb, indent + 1, "colour", Colour.ToString());
-
-			Utility.JsonKeyValue(sb, indent + 1, "hitsBy", HitsBy, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "hitsOn", HitsOn, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "basehits", BaseHits, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "baseDestroys", BaseDestroys, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "baseDenies", BaseDenies, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "baseDenied", BaseDenied, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "yellowCards", YellowCards, 0);
-			Utility.JsonKeyValue(sb, indent + 1, "redCards", RedCards, 0);
-
-			sb.Length -= 2;
-			sb.Append('\n');
-			sb.Append('\t', indent);
-			sb.Append('}');
 		}
 	}
 }

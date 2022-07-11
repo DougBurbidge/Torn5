@@ -358,6 +358,8 @@ xhr.send();
 				}
 				else if (lastPart.EndsWith(".html"))
 					return HtmlResponse(request.RawUrl, lastPart, holder);
+				else if (lastPart.EndsWith(".png"))
+					return ImageResponse(request.RawUrl, lastPart, holder);
 				else
 					return RestResponse(request);
 			}
@@ -408,6 +410,19 @@ xhr.send();
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
 
+		string ImageResponse(string rawUrl, string lastPart, Holder holder)
+		{
+			var sb = new StringBuilder();
+			string imagePath = Path.Combine(ExportFolder, holder.Key, lastPart);
+			if (File.Exists(imagePath))
+			{
+				byte[] fileBytes = File.ReadAllBytes(imagePath);
+				foreach (byte b in fileBytes)
+					sb.Append(b);
+			}
+			return sb.ToString();
+		}
+
 		private string RestGame(string gameTime)
 		{
 			var sb = new StringBuilder();
@@ -426,7 +441,7 @@ xhr.send();
 
 		private string RestGames()
 		{
-			var serverGames = Games == null ? null :Games();
+			var serverGames = Games == null ? null : Games();
 			if (serverGames == null)
 				return JsonSerializer.Serialize(new Error { Message = "Games list not initialised. (Perhaps no lasergame server is configured.)" });
 			else
@@ -436,16 +451,7 @@ xhr.send();
 
 		string RestPlayers(string mask)
 		{
-			var sb = new StringBuilder();
-			sb.Append("\"players\":[\n");
-			foreach (var player in Players(mask))
-			{
-				player.ToJson(sb, 1);
-				sb.Append(",\n");
-			}
-			sb.Length -= 2;
-			sb.Append("\n]\n");
-			return sb.ToString();
+			return JsonSerializer.Serialize<List<LaserGamePlayer>>(Players(mask));
 		}
 
 		string XmlHttpRequestScoreBoard()
@@ -658,6 +664,18 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 			}
 		}
 
+		static string OneWorm(Game game, string path, Holder holder)
+		{
+			if (game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress)
+			{
+				string imageName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
+				string imagePath = Path.Combine(path, holder.Key, imageName);
+				if (game.Reported && File.Exists(imagePath))
+					return "<img src=\"" + holder.Key + "/" + imageName + "\"/>";
+			}
+			return null;
+		}
+
 		/// <summary>Write out fixtures for the selected leagues.</summary>
 		public static void ExportFixtures(string path, List<Holder> leagues)
 		{
@@ -733,7 +751,7 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 				var round1Games = new List<Game>();
 				foreach (var league in leagues)
 					round1Games.AddRange(league.AllGames.Where(g => g.Title == "Round Robin" || g.Title == "Round 1" ||
-					                                         g.Title == "Rep 1" || g.Title == "Repechage 1"));
+					                                         g.Title == "Rep 1" || g.Title == "Repechage 1" || g.Title == "Repêchage 1"));
 				
 				if (round1Games.Count == 0)
 					foreach (var league in leagues)
@@ -748,7 +766,7 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 			}
 		}
 
-		/// <summary>Write a single pack report incorporating data from all the selected leagues.</summary>
+		/// <summary>Write a single tech report incorporating data from all the selected leagues.</summary>
 		public static void TechReport(string path, List<League> leagues, ReportTemplate reportTemplate, OutputFormat outputFormat)
 		{
 			if (path != null)
