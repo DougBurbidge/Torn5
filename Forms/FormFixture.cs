@@ -6,8 +6,6 @@ using System.Linq;
 using System.Windows.Forms;
 using Torn;
 using Torn.Report;
-using Torn5.Controls;
-using Zoom;
 
 namespace Torn.UI
 {
@@ -434,8 +432,12 @@ namespace Torn.UI
 			panelGraphic.Invalidate();
 		}
 
+		Pyramid Pyramid = new Pyramid();
 		private void TabPyramidSelected()
 		{
+			Pyramid.Rounds.Add(pyramidRound1);
+			Pyramid.Rounds.Add(pyramidRound2);
+			Pyramid.Rounds.Add(pyramidRound3);
 			RefreshPyramidFixture();
 		}
 
@@ -474,104 +476,15 @@ namespace Torn.UI
 			RefreshPyramidFixture();
 		}
 
-		int AddRound(ZoomReport report, string title, List<ZColumn> gameColumns, int col, PyramidHalfFixture previousRound, PyramidHalfFixture thisRound, PyramidHalfFixture nextRound)
-		{
-			if (thisRound.Games == 0)
-				return col;
-
-			gameColumns.Add(report.AddColumn(new ZColumn(thisRound.Games.ToString() + " games", ZAlignment.Center, title)));
-
-			var arrowColumn = report.AddColumn(new ZColumn("", ZAlignment.Center, ""));
-			var arrow = new Arrow();  // This arrow shows teams leaving this round, and skipping ahead, going to next round or repechage, or being eliminated.
-			arrowColumn.Arrows.Add(arrow);
-
-			if (!thisRound.IsRound)  // This is a repechage
-				arrow.From.Add(new ZArrowEnd(0, Math.Min(previousRound.Advance, 5)));// { Expand = true } );  // so add a From for teams traveling directly from previous round.
-
-			int startRow = thisRound.IsRound ? 0 : 1;
-			for (int i = 0; i < thisRound.Games; i++)
-			{
-				var row = report.Rows.Force(i + startRow);
-				var cell = row.Force(col);
-				cell.TextColor = Color.LightGray;
-				cell.Color = Color.White;
-				cell.Border = Color.Black;
-				cell.Text = ((thisRound.TeamsIn * thisRound.GamesPerTeam + thisRound.Games - i - 1) / thisRound.Games).ToString();
-				arrow.From.Add(new ZArrowEnd(i + startRow, Math.Min((double)thisRound.TeamsIn / thisRound.Games, 5)));
-			}
-
-			if (nextRound == null)
-				arrow.To.Add(new ZArrowEnd(0, Math.Min(thisRound.Advance + (previousRound?.Advance ?? 0), 5)));
-			else
-			{
-				if (!nextRound.IsRound)  // Next is a repechage
-					arrow.To.Add(new ZArrowEnd(0, Math.Min(thisRound.Advance, 5)) { Expand = true } );  // so add a To for teams traveling directly to next round.
-
-				int startRow2 = nextRound.IsRound ? 0 : 1;
-				double teamsOut = nextRound.IsRound ? (previousRound?.Advance ?? 0) + thisRound.Advance : thisRound.TeamsOut;
-				for (int i = 0; i < nextRound.Games; i++)
-					arrow.To.Add(new ZArrowEnd(i + startRow2, Math.Min(teamsOut / nextRound.Games, 5)));
-			}
-
-			if (nextRound == null || nextRound.IsRound)  // This is an elimination round
-			{
-				arrow.To.Add(new ZArrowEnd(thisRound.Games + 1, Math.Min(thisRound.TeamsIn - thisRound.Advance, 5)));  // so add an arrow for eliminated teams
-				var row = report.Rows.Force(thisRound.Games + 1);
-				var cell = row.Force(col + 2);  // and a cell representing that elimination.
-				cell.Text = "X";
-			}
-
-			return col + 2;
-		}
-
 		void RefreshPyramidFixture()
 		{
-			var report = new ZoomReport(Holder.League.Title + " Pyramid");
-			report.Colors.BackgroundColor = Color.Empty;
-			report.Colors.OddColor = Color.Empty;
-
-			var gameColumns = new List<ZColumn>();
-			report.SameWidths.Add(gameColumns);
-
-			var col = AddRound(report, "Round 1", gameColumns, 0, null, pyramidRound1.FixtureRound, pyramidRound1.FixtureRepechage);
-			col = AddRound(report, "Rep 1", gameColumns, col, pyramidRound1.FixtureRound, pyramidRound1.FixtureRepechage, pyramidRound2.FixtureRound);
-			col = AddRound(report, "Round 2", gameColumns, col, null, pyramidRound2.FixtureRound, pyramidRound2.FixtureRepechage);
-			col = AddRound(report, "Rep 2", gameColumns, col, pyramidRound2.FixtureRound, pyramidRound2.FixtureRepechage, pyramidRound3.FixtureRound);
-			col = AddRound(report, "Round 3", gameColumns, col, null, pyramidRound3.FixtureRound, pyramidRound3.FixtureRepechage);
-			col = AddRound(report, "Rep 3", gameColumns, col, pyramidRound3.FixtureRound, pyramidRound3.FixtureRepechage, null);
-
-			for (int i = 0; i < numericPyramidFinalsGames.Value; i++)
-			{
-				gameColumns.Add(report.AddColumn(new ZColumn(((char)((int)'A' + i)).ToString(), ZAlignment.Center, "Finals")));
-
-				var cell = report.Rows.Force(0).Force(i + col);
-				cell.TextColor = Color.LightGray;
-				cell.Color = Color.White;
-				cell.Border = Color.Black;
-				cell.Text = numericPyramidFinalsTeams.Text;
-			}
-
-			displayReportPyramid.Report = report;
-
-			textDescription.Text = pyramidRound1.Description();
-			textDescription.Text += "\r\n\r\n\r\n";
-			textDescription.Text += pyramidRound2.Description();
-			textDescription.Text += "\r\n\r\n\r\n";
-			textDescription.Text += pyramidRound3.Description();
+			displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, (int)numericPyramidFinalsTeams.Value);
+			textDescription.Text = displayReportPyramid.Report.Description;
 		}
 
 		private void ButtonIdealiseClick(object sender, EventArgs e)
 		{
-			var advanceRatePerRound = Math.Pow((double)(numericPyramidDesiredTeamsPerGame.Value / numericPyramidTeams.Value), 1.0 / (double)numericPyramidRounds.Value);
-			var advanceRatePerPartRound = 1 - Math.Sqrt(1 - advanceRatePerRound);
-
-			pyramidRound1.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, advanceRatePerPartRound);
-
-			pyramidRound2.TeamsIn = pyramidRound1.TeamsOut;
-			pyramidRound2.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, advanceRatePerPartRound);
-
-			pyramidRound3.TeamsIn = pyramidRound2.TeamsOut;
-			pyramidRound3.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, advanceRatePerPartRound);
+			Pyramid.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, (int)numericPyramidTeams.Value);
 		}
 
 		const int ColTitle = 1;

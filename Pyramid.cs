@@ -2,10 +2,125 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text;
+using Torn5.Controls;
 using Zoom;
 
 namespace Torn
 {
+	/// <summary>Creates a pyramid fixture with several rounds and repêchages. Outputs a report showing that fixture.</summary>
+	class Pyramid
+	{
+		public List<PyramidFixture> Rounds { get; } = new List<PyramidFixture>();
+		public ZoomReport Report(string title, int finalsGames, int finalsTeams)
+		{
+			var report = new ZoomReport(title + " Pyramid");
+			report.Colors.BackgroundColor = Color.Empty;
+			report.Colors.OddColor = Color.Empty;
+
+			var gameColumns = new List<ZColumn>();
+			report.SameWidths.Add(gameColumns);
+
+			var col = 0;
+			for (int i = 0; i < Rounds.Count; i++)
+			{
+				col = AddRound(report, "Round " + Rounds[i].Round, gameColumns, col, null, Rounds[i].FixtureRound, Rounds[i].FixtureRepechage);
+				if (Rounds[i].HasRepechage)
+					col = AddRound(report, "Rep " + Rounds[i].Round, gameColumns, col, Rounds[i].FixtureRound, Rounds[i].FixtureRepechage, i == Rounds.Count - 1 ? null : Rounds[i + 1].FixtureRound);
+			}
+
+			for (int i = 0; i < finalsGames; i++)
+			{
+				gameColumns.Add(report.AddColumn(new ZColumn(((char)((int)'A' + i)).ToString(), ZAlignment.Center, "Finals")));
+
+				var cell = report.Rows.Force(0).Force(i + col);
+				cell.TextColor = Color.LightGray;
+				cell.Color = Color.White;
+				cell.Border = Color.Black;
+				cell.Text = finalsTeams.ToString();
+			}
+
+			var sb = new StringBuilder();
+
+			foreach (var round in Rounds)
+			{
+				sb.Append(round.Description());
+				sb.Append("\r\n\r\n\r\n");
+			}
+			report.Description = sb.ToString();
+
+			return report;
+		}
+
+		int AddRound(ZoomReport report, string title, List<ZColumn> gameColumns, int col, PyramidHalfFixture previousRound, PyramidHalfFixture thisRound, PyramidHalfFixture nextRound)
+		{
+			if (thisRound.Games == 0)
+				return col;
+
+			gameColumns.Add(report.AddColumn(new ZColumn(thisRound.Games.ToString() + " games", ZAlignment.Center, title)));
+
+			var arrowColumn = report.AddColumn(new ZColumn("", ZAlignment.Center, ""));
+			var arrow = new Arrow();  // This arrow shows teams leaving this round, and skipping ahead, going to next round or repechage, or being eliminated.
+			arrowColumn.Arrows.Add(arrow);
+
+			if (!thisRound.IsRound)  // This is a repechage
+				arrow.From.Add(new ZArrowEnd(0, Math.Min(previousRound.Advance, 5)));  // so add a From for teams traveling directly from previous round.
+
+			int startRow = thisRound.IsRound ? 0 : 1;
+			for (int i = 0; i < thisRound.Games; i++)
+			{
+				var row = report.Rows.Force(i + startRow);
+				var cell = row.Force(col);
+				cell.TextColor = Color.LightGray;
+				cell.Color = Color.White;
+				cell.Border = Color.Black;
+				cell.Text = ((thisRound.TeamsIn * thisRound.GamesPerTeam + thisRound.Games - i - 1) / thisRound.Games).ToString();
+				arrow.From.Add(new ZArrowEnd(i + startRow, Math.Min((double)thisRound.TeamsIn / thisRound.Games, 5)));
+			}
+
+			if (nextRound == null)
+				arrow.To.Add(new ZArrowEnd(0, Math.Min(thisRound.Advance + (previousRound?.Advance ?? 0), 5)));
+			else
+			{
+				if (!nextRound.IsRound)  // Next is a repechage
+					arrow.To.Add(new ZArrowEnd(0, Math.Min(thisRound.Advance, 5)) { Expand = true });  // so add a To for teams traveling directly to next round.
+
+				int startRow2 = nextRound.IsRound ? 0 : 1;
+				double teamsOut = nextRound.IsRound ? (previousRound?.Advance ?? 0) + thisRound.Advance : thisRound.TeamsOut;
+				for (int i = 0; i < nextRound.Games; i++)
+					arrow.To.Add(new ZArrowEnd(i + startRow2, Math.Min(teamsOut / nextRound.Games, 5)));
+			}
+
+			if (nextRound == null || nextRound.IsRound)  // This is an elimination round
+			{
+				arrow.To.Add(new ZArrowEnd(thisRound.Games + 1, Math.Min(thisRound.TeamsIn - thisRound.Advance, 5)));  // so add an arrow for eliminated teams
+				var row = report.Rows.Force(thisRound.Games + 1);
+				var cell = row.Force(col + 2);  // and a cell representing that elimination.
+				cell.Text = "X";
+			}
+
+			return col + 2;
+		}
+
+		/// <summary>
+		/// Set all rounds and repêchages to a similar advance percentage; i.e. all games are approximately the same difficulty.
+		/// Number of teams and games in each round and repêchage are adjusted accordingly.
+		/// </summary>
+		public void Idealise(int desiredTeamsPerGame, int teams)
+		{
+			var advanceRatePerRound = Math.Pow((double)desiredTeamsPerGame / teams, 1.0 / Rounds.Count);
+			var advanceRatePerPartRound = 1 - Math.Sqrt(1 - advanceRatePerRound);
+
+			for (int i = 0; i < Rounds.Count; i++)
+			{
+				Rounds[i].Idealise(desiredTeamsPerGame, advanceRatePerPartRound);
+
+				if (i < Rounds.Count - 1)
+					Rounds[i + 1].TeamsIn = Rounds[i].TeamsOut;
+			}
+		}
+	}
+
 	class PyramidDraw
 	{
 		/// <summary>
