@@ -239,7 +239,7 @@ namespace Torn.Report
 		public ServerGame MostRecentServerGame { get; set; }
 		public string ExportFolder { get; set; }
 		public Func<int> Elapsed { get; set; }  // Learn you Func Prog on five minute quick!
-		public Func<List<ServerGame>> Games { get; set; }
+		public Func<List<ServerGame>> GetGames { get; set; }
 		public Action<ServerGame> PopulateGame { get; set; }
 		public Func<string, List<LaserGamePlayer>> Players { get; set; }
 
@@ -425,28 +425,40 @@ xhr.send();
 
 		private string RestGame(string gameTime)
 		{
-			var sb = new StringBuilder();
 			if (serverGames == null)
-				serverGames = Games == null ? null : Games();
+				serverGames = GetGames?.Invoke();
 			if (serverGames == null)
 				return JsonSerializer.Serialize(new Error { Message = "Games list not initialised. (Perhaps no lasergame server is configured.)" });
+
+			if (gameTime.EndsWith(".json"))
+				gameTime = gameTime.Substring(0, gameTime.Length - 5);
 
 			var game = serverGames.Find(g => g.Time.ToString("s") == gameTime);
 			if (game == null)
 				return JsonSerializer.Serialize(new Error { Message = "Game " + gameTime + " not found." });
 
+			return RestGame(game);
+		}
+
+		private string RestGame(ServerGame game)
+		{
 			PopulateGame(game);
-			return JsonSerializer.Serialize<ServerGame>(game);
+			return JsonSerializer.Serialize<ServerGame>(game, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 		}
 
 		private string RestGames()
 		{
-			var serverGames = Games == null ? null : Games();
-			if (serverGames == null)
-				return JsonSerializer.Serialize(new Error { Message = "Games list not initialised. (Perhaps no lasergame server is configured.)" });
-			else
-				return JsonSerializer.Serialize<List<ServerGame>>(Games());
+			var serverGames = GetGames?.Invoke();
+			if (serverGames.Any())
+			{
+				var jsonGames = new List<JsonGame>();
+				foreach (var game in serverGames)
+					jsonGames.Add(JsonGame.ShallowClone(game));
 
+				return JsonSerializer.Serialize<List<JsonGame>>(jsonGames);
+			}
+			else
+				return JsonSerializer.Serialize(new Error { Message = "Games list not initialised. (Perhaps no lasergame server is configured.)" });
 		}
 
 		string RestPlayers(string mask)
@@ -487,11 +499,11 @@ xhr.send();
 			string rawUrl = request.RawUrl;
 			if (rawUrl.EndsWith("elapsed"))
 				return JsonSerializer.Serialize<int>(Elapsed());
-			else if (rawUrl.EndsWith("games"))
+			else if (rawUrl.EndsWith("games.json"))
 				return RestGames();
 			else if (rawUrl.Contains("game2"))
 				return RestGame(rawUrl.Substring(rawUrl.IndexOf("game") + 4));  // return one detailed game: all the players, all the details.
-			else if (rawUrl.EndsWith("players"))
+			else if (rawUrl.EndsWith("players.json"))
 				return RestPlayers("");  // return the list of all players available from this lasergame server.
 			else if (rawUrl.EndsWith("scoreboard"))
 				return XmlHttpRequestScoreBoard();
@@ -543,6 +555,34 @@ xhr.send();
 			}
 
 			return nowText;
+		}
+
+		public void ExportJson(string path, ShowProgress progress = null)
+		{
+			if (serverGames == null)
+				serverGames = GetGames?.Invoke();
+
+			if (path != null)
+			{
+				Progress myProgress = new Progress() { Denominator = serverGames.Count + 2, ShowProgress = progress };
+
+				Directory.CreateDirectory(Path.Combine(path, "json"));
+
+				using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\games.json")))
+					sw.Write(RestGames());
+				myProgress.Increment("Games list exported.");
+
+				foreach (var game in serverGames)
+				{
+					using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\game" + game.Time.ToString("yyyy-MM-ddTHH_mm_ss") + ".json")))
+						sw.Write(RestGame(game));
+					myProgress.Increment("Game" + game.Time.ToString("yyyy-MM-ddTHH-mm-ss") + " exported.");
+				}
+
+				using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\players.json")))
+					sw.Write(RestPlayers(""));
+				myProgress.Increment("Players list exported.");
+			}
 		}
 	}
 

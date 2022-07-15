@@ -19,7 +19,7 @@ Broad architecture:
 * WebOuput is an important module. It runs the internal web server, allowing others to query us for data in HTML or JSON, and also generates web pages to file for export or upload.
 * Reports.cs contains the code that generates the data for each report type. ZoomReports renders those to various output formats: HTML with tables, HTML with SVG, .csv, etc.
 
-Implemented: load league, save league, delete game from league
+IMPLEMENTED: load league, save league, delete game from league
 read from P&C server, web server, report to HTML, upload to FTP,
 transfer to team boxes via drag-drop, transfer to team boxes on game selection, set dimensions, persistence
 show team name, scores and rank in team boxes
@@ -30,10 +30,10 @@ read from demo "server"
 read from laserforce server
 sanity check report. Add new check: are there odd games out with no victory points?
 tech report: hit totals for all sensors on all packs, plus games where a sensor takes 0 hits
+output to printer
+set up pyramid round
 
 TODO for BOTH:
-output to printer
-send to scoreboard (web browser)
 on commit auto-update scoreboard
 right-click handicap player, merge player
 
@@ -42,7 +42,6 @@ handicap, on commit auto-update team handicaps
 set up fixtures
 
 TODO for ZLTAC:
-set up pyramid round
 recalculate scores on Helios
 
 OTHER:
@@ -62,6 +61,7 @@ upload to http, https, ftp
 If we don't find a settings file in the user folder, check for one in the exe folder.
 group players by LotR
 on commit auto-update teams
+send to scoreboard (web browser)
 */
 
 namespace Torn.UI
@@ -185,7 +185,7 @@ namespace Torn.UI
 				}
 
 				formPlayer.LaserGameServer = laserGameServer;
-				webOutput.Games = laserGameServer.GetGames;
+				webOutput.GetGames = laserGameServer.GetGames;
 				webOutput.PopulateGame = laserGameServer.PopulateGame;
 				webOutput.Players = laserGameServer.GetPlayers;
 			}
@@ -242,7 +242,7 @@ namespace Torn.UI
 			leagues.Add(holder);
 
 			item.Tag = holder;
-			item.SubItems.AddRange(new string[] { league.Title, fileName, league.AllGames.Count.ToString(CultureInfo.CurrentCulture), league.Teams.Count.ToString(CultureInfo.CurrentCulture)});
+			item.SubItems.AddRange(new string[] { league.Title, league.AllGames.Count.ToString(CultureInfo.CurrentCulture), league.Teams.Count.ToString(CultureInfo.CurrentCulture), fileName });
 			listViewLeagues.Items.Add(item);
 			listViewLeagues.FocusedItem = item;
 
@@ -455,9 +455,24 @@ namespace Torn.UI
 				}
 				finally
 				{
-					progressBar1.Visible = false;
-					labelStatus.Text = "";
-					Cursor.Current = Cursors.Default;
+					FinishProgress();
+				}
+			}
+		}
+
+		private void ButtonExportJsonClick(object sender, EventArgs e)
+		{
+			if (GetExportFolder())
+			{
+				Cursor.Current = Cursors.WaitCursor;
+				progressBar1.Value = 0;
+				try
+				{
+					webOutput.ExportJson(exportFolder, ProgressBar);
+				}
+				finally
+				{
+					FinishProgress();
 				}
 			}
 		}
@@ -718,10 +733,13 @@ namespace Torn.UI
 			if (GetExportFolder())
 			{
 				progressBar1.Value = 0;
-				try {
+				try
+				{
 					ExportPages.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, SelectedLeagues(), ProgressBar);
 				}
-				finally { progressBar1.Visible = false; labelStatus.Text = ""; }
+				finally {
+					FinishProgress();
+				}
 			}
 		}
 
@@ -800,6 +818,13 @@ namespace Torn.UI
 			progressBar1.Value = (int)(progress * 1000);
 			labelStatus.Text = status;
 			Application.DoEvents();
+		}
+
+		void FinishProgress()
+		{
+			progressBar1.Visible = false;
+			labelStatus.Text = "";
+			Cursor.Current = Cursors.Default;
 		}
 
 		TeamBox FindEmptyTeamBox()
@@ -1136,9 +1161,7 @@ namespace Torn.UI
 			}
 			finally
 			{
-				progressBar1.Visible = false;
-				labelStatus.Text = "";
-				Cursor.Current = Cursors.Default;
+				FinishProgress();
 			}
 
 			// Create fake "server" games to represent league games, where a server game doesn't already exist (because Acacia has forgotten it).

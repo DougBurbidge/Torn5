@@ -174,9 +174,9 @@ namespace Torn
 					oneEvent.Event_Type = ParseEventType(line[1]);
 					oneEvent.Score = EventToScore(oneEvent.Event_Type);
 
-					SplitPlayer(line[2], out oneEvent.ServerTeamId, out oneEvent.ServerPlayerId);
+					(oneEvent.ServerTeamId, oneEvent.ServerPlayerId) = SplitPlayer(line[2]);
 					if (line.Length > 4)
-						SplitPlayer(line[4], out oneEvent.OtherTeam, out oneEvent.OtherPlayer);
+						(oneEvent.OtherTeam, oneEvent.OtherPlayer) = SplitPlayer(line[4]);
 
 					if (eventType.StartsWith("0B"))
 						oneEvent.ShotsDenied = 1;
@@ -199,11 +199,10 @@ namespace Torn
 			}
 		}
 
-		void SplitPlayer(string input, out int team, out string player)
+		(int, string) SplitPlayer(string input)
 		{
 			var arr = input.Split(':');
-			team = int.Parse(arr[0]);
-			player = arr[1];
+			return (int.Parse(arr[0]), arr[1]);
 		}
 
 		int ParseEventType(string s)

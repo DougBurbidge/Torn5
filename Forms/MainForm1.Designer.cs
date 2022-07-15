@@ -443,6 +443,36 @@ namespace Torn5.Forms {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonExportJson_Image {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonExportJson.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonExportJson_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonExportJson.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ribbonButtonExportJson_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("ribbonButtonExportJson.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ribbonButtonFixtures_Image {
             get {
                 object obj = ResourceManager.GetObject("ribbonButtonFixtures.Image", resourceCulture);

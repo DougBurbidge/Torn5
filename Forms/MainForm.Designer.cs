@@ -70,6 +70,7 @@ namespace Torn.UI
 			this.ribbonButtonPrint = new System.Windows.Forms.RibbonButton();
 			this.ribbonButtonConfigure = new System.Windows.Forms.RibbonButton();
 			this.ribbonButtonAdHoc = new System.Windows.Forms.RibbonButton();
+			this.ribbonButtonExportJson = new System.Windows.Forms.RibbonButton();
 			this.ribbonPanelHelp = new System.Windows.Forms.RibbonPanel();
 			this.ribbonButtonHelp = new System.Windows.Forms.RibbonButton();
 			this.ribbonButtonAbout = new System.Windows.Forms.RibbonButton();
@@ -79,13 +80,17 @@ namespace Torn.UI
 			this.colGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colLeague = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.contextMenuStripGames = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.forgetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.listViewLeagues = new System.Windows.Forms.ListView();
 			this.colTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.colFile = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colGames = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colTeams = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colFile = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.labelStatus = new System.Windows.Forms.Label();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this.labelNow = new System.Windows.Forms.Label();
@@ -95,17 +100,13 @@ namespace Torn.UI
 			this.timerGame = new System.Windows.Forms.Timer(this.components);
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
 			this.printDialog = new System.Windows.Forms.PrintDialog();
-			this.contextMenuStripGames = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.forgetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.panelGames.SuspendLayout();
+			this.contextMenuStripGames.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
-			this.contextMenuStripGames.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// openFileDialog1
@@ -348,6 +349,7 @@ namespace Torn.UI
 			this.ribbonPanelReports.Items.Add(this.ribbonButtonPrint);
 			this.ribbonPanelReports.Items.Add(this.ribbonButtonConfigure);
 			this.ribbonPanelReports.Items.Add(this.ribbonButtonAdHoc);
+			this.ribbonPanelReports.Items.Add(this.ribbonButtonExportJson);
 			this.ribbonPanelReports.Name = "ribbonPanelReports";
 			this.ribbonPanelReports.Text = "Reports";
 			// 
@@ -414,6 +416,15 @@ namespace Torn.UI
 			this.ribbonButtonAdHoc.SmallImage = ((System.Drawing.Image)(resources.GetObject("ribbonButtonAdHoc.SmallImage")));
 			this.ribbonButtonAdHoc.Text = "Ad Hoc";
 			this.ribbonButtonAdHoc.Click += new System.EventHandler(this.ButtonAdHocReportClick);
+			// 
+			// ribbonButtonExportJson
+			// 
+			this.ribbonButtonExportJson.Image = ((System.Drawing.Image)(resources.GetObject("ribbonButtonExportJson.Image")));
+			this.ribbonButtonExportJson.LargeImage = ((System.Drawing.Image)(resources.GetObject("ribbonButtonExportJson.LargeImage")));
+			this.ribbonButtonExportJson.Name = "ribbonButtonExportJson";
+			this.ribbonButtonExportJson.SmallImage = ((System.Drawing.Image)(resources.GetObject("ribbonButtonExportJson.SmallImage")));
+			this.ribbonButtonExportJson.Text = "Export Json";
+			this.ribbonButtonExportJson.Click += new System.EventHandler(this.ButtonExportJsonClick);
 			// 
 			// ribbonPanelHelp
 			// 
@@ -509,6 +520,36 @@ namespace Torn.UI
 			this.colDescription.Text = "Description";
 			this.colDescription.Width = 75;
 			// 
+			// contextMenuStripGames
+			// 
+			this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.commitToolStripMenuItem,
+            this.setDescriptionToolStripMenuItem,
+            this.forgetToolStripMenuItem});
+			this.contextMenuStripGames.Name = "contextMenuStripGames";
+			this.contextMenuStripGames.Size = new System.Drawing.Size(154, 70);
+			// 
+			// commitToolStripMenuItem
+			// 
+			this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
+			this.commitToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.commitToolStripMenuItem.Text = "Commit";
+			this.commitToolStripMenuItem.Click += new System.EventHandler(this.ButtonCommitClick);
+			// 
+			// setDescriptionToolStripMenuItem
+			// 
+			this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
+			this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.setDescriptionToolStripMenuItem.Text = "Set Description";
+			this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
+			// 
+			// forgetToolStripMenuItem
+			// 
+			this.forgetToolStripMenuItem.Name = "forgetToolStripMenuItem";
+			this.forgetToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.forgetToolStripMenuItem.Text = "Forget";
+			this.forgetToolStripMenuItem.Click += new System.EventHandler(this.ButtonForgetClick);
+			// 
 			// splitContainer1
 			// 
 			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -537,9 +578,9 @@ namespace Torn.UI
 			this.listViewLeagues.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colTag,
             this.colTitle,
-            this.colFile,
             this.colGames,
-            this.colTeams});
+            this.colTeams,
+            this.colFile});
 			this.listViewLeagues.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listViewLeagues.HideSelection = false;
 			this.listViewLeagues.LabelEdit = true;
@@ -564,11 +605,6 @@ namespace Torn.UI
 			this.colTitle.Text = "League";
 			this.colTitle.Width = 200;
 			// 
-			// colFile
-			// 
-			this.colFile.Text = "File";
-			this.colFile.Width = 350;
-			// 
 			// colGames
 			// 
 			this.colGames.Text = "Games";
@@ -580,6 +616,11 @@ namespace Torn.UI
 			this.colTeams.Text = "Teams";
 			this.colTeams.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.colTeams.Width = 50;
+			// 
+			// colFile
+			// 
+			this.colFile.Text = "File";
+			this.colFile.Width = 350;
 			// 
 			// labelStatus
 			// 
@@ -671,36 +712,6 @@ namespace Torn.UI
 			// 
 			this.printDialog.AllowSomePages = true;
 			// 
-			// contextMenuStripGames
-			// 
-			this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.commitToolStripMenuItem,
-            this.setDescriptionToolStripMenuItem,
-            this.forgetToolStripMenuItem});
-			this.contextMenuStripGames.Name = "contextMenuStripGames";
-			this.contextMenuStripGames.Size = new System.Drawing.Size(154, 70);
-			// 
-			// commitToolStripMenuItem
-			// 
-			this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
-			this.commitToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-			this.commitToolStripMenuItem.Text = "Commit";
-			this.commitToolStripMenuItem.Click += new System.EventHandler(this.ButtonCommitClick);
-			// 
-			// setDescriptionToolStripMenuItem
-			// 
-			this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
-			this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-			this.setDescriptionToolStripMenuItem.Text = "Set Description";
-			this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
-			// 
-			// forgetToolStripMenuItem
-			// 
-			this.forgetToolStripMenuItem.Name = "forgetToolStripMenuItem";
-			this.forgetToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-			this.forgetToolStripMenuItem.Text = "Forget";
-			this.forgetToolStripMenuItem.Click += new System.EventHandler(this.ButtonForgetClick);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -718,11 +729,11 @@ namespace Torn.UI
 			this.Shown += new System.EventHandler(this.MainFormShown);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.panelGames.ResumeLayout(false);
+			this.contextMenuStripGames.ResumeLayout(false);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
-			this.contextMenuStripGames.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -787,5 +798,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem commitToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem setDescriptionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem forgetToolStripMenuItem;
+		private System.Windows.Forms.RibbonButton ribbonButtonExportJson;
 	}
 }

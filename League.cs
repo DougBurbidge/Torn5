@@ -1475,35 +1475,44 @@ namespace Torn
 	/// <summary>Encapsulate a single event from a LaserGameServer. A player-on-player hit may be two events, one from the perspective of each player.</summary>
 	public class Event
 	{
-		public DateTime Time;
-		public string ServerPlayerId;  // ID of player that this record is about
-		public int ServerTeamId;  // team of that player
-		public int Event_Type;  // see below
-		public int Score;  // points gained by shooter
-		public string OtherPlayer;  // ID of other involved player: for 0..13, this is the shootee; for 14..27 this is the shooter.
-		public int OtherTeam;  // team of other involved player
-		public int PointsLostByDeniee;  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
-		public int ShotsDenied;  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
+		public DateTime Time { get; set; }
 
-// EventType (see P&C ng_event_types):
-//  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, left back shoulder (never used), right back shoulder (never used), back);
-//  7..13:  tagged ally;
-//  14..20: tagged by foe;
-//  21..27: tagged by ally;
-//  28: warning;
-//  29: termination;
-//  30: hit base;
-//  31: destroyed base;
-//  32: eliminated;
-//  33: hit by base;
-//  34: hit by mine;
-//  35: trigger pressed;
-//  36: game state (whatever that means);
-//  37..46: player tagged target (whatever that means);
-//  1401: score denial points, friendly;
-//  1402: score denial points;
-//  1403: lose points for being denied, friendly;
-//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
+		[JsonPropertyName("eventType")]
+		public int Event_Type { get; set; }  // see below
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+		public int Score { get; set; }  // points gained by shooter
+
+		public string ServerPlayerId { get; set; }  // ID of player that this record is about
+		public int ServerTeamId { get; set; }  // team of that player
+		public string OtherPlayer { get; set; }  // ID of other involved player: for 0..13, this is the shootee; for 14..27 this is the shooter.
+		public int OtherTeam { get; set; }  // team of other involved player
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+		public int PointsLostByDeniee { get; set; }  // if hit is Event_Type = 1402 (base denier) or 1404 (base denied), shows points the shootee lost.
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+		public int ShotsDenied { get; set; }  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
+
+		// EventType (see P&C ng_event_types):
+		//  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, left back shoulder (never used), right back shoulder (never used), back);
+		//  7..13:  tagged ally;
+		//  14..20: tagged by foe;
+		//  21..27: tagged by ally;
+		//  28: warning;
+		//  29: termination;
+		//  30: hit base;
+		//  31: destroyed base;
+		//  32: eliminated;
+		//  33: hit by base;
+		//  34: hit by mine;
+		//  35: trigger pressed;
+		//  36: game state (whatever that means);
+		//  37..46: player tagged target (whatever that means);
+		//  1401: score denial points, friendly;
+		//  1402: score denial points;
+		//  1403: lose points for being denied, friendly;
+		//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
 
 		public override string ToString()
 		{
@@ -1516,25 +1525,24 @@ namespace Torn
 	{
 		[JsonIgnore]
 		public int? GameId { get; set; }
-		[JsonPropertyName("description")]
 		public string Description { get; set; }
 		[JsonPropertyName("startTime")]
 		public DateTime Time { get; set; }
-		[JsonPropertyName("endTime")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public DateTime EndTime { get; set; }
 		[JsonIgnore]
 		public League League { get; set; }
 		[JsonIgnore]
 		public Game Game { get; set; }
-		[JsonPropertyName("players")]
-		public List<ServerPlayer> Players { get; set; }
-		[JsonPropertyName("inProgress")]
+		public virtual List<ServerPlayer> Players { get; set; }
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public bool InProgress { get; set; }
 		[JsonIgnore]
 		public bool OnServer { get; set; }
 		[JsonIgnore]
 		public List<Event> Events { get; set; }
+		[JsonPropertyName("events")]
+		public virtual IEnumerable<Event> FilteredEvents { get => Events.Where(e => e.Event_Type != 35 && e.Event_Type != 1409); }
 
 		public ServerGame()
 		{
@@ -1550,6 +1558,27 @@ namespace Torn
 		public override string ToString()
 		{
 			return Time.ToString("yyyy/MM/dd HH:mm") + ": " + (OnServer ? "on server " : "") + Events.Count.ToString();
+		}
+	}
+
+	/// <summary>Used to publish a ServerGame without its players or events.</summary>
+	public class JsonGame: ServerGame
+	{
+		// Dummy properties, never used; just here to change JSON visibility:
+		[JsonIgnore]
+		public override List<ServerPlayer> Players { get; set; }
+		[JsonIgnore]
+		public override IEnumerable<Event> FilteredEvents { get; }
+
+		public static JsonGame ShallowClone(ServerGame serverGame)
+		{
+			return new JsonGame
+			{
+				Description = serverGame.Description,
+				Time = serverGame.Time,
+				EndTime = serverGame.EndTime,
+				InProgress = serverGame.InProgress
+			};
 		}
 	}
 
