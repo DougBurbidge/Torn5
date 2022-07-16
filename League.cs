@@ -1575,7 +1575,6 @@ namespace Torn
 		public override List<ServerPlayer> Players { get; set; }
 		[JsonIgnore]
 		public override IEnumerable<Event> FilteredEvents { get; }
-		public override IEnumerable<Event> FilteredEvents { get; }
 		public static JsonGame ShallowClone(ServerGame serverGame)
 		{
 			return new JsonGame
@@ -1584,7 +1583,6 @@ namespace Torn
 				Time = serverGame.Time,
 				EndTime = serverGame.EndTime,
 				InProgress = serverGame.InProgress
-			};
 			};
 		}
 	}

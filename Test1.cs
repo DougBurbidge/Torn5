@@ -284,7 +284,7 @@ namespace TornWeb
 			var webOutput = new WebOutput(8080);
 			stubServer = new StubServer();
 
-			webOutput.Games = stubServer.GetGames;
+			// webOutput.Games = stubServer.GetGames;
 			webOutput.PopulateGame = stubServer.PopulateGame;
 			webOutput.Players = stubServer.GetPlayers;
 			webOutput.Leagues = new Holders();
