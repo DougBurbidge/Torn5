@@ -272,7 +272,7 @@ namespace Torn.UI
 		void EnableRemoveRowColumnButtons()
 		{
 			ribbonButtonRemoveColumn.Enabled = tableLayoutPanel1.ColumnCount > 4;
-			ribbonButtonRemoveRow.Enabled = tableLayoutPanel1.RowCount > 2;
+			ribbonButtonRemoveRow.Enabled = tableLayoutPanel1.RowCount > 1;
 		}
 
 		void AddTeamBoxes()
@@ -315,7 +315,7 @@ namespace Torn.UI
 
 		void ButtonRemoveRowClick(object sender, EventArgs e)
 		{
-			if (tableLayoutPanel1.RowCount > 2)
+			if (tableLayoutPanel1.RowCount > 1)
 			{
 				for (int i = 0; i < tableLayoutPanel1.ColumnCount - 3; i++)
 					tableLayoutPanel1.Controls.RemoveAt(tableLayoutPanel1.Controls.Count - 1);
