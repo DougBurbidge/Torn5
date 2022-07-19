@@ -38,7 +38,7 @@ namespace Torn.UI
 				foreach (var player in serverGame.Players)
 				{
 
-					bool isRichoCard = player.qrcode != null && player.qrcode.StartsWith("00005");
+					bool isRichoCard = player.QRCode != null && player.QRCode.StartsWith("00005");
 
 					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
 

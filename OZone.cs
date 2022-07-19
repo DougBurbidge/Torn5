@@ -264,7 +264,7 @@ namespace Torn
 							serverPlayer.Colour = Colour.None;
 					}
 
-					if (playerRoot["qrcode"] != null) serverPlayer.qrcode = playerRoot["qrcode"].ToString();
+					if (playerRoot["qrcode"] != null) serverPlayer.QRCode = playerRoot["qrcode"].ToString();
 
 					if (!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
 

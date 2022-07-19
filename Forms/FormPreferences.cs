@@ -163,20 +163,5 @@ namespace Torn.UI
 			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
 				textBox.Text = folderBrowserDialog1.SelectedPath;
 		}
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void buttonOK_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

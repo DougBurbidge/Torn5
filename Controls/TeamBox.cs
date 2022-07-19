@@ -136,8 +136,8 @@ namespace Torn.UI
 			menuNameTeam.Enabled       = LeagueTeam != null;
 			menuIdentifyTeam.Enabled   = League != null;
 			menuIdentifyPlayer.Enabled = ListView.SelectedItems.Count == 1;
-			menuHandicapPlayer.Enabled = ListView.SelectedItems.Count == 1;
-			adjustPlayerScoreToolStripMenuItem.Enabled = ListView.SelectedItems.Count == 1;
+			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
+			menuAdjustPlayerScore.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
 			//menuAdjustTeamScore.Enabled = always true.
 
@@ -184,9 +184,13 @@ namespace Torn.UI
 				var item = ListView.SelectedItems[0];
 				var subIndex = item.SubItems.Count == 0 || string.IsNullOrEmpty(item.SubItems[1].Text) ? 0 : 1;
 				menuIdentifyPlayer.Text = "Identify " + item.SubItems[subIndex].Text.Trim() + "...";
+				menuHandicapPlayer.Text = "Handicap " + item.SubItems[subIndex].Text.Trim() + "...";
 			}
 			else
-				menuIdentifyPlayer.Text = "Identify";
+			{
+				menuIdentifyPlayer.Text = "Identify player";
+				menuHandicapPlayer.Text = "Handicap player";
+			}
 		}
 
 		void MenuAdjustTeamScoreClick(object sender, EventArgs e)
@@ -287,7 +291,7 @@ namespace Torn.UI
 
 		void MenuHandicapPlayerClick(object sender, EventArgs e)
 		{
-			
+			// TODO: Implement.
 		}
 		
 		void MenuMergePlayerClick(object sender, EventArgs e)
@@ -304,10 +308,10 @@ namespace Torn.UI
 			Recalculate(false);
 		}
 
-        private void adjustPlayerScoreToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+		private void menuAdjustPlayerScoreClick(object sender, EventArgs e)
+		{
 			double penalty = -1000;
-			InputDialog.GetDouble("Adjustment", "Set team score adjustment", ref penalty);
+			InputDialog.GetDouble("Adjustment", "Set player score adjustment", ref penalty);
 			var player1 = (ServerPlayer)ListView.SelectedItems[0].Tag;
 
 			player1.Score = player1.Score + penalty;
@@ -316,9 +320,9 @@ namespace Torn.UI
 
 			Recalculate(false);
 		}
-    }
+	}
 
-    class SortByScore : IComparer
+	class SortByScore : IComparer
 	{
 		int IComparer.Compare(object x, object y)
 		{
