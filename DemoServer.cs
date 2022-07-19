@@ -89,5 +89,10 @@ namespace Torn
 				}
 			return players;
 		}
+
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			return GetPlayers(mask);
+		}
 	}
 }

@@ -13,7 +13,7 @@ namespace Torn
 	/// This represents a Laserforce lasergame database server.
 	/// You can ask it for scores for players, but not for individual events in game, nor time remaining.
 	/// </summary>
-	public class Laserforce: LaserGameServer
+	public class Laserforce : LaserGameServer
 	{
 		SqlConnection connection;
 		public int GamesLimit { get; set; }
@@ -74,7 +74,7 @@ namespace Torn
 			if (!Connected)
 				return games;
 
-			string sql = "SELECT TOP " + GamesLimit.ToString() + 
+			string sql = "SELECT TOP " + GamesLimit.ToString() +
 						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
 						 "FROM Mission M " +
 						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
@@ -148,7 +148,7 @@ namespace Torn
 			{
 				reader.Close();
 			}
-			
+
 			if (string.IsNullOrEmpty(LogFolder) || !Directory.Exists(LogFolder))
 				return;
 
@@ -160,7 +160,7 @@ namespace Torn
 				while (!file.EndOfStream)
 				{
 					// Line format: number of milliseconds elapsed in game [tab] event code [tab] teamcolour:playeralias [tab] event description [tab] teamcolour:playeralias
-					
+
 					var line = file.ReadLine().Split('\t');
 
 					var oneEvent = new Event
@@ -182,7 +182,7 @@ namespace Torn
 						oneEvent.ShotsDenied = 1;
 
 					game.Events.Add(oneEvent);
-					
+
 					if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
 						game.Events.Add(new Event
 						{
@@ -207,7 +207,8 @@ namespace Torn
 
 		int ParseEventType(string s)
 		{
-			switch (s) {
+			switch (s)
+			{
 				case "0100": case "0101": return 36; // 0100: game start. 0101: game end.
 				case "0203": return 30;  // player tags base.
 				case "0204": return 31;  // player destroys base.
@@ -215,16 +216,17 @@ namespace Torn
 				case "0208": return 7;   // player tags ally.
 				case "0500": return 36;  // player is reloaded.
 				case "0600": return 28;  // termination/penalty
-				case "0B01":	         // 0B01: player denies player (number of hits worth of deny not specified). 0B01 always immediately follows a 0206 or 0208 with the same players. 
+				case "0B01":             // 0B01: player denies player (number of hits worth of deny not specified). 0B01 always immediately follows a 0206 or 0208 with the same players. 
 				case "0B02": return 1404; // 0B02: player denies player (number of hits worth of deny not specified). 0B02 occurs several seconds after the 0206 in which the player tags the shooter.
-				default:     return 36;
+				default: return 36;
 			}
 		}
-		
+
 		int EventToScore(int eventType)
 		{
-			switch (eventType) {
-				case 0:  return 150;
+			switch (eventType)
+			{
+				case 0: return 150;
 				case 14: return -150;
 				case 28: return -1000;
 				case 30: return -500;
@@ -236,18 +238,23 @@ namespace Torn
 
 		public override List<LaserGamePlayer> GetPlayers(string mask)
 		{
-			string sql = "SELECT TOP " + PlayersLimit.ToString() + 
-					    "M.codename AS [Alias], M.givenNames + ' ' + M.surname AS [Name], " +
-					    "cast(C.region as varchar) + ''-'' + cast(C.site as varchar) + ''-'' + cast(M.id as varchar) as [ID] " +
-					    "FROM Member M " +
-					    "LEFT JOIN Centre C ON C.ref = M.centre " +
-					    "WHERE M.surname LIKE @mask OR M.givenNames LIKE @mask OR M.codename LIKE '%' + @mask " +
-					    "ORDER BY M.codename, [ID]";
+			string sql = "SELECT TOP " + PlayersLimit.ToString() +
+						"M.codename AS [Alias], M.givenNames + ' ' + M.surname AS [Name], " +
+						"cast(C.region as varchar) + ''-'' + cast(C.site as varchar) + ''-'' + cast(M.id as varchar) as [ID] " +
+						"FROM Member M " +
+						"LEFT JOIN Centre C ON C.ref = M.centre " +
+						"WHERE M.surname LIKE @mask OR M.givenNames LIKE @mask OR M.codename LIKE '%' + @mask " +
+						"ORDER BY M.codename, [ID]";
 			using (SqlCommand cmd = new SqlCommand(sql, connection))
 			{
 				cmd.Parameters.AddWithValue("@mask", mask + "%");
 				return ReadPlayers(cmd.ExecuteReader());
 			}
+		}
+
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			return GetPlayers(mask);
 		}
 	}
 }

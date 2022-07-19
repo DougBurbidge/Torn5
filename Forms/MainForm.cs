@@ -81,6 +81,9 @@ namespace Torn.UI
 
 		string serverAddress = "localhost";
 
+		string serverPort = "12123";
+
+
 		int webPort;
 		WebOutput webOutput;
 		LaserGameServer laserGameServer;
@@ -140,8 +143,9 @@ namespace Torn.UI
 
 			formPlayer = new FormPlayer
 			{
-				Icon = (Icon)Icon.Clone()
+				Icon = (Icon)Icon.Clone(),
 			};
+
 			ConnectLaserGameServer();
 
 			AddTeamBoxes();
@@ -176,7 +180,7 @@ namespace Torn.UI
 					break;
 					case SystemType.Nexus: laserGameServer = new PAndCNexusWithIButton(serverAddress);  break;
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
-					case SystemType.OZone: laserGameServer = new OZone(serverAddress);  break;
+					case SystemType.OZone: laserGameServer = new OZone(serverAddress, serverPort);  break;
 					case SystemType.Torn:
 						laserGameServer = new JsonServer(serverAddress);
 						timeElapsed = laserGameServer.GameTimeElapsed();
@@ -268,7 +272,7 @@ namespace Torn.UI
 		void EnableRemoveRowColumnButtons()
 		{
 			ribbonButtonRemoveColumn.Enabled = tableLayoutPanel1.ColumnCount > 4;
-			ribbonButtonRemoveRow.Enabled = tableLayoutPanel1.RowCount > 2;
+			ribbonButtonRemoveRow.Enabled = tableLayoutPanel1.RowCount > 1;
 		}
 
 		void AddTeamBoxes()
@@ -292,7 +296,7 @@ namespace Torn.UI
 
 		void ButtonAboutClick(object sender, EventArgs e)
 		{
-			MessageBox.Show("A tournament scores editor by Doug Burbidge.\n\nhttp://www.dougburbidge.com/Apps/\n\nhttps://github.com/DougBurbidge/Torn5/", "Torn 5");
+			MessageBox.Show("A tournament scores editor by Doug Burbidge & AJ Horsman.\n\nhttp://www.dougburbidge.com/Apps/\n\nhttps://github.com/DougBurbidge/Torn5/\nhttps://github.com/MrMeeseeks200/Torn5/", "Torn 5");
 		}
 
 		void ButtonAddRowClick(object sender, EventArgs e)
@@ -311,7 +315,7 @@ namespace Torn.UI
 
 		void ButtonRemoveRowClick(object sender, EventArgs e)
 		{
-			if (tableLayoutPanel1.RowCount > 2)
+			if (tableLayoutPanel1.RowCount > 1)
 			{
 				for (int i = 0; i < tableLayoutPanel1.ColumnCount - 3; i++)
 					tableLayoutPanel1.Controls.RemoveAt(tableLayoutPanel1.Controls.Count - 1);
@@ -634,6 +638,7 @@ namespace Torn.UI
 
 				SystemType = systemType,
 				ServerAddress = serverAddress,
+				ServerPort = serverPort,
 				WindowsAuth = windowsAuth,
 				Sqluser = sqlUserId,
 				SqlPassword = sqlPassword,
@@ -654,6 +659,7 @@ namespace Torn.UI
 
 				systemType = form.SystemType;
 				serverAddress = form.ServerAddress;
+				serverPort = form.ServerPort;
 				windowsAuth = form.WindowsAuth;
 				sqlUserId = form.Sqluser;
 				sqlPassword = form.SqlPassword;
@@ -856,6 +862,7 @@ namespace Torn.UI
 
 			int box = 0;
 
+
 			if (serverGame.Game == null)  // This game is not yet committed. Match players to league teams.
 			{
 				if (groupPlayersBy == GroupPlayersBy.Colour)
@@ -897,6 +904,7 @@ namespace Torn.UI
 					if (serverPlayers.Any() && box < teamBoxes.Count)
 					{
 						teamBoxes[box].LeagueTeam = league.LeagueTeam(gameTeam);
+						teamBoxes[box].GameTeam = gameTeam;
 						teamBoxes[box].Accept(serverPlayers);
 						box++;
 					}
@@ -931,6 +939,7 @@ namespace Torn.UI
 					laserGameServer.PopulateGame(game);
 
 				playersBox.LoadGame(activeHolder?.League, game);
+				formPlayer.CurrentLeague = activeHolder?.League;
 
 				TransferPlayers(game);
 			}
@@ -1342,6 +1351,7 @@ namespace Torn.UI
 			Enum.TryParse(root.GetString("SystemType", "Acacia"), out systemType);
 			Enum.TryParse(root.GetString("GroupPlayersBy", "Colour"), out groupPlayersBy);
 			serverAddress = root.GetString("GameServerAddress", "localhost");
+			serverPort = root.GetString("GameServerPort", "12123");
 			windowsAuth = root.GetString("Auth", "") == "windows";
 			sqlUserId = root.GetString("SqlUserId");
 			sqlPassword = root.GetString("SqlPassword");
@@ -1384,6 +1394,7 @@ namespace Torn.UI
 			}
 			doc.AppendNode(bodyNode, "GroupPlayersBy", groupPlayersBy.ToString());
 			doc.AppendNode(bodyNode, "GameServerAddress", serverAddress);
+			doc.AppendNode(bodyNode, "GameServerPort", serverPort);
 			doc.AppendNode(bodyNode, "WebServerPort", webPort.ToString());
 			doc.AppendNode(bodyNode, "ExportFolder", exportFolder);
 			if (listViewLeagues.SelectedItems.Count > 0)

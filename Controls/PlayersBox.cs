@@ -37,13 +37,18 @@ namespace Torn.UI
 			if (serverGame.Players != null)
 				foreach (var player in serverGame.Players)
 				{
-				ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
-					item.SubItems.Add(player.Alias);
-					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
-					item.Tag = player;
-					player.Item = item;
-					Items.Add(item);
-				}
+
+					bool isRichoCard = player.qrcode != null && player.qrcode.StartsWith("00005");
+
+					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
+
+					ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
+						item.SubItems.Add(alias);
+						item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
+						item.Tag = player;
+						player.Item = item;
+						Items.Add(item);
+					}
 
 			ListView.Sort();
 		}

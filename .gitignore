@@ -1,2 +1,5 @@
 bin
 obj
+packages
+publish
+.vs/

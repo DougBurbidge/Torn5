@@ -284,7 +284,7 @@ namespace TornWeb
 			var webOutput = new WebOutput(8080);
 			stubServer = new StubServer();
 
-			webOutput.Games = stubServer.GetGames;
+			// webOutput.Games = stubServer.GetGames;
 			webOutput.PopulateGame = stubServer.PopulateGame;
 			webOutput.Players = stubServer.GetPlayers;
 			webOutput.Leagues = new Holders();
@@ -402,7 +402,12 @@ namespace TornWeb
 			players.Add(NewGamePlayer("C", "1-50-3"));
 			return players;
 		}
-		
+
+		public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
+		{
+			return GetPlayers(mask);
+		}
+
 		LaserGamePlayer NewGamePlayer(string alias, string id)
 		{
 			var player = new LaserGamePlayer();

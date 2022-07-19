@@ -44,6 +44,8 @@ namespace Torn.UI
 		}
 
 		public string ServerAddress { get { return textBoxServerAddress.Text; }  set { textBoxServerAddress.Text = value; } }
+		public string ServerPort { get { return serverPort.Text; } set { serverPort.Text = value; } }
+
 
 		public GroupPlayersBy GroupPlayersBy {
 			get {
@@ -161,5 +163,20 @@ namespace Torn.UI
 			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
 				textBox.Text = folderBrowserDialog1.SelectedPath;
 		}
-	}
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonOK_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

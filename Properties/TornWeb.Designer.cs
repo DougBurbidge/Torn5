@@ -12,7 +12,7 @@ namespace Torn5.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
     internal sealed partial class Torn5 : global::System.Configuration.ApplicationSettingsBase {
         
         private static Torn5 defaultInstance = ((Torn5)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Torn5())));
