@@ -94,6 +94,34 @@ namespace Torn.UI
 			buttonReIdPlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;
 		}
 
+		TreeNode hovered;
+
+		private void TreeView1MouseMove(object sender, MouseEventArgs e)
+		{
+			hovered = treeView1.GetNodeAt(e.Location);
+			if (hovered != null)
+				Text = hovered.Text;
+			else
+				Text = "League";
+		}
+
+		private void TreeView1MouseClick(object sender, MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Right)
+			{
+				if (hovered != null)
+				{
+					treeView1.SelectedNode = hovered;
+					Text = hovered.Text;
+
+					deletePlayerMenuItem.Visible = treeView1.SelectedNode.Tag is LeaguePlayer;
+					reIDPlayerMenuItem.Visible = treeView1.SelectedNode.Tag is LeaguePlayer;
+					deleteTeamMenuItem.Visible = treeView1.SelectedNode.Tag is LeagueTeam;
+					renameTeamMenuItem.Visible = treeView1.SelectedNode.Tag is LeagueTeam;
+				}
+			}
+		}
+
 		void ButtonRenameLeagueClick(object sender, EventArgs e)
 		{
 			League.Title = InputDialog.GetInput("Rename League", "Choose a new name for the league", League.Title);

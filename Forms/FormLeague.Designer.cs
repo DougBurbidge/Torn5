@@ -29,6 +29,7 @@ namespace Torn.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.treeView1 = new System.Windows.Forms.TreeView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.buttonCopyFromLeague = new System.Windows.Forms.Button();
@@ -54,11 +55,16 @@ namespace Torn.UI
 			this.label1 = new System.Windows.Forms.Label();
 			this.scoresPage = new System.Windows.Forms.TabPage();
 			this.listViewScores = new System.Windows.Forms.ListView();
-			this.colGame = new System.Windows.Forms.ColumnHeader();
-			this.colScore = new System.Windows.Forms.ColumnHeader();
-			this.colRankorPoints = new System.Windows.Forms.ColumnHeader();
+			this.colGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colScore = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colRankorPoints = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonCancel = new System.Windows.Forms.Button();
+			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.deleteTeamMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.renameTeamMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.deletePlayerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.reIDPlayerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
@@ -67,19 +73,23 @@ namespace Torn.UI
 			this.leaguePage.SuspendLayout();
 			this.groupBoxHandicapStyle.SuspendLayout();
 			this.scoresPage.SuspendLayout();
+			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeView1
 			// 
 			this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.treeView1.ContextMenuStrip = this.contextMenuStrip1;
 			this.treeView1.HideSelection = false;
 			this.treeView1.Location = new System.Drawing.Point(12, 12);
 			this.treeView1.Name = "treeView1";
 			this.treeView1.Size = new System.Drawing.Size(312, 463);
 			this.treeView1.TabIndex = 0;
 			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView1AfterSelect);
+			this.treeView1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TreeView1MouseClick);
+			this.treeView1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.TreeView1MouseMove);
 			// 
 			// groupBox1
 			// 
@@ -203,7 +213,7 @@ namespace Torn.UI
 			// panelRight
 			// 
 			this.panelRight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.panelRight.Controls.Add(this.tabControl1);
 			this.panelRight.Location = new System.Drawing.Point(330, 124);
 			this.panelRight.Name = "panelRight";
@@ -238,7 +248,7 @@ namespace Torn.UI
 			// groupBoxHandicapStyle
 			// 
 			this.groupBoxHandicapStyle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-									| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonMinus);
 			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonPlus);
 			this.groupBoxHandicapStyle.Controls.Add(this.radioButtonNone);
@@ -339,9 +349,9 @@ namespace Torn.UI
 			// listViewScores
 			// 
 			this.listViewScores.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-									this.colGame,
-									this.colScore,
-									this.colRankorPoints});
+            this.colGame,
+            this.colScore,
+            this.colRankorPoints});
 			this.listViewScores.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listViewScores.FullRowSelect = true;
 			this.listViewScores.HideSelection = false;
@@ -390,6 +400,44 @@ namespace Torn.UI
 			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
+			// contextMenuStrip1
+			// 
+			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deleteTeamMenuItem,
+            this.renameTeamMenuItem,
+            this.deletePlayerMenuItem,
+            this.reIDPlayerMenuItem});
+			this.contextMenuStrip1.Name = "contextMenuStrip1";
+			this.contextMenuStrip1.Size = new System.Drawing.Size(118, 92);
+			// 
+			// deleteTeamMenuItem
+			// 
+			this.deleteTeamMenuItem.Name = "deleteTeamMenuItem";
+			this.deleteTeamMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.deleteTeamMenuItem.Text = "Delete";
+			this.deleteTeamMenuItem.Click += new System.EventHandler(this.ButtonDeleteTeamClick);
+			// 
+			// renameTeamMenuItem
+			// 
+			this.renameTeamMenuItem.Name = "renameTeamMenuItem";
+			this.renameTeamMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.renameTeamMenuItem.Text = "Rename";
+			this.renameTeamMenuItem.Click += new System.EventHandler(this.ButtonRenameTeamClick);
+			// 
+			// deletePlayerMenuItem
+			// 
+			this.deletePlayerMenuItem.Name = "deletePlayerMenuItem";
+			this.deletePlayerMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.deletePlayerMenuItem.Text = "Delete";
+			this.deletePlayerMenuItem.Click += new System.EventHandler(this.ButtonDeletePlayerClick);
+			// 
+			// reIDPlayerMenuItem
+			// 
+			this.reIDPlayerMenuItem.Name = "reIDPlayerMenuItem";
+			this.reIDPlayerMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.reIDPlayerMenuItem.Text = "Re-ID";
+			this.reIDPlayerMenuItem.Click += new System.EventHandler(this.ButtonReIdPlayerClick);
+			// 
 			// FormLeague
 			// 
 			this.AcceptButton = this.buttonOK;
@@ -417,7 +465,9 @@ namespace Torn.UI
 			this.leaguePage.PerformLayout();
 			this.groupBoxHandicapStyle.ResumeLayout(false);
 			this.scoresPage.ResumeLayout(false);
+			this.contextMenuStrip1.ResumeLayout(false);
 			this.ResumeLayout(false);
+
 		}
 		private System.Windows.Forms.RadioButton radioButtonNone;
 		private System.Windows.Forms.RadioButton radioButtonPlus;
@@ -449,5 +499,10 @@ namespace Torn.UI
 		private System.Windows.Forms.Button buttonCopyFromLeague;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.TreeView treeView1;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem deleteTeamMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem renameTeamMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem deletePlayerMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem reIDPlayerMenuItem;
 	}
 }
