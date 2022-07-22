@@ -246,8 +246,6 @@ namespace Torn
 			get { 
 				if (string.IsNullOrEmpty(name))
 				{
-					Console.WriteLine("Team Name");
-					Console.WriteLine(Players.Count);
 					if (Players.Count == 0)
 						name = "Team " + TeamId.ToString(CultureInfo.InvariantCulture);
 					else if (Players.Count == 2)
