@@ -238,6 +238,8 @@ namespace Torn
 	{
 		internal int TeamId  { get; set; }
 
+		public List<LeaguePlayer> Players { get; set; }
+
 		string name;
 		public string Name 
 		{
@@ -261,7 +263,6 @@ namespace Torn
 
 		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
-		public List<LeaguePlayer> Players { get; private set; }
 
 		public LeagueTeam()
 		{
@@ -751,10 +752,21 @@ namespace Torn
 				leagueTeam = GuessTeam(teamData.Players.Select(x => x.PlayerId).ToList());
 			
 			if (leagueTeam == null)
-			{ 
+			{
+				List<LeaguePlayer> leaguePlayers = new List<LeaguePlayer>();
+				foreach(ServerPlayer player in teamData.Players)
+                {
+					LeaguePlayer leaguePlayer = new LeaguePlayer
+					{
+						Name = player.Alias,
+						Id = player.PlayerId
+					};
+					leaguePlayers.Add(leaguePlayer);
+                }
 				leagueTeam = new LeagueTeam
 				{
-					TeamId = NextTeamId()
+					TeamId = NextTeamId(),
+					Players = leaguePlayers
 				};
 				Teams.Add(leagueTeam);
 			}

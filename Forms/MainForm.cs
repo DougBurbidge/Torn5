@@ -872,13 +872,21 @@ namespace Torn.UI
 						if (serverPlayers.Any() && box < teamBoxes.Count)
 							teamBoxes[box++].Accept(serverPlayers);
 					}
-				else  // Alias or LotR
-					foreach (var team in league.Teams)
+				else // Alias or LotR
+				{ 
+					List<ServerPlayer> addedPlayers = new List<ServerPlayer>();
+					foreach (var player in playersBox.Players())
 					{
-						var serverPlayers = playersBox.Players().FindAll(p => team.Players.Exists(p2 => p.PlayerId == p2.Id)).ToList();
-						if (serverPlayers.Any() && box < teamBoxes.Count)
-							teamBoxes[box++].Accept(serverPlayers);
+						bool isDuplicatePlayer = addedPlayers.Exists(p => p.PlayerId == player.PlayerId);
+						if (!isDuplicatePlayer && box < teamBoxes.Count)
+						{
+							List<ServerPlayer> playersToAdd = new List<ServerPlayer>();
+							playersToAdd.Add(player);
+							teamBoxes[box++].Accept(playersToAdd);
+							addedPlayers.Add(player);
+						}
 					}
+				}
 			}
 			else  // This game is previously committed. Match game players to game teams.
 			{
