@@ -44,8 +44,7 @@ namespace Torn5.Controls
 			{
 				if (radioPng.Checked)
 				{
-					if (numericScale.Visible)
-						Image = (Report ?? DisplayReport.Report).ToBitmap((float)numericScale.Value);
+					Image = (Report ?? DisplayReport.Report).ToBitmap((float)numericScale.Value);
 
 					(Image ?? DisplayReport.BackgroundImage).Save(saveFileDialog.FileName);
 				}
@@ -84,9 +83,32 @@ namespace Torn5.Controls
 
 		private void radioPng_Click(object sender, EventArgs e)
 		{
-			numericScale.Visible = (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift)) ||
-				(ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Alt)) ||
-				(ModifierKeys.HasFlag(Keys.Shift) && ModifierKeys.HasFlag(Keys.Alt));
+			numericScale.Visible = true;
+			scaleLabel.Visible = true;
 		}
-	}
+
+        private void radioSvg_CheckedChanged(object sender, EventArgs e)
+        {
+			numericScale.Visible = false;
+			scaleLabel.Visible = false;
+		}
+
+        private void radioTables_CheckedChanged(object sender, EventArgs e)
+        {
+			numericScale.Visible = false;
+			scaleLabel.Visible = false;
+		}
+
+        private void radioTsv_CheckedChanged(object sender, EventArgs e)
+        {
+			numericScale.Visible = false;
+			scaleLabel.Visible = false;
+		}
+
+        private void radioCsv_CheckedChanged(object sender, EventArgs e)
+        {
+			numericScale.Visible = false;
+			scaleLabel.Visible = false;
+		}
+    }
 }
