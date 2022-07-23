@@ -828,7 +828,7 @@ namespace Torn.Report
 
 			if (rt.Settings.Contains("Description"))
 			{
-				report.Description = "This is a list of games. Each row in the table is one game. Across each row, you see the teams that were in that game (with the team that placed first listed first, and so on), and the score for each team.";
+				report.Description = "This is a list of detailed games. Each row in the table is one game. Across each row, you see the teams that were in that game (with the team that placed first listed first, and so on), and the score for each team. Under each team is a list of players on the team and what they scored in the game";
 
 				if (league.VictoryPointsHighScore != 0)
 					report.Description += " At the end of each row, you see the high-scoring player for that game, and their score.";
