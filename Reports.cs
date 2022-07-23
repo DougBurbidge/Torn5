@@ -167,7 +167,7 @@ namespace Torn.Report
 					if (colourTotals[c].Count > rank)
 						row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, c.ToColor()));
 					else
-						row.Add(new ZCell("", c.ToColor()));
+						row.Add(new ZCell("0", c.ToColor()));
 
 				var sameWidths = new List<ZColumn>();
 				for (int i = 1; i < report.Columns.Count; i++)
@@ -2056,7 +2056,7 @@ namespace Torn.Report
 								maxPlace = Math.Max(maxPlace, colourCounts[c][rank]);
 							}
 							else
-								row.Add(new ZCell("", c.ToColor()));
+								row.Add(new ZCell("0", c.ToColor()));
 				}
 
 				if (league.IsPoints())
@@ -2714,7 +2714,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 		static ZCell BlankZero(int i, ChartType chartType, Color color)
 		{
 			return i == 0 ?
-				new ZCell("", color) { Number = 0 }:
+				new ZCell("0", color) { Number = 0 }:
 				new ZCell(i, chartType, null, color);
 		}
 
