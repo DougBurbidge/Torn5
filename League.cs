@@ -464,7 +464,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return "GamePlayer " + PlayerId + "qr: " + QRCode;
+			return "GamePlayer " + PlayerId + " QRCode: " + QRCode;
 		}
 	}
 

@@ -203,11 +203,13 @@ namespace Torn.Report
 
 				foreach (var player in game.SortedAllPlayers())
 				{
+
+					Console.WriteLine(player.ToString());
 					var playerRow = new ZRow();
 
 					Color color = player.Colour.ToColor();
 					playerRow.AddCell(new ZCell(league.LeaguePlayer(player) == null ? player.PlayerId : league.LeaguePlayer(player).Name))
-						.Hyper = PlayerHyper(league.LeagueTeam(player), league.LeaguePlayer(player));
+						.Hyper = league.LeaguePlayer(player) != null ? PlayerHyper(league.LeagueTeam(player), league.LeaguePlayer(player)) : null;
 					playerRow.Add(new ZCell(player.Pack));
 					playerRow.Add(new ZCell(league.GameTeamFromPlayer(player) == null ? " " : league.LeagueTeam(league.GameTeamFromPlayer(player)).Name));
 					playerRow.Add(new ZCell(player.Rank));
