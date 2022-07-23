@@ -97,6 +97,7 @@ namespace Torn.Report
 				case ReportType.ColourPerformance: return Reports.ColourReport(new List<League> { league }, includeSecret, rt);
 				case ReportType.SoloLadder: return Reports.SoloLadder(league, includeSecret, rt);
 				case ReportType.GameByGame: return Reports.GamesList(league, includeSecret, rt);
+				case ReportType.DetailedGames: return Reports.DetailedGamesList(league, includeSecret, rt);
 				case ReportType.GameGrid:
 				case ReportType.Ascension:
 				case ReportType.Pyramid:

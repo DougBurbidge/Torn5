@@ -448,6 +448,7 @@ namespace Torn.UI
             "Game by game (good for 3 team games)",
             "Game grid (good for many team games)",
             "Game grid condensed",
+			"Detailed Games",
             "Ascension",
             "Pyramid",
             "Pyramid condensed",
