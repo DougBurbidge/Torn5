@@ -705,8 +705,6 @@ namespace Torn.UI
 			if (listViewGames.SelectedItems.Count == 0)
 				return;
 
-			var changed = new List<League>();
-
 			var firstItem = listViewGames.SelectedItems[0];
 			while(firstItem.SubItems.Count <= 2) firstItem.SubItems.Add("");
 
@@ -715,17 +713,38 @@ namespace Torn.UI
 				foreach (ListViewItem item in listViewGames.SelectedItems)
 					if (item.Tag is ServerGame serverGame && serverGame.Game != null)
 					{
-						serverGame.Game.Title = id.Response;
-						serverGame.Game.Reported = false;
+						UpdateGameDescription(serverGame.Time.ToString("yyyy/MM/dd HH:mm:ss"), id.Response, serverGame.League.FileName);
 						while (item.SubItems.Count <= 2)
 							item.SubItems.Add("");
 						item.SubItems[2].Text = id.Response;
-						if (!changed.Contains((League)serverGame.League))
-							changed.Add((League)serverGame.League);
 					}
+		}
 
-			foreach (var league in changed)
-				league.Save();
+		void UpdateGameDescription(string gameTime, string description, string fileName) {
+			Console.WriteLine(gameTime + " " + description + " " + fileName);
+			var doc = new XmlDocument();
+			doc.Load(fileName);
+			var root = doc.DocumentElement;
+			XmlNodeList gameNodes = root.SelectSingleNode("games").SelectNodes("game");
+			foreach (XmlNode gameNode in gameNodes)
+            {
+				XmlNode timeNode = gameNode.SelectSingleNode("ansigametime");
+				string time = timeNode.InnerText;
+				Console.WriteLine("Time: " + time);
+				if (timeNode.InnerText == gameTime)
+                {
+					Console.WriteLine("AAAA");
+					if (gameNode.SelectSingleNode("title") == null)
+                    {
+						doc.AppendNode(gameNode, "title", description);
+                    } else
+                    {
+						gameNode.SelectSingleNode("title").InnerText = description;
+
+					}
+                }
+            }
+			doc.Save(fileName);
 		}
 
 		void ButtonUploadClick(object sender, EventArgs e)
