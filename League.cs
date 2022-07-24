@@ -215,6 +215,8 @@ namespace Torn
 		public Handicap Handicap { get; set; }
 		/// <summary>User-defined. Often used for player grade.</summary>
 		public string Comment { get; set; }  // 
+
+		public string Grade { get; set;  }
 	
 		public LeaguePlayer Clone()
 		{
@@ -381,6 +383,7 @@ namespace Torn
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
 		public string QRCode { get; set; }
+		public string Grade { get; set; }
 		public string Pack { get; set; }
 		public double Score { get; set; }
 		public uint Rank { get; set; }
@@ -419,6 +422,7 @@ namespace Torn
 			target.TeamId = TeamId;
 			target.PlayerId = PlayerId;
 			target.QRCode = QRCode;
+			target.Grade = Grade;
 			target.Pack = Pack;
 			target.Score = Score;
 			target.Rank = Rank;
@@ -1002,6 +1006,7 @@ namespace Torn
 						leaguePlayer.Name = xplayer.GetString("name");
 						leaguePlayer.Handicap = Handicap.Parse(xteam.GetString("handicap"));
 						leaguePlayer.Comment = xplayer.GetString("comment");
+						leaguePlayer.Grade = xplayer.GetString("grade");
 
 						if (!leagueTeam.Players.Exists(x => x.Id == id))
 							leagueTeam.Players.Add(leaguePlayer);
@@ -1058,6 +1063,7 @@ namespace Torn
 						QRCode = xplayer.GetString("qrcode"),
 						TeamId = xplayer.GetInt("teamid"),
 						Pack = xplayer.GetString("pack"),
+						Grade = xplayer.GetString("grade"),
 						Score = xplayer.GetInt("score"),
 						Rank = (uint)xplayer.GetInt("rank"),
 						HitsBy = xplayer.GetInt("hitsby"),

@@ -27,6 +27,7 @@ namespace Torn.UI
 
 		void FormLeagueShown(object sender, EventArgs e)
 		{
+			League.Load(League.FileName);
 			Text = "Torn -- " + League.Title;
 			treeView1.Nodes.Clear();
 			
@@ -38,8 +39,17 @@ namespace Torn.UI
 				};
 				foreach (var player in team.Players)
 				{
-					var playerNode = teamNode.Nodes.Add(player.Name);
-					playerNode.Tag = player;
+					Console.WriteLine(player.Name);
+					Console.WriteLine(player.Grade);
+					var playerNode = new TreeNode(player.Name)
+					{
+						Tag = player
+					};
+
+					var gradeNode = playerNode.Nodes.Add(player.Grade);
+					gradeNode.Tag = player.Grade;
+
+					teamNode.Nodes.Add(playerNode);
 				}
 				treeView1.Nodes.Add(teamNode);
 			}
@@ -228,6 +238,11 @@ namespace Torn.UI
 			// TODO: Change the player's ID in each of their committed games. This will require a deeper Clone() than currently used, in order to be cancellable.
 		}
 
+		void ButtonRegradePlayerClick(object sender, EventArgs e)
+		{
+			Console.WriteLine("Change Grade Somehow");
+		}
+
 		void RankCheckedChanged(object sender, EventArgs e)
 		{
 			foreach (var c in leaguePage.Controls)
@@ -306,5 +321,51 @@ namespace Torn.UI
 		{
 			League.HandicapStyle = HandicapExtensions.ToHandicapStyle(((Control)sender).Text);
 		}
-	}
+
+        private void automaticHandicapEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+			teamSize.Enabled = automaticHandicapEnabled.Checked;
+			missingPlayerPenalty.Enabled = automaticHandicapEnabled.Checked;
+			extraAPenalty.Enabled = automaticHandicapEnabled.Checked;
+			extraGBonus.Enabled = automaticHandicapEnabled.Checked;
+
+			AAABonus.Enabled = automaticHandicapEnabled.Checked;
+			BBBonus.Enabled = automaticHandicapEnabled.Checked;
+			ABonus.Enabled = automaticHandicapEnabled.Checked;
+			BBonus.Enabled = automaticHandicapEnabled.Checked;
+			CBonus.Enabled = automaticHandicapEnabled.Checked;
+			DBonus.Enabled = automaticHandicapEnabled.Checked;
+			EBonus.Enabled = automaticHandicapEnabled.Checked;
+			FBonus.Enabled = automaticHandicapEnabled.Checked;
+			GBonus.Enabled = automaticHandicapEnabled.Checked;
+			HBonus.Enabled = automaticHandicapEnabled.Checked;
+			IBonus.Enabled = automaticHandicapEnabled.Checked;
+
+			AAAPenalty.Enabled = automaticHandicapEnabled.Checked;
+			BBPenalty.Enabled = automaticHandicapEnabled.Checked;
+			APenalty.Enabled = automaticHandicapEnabled.Checked;
+			BPenalty.Enabled = automaticHandicapEnabled.Checked;
+			CPenalty.Enabled = automaticHandicapEnabled.Checked;
+			DPenalty.Enabled = automaticHandicapEnabled.Checked;
+			EPenalty.Enabled = automaticHandicapEnabled.Checked;
+			FPenalty.Enabled = automaticHandicapEnabled.Checked;
+			GPenalty.Enabled = automaticHandicapEnabled.Checked;
+			HPenalty.Enabled = automaticHandicapEnabled.Checked;
+			IPenalty.Enabled = automaticHandicapEnabled.Checked;
+
+			AAAPoints.Enabled = automaticHandicapEnabled.Checked;
+			BBPoints.Enabled = automaticHandicapEnabled.Checked;
+			APoints.Enabled = automaticHandicapEnabled.Checked;
+			BPoints.Enabled = automaticHandicapEnabled.Checked;
+			CPoints.Enabled = automaticHandicapEnabled.Checked;
+			DPoints.Enabled = automaticHandicapEnabled.Checked;
+			EPoints.Enabled = automaticHandicapEnabled.Checked;
+			FPoints.Enabled = automaticHandicapEnabled.Checked;
+			GPoints.Enabled = automaticHandicapEnabled.Checked;
+			HPoints.Enabled = automaticHandicapEnabled.Checked;
+			IPoints.Enabled = automaticHandicapEnabled.Checked;
+
+
+		}
+    }
 }
