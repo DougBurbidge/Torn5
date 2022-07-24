@@ -933,6 +933,7 @@ namespace Torn
 
 		void OnFileChanged(object sender, FileSystemEventArgs e)
 		{
+			System.Threading.Thread.Sleep(1000);
 			Load(fileName);
 		}
 
