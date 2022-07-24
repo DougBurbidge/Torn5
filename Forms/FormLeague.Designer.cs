@@ -113,17 +113,19 @@ namespace Torn.UI
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.HandicapPage = new System.Windows.Forms.TabPage();
+            this.playerGradeAlias = new System.Windows.Forms.Label();
+            this.playerGradeBox = new System.Windows.Forms.ComboBox();
+            this.extraGBonus = new System.Windows.Forms.NumericUpDown();
+            this.extraGBonusLabel = new System.Windows.Forms.Label();
+            this.extraAPenalty = new System.Windows.Forms.NumericUpDown();
+            this.label8 = new System.Windows.Forms.Label();
+            this.missingPlayerPenalty = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.teamSize = new System.Windows.Forms.NumericUpDown();
             this.automaticHandicapEnabled = new System.Windows.Forms.CheckBox();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
-            this.missingPlayerPenalty = new System.Windows.Forms.NumericUpDown();
-            this.label8 = new System.Windows.Forms.Label();
-            this.extraAPenalty = new System.Windows.Forms.NumericUpDown();
-            this.extraGBonusLabel = new System.Windows.Forms.Label();
-            this.extraGBonus = new System.Windows.Forms.NumericUpDown();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -146,10 +148,10 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.APoints)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AAAPoints)).BeginInit();
             this.HandicapPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.teamSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.extraGBonus)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.teamSize)).BeginInit();
             this.SuspendLayout();
             // 
             // treeView1
@@ -1031,6 +1033,8 @@ namespace Torn.UI
             // 
             // HandicapPage
             // 
+            this.HandicapPage.Controls.Add(this.playerGradeAlias);
+            this.HandicapPage.Controls.Add(this.playerGradeBox);
             this.HandicapPage.Controls.Add(this.extraGBonus);
             this.HandicapPage.Controls.Add(this.extraGBonusLabel);
             this.HandicapPage.Controls.Add(this.extraAPenalty);
@@ -1047,6 +1051,102 @@ namespace Torn.UI
             this.HandicapPage.TabIndex = 3;
             this.HandicapPage.Text = "Handicap";
             this.HandicapPage.UseVisualStyleBackColor = true;
+            // 
+            // playerGradeAlias
+            // 
+            this.playerGradeAlias.AutoSize = true;
+            this.playerGradeAlias.Location = new System.Drawing.Point(61, 220);
+            this.playerGradeAlias.Name = "playerGradeAlias";
+            this.playerGradeAlias.Size = new System.Drawing.Size(35, 13);
+            this.playerGradeAlias.TabIndex = 10;
+            this.playerGradeAlias.Text = "label9";
+            this.playerGradeAlias.Visible = false;
+            // 
+            // playerGradeBox
+            // 
+            this.playerGradeBox.FormattingEnabled = true;
+            this.playerGradeBox.Location = new System.Drawing.Point(64, 236);
+            this.playerGradeBox.Name = "playerGradeBox";
+            this.playerGradeBox.Size = new System.Drawing.Size(121, 21);
+            this.playerGradeBox.TabIndex = 9;
+            this.playerGradeBox.Visible = false;
+            this.playerGradeBox.SelectedIndexChanged += new System.EventHandler(this.playerGradeBox_SelectedIndexChanged);
+            // 
+            // extraGBonus
+            // 
+            this.extraGBonus.Enabled = false;
+            this.extraGBonus.Location = new System.Drawing.Point(169, 118);
+            this.extraGBonus.Maximum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.extraGBonus.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.extraGBonus.Name = "extraGBonus";
+            this.extraGBonus.Size = new System.Drawing.Size(37, 20);
+            this.extraGBonus.TabIndex = 8;
+            this.extraGBonus.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
+            // 
+            // extraGBonusLabel
+            // 
+            this.extraGBonusLabel.AutoSize = true;
+            this.extraGBonusLabel.Location = new System.Drawing.Point(39, 125);
+            this.extraGBonusLabel.Name = "extraGBonusLabel";
+            this.extraGBonusLabel.Size = new System.Drawing.Size(75, 13);
+            this.extraGBonusLabel.TabIndex = 7;
+            this.extraGBonusLabel.Text = "Extra G Bonus";
+            // 
+            // extraAPenalty
+            // 
+            this.extraAPenalty.Enabled = false;
+            this.extraAPenalty.Location = new System.Drawing.Point(169, 92);
+            this.extraAPenalty.Name = "extraAPenalty";
+            this.extraAPenalty.Size = new System.Drawing.Size(37, 20);
+            this.extraAPenalty.TabIndex = 6;
+            this.extraAPenalty.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(39, 99);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(79, 13);
+            this.label8.TabIndex = 5;
+            this.label8.Text = "Extra A Penalty";
+            // 
+            // missingPlayerPenalty
+            // 
+            this.missingPlayerPenalty.Enabled = false;
+            this.missingPlayerPenalty.Location = new System.Drawing.Point(169, 66);
+            this.missingPlayerPenalty.Name = "missingPlayerPenalty";
+            this.missingPlayerPenalty.Size = new System.Drawing.Size(37, 20);
+            this.missingPlayerPenalty.TabIndex = 4;
+            this.missingPlayerPenalty.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(39, 73);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(112, 13);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "Missing Player Penalty";
             // 
             // label6
             // 
@@ -1103,82 +1203,6 @@ namespace Torn.UI
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(39, 73);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(112, 13);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Missing Player Penalty";
-            // 
-            // missingPlayerPenalty
-            // 
-            this.missingPlayerPenalty.Enabled = false;
-            this.missingPlayerPenalty.Location = new System.Drawing.Point(169, 66);
-            this.missingPlayerPenalty.Name = "missingPlayerPenalty";
-            this.missingPlayerPenalty.Size = new System.Drawing.Size(37, 20);
-            this.missingPlayerPenalty.TabIndex = 4;
-            this.missingPlayerPenalty.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(39, 99);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(79, 13);
-            this.label8.TabIndex = 5;
-            this.label8.Text = "Extra A Penalty";
-            // 
-            // extraAPenalty
-            // 
-            this.extraAPenalty.Enabled = false;
-            this.extraAPenalty.Location = new System.Drawing.Point(169, 92);
-            this.extraAPenalty.Name = "extraAPenalty";
-            this.extraAPenalty.Size = new System.Drawing.Size(37, 20);
-            this.extraAPenalty.TabIndex = 6;
-            this.extraAPenalty.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // extraGBonusLabel
-            // 
-            this.extraGBonusLabel.AutoSize = true;
-            this.extraGBonusLabel.Location = new System.Drawing.Point(39, 125);
-            this.extraGBonusLabel.Name = "extraGBonusLabel";
-            this.extraGBonusLabel.Size = new System.Drawing.Size(75, 13);
-            this.extraGBonusLabel.TabIndex = 7;
-            this.extraGBonusLabel.Text = "Extra G Bonus";
-            // 
-            // extraGBonus
-            // 
-            this.extraGBonus.Enabled = false;
-            this.extraGBonus.Location = new System.Drawing.Point(169, 118);
-            this.extraGBonus.Maximum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.extraGBonus.Minimum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            -2147483648});
-            this.extraGBonus.Name = "extraGBonus";
-            this.extraGBonus.Size = new System.Drawing.Size(37, 20);
-            this.extraGBonus.TabIndex = 8;
-            this.extraGBonus.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            -2147483648});
-            // 
             // FormLeague
             // 
             this.AcceptButton = this.buttonOK;
@@ -1222,10 +1246,10 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.AAAPoints)).EndInit();
             this.HandicapPage.ResumeLayout(false);
             this.HandicapPage.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.teamSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.extraGBonus)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.teamSize)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -1323,5 +1347,7 @@ namespace Torn.UI
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown missingPlayerPenalty;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label playerGradeAlias;
+        private System.Windows.Forms.ComboBox playerGradeBox;
     }
 }

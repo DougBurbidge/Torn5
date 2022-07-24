@@ -39,8 +39,6 @@ namespace Torn.UI
 				};
 				foreach (var player in team.Players)
 				{
-					Console.WriteLine(player.Name);
-					Console.WriteLine(player.Grade);
 					var playerNode = new TreeNode(player.Name)
 					{
 						Tag = player
@@ -68,40 +66,70 @@ namespace Torn.UI
 			RankCheckedChanged(null, null);
 		}
 
+		private void setupGradeSelector(string alias, string grade)
+        {
+			playerGradeAlias.Visible = true;
+			playerGradeAlias.Text = alias + " Grade";
+			playerGradeBox.Items.Clear();
+			playerGradeBox.Items.Add(AAAName.Text);
+			playerGradeBox.Items.Add(AName.Text);
+			playerGradeBox.Items.Add(BBName.Text);
+			playerGradeBox.Items.Add(BName.Text);
+			playerGradeBox.Items.Add(CName.Text);
+			playerGradeBox.Items.Add(DName.Text);
+			playerGradeBox.Items.Add(EName.Text);
+			playerGradeBox.Items.Add(FName.Text);
+			playerGradeBox.Items.Add(GName.Text);
+			playerGradeBox.Items.Add(HName.Text);
+			playerGradeBox.Items.Add(IName.Text);
+
+			playerGradeBox.SelectedItem = grade;
+		}
+
 		void TreeView1AfterSelect(object sender, TreeViewEventArgs e)
 		{
-			tabControl1.SelectedTab = scoresPage;
+			if (treeView1.SelectedNode.Tag is string grade && treeView1.SelectedNode.Parent.Tag is LeaguePlayer leaguePlayer)
+			{
+				tabControl1.SelectedTab = HandicapPage;
+				setupGradeSelector(leaguePlayer.Name, grade);
+			}
+			else
+			{
+				tabControl1.SelectedTab = scoresPage;
 
-			if (treeView1.SelectedNode.Tag is LeagueTeam team)
-			{
-				listViewScores.Items.Clear();
-				foreach (var gameTeam in League.Played(team))
+				if (treeView1.SelectedNode.Tag is LeagueTeam team)
 				{
-					Game game = League.Game(gameTeam);
-					var item = new ListViewItem(game == null ? "?" : game.Time.ToString());
-					item.SubItems.Add(gameTeam.Score.ToString());
-					item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : game == null ? "?" : (game.Teams.IndexOf(gameTeam) + 1).ToString());
-					item.BackColor = gameTeam.Colour.ToColor();
-					listViewScores.Items.Add(item);
+					listViewScores.Items.Clear();
+					foreach (var gameTeam in League.Played(team))
+					{
+						Game game = League.Game(gameTeam);
+						var item = new ListViewItem(game == null ? "?" : game.Time.ToString());
+						item.SubItems.Add(gameTeam.Score.ToString());
+						item.SubItems.Add(League.IsPoints() ? gameTeam.Points.ToString() : game == null ? "?" : (game.Teams.IndexOf(gameTeam) + 1).ToString());
+						item.BackColor = gameTeam.Colour.ToColor();
+						listViewScores.Items.Add(item);
+					}
+					listViewScores.Columns[2].Text = League.IsPoints() ? "Points" : "Rank";
 				}
-				listViewScores.Columns[2].Text = League.IsPoints() ? "Points" : "Rank";
-			}
-			else if (treeView1.SelectedNode.Tag is LeaguePlayer player)
-			{
-				listViewScores.Items.Clear();
-				foreach (var gamePlayer in League.Played(player))
+				else if (treeView1.SelectedNode.Tag is LeaguePlayer player)
 				{
-					var item = new ListViewItem(League.Game(gamePlayer).Time.ToString());
-					item.SubItems.Add(gamePlayer.Score.ToString());
-					item.SubItems.Add(gamePlayer.Rank.ToString());
-					item.BackColor = gamePlayer.Colour.ToColor();
-					listViewScores.Items.Add(item);
+					setupGradeSelector(player.Name, player.Grade);
+					listViewScores.Items.Clear();
+					foreach (var gamePlayer in League.Played(player))
+					{
+						var item = new ListViewItem(League.Game(gamePlayer).Time.ToString());
+						item.SubItems.Add(gamePlayer.Score.ToString());
+						item.SubItems.Add(gamePlayer.Rank.ToString());
+						item.BackColor = gamePlayer.Colour.ToColor();
+						listViewScores.Items.Add(item);
+					}
+					listViewScores.Columns[2].Text = "Rank";
 				}
-				listViewScores.Columns[2].Text = "Rank";
 			}
-			
 			buttonDeletePlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;
 			buttonReIdPlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;
+			playerGradeAlias.Visible = treeView1.SelectedNode.Tag is string || treeView1.SelectedNode.Tag is LeaguePlayer;
+			playerGradeBox.Visible = treeView1.SelectedNode.Tag is string || treeView1.SelectedNode.Tag is LeaguePlayer;
 		}
 
 		TreeNode hovered;
@@ -238,11 +266,6 @@ namespace Torn.UI
 			// TODO: Change the player's ID in each of their committed games. This will require a deeper Clone() than currently used, in order to be cancellable.
 		}
 
-		void ButtonRegradePlayerClick(object sender, EventArgs e)
-		{
-			Console.WriteLine("Change Grade Somehow");
-		}
-
 		void RankCheckedChanged(object sender, EventArgs e)
 		{
 			foreach (var c in leaguePage.Controls)
@@ -367,5 +390,41 @@ namespace Torn.UI
 
 
 		}
+
+		private void UpdatePlayerGrade(LeaguePlayer leaguePlayer)
+        {
+			Console.WriteLine(leaguePlayer.Name + " " + leaguePlayer.Grade);
+			League.Load(League.FileName);
+			foreach (LeagueTeam team in League.Teams.ToList())
+            {
+				int teamIndex = League.Teams.IndexOf(team);
+				foreach (LeaguePlayer player in team.Players.ToList())
+                {
+					int playerIndex = team.Players.IndexOf(player);
+					if (player.Id == leaguePlayer.Id)
+                    {
+						League.Teams[teamIndex].Players[playerIndex] = leaguePlayer;
+                    }
+                }
+            }
+			League.Save();
+        }
+
+        private void playerGradeBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+			string grade = playerGradeBox.SelectedItem.ToString();
+			if (treeView1.SelectedNode.Tag is string && treeView1.SelectedNode.Parent.Tag is LeaguePlayer leaguePlayer)
+			{
+				leaguePlayer.Grade = grade;
+				treeView1.SelectedNode.Text = grade;
+				UpdatePlayerGrade(leaguePlayer);
+			}
+			if (treeView1.SelectedNode.Tag is LeaguePlayer player)
+			{
+				player.Grade = grade;
+				treeView1.SelectedNode.Nodes[0].Text = grade;
+				UpdatePlayerGrade(player);
+			}
+        }
     }
 }

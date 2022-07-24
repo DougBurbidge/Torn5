@@ -1175,6 +1175,7 @@ namespace Torn
 					if (player.Handicap != null && !player.Handicap.IsZero())
 						doc.AppendNode(playerNode, "handicap", player.Handicap.ToString());
 					if (!string.IsNullOrEmpty(player.Comment)) doc.AppendNode(playerNode, "comment", player.Comment);
+					if (!string.IsNullOrEmpty(player.Grade)) doc.AppendNode(playerNode, "grade", player.Grade);
 				}
 			}
 
@@ -1222,6 +1223,7 @@ namespace Torn
 					doc.AppendNode(playerNode, "teamid", player.TeamId ?? -1);
 					doc.AppendNode(playerNode, "playerid", player.PlayerId);
 					doc.AppendNode(playerNode, "qrcode", player.QRCode);
+					doc.AppendNode(playerNode, "grade", player.Grade);
 					doc.AppendNode(playerNode, "pack", player.Pack);
 					doc.AppendNonZero(playerNode, "score", player.Score);
 					doc.AppendNode(playerNode, "rank", (int)player.Rank);
