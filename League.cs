@@ -621,6 +621,30 @@ namespace Torn
 		}
 	}
 
+	public class Grade
+	{
+		public string Name { get; set; }
+		public int Points { get; set; }
+		public int ExtraPenalty { get; set; }
+		public int ExtraBonus { get; set; }
+
+		public Grade(string name, int points, int extraPenalty, int extraBonus)
+		{
+			Name = name;
+			Points = points;
+			ExtraBonus = extraBonus;
+			ExtraPenalty = extraPenalty;
+		}
+
+		public Grade(string name, int points)
+		{
+			Name = name;
+			Points = points;
+			ExtraBonus = 0;
+			ExtraPenalty = 0;
+		}
+	}
+
 	/// <summary>Load and manage a .Torn league file, containing league teams and games.</summary>
 	public class League
 	{
@@ -662,6 +686,23 @@ namespace Torn
 		public double VictoryPointsHighScore { get; set; }
 		public double VictoryPointsProportional { get; set; }
 
+		public List<Grade> Grades { get; set; }
+
+		private List<Grade> DEFAULT_GRADES = new List<Grade>
+		{
+			new Grade("AAA", 6, 1, 0),
+			new Grade("A", 5, 1, 0),
+			new Grade("BB", 5, 0, 0),
+			new Grade("B", 4, 0, 0),
+			new Grade("C", 3, 0, 0),
+			new Grade("D", 2, 0, 0),
+			new Grade("E", 1, 0, 0),
+			new Grade("F", 0, 0, 0),
+			new Grade("G", 0, 0, -1),
+			new Grade("H", 0, 0, -1),
+			new Grade("I", 0, 0, -1),
+		};
+
 		public League()
 		{
 			teams = new List<LeagueTeam>();
@@ -679,6 +720,7 @@ namespace Torn
 			GridWide = 1;
 			GridPlayers = 6;
 			HandicapStyle = HandicapStyle.Percent;
+			Grades = DEFAULT_GRADES;
 		}
 
 		public League(string fileName): this()
@@ -722,7 +764,8 @@ namespace Torn
 
 				victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList()),
 				VictoryPointsHighScore = VictoryPointsHighScore,
-				VictoryPointsProportional = VictoryPointsProportional
+				VictoryPointsProportional = VictoryPointsProportional,
+				Grades = Grades
 			};
 
 			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone(clone)).ToList();
@@ -1141,6 +1184,20 @@ namespace Torn
 			doc.AppendNode(bodyNode, "AutoUpdate", autoUpdate);
 			doc.AppendNode(bodyNode, "UpdateTeams", updateTeams);
 			doc.AppendNonZero(bodyNode, "ElimMultiplier", elimMultiplier);
+
+			XmlNode gradesNode = doc.CreateElement("grades");
+			bodyNode.AppendChild(gradesNode);
+
+			foreach (Grade grade in Grades)
+            {
+				XmlNode gradeNode = doc.CreateElement("grade");
+				gradesNode.AppendChild(gradeNode);
+
+				doc.AppendNode(gradeNode, "name", grade.Name);
+				doc.AppendNode(gradeNode, "points", grade.Points);
+				doc.AppendNode(gradeNode, "extraPenalty", grade.ExtraPenalty);
+				doc.AppendNode(gradeNode, "extraBonus", grade.ExtraBonus);
+			}
 
 			foreach (double point in victoryPoints)
 				doc.AppendNode(bodyNode, "Points", point.ToString());
