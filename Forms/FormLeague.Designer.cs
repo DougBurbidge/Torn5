@@ -1138,6 +1138,7 @@ namespace Torn.UI
             0,
             0,
             -2147483648});
+            this.extraGBonus.ValueChanged += new System.EventHandler(this.extraGBonus_ValueChanged);
             // 
             // extraGBonusLabel
             // 
@@ -1160,6 +1161,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.extraAPenalty.ValueChanged += new System.EventHandler(this.extraAPenalty_ValueChanged);
             // 
             // label8
             // 
@@ -1182,6 +1184,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.missingPlayerPenalty.ValueChanged += new System.EventHandler(this.missingPlayerPenalty_ValueChanged);
             // 
             // label7
             // 
@@ -1205,6 +1208,11 @@ namespace Torn.UI
             // 
             this.teamSize.Enabled = false;
             this.teamSize.Location = new System.Drawing.Point(169, 40);
+            this.teamSize.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.teamSize.Name = "teamSize";
             this.teamSize.Size = new System.Drawing.Size(37, 20);
             this.teamSize.TabIndex = 1;
@@ -1213,6 +1221,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.teamSize.ValueChanged += new System.EventHandler(this.teamSize_ValueChanged);
             // 
             // automaticHandicapEnabled
             // 

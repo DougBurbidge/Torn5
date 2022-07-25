@@ -127,6 +127,11 @@ namespace Torn.UI
 			HBonus.Checked = League.Grades[H_INDEX].HasBonus;
 			IBonus.Checked = League.Grades[I_INDEX].HasBonus;
 
+			teamSize.Value = League.expectedTeamSize;
+			missingPlayerPenalty.Value = League.missingPlayerPenalty;
+			extraAPenalty.Value = League.extraAPenalty;
+			extraGBonus.Value = League.extraGBonus;
+
 		}
 
 		private void setupGradeSelector(string alias, string grade)
@@ -825,6 +830,34 @@ namespace Torn.UI
         private void IBonus_CheckedChanged(object sender, EventArgs e)
         {
 			UpdateBonusChecked(IBonus.Checked, I_INDEX);
+		}
+
+        private void teamSize_ValueChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.expectedTeamSize = (int)teamSize.Value;
+			League.Save();
+        }
+
+        private void missingPlayerPenalty_ValueChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.missingPlayerPenalty = (int)missingPlayerPenalty.Value;
+			League.Save();
+		}
+
+        private void extraAPenalty_ValueChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.extraAPenalty = (int)extraAPenalty.Value;
+			League.Save();
+		}
+
+        private void extraGBonus_ValueChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.extraGBonus = (int)extraGBonus.Value;
+			League.Save();
 		}
     }
 }

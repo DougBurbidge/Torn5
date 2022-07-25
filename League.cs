@@ -688,6 +688,11 @@ namespace Torn
 
 		public List<Grade> Grades { get; set; }
 
+		public int expectedTeamSize { get; set; }
+		public int missingPlayerPenalty { get; set; }
+		public int extraAPenalty { get; set; }
+		public int extraGBonus { get; set; }
+
 		private List<Grade> DEFAULT_GRADES = new List<Grade>
 		{
 			new Grade("AAA", 6, true, false),
@@ -721,6 +726,10 @@ namespace Torn
 			GridPlayers = 6;
 			HandicapStyle = HandicapStyle.Percent;
 			Grades = DEFAULT_GRADES;
+			expectedTeamSize = 5;
+			missingPlayerPenalty = 2;
+			extraAPenalty = 1;
+			extraGBonus = -1;
 		}
 
 		public League(string fileName): this()
@@ -765,7 +774,11 @@ namespace Torn
 				victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList()),
 				VictoryPointsHighScore = VictoryPointsHighScore,
 				VictoryPointsProportional = VictoryPointsProportional,
-				Grades = Grades
+				Grades = Grades,
+				expectedTeamSize = expectedTeamSize,
+				missingPlayerPenalty = missingPlayerPenalty,
+				extraAPenalty = extraAPenalty,
+				extraGBonus = extraGBonus
 			};
 
 			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone(clone)).ToList();
@@ -1008,6 +1021,12 @@ namespace Torn
 			autoUpdate = root.GetInt("AutoUpdate");
 			updateTeams = root.GetInt("UpdateTeams");
 			elimMultiplier = root.GetInt("ElimMultiplier");
+			int teamSize = root.GetInt("ExpectedTeamSize");
+			missingPlayerPenalty = root.GetInt("MissingPlayerPenalty");
+			extraAPenalty = root.GetInt("ExtraAPenalty");
+			extraGBonus = root.GetInt("ExtraGBonus");
+
+			expectedTeamSize = teamSize == 0 ? 5 : teamSize;
 
 			XmlNodeList points = root.SelectNodes("Points");
 			foreach (XmlNode point in points)
@@ -1016,17 +1035,26 @@ namespace Torn
 			VictoryPointsHighScore = root.GetDouble("High");
 			VictoryPointsProportional = root.GetDouble("Proportional");
 
-			XmlNodeList xgrades = root.SelectSingleNode("grades").SelectNodes("grade");
+			XmlNode gradesNode = root.SelectSingleNode("grades");
 
-			List<Grade> grades = new List<Grade>();
-
-			foreach (XmlNode xgrade in xgrades)
+			if (gradesNode != null)
 			{
-				Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("hasPenalty") > 0, xgrade.GetInt("hasBonus") > 0);
-				grades.Add(grade);
-			}
 
-			Grades = grades;
+				XmlNodeList xgrades = gradesNode.SelectNodes("grade");
+
+				List<Grade> grades = new List<Grade>();
+
+				foreach (XmlNode xgrade in xgrades)
+				{
+					Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("hasPenalty") > 0, xgrade.GetInt("hasBonus") > 0);
+					grades.Add(grade);
+				}
+
+				Grades = grades;
+			} else
+            {
+				Grades = DEFAULT_GRADES;
+            }
 
 			XmlNodeList xteams = root.SelectSingleNode("leaguelist").SelectNodes("team");
 
@@ -1196,6 +1224,10 @@ namespace Torn
 			doc.AppendNode(bodyNode, "AutoUpdate", autoUpdate);
 			doc.AppendNode(bodyNode, "UpdateTeams", updateTeams);
 			doc.AppendNonZero(bodyNode, "ElimMultiplier", elimMultiplier);
+			doc.AppendNonZero(bodyNode, "ExpectedTeamSize", expectedTeamSize);
+			doc.AppendNode(bodyNode, "MissingPlayerPenalty", missingPlayerPenalty);
+			doc.AppendNode(bodyNode, "ExtraAPenalty", extraAPenalty);
+			doc.AppendNode(bodyNode, "ExtraGBonus", extraGBonus);
 
 			XmlNode gradesNode = doc.CreateElement("grades");
 			bodyNode.AppendChild(gradesNode);
