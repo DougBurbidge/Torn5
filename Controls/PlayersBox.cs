@@ -51,7 +51,7 @@ namespace Torn.UI
 					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
 
 					ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
-					if (player.Grade == null && league.isAutoHandicap)
+					if ((player.Grade == null && league != null && league.isAutoHandicap) || isRichoCard)
                     {
 						item.BackColor = Color.FromName("yellow");
 					}
