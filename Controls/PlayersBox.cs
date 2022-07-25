@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 
@@ -50,9 +51,13 @@ namespace Torn.UI
 					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
 
 					ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
-						item.SubItems.Add(alias);
-						item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
-						item.SubItems.Add(player.Grade);
+					if (player.Grade == null && league.isAutoHandicap)
+                    {
+						item.BackColor = Color.FromName("yellow");
+					}
+					item.SubItems.Add(alias);
+					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
+					item.SubItems.Add(player.Grade);
 					item.Tag = player;
 						player.Item = item;
 						Items.Add(item);
