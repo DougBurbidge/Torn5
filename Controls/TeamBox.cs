@@ -119,12 +119,9 @@ namespace Torn.UI
             {
 				if (League.isAutoHandicap)
 				{
-					score = League.CalculateAutoCappedScore(GameTeam);
 					ListView.Columns[3].Text = League.CalulateTeamCap(GameTeam).ToString() + "%";
-				} else
-                {
-					score = League.CalculateScore(GameTeam);
 				}
+				score = League.CalculateScore(GameTeam);
 			} else
             {
 				score = 0;

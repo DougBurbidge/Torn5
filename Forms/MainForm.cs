@@ -375,7 +375,6 @@ namespace Torn.UI
 
 				if (teamDatas.Any())
 				{
-					Console.WriteLine(teamDatas[0].Players[0].Grade);
 					ServerGame serverGame = item.Tag as ServerGame;
 
 					activeHolder.League.CommitGame(serverGame, teamDatas, groupPlayersBy);

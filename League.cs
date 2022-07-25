@@ -888,6 +888,12 @@ namespace Torn
 				leagueTeam.Players[index].Grade = gamePlayer.Grade;
 
 			}
+
+			if(isAutoHandicap)
+            {
+				int cap = CalulateTeamCap(gameTeam);
+				leagueTeam.Handicap = new Handicap(cap, HandicapStyle.Percent);
+            }
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
@@ -1624,15 +1630,21 @@ namespace Torn
 
 		public double CalculateScore(GameTeam gameTeam)
 		{
-			double score = 0;
+			if(isAutoHandicap)
+            {
+				return CalculateAutoCappedScore(gameTeam);
+            } else
+            {
+				double score = 0;
 
-			foreach (var player in gameTeam.Players)
-				score += player.Score;
+				foreach (var player in gameTeam.Players)
+					score += player.Score;
 
-			score += gameTeam.Adjustment;
+				score += gameTeam.Adjustment;
 
-			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
-			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+				LeagueTeam leagueTeam = LeagueTeam(gameTeam);
+				return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+			}			
 		}
 
 		public int CalulateTeamCap(GameTeam gameTeam)
