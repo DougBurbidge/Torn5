@@ -39,8 +39,8 @@ namespace Torn.UI
 				foreach (var player in serverGame.Players)
 				{
 
-					LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
-					if (leaguePlayer != null)
+					LeaguePlayer leaguePlayer = league?.Players?.Find(p => p.Id == player.PlayerId);
+					if (leaguePlayer != null && player.Grade == null)
 					{
 						player.Grade = leaguePlayer.Grade;
 					}
@@ -48,8 +48,6 @@ namespace Torn.UI
 					bool isRichoCard = player.QRCode != null && player.QRCode.StartsWith("00005");
 
 					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
-
-					Console.WriteLine(alias + " " + player.Grade);
 
 					ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
 						item.SubItems.Add(alias);

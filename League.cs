@@ -737,13 +737,13 @@ namespace Torn
 		public int GetGradePoints(string playerGrade)
         {
 			Grade grade = Grades.Find(g => g.Name == playerGrade);
-			return grade.Points;
+			return grade?.Points ?? 0;
         }
 
 		public int GetGradePenalty(string playerGrade)
 		{
 			Grade grade = Grades.Find(g => g.Name == playerGrade);
-			if (grade.HasPenalty)
+			if (grade!= null && grade.HasPenalty)
 				return extraAPenalty;
 			else
 				return 0;
@@ -752,7 +752,7 @@ namespace Torn
 		public int GetGradeBonus(string playerGrade)
 		{
 			Grade grade = Grades.Find(g => g.Name == playerGrade);
-			if (grade.HasBonus)
+			if (grade != null && grade.HasBonus)
 				return extraGBonus;
 			else
 				return 0;
@@ -1625,6 +1625,48 @@ namespace Torn
 
 			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
 			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+		}
+
+		public double CalculateAutoCappedScore(GameTeam gameTeam)
+        {
+			double score = 0;
+
+			foreach (var player in gameTeam.Players)
+				score += player.Score;
+
+			int totalPoints = 0;
+			int bonusCount = 0;
+			int bonusTotal = 0;
+			int penaltyCount = 0;
+			int penaltyTotal = 0;
+			foreach (var player in gameTeam.Players)
+			{
+				totalPoints += GetGradePoints(player.Grade);
+				int bonus = GetGradeBonus(player.Grade);
+				int penalty = GetGradePenalty(player.Grade);
+
+				if( bonus > 0 )
+                {
+					bonusCount++;
+					if(bonusCount > 1)
+						bonusTotal += bonus;
+                }
+
+				if (penalty > 0)
+				{
+					penaltyCount++;
+					if(penaltyCount > 1)
+						penaltyTotal += bonus;
+				}
+			}
+
+			totalPoints += bonusTotal + penaltyTotal;
+
+			int cap = GetAutoHandicap(totalPoints);
+
+			Console.WriteLine(gameTeam.TeamId + " " + cap + "%");
+
+			return new Handicap(cap, HandicapStyle.Percent).Apply(score);
 		}
 
 		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy)

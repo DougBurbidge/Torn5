@@ -83,6 +83,7 @@ namespace Torn.UI
 			handicap = new Handicap();
 			ListView.Columns[1].Text = "Players";
 			ListView.Columns[2].Text = "Score";
+			ListView.Columns[3].Text = "Grade";
 		}
 
 		protected override void Recalculate(bool guessTeam = true)
@@ -94,6 +95,7 @@ namespace Torn.UI
 				ListView.Columns[0].Text = "Pack";
 				ListView.Columns[1].Text = "Players";
 				ListView.Columns[2].Text = "Score";
+				ListView.Columns[3].Text = "Grade";
 				return;
 			}
 
@@ -113,7 +115,20 @@ namespace Torn.UI
 					tempTeam.TeamId = LeagueTeam.TeamId;
 			}
 
-			score = League == null ? 0 : League.CalculateScore(tempTeam);
+			if(League != null)
+            {
+				if (League.isAutoHandicap)
+				{
+					score = League.CalculateAutoCappedScore(tempTeam);
+				} else
+                {
+					score = League.CalculateScore(tempTeam);
+				}
+			} else
+            {
+				score = 0;
+            }
+
 			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
 				(GameTeam.Adjustment == 0 ? "" : "*");
 		}
