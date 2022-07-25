@@ -710,6 +710,54 @@ namespace Torn
 			new Grade("I", 0, false, true),
 		};
 
+		// CAP USED IN WA LEAGUES
+		// TODO MAKE THIS CONFIGURABLE
+		private readonly List<int> PositiveCap = new List<int> { 180, 170, 160, 155, 150, 145, 140, 135, 130, 127, 125, 123, 120, 117, 115, 113, 110, 107, 105, 103, 100, 100, 97, 95, 92, 90, 87, 85, 82, 80, 77, 75, 72, 70, 65 };
+
+		public int GetAutoHandicap(int points)
+        {
+			if(points >= 0)
+            {
+				if(points < PositiveCap.Count())
+                {
+					return PositiveCap[points];
+                }
+
+				int outOfRangeBy = points - PositiveCap.Count() - 1;
+				int lastValue = PositiveCap[PositiveCap.Count() - 1];
+				int multiplier = 5;
+				int result = lastValue - (multiplier * outOfRangeBy);
+				// cannot return a negative value to limit cap to 1%
+				return Math.Max(1, result);
+			}
+			int capToAdd = points * -20;
+			return PositiveCap[0] + capToAdd;
+        }
+
+		public int GetGradePoints(string playerGrade)
+        {
+			Grade grade = Grades.Find(g => g.Name == playerGrade);
+			return grade.Points;
+        }
+
+		public int GetGradePenalty(string playerGrade)
+		{
+			Grade grade = Grades.Find(g => g.Name == playerGrade);
+			if (grade.HasPenalty)
+				return extraAPenalty;
+			else
+				return 0;
+		}
+
+		public int GetGradeBonus(string playerGrade)
+		{
+			Grade grade = Grades.Find(g => g.Name == playerGrade);
+			if (grade.HasBonus)
+				return extraGBonus;
+			else
+				return 0;
+		}
+
 		public League()
 		{
 			teams = new List<LeagueTeam>();
