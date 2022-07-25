@@ -1660,7 +1660,7 @@ namespace Torn
 				{
 					penaltyCount++;
 					if (penaltyCount > 1)
-						penaltyTotal += bonus;
+						penaltyTotal += penalty;
 				}
 			}
 
