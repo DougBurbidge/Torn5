@@ -809,6 +809,7 @@ namespace Torn.UI
             this.IPoints.Name = "IPoints";
             this.IPoints.Size = new System.Drawing.Size(33, 20);
             this.IPoints.TabIndex = 23;
+            this.IPoints.ValueChanged += new System.EventHandler(this.IPoints_ValueChanged);
             // 
             // IName
             // 
@@ -826,6 +827,7 @@ namespace Torn.UI
             this.HPoints.Name = "HPoints";
             this.HPoints.Size = new System.Drawing.Size(33, 20);
             this.HPoints.TabIndex = 21;
+            this.HPoints.ValueChanged += new System.EventHandler(this.HPoints_ValueChanged);
             // 
             // HName
             // 
@@ -843,6 +845,7 @@ namespace Torn.UI
             this.GPoints.Name = "GPoints";
             this.GPoints.Size = new System.Drawing.Size(33, 20);
             this.GPoints.TabIndex = 19;
+            this.GPoints.ValueChanged += new System.EventHandler(this.GPoints_ValueChanged);
             // 
             // GName
             // 
@@ -860,6 +863,7 @@ namespace Torn.UI
             this.FPoints.Name = "FPoints";
             this.FPoints.Size = new System.Drawing.Size(33, 20);
             this.FPoints.TabIndex = 17;
+            this.FPoints.ValueChanged += new System.EventHandler(this.FPoints_ValueChanged);
             // 
             // FName
             // 
@@ -882,6 +886,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.EPoints.ValueChanged += new System.EventHandler(this.EPoints_ValueChanged);
             // 
             // EName
             // 
@@ -904,6 +909,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.DPoints.ValueChanged += new System.EventHandler(this.DPoints_ValueChanged);
             // 
             // DName
             // 
@@ -926,6 +932,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.CPoints.ValueChanged += new System.EventHandler(this.CPoints_ValueChanged);
             // 
             // CName
             // 
@@ -948,6 +955,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.BPoints.ValueChanged += new System.EventHandler(this.BPoints_ValueChanged);
             // 
             // BName
             // 
@@ -970,6 +978,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.BBPoints.ValueChanged += new System.EventHandler(this.BBPoints_ValueChanged);
             // 
             // BBName
             // 
@@ -992,6 +1001,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.APoints.ValueChanged += new System.EventHandler(this.APoints_ValueChanged);
             // 
             // AName
             // 
@@ -1014,6 +1024,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.AAAPoints.ValueChanged += new System.EventHandler(this.AAAPoints_ValueChanged);
             // 
             // AAAName
             // 

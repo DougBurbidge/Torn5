@@ -25,6 +25,18 @@ namespace Torn.UI
 			victory = new List<NumericUpDown>();
 		}
 
+		private int AAA_INDEX = 0;
+		private int A_INDEX = 1;
+		private int BB_INDEX = 2;
+		private int B_INDEX = 3;
+		private int C_INDEX = 4;
+		private int D_INDEX = 5;
+		private int E_INDEX = 6;
+		private int F_INDEX = 7;
+		private int G_INDEX = 8;
+		private int H_INDEX = 9;
+		private int I_INDEX = 10;
+
 		void FormLeagueShown(object sender, EventArgs e)
 		{
 			Console.WriteLine("LOAD");
@@ -67,17 +79,29 @@ namespace Torn.UI
 			RankCheckedChanged(null, null);
 
 			//Load Grades
-			AAAName.Text = League.Grades[0].Name;
-			AName.Text = League.Grades[1].Name;
-			BBName.Text = League.Grades[2].Name;
-			BName.Text = League.Grades[3].Name;
-			CName.Text = League.Grades[4].Name;
-			DName.Text = League.Grades[5].Name;
-			EName.Text = League.Grades[6].Name;
-			FName.Text = League.Grades[7].Name;
-			GName.Text = League.Grades[8].Name;
-			HName.Text = League.Grades[9].Name;
-			IName.Text = League.Grades[10].Name;
+			AAAName.Text = League.Grades[AAA_INDEX].Name;
+			AName.Text = League.Grades[A_INDEX].Name;
+			BBName.Text = League.Grades[BB_INDEX].Name;
+			BName.Text = League.Grades[B_INDEX].Name;
+			CName.Text = League.Grades[C_INDEX].Name;
+			DName.Text = League.Grades[D_INDEX].Name;
+			EName.Text = League.Grades[E_INDEX].Name;
+			FName.Text = League.Grades[F_INDEX].Name;
+			GName.Text = League.Grades[G_INDEX].Name;
+			HName.Text = League.Grades[H_INDEX].Name;
+			IName.Text = League.Grades[I_INDEX].Name;
+
+			AAAPoints.Value = League.Grades[AAA_INDEX].Points;
+			APoints.Value = League.Grades[A_INDEX].Points;
+			BBPoints.Value = League.Grades[BB_INDEX].Points;
+			BPoints.Value = League.Grades[B_INDEX].Points;
+			CPoints.Value = League.Grades[C_INDEX].Points;
+			DPoints.Value = League.Grades[D_INDEX].Points;
+			EPoints.Value = League.Grades[E_INDEX].Points;
+			FPoints.Value = League.Grades[F_INDEX].Points;
+			GPoints.Value = League.Grades[G_INDEX].Points;
+			HPoints.Value = League.Grades[H_INDEX].Points;
+			IPoints.Value = League.Grades[I_INDEX].Points;
 		}
 
 		private void setupGradeSelector(string alias, string grade)
@@ -440,81 +464,174 @@ namespace Torn.UI
 			}
         }
 
-        private void AAAName_TextChanged(object sender, EventArgs e)
+		private void UpdateGradeName(string name, int gradeIndex)
         {
 			League.Load(League.FileName);
-			League.Grades[0].Name = AAAName.Text;
+			if (gradeIndex < League.Grades.Count())
+			{
+				League.Grades[gradeIndex].Name = name;
+			}
+			else
+			{
+				int index = League.Grades.Count();
+				while (index <= gradeIndex)
+				{
+					if (index == gradeIndex)
+					{
+						Grade grade = new Grade(name, 0, 0, 0);
+						League.Grades.Add(grade);
+					}
+					else
+					{
+						Grade grade = new Grade("", 0, 0, 0);
+						League.Grades.Add(grade);
+					}
+					index++;
+				}
+			}
+
 			League.Save();
+		}
+
+		private void UpdateGradePoints(int points, int gradeIndex)
+		{
+			League.Load(League.FileName);
+			if (gradeIndex < League.Grades.Count())
+			{
+				League.Grades[gradeIndex].Points = points;
+			}
+			else
+			{
+				int index = League.Grades.Count();
+				while (index <= gradeIndex)
+				{
+					if (index == gradeIndex)
+					{
+						Grade grade = new Grade("", points, 0, 0);
+						League.Grades.Add(grade);
+					}
+					else
+					{
+						Grade grade = new Grade("", 0, 0, 0);
+						League.Grades.Add(grade);
+					}
+					index++;
+				}
+			}
+
+			League.Save();
+		}
+
+		private void AAAName_TextChanged(object sender, EventArgs e)
+        {
+			UpdateGradeName(AAAName.Text, AAA_INDEX);
 		}
 
         private void AName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[1].Name = AName.Text;
-			League.Save();
+			UpdateGradeName(AName.Text, A_INDEX);
+
 		}
 
-        private void BBName_TextChanged(object sender, EventArgs e)
+		private void BBName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[2].Name = BBName.Text;
-			League.Save();
+			UpdateGradeName(BBName.Text, BB_INDEX);
+
 		}
 
-        private void BName_TextChanged(object sender, EventArgs e)
+		private void BName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[3].Name = BName.Text;
-			League.Save();
+			UpdateGradeName(BName.Text, B_INDEX);
 		}
 
-        private void CName_TextChanged(object sender, EventArgs e)
+		private void CName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[4].Name = CName.Text;
-			League.Save();
+			UpdateGradeName(CName.Text, C_INDEX);
 		}
 
-        private void DName_TextChanged(object sender, EventArgs e)
+		private void DName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[5].Name = DName.Text;
-			League.Save();
+			UpdateGradeName(DName.Text, D_INDEX);
 		}
 
-        private void EName_TextChanged(object sender, EventArgs e)
+		private void EName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[6].Name = EName.Text;
-			League.Save();
+			UpdateGradeName(EName.Text, E_INDEX);
 		}
 
-        private void FName_TextChanged(object sender, EventArgs e)
+		private void FName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[7].Name = FName.Text;
-			League.Save();
+			UpdateGradeName(FName.Text, F_INDEX);
 		}
 
-        private void GName_TextChanged(object sender, EventArgs e)
+		private void GName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[8].Name = GName.Text;
-			League.Save();
+			UpdateGradeName(GName.Text, G_INDEX);
 		}
 
-        private void HName_TextChanged(object sender, EventArgs e)
+		private void HName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[9].Name = HName.Text;
-			League.Save();
+			UpdateGradeName(HName.Text, H_INDEX);
 		}
 
-        private void IName_TextChanged(object sender, EventArgs e)
+		private void IName_TextChanged(object sender, EventArgs e)
         {
-			League.Load(League.FileName);
-			League.Grades[10].Name = IName.Text;
-			League.Save();
+			UpdateGradeName(IName.Text, I_INDEX);
+		}
+
+		private void AAAPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)AAAPoints.Value, AAA_INDEX);
+		}
+
+        private void APoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)APoints.Value, A_INDEX);
+		}
+
+        private void BBPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)BBPoints.Value, BB_INDEX);
+		}
+
+        private void BPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)BPoints.Value, B_INDEX);
+		}
+
+        private void CPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)CPoints.Value, C_INDEX);
+		}
+
+        private void DPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)DPoints.Value, D_INDEX);
+		}
+
+        private void EPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)EPoints.Value, E_INDEX);
+		}
+
+        private void FPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)FPoints.Value, F_INDEX);
+		}
+
+        private void GPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)GPoints.Value, G_INDEX);
+		}
+
+        private void HPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)HPoints.Value, H_INDEX);
+		}
+
+        private void IPoints_ValueChanged(object sender, EventArgs e)
+        {
+			UpdateGradePoints((int)IPoints.Value, I_INDEX);
 		}
     }
 }
