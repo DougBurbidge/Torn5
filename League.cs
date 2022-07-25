@@ -1016,6 +1016,18 @@ namespace Torn
 			VictoryPointsHighScore = root.GetDouble("High");
 			VictoryPointsProportional = root.GetDouble("Proportional");
 
+			XmlNodeList xgrades = root.SelectSingleNode("grades").SelectNodes("grade");
+
+			List<Grade> grades = new List<Grade>();
+
+			foreach (XmlNode xgrade in xgrades)
+			{
+				Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("extraPenalty"), xgrade.GetInt("extraBonus"));
+				grades.Add(grade);
+			}
+
+			Grades = grades;
+
 			XmlNodeList xteams = root.SelectSingleNode("leaguelist").SelectNodes("team");
 
 			foreach (XmlNode xteam in xteams)

@@ -27,6 +27,7 @@ namespace Torn.UI
 
 		void FormLeagueShown(object sender, EventArgs e)
 		{
+			Console.WriteLine("LOAD");
 			League.Load(League.FileName);
 			Text = "Torn -- " + League.Title;
 			treeView1.Nodes.Clear();
@@ -64,6 +65,19 @@ namespace Torn.UI
 			radioButtonNone.Checked = League.HandicapStyle == HandicapStyle.None;
 
 			RankCheckedChanged(null, null);
+
+			//Load Grades
+			AAAName.Text = League.Grades[0].Name;
+			AName.Text = League.Grades[1].Name;
+			BBName.Text = League.Grades[2].Name;
+			BName.Text = League.Grades[3].Name;
+			CName.Text = League.Grades[4].Name;
+			DName.Text = League.Grades[5].Name;
+			EName.Text = League.Grades[6].Name;
+			FName.Text = League.Grades[7].Name;
+			GName.Text = League.Grades[8].Name;
+			HName.Text = League.Grades[9].Name;
+			IName.Text = League.Grades[10].Name;
 		}
 
 		private void setupGradeSelector(string alias, string grade)
@@ -393,7 +407,6 @@ namespace Torn.UI
 
 		private void UpdatePlayerGrade(LeaguePlayer leaguePlayer)
         {
-			Console.WriteLine(leaguePlayer.Name + " " + leaguePlayer.Grade);
 			League.Load(League.FileName);
 			foreach (LeagueTeam team in League.Teams.ToList())
             {
@@ -426,5 +439,82 @@ namespace Torn.UI
 				UpdatePlayerGrade(player);
 			}
         }
+
+        private void AAAName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[0].Name = AAAName.Text;
+			League.Save();
+		}
+
+        private void AName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[1].Name = AName.Text;
+			League.Save();
+		}
+
+        private void BBName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[2].Name = BBName.Text;
+			League.Save();
+		}
+
+        private void BName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[3].Name = BName.Text;
+			League.Save();
+		}
+
+        private void CName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[4].Name = CName.Text;
+			League.Save();
+		}
+
+        private void DName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[5].Name = DName.Text;
+			League.Save();
+		}
+
+        private void EName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[6].Name = EName.Text;
+			League.Save();
+		}
+
+        private void FName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[7].Name = FName.Text;
+			League.Save();
+		}
+
+        private void GName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[8].Name = GName.Text;
+			League.Save();
+		}
+
+        private void HName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[9].Name = HName.Text;
+			League.Save();
+		}
+
+        private void IName_TextChanged(object sender, EventArgs e)
+        {
+			League.Load(League.FileName);
+			League.Grades[10].Name = IName.Text;
+			League.Save();
+		}
     }
 }

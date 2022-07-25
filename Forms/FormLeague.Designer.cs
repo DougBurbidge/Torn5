@@ -817,6 +817,7 @@ namespace Torn.UI
             this.IName.Size = new System.Drawing.Size(48, 20);
             this.IName.TabIndex = 22;
             this.IName.Text = "I";
+            this.IName.TextChanged += new System.EventHandler(this.IName_TextChanged);
             // 
             // HPoints
             // 
@@ -833,6 +834,7 @@ namespace Torn.UI
             this.HName.Size = new System.Drawing.Size(48, 20);
             this.HName.TabIndex = 20;
             this.HName.Text = "H";
+            this.HName.TextChanged += new System.EventHandler(this.HName_TextChanged);
             // 
             // GPoints
             // 
@@ -849,6 +851,7 @@ namespace Torn.UI
             this.GName.Size = new System.Drawing.Size(48, 20);
             this.GName.TabIndex = 18;
             this.GName.Text = "G";
+            this.GName.TextChanged += new System.EventHandler(this.GName_TextChanged);
             // 
             // FPoints
             // 
@@ -865,6 +868,7 @@ namespace Torn.UI
             this.FName.Size = new System.Drawing.Size(48, 20);
             this.FName.TabIndex = 16;
             this.FName.Text = "F";
+            this.FName.TextChanged += new System.EventHandler(this.FName_TextChanged);
             // 
             // EPoints
             // 
@@ -886,6 +890,7 @@ namespace Torn.UI
             this.EName.Size = new System.Drawing.Size(48, 20);
             this.EName.TabIndex = 14;
             this.EName.Text = "E";
+            this.EName.TextChanged += new System.EventHandler(this.EName_TextChanged);
             // 
             // DPoints
             // 
@@ -907,6 +912,7 @@ namespace Torn.UI
             this.DName.Size = new System.Drawing.Size(48, 20);
             this.DName.TabIndex = 12;
             this.DName.Text = "D";
+            this.DName.TextChanged += new System.EventHandler(this.DName_TextChanged);
             // 
             // CPoints
             // 
@@ -928,6 +934,7 @@ namespace Torn.UI
             this.CName.Size = new System.Drawing.Size(48, 20);
             this.CName.TabIndex = 10;
             this.CName.Text = "C";
+            this.CName.TextChanged += new System.EventHandler(this.CName_TextChanged);
             // 
             // BPoints
             // 
@@ -949,6 +956,7 @@ namespace Torn.UI
             this.BName.Size = new System.Drawing.Size(48, 20);
             this.BName.TabIndex = 8;
             this.BName.Text = "B";
+            this.BName.TextChanged += new System.EventHandler(this.BName_TextChanged);
             // 
             // BBPoints
             // 
@@ -970,6 +978,7 @@ namespace Torn.UI
             this.BBName.Size = new System.Drawing.Size(48, 20);
             this.BBName.TabIndex = 6;
             this.BBName.Text = "BB";
+            this.BBName.TextChanged += new System.EventHandler(this.BBName_TextChanged);
             // 
             // APoints
             // 
@@ -991,6 +1000,7 @@ namespace Torn.UI
             this.AName.Size = new System.Drawing.Size(48, 20);
             this.AName.TabIndex = 4;
             this.AName.Text = "A";
+            this.AName.TextChanged += new System.EventHandler(this.AName_TextChanged);
             // 
             // AAAPoints
             // 
@@ -1012,6 +1022,7 @@ namespace Torn.UI
             this.AAAName.Size = new System.Drawing.Size(48, 20);
             this.AAAName.TabIndex = 2;
             this.AAAName.Text = "AAA";
+            this.AAAName.TextChanged += new System.EventHandler(this.AAAName_TextChanged);
             // 
             // label3
             // 
