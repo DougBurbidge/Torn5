@@ -46,6 +46,7 @@ namespace Torn.UI
             this.menuHandicapPlayer = new System.Windows.Forms.ToolStripMenuItem();
             this.menuMergePlayer = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAdjustPlayerScore = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuGradePlayer = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -66,9 +67,10 @@ namespace Torn.UI
             this.menuIdentifyPlayer,
             this.menuHandicapPlayer,
             this.menuMergePlayer,
-            this.menuAdjustPlayerScore});
+            this.menuAdjustPlayerScore,
+            this.menuGradePlayer});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 286);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 330);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip1Opening);
             // 
             // menuSortTeams
@@ -168,6 +170,12 @@ namespace Torn.UI
             this.menuAdjustPlayerScore.Text = "Adjust player score...";
             this.menuAdjustPlayerScore.Click += new System.EventHandler(this.menuAdjustPlayerScoreClick);
             // 
+            // menuGradePlayer
+            // 
+            this.menuGradePlayer.Name = "menuGradePlayer";
+            this.menuGradePlayer.Size = new System.Drawing.Size(192, 22);
+            this.menuGradePlayer.Text = "Grade";
+            // 
             // TeamBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 14F);
@@ -193,5 +201,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem menuSortTeams;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem menuAdjustPlayerScore;
+        private System.Windows.Forms.ToolStripMenuItem menuGradePlayer;
     }
 }

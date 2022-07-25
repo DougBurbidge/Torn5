@@ -880,6 +880,14 @@ namespace Torn
 				};
 				Teams.Add(leagueTeam);
 			}
+
+			// Update to latest grades
+			foreach(GamePlayer gamePlayer in teamData.Players)
+            {
+				int index = leagueTeam.Players.FindIndex(p => p.Id == gamePlayer.PlayerId);
+				leagueTeam.Players[index].Grade = gamePlayer.Grade;
+
+			}
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
@@ -1637,6 +1645,7 @@ namespace Torn
 			int penaltyTotal = 0;
 			foreach (var player in gameTeam.Players)
 			{
+				Console.WriteLine(player.PlayerId + " " + player.Grade);
 				totalPoints += GetGradePoints(player.Grade);
 				int bonus = GetGradeBonus(player.Grade);
 				int penalty = GetGradePenalty(player.Grade);

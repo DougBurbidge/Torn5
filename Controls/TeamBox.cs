@@ -119,11 +119,11 @@ namespace Torn.UI
             {
 				if (League.isAutoHandicap)
 				{
-					score = League.CalculateAutoCappedScore(tempTeam);
-					ListView.Columns[3].Text = League.CalulateTeamCap(tempTeam).ToString() + "%";
+					score = League.CalculateAutoCappedScore(GameTeam);
+					ListView.Columns[3].Text = League.CalulateTeamCap(GameTeam).ToString() + "%";
 				} else
                 {
-					score = League.CalculateScore(tempTeam);
+					score = League.CalculateScore(GameTeam);
 				}
 			} else
             {
@@ -155,12 +155,24 @@ namespace Torn.UI
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
 			menuAdjustPlayerScore.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
+			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.isAutoHandicap && LeagueTeam != null;
 			//menuAdjustTeamScore.Enabled = always true.
 
 			menuIdentifyTeam.DropDownItems.Clear();
+			menuGradePlayer.DropDownItems.Clear();
 
 			if (League == null)
 				return;
+
+			foreach (var grade in League.Grades)
+			{
+				var item = new ToolStripMenuItem(grade.Name)
+				{
+					Tag = grade
+				};
+				item.Click += MenuGradePlayerClick;
+				menuGradePlayer.DropDownItems.Add(item);
+			}
 
 			if (League.Teams.Count < 49)
 				foreach (var team in League.Teams)
@@ -233,6 +245,26 @@ namespace Torn.UI
 		{
 			LeagueTeam = (LeagueTeam)((ToolStripMenuItem)sender).Tag;
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
+		}
+
+		private void MenuGradePlayerClick(object sender, EventArgs e)
+        {
+			Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
+			ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
+
+			ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+
+			if(GameTeam.Players.Count() == 0)
+            {
+				GameTeam.Players.AddRange(Players());
+			}
+
+			int index = GameTeam.Players.FindIndex(p => p.PlayerId == player.PlayerId);
+
+			GameTeam.Players[index].Grade = grade.Name;
+
+			Recalculate(false);
+
 		}
 
 		void MenuNameTeamClick(object sender, EventArgs e)

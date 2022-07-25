@@ -41,7 +41,11 @@ namespace Torn.UI
 				{
 
 					LeaguePlayer leaguePlayer = league?.Players?.Find(p => p.Id == player.PlayerId);
-					if (leaguePlayer != null && player.Grade == null)
+					GamePlayer gamePlayer = league?.Games(false)?.Find(g => g.Time == serverGame.Time)?.Players()?.Find(p => p.PlayerId == player.PlayerId);
+					if(gamePlayer != null && gamePlayer.Grade != null)
+                    {
+						player.Grade = gamePlayer.Grade;
+                    } else if (leaguePlayer != null && player.Grade == null)
 					{
 						player.Grade = leaguePlayer.Grade;
 					}
