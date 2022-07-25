@@ -131,6 +131,7 @@ namespace Torn.UI
 			missingPlayerPenalty.Value = League.missingPlayerPenalty;
 			extraAPenalty.Value = League.extraAPenalty;
 			extraGBonus.Value = League.extraGBonus;
+			automaticHandicapEnabled.Checked = League.isAutoHandicap;
 
 		}
 
@@ -457,6 +458,16 @@ namespace Torn.UI
 			GPoints.Enabled = automaticHandicapEnabled.Checked;
 			HPoints.Enabled = automaticHandicapEnabled.Checked;
 			IPoints.Enabled = automaticHandicapEnabled.Checked;
+
+			if(automaticHandicapEnabled.Checked)
+            {
+				League.HandicapStyle = HandicapExtensions.ToHandicapStyle("Percent");
+				radioButtonPercent.Checked = true;
+			}
+			radioButtonMinus.Enabled = !automaticHandicapEnabled.Checked;
+			radioButtonPlus.Enabled = !automaticHandicapEnabled.Checked;
+			radioButtonPercent.Enabled = !automaticHandicapEnabled.Checked;
+			radioButtonNone.Enabled = !automaticHandicapEnabled.Checked;
 			League.Save();
 
 		}
