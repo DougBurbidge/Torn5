@@ -415,6 +415,8 @@ namespace Torn.UI
 
         private void automaticHandicapEnabled_CheckedChanged(object sender, EventArgs e)
         {
+			League.Load(League.FileName);
+			League.isAutoHandicap = automaticHandicapEnabled.Checked;
 			teamSize.Enabled = automaticHandicapEnabled.Checked;
 			missingPlayerPenalty.Enabled = automaticHandicapEnabled.Checked;
 			extraAPenalty.Enabled = automaticHandicapEnabled.Checked;
@@ -455,7 +457,7 @@ namespace Torn.UI
 			GPoints.Enabled = automaticHandicapEnabled.Checked;
 			HPoints.Enabled = automaticHandicapEnabled.Checked;
 			IPoints.Enabled = automaticHandicapEnabled.Checked;
-
+			League.Save();
 
 		}
 

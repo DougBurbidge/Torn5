@@ -686,6 +686,8 @@ namespace Torn
 		public double VictoryPointsHighScore { get; set; }
 		public double VictoryPointsProportional { get; set; }
 
+		public bool isAutoHandicap { get; set; }
+
 		public List<Grade> Grades { get; set; }
 
 		public int expectedTeamSize { get; set; }
@@ -1025,6 +1027,7 @@ namespace Torn
 			missingPlayerPenalty = root.GetInt("MissingPlayerPenalty");
 			extraAPenalty = root.GetInt("ExtraAPenalty");
 			extraGBonus = root.GetInt("ExtraGBonus");
+			isAutoHandicap = root.GetInt("AutoHandicap") > 0;
 
 			expectedTeamSize = teamSize == 0 ? 5 : teamSize;
 
@@ -1224,6 +1227,7 @@ namespace Torn
 			doc.AppendNode(bodyNode, "AutoUpdate", autoUpdate);
 			doc.AppendNode(bodyNode, "UpdateTeams", updateTeams);
 			doc.AppendNonZero(bodyNode, "ElimMultiplier", elimMultiplier);
+			doc.AppendNode(bodyNode, "AutoHandicap", isAutoHandicap ? 1 : 0);
 			doc.AppendNonZero(bodyNode, "ExpectedTeamSize", expectedTeamSize);
 			doc.AppendNode(bodyNode, "MissingPlayerPenalty", missingPlayerPenalty);
 			doc.AppendNode(bodyNode, "ExtraAPenalty", extraAPenalty);
