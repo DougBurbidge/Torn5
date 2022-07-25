@@ -102,6 +102,31 @@ namespace Torn.UI
 			GPoints.Value = League.Grades[G_INDEX].Points;
 			HPoints.Value = League.Grades[H_INDEX].Points;
 			IPoints.Value = League.Grades[I_INDEX].Points;
+
+			AAAPenalty.Checked = League.Grades[AAA_INDEX].HasPenalty;
+			APenalty.Checked = League.Grades[A_INDEX].HasPenalty;
+			BBPenalty.Checked = League.Grades[BB_INDEX].HasPenalty;
+			BPenalty.Checked = League.Grades[B_INDEX].HasPenalty;
+			CPenalty.Checked = League.Grades[C_INDEX].HasPenalty;
+			DPenalty.Checked = League.Grades[D_INDEX].HasPenalty;
+			EPenalty.Checked = League.Grades[E_INDEX].HasPenalty;
+			FPenalty.Checked = League.Grades[F_INDEX].HasPenalty;
+			GPenalty.Checked = League.Grades[G_INDEX].HasPenalty;
+			HPenalty.Checked = League.Grades[H_INDEX].HasPenalty;
+			IPenalty.Checked = League.Grades[I_INDEX].HasPenalty;
+
+			AAABonus.Checked = League.Grades[AAA_INDEX].HasBonus;
+			ABonus.Checked = League.Grades[A_INDEX].HasBonus;
+			BBBonus.Checked = League.Grades[BB_INDEX].HasBonus;
+			BBonus.Checked = League.Grades[B_INDEX].HasBonus;
+			CBonus.Checked = League.Grades[C_INDEX].HasBonus;
+			DBonus.Checked = League.Grades[D_INDEX].HasBonus;
+			EBonus.Checked = League.Grades[E_INDEX].HasBonus;
+			FBonus.Checked = League.Grades[F_INDEX].HasBonus;
+			GBonus.Checked = League.Grades[G_INDEX].HasBonus;
+			HBonus.Checked = League.Grades[H_INDEX].HasBonus;
+			IBonus.Checked = League.Grades[I_INDEX].HasBonus;
+
 		}
 
 		private void setupGradeSelector(string alias, string grade)
@@ -478,12 +503,12 @@ namespace Torn.UI
 				{
 					if (index == gradeIndex)
 					{
-						Grade grade = new Grade(name, 0, 0, 0);
+						Grade grade = new Grade(name, 0, false, false);
 						League.Grades.Add(grade);
 					}
 					else
 					{
-						Grade grade = new Grade("", 0, 0, 0);
+						Grade grade = new Grade("", 0, false, false);
 						League.Grades.Add(grade);
 					}
 					index++;
@@ -507,12 +532,70 @@ namespace Torn.UI
 				{
 					if (index == gradeIndex)
 					{
-						Grade grade = new Grade("", points, 0, 0);
+						Grade grade = new Grade("", points, false, false);
 						League.Grades.Add(grade);
 					}
 					else
 					{
-						Grade grade = new Grade("", 0, 0, 0);
+						Grade grade = new Grade("", 0, false, false);
+						League.Grades.Add(grade);
+					}
+					index++;
+				}
+			}
+
+			League.Save();
+		}
+
+		private void UpdatePenaltyChecked(bool hasPenalty, int gradeIndex)
+		{
+			League.Load(League.FileName);
+			if (gradeIndex < League.Grades.Count())
+			{
+				League.Grades[gradeIndex].HasPenalty = hasPenalty;
+			}
+			else
+			{
+				int index = League.Grades.Count();
+				while (index <= gradeIndex)
+				{
+					if (index == gradeIndex)
+					{
+						Grade grade = new Grade("", 0, hasPenalty, false);
+						League.Grades.Add(grade);
+					}
+					else
+					{
+						Grade grade = new Grade("", 0, false, false);
+						League.Grades.Add(grade);
+					}
+					index++;
+				}
+			}
+
+			League.Save();
+		}
+
+		private void UpdateBonusChecked(bool hasBonus, int gradeIndex)
+		{
+			League.Load(League.FileName);
+			if (gradeIndex < League.Grades.Count())
+			{
+				League.Grades[gradeIndex].HasBonus = hasBonus;
+			}
+			else
+			{
+				int index = League.Grades.Count();
+				while (index <= gradeIndex)
+				{
+					if (index == gradeIndex)
+					{
+						Grade grade = new Grade("", 0, false, hasBonus);
+						League.Grades.Add(grade);
+					}
+					else
+					{
+						Grade grade = new Grade("", 0, false, false);
 						League.Grades.Add(grade);
 					}
 					index++;
@@ -632,6 +715,116 @@ namespace Torn.UI
         private void IPoints_ValueChanged(object sender, EventArgs e)
         {
 			UpdateGradePoints((int)IPoints.Value, I_INDEX);
+		}
+
+        private void AAAPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(AAAPenalty.Checked, AAA_INDEX);
+		}
+
+        private void APenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(APenalty.Checked, A_INDEX);
+		}
+
+		private void BBPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(BBPenalty.Checked, BB_INDEX);
+		}
+
+        private void BPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(BPenalty.Checked, B_INDEX);
+		}
+
+        private void CPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(CPenalty.Checked, C_INDEX);
+		}
+
+        private void DPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(DPenalty.Checked, D_INDEX);
+		}
+
+        private void EPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(EPenalty.Checked, E_INDEX);
+		}
+
+        private void FPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(FPenalty.Checked, F_INDEX);
+		}
+
+        private void GPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(GPenalty.Checked, G_INDEX);
+		}
+
+        private void HPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(HPenalty.Checked, H_INDEX);
+		}
+
+        private void IPenalty_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdatePenaltyChecked(IPenalty.Checked, I_INDEX);
+		}
+
+        private void AAABonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(AAABonus.Checked, AAA_INDEX);
+		}
+
+        private void ABonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(ABonus.Checked, A_INDEX);
+		}
+
+		private void BBBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(BBBonus.Checked, BB_INDEX);
+		}
+
+        private void BBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(BBonus.Checked, B_INDEX);
+		}
+
+        private void CBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(CBonus.Checked, C_INDEX);
+		}
+
+        private void DBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(DBonus.Checked, D_INDEX);
+		}
+
+        private void EBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(EBonus.Checked, E_INDEX);
+		}
+
+        private void FBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(FBonus.Checked, F_INDEX);
+		}
+
+        private void GBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(GBonus.Checked, G_INDEX);
+		}
+
+        private void HBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(HBonus.Checked, H_INDEX);
+		}
+
+        private void IBonus_CheckedChanged(object sender, EventArgs e)
+        {
+			UpdateBonusChecked(IBonus.Checked, I_INDEX);
 		}
     }
 }

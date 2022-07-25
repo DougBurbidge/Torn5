@@ -625,23 +625,23 @@ namespace Torn
 	{
 		public string Name { get; set; }
 		public int Points { get; set; }
-		public int ExtraPenalty { get; set; }
-		public int ExtraBonus { get; set; }
+		public bool HasPenalty { get; set; }
+		public bool HasBonus { get; set; }
 
-		public Grade(string name, int points, int extraPenalty, int extraBonus)
+		public Grade(string name, int points, bool hasPenalty, bool hasBonus)
 		{
 			Name = name;
 			Points = points;
-			ExtraBonus = extraBonus;
-			ExtraPenalty = extraPenalty;
+			HasBonus = hasBonus;
+			HasPenalty = hasPenalty;
 		}
 
 		public Grade(string name, int points)
 		{
 			Name = name;
 			Points = points;
-			ExtraBonus = 0;
-			ExtraPenalty = 0;
+			HasBonus = false;
+			HasPenalty = false;
 		}
 	}
 
@@ -690,17 +690,17 @@ namespace Torn
 
 		private List<Grade> DEFAULT_GRADES = new List<Grade>
 		{
-			new Grade("AAA", 6, 1, 0),
-			new Grade("A", 5, 1, 0),
-			new Grade("BB", 5, 0, 0),
-			new Grade("B", 4, 0, 0),
-			new Grade("C", 3, 0, 0),
-			new Grade("D", 2, 0, 0),
-			new Grade("E", 1, 0, 0),
-			new Grade("F", 0, 0, 0),
-			new Grade("G", 0, 0, -1),
-			new Grade("H", 0, 0, -1),
-			new Grade("I", 0, 0, -1),
+			new Grade("AAA", 6, true, false),
+			new Grade("A", 5, true, false),
+			new Grade("BB", 5, false, false),
+			new Grade("B", 4, false, false),
+			new Grade("C", 3, false, false),
+			new Grade("D", 2, false, false),
+			new Grade("E", 1, false, false),
+			new Grade("F", 0, false, false),
+			new Grade("G", 0, false, true),
+			new Grade("H", 0, false, true),
+			new Grade("I", 0, false, true),
 		};
 
 		public League()
@@ -1022,7 +1022,7 @@ namespace Torn
 
 			foreach (XmlNode xgrade in xgrades)
 			{
-				Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("extraPenalty"), xgrade.GetInt("extraBonus"));
+				Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("hasPenalty") > 0, xgrade.GetInt("hasBonus") > 0);
 				grades.Add(grade);
 			}
 
@@ -1207,8 +1207,8 @@ namespace Torn
 
 				doc.AppendNode(gradeNode, "name", grade.Name);
 				doc.AppendNode(gradeNode, "points", grade.Points);
-				doc.AppendNode(gradeNode, "extraPenalty", grade.ExtraPenalty);
-				doc.AppendNode(gradeNode, "extraBonus", grade.ExtraBonus);
+				doc.AppendNode(gradeNode, "hasPenalty", grade.HasPenalty ? 1 : 0);
+				doc.AppendNode(gradeNode, "hasBonus", grade.HasBonus ? 1 : 0);
 			}
 
 			foreach (double point in victoryPoints)

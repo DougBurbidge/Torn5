@@ -565,6 +565,7 @@ namespace Torn.UI
             this.IBonus.Size = new System.Drawing.Size(15, 14);
             this.IBonus.TabIndex = 47;
             this.IBonus.UseVisualStyleBackColor = true;
+            this.IBonus.CheckedChanged += new System.EventHandler(this.IBonus_CheckedChanged);
             // 
             // HBonus
             // 
@@ -577,6 +578,7 @@ namespace Torn.UI
             this.HBonus.Size = new System.Drawing.Size(15, 14);
             this.HBonus.TabIndex = 46;
             this.HBonus.UseVisualStyleBackColor = true;
+            this.HBonus.CheckedChanged += new System.EventHandler(this.HBonus_CheckedChanged);
             // 
             // GBonus
             // 
@@ -589,6 +591,7 @@ namespace Torn.UI
             this.GBonus.Size = new System.Drawing.Size(15, 14);
             this.GBonus.TabIndex = 45;
             this.GBonus.UseVisualStyleBackColor = true;
+            this.GBonus.CheckedChanged += new System.EventHandler(this.GBonus_CheckedChanged);
             // 
             // FBonus
             // 
@@ -599,6 +602,7 @@ namespace Torn.UI
             this.FBonus.Size = new System.Drawing.Size(15, 14);
             this.FBonus.TabIndex = 44;
             this.FBonus.UseVisualStyleBackColor = true;
+            this.FBonus.CheckedChanged += new System.EventHandler(this.FBonus_CheckedChanged);
             // 
             // EBonus
             // 
@@ -609,6 +613,7 @@ namespace Torn.UI
             this.EBonus.Size = new System.Drawing.Size(15, 14);
             this.EBonus.TabIndex = 43;
             this.EBonus.UseVisualStyleBackColor = true;
+            this.EBonus.CheckedChanged += new System.EventHandler(this.EBonus_CheckedChanged);
             // 
             // DBonus
             // 
@@ -619,6 +624,7 @@ namespace Torn.UI
             this.DBonus.Size = new System.Drawing.Size(15, 14);
             this.DBonus.TabIndex = 42;
             this.DBonus.UseVisualStyleBackColor = true;
+            this.DBonus.CheckedChanged += new System.EventHandler(this.DBonus_CheckedChanged);
             // 
             // CBonus
             // 
@@ -629,6 +635,7 @@ namespace Torn.UI
             this.CBonus.Size = new System.Drawing.Size(15, 14);
             this.CBonus.TabIndex = 41;
             this.CBonus.UseVisualStyleBackColor = true;
+            this.CBonus.CheckedChanged += new System.EventHandler(this.CBonus_CheckedChanged);
             // 
             // BBonus
             // 
@@ -639,6 +646,7 @@ namespace Torn.UI
             this.BBonus.Size = new System.Drawing.Size(15, 14);
             this.BBonus.TabIndex = 40;
             this.BBonus.UseVisualStyleBackColor = true;
+            this.BBonus.CheckedChanged += new System.EventHandler(this.BBonus_CheckedChanged);
             // 
             // BBBonus
             // 
@@ -649,6 +657,7 @@ namespace Torn.UI
             this.BBBonus.Size = new System.Drawing.Size(15, 14);
             this.BBBonus.TabIndex = 39;
             this.BBBonus.UseVisualStyleBackColor = true;
+            this.BBBonus.CheckedChanged += new System.EventHandler(this.BBBonus_CheckedChanged);
             // 
             // ABonus
             // 
@@ -659,6 +668,7 @@ namespace Torn.UI
             this.ABonus.Size = new System.Drawing.Size(15, 14);
             this.ABonus.TabIndex = 38;
             this.ABonus.UseVisualStyleBackColor = true;
+            this.ABonus.CheckedChanged += new System.EventHandler(this.ABonus_CheckedChanged);
             // 
             // AAABonus
             // 
@@ -669,6 +679,7 @@ namespace Torn.UI
             this.AAABonus.Size = new System.Drawing.Size(15, 14);
             this.AAABonus.TabIndex = 37;
             this.AAABonus.UseVisualStyleBackColor = true;
+            this.AAABonus.CheckedChanged += new System.EventHandler(this.AAABonus_CheckedChanged);
             // 
             // IPenalty
             // 
@@ -679,6 +690,7 @@ namespace Torn.UI
             this.IPenalty.Size = new System.Drawing.Size(15, 14);
             this.IPenalty.TabIndex = 36;
             this.IPenalty.UseVisualStyleBackColor = true;
+            this.IPenalty.CheckedChanged += new System.EventHandler(this.IPenalty_CheckedChanged);
             // 
             // HPenalty
             // 
@@ -689,6 +701,7 @@ namespace Torn.UI
             this.HPenalty.Size = new System.Drawing.Size(15, 14);
             this.HPenalty.TabIndex = 35;
             this.HPenalty.UseVisualStyleBackColor = true;
+            this.HPenalty.CheckedChanged += new System.EventHandler(this.HPenalty_CheckedChanged);
             // 
             // GPenalty
             // 
@@ -699,6 +712,7 @@ namespace Torn.UI
             this.GPenalty.Size = new System.Drawing.Size(15, 14);
             this.GPenalty.TabIndex = 34;
             this.GPenalty.UseVisualStyleBackColor = true;
+            this.GPenalty.CheckedChanged += new System.EventHandler(this.GPenalty_CheckedChanged);
             // 
             // FPenalty
             // 
@@ -709,6 +723,7 @@ namespace Torn.UI
             this.FPenalty.Size = new System.Drawing.Size(15, 14);
             this.FPenalty.TabIndex = 33;
             this.FPenalty.UseVisualStyleBackColor = true;
+            this.FPenalty.CheckedChanged += new System.EventHandler(this.FPenalty_CheckedChanged);
             // 
             // EPenalty
             // 
@@ -719,6 +734,7 @@ namespace Torn.UI
             this.EPenalty.Size = new System.Drawing.Size(15, 14);
             this.EPenalty.TabIndex = 32;
             this.EPenalty.UseVisualStyleBackColor = true;
+            this.EPenalty.CheckedChanged += new System.EventHandler(this.EPenalty_CheckedChanged);
             // 
             // DPenalty
             // 
@@ -729,6 +745,7 @@ namespace Torn.UI
             this.DPenalty.Size = new System.Drawing.Size(15, 14);
             this.DPenalty.TabIndex = 31;
             this.DPenalty.UseVisualStyleBackColor = true;
+            this.DPenalty.CheckedChanged += new System.EventHandler(this.DPenalty_CheckedChanged);
             // 
             // CPenalty
             // 
@@ -739,6 +756,7 @@ namespace Torn.UI
             this.CPenalty.Size = new System.Drawing.Size(15, 14);
             this.CPenalty.TabIndex = 30;
             this.CPenalty.UseVisualStyleBackColor = true;
+            this.CPenalty.CheckedChanged += new System.EventHandler(this.CPenalty_CheckedChanged);
             // 
             // BPenalty
             // 
@@ -749,6 +767,7 @@ namespace Torn.UI
             this.BPenalty.Size = new System.Drawing.Size(15, 14);
             this.BPenalty.TabIndex = 29;
             this.BPenalty.UseVisualStyleBackColor = true;
+            this.BPenalty.CheckedChanged += new System.EventHandler(this.BPenalty_CheckedChanged);
             // 
             // BBPenalty
             // 
@@ -759,6 +778,7 @@ namespace Torn.UI
             this.BBPenalty.Size = new System.Drawing.Size(15, 14);
             this.BBPenalty.TabIndex = 28;
             this.BBPenalty.UseVisualStyleBackColor = true;
+            this.BBPenalty.CheckedChanged += new System.EventHandler(this.BBPenalty_CheckedChanged);
             // 
             // APenalty
             // 
@@ -771,6 +791,7 @@ namespace Torn.UI
             this.APenalty.Size = new System.Drawing.Size(15, 14);
             this.APenalty.TabIndex = 27;
             this.APenalty.UseVisualStyleBackColor = true;
+            this.APenalty.CheckedChanged += new System.EventHandler(this.APenalty_CheckedChanged);
             // 
             // AAAPenalty
             // 
@@ -783,6 +804,7 @@ namespace Torn.UI
             this.AAAPenalty.Size = new System.Drawing.Size(15, 14);
             this.AAAPenalty.TabIndex = 26;
             this.AAAPenalty.UseVisualStyleBackColor = true;
+            this.AAAPenalty.CheckedChanged += new System.EventHandler(this.AAAPenalty_CheckedChanged);
             // 
             // label5
             // 
