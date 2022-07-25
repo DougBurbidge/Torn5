@@ -1627,12 +1627,8 @@ namespace Torn
 			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
 		}
 
-		public double CalculateAutoCappedScore(GameTeam gameTeam)
+		public int CalulateTeamCap(GameTeam gameTeam)
         {
-			double score = 0;
-
-			foreach (var player in gameTeam.Players)
-				score += player.Score;
 
 			int totalPoints = 0;
 			int bonusCount = 0;
@@ -1645,26 +1641,34 @@ namespace Torn
 				int bonus = GetGradeBonus(player.Grade);
 				int penalty = GetGradePenalty(player.Grade);
 
-				if( bonus > 0 )
-                {
+				if (bonus > 0)
+				{
 					bonusCount++;
-					if(bonusCount > 1)
+					if (bonusCount > 1)
 						bonusTotal += bonus;
-                }
+				}
 
 				if (penalty > 0)
 				{
 					penaltyCount++;
-					if(penaltyCount > 1)
+					if (penaltyCount > 1)
 						penaltyTotal += bonus;
 				}
 			}
 
 			totalPoints += bonusTotal + penaltyTotal;
 
-			int cap = GetAutoHandicap(totalPoints);
+			return GetAutoHandicap(totalPoints);
+		}
 
-			Console.WriteLine(gameTeam.TeamId + " " + cap + "%");
+		public double CalculateAutoCappedScore(GameTeam gameTeam)
+        {
+			double score = 0;
+
+			foreach (var player in gameTeam.Players)
+				score += player.Score;
+
+			int cap = CalulateTeamCap(gameTeam);
 
 			return new Handicap(cap, HandicapStyle.Percent).Apply(score);
 		}

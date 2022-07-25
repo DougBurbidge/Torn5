@@ -120,6 +120,7 @@ namespace Torn.UI
 				if (League.isAutoHandicap)
 				{
 					score = League.CalculateAutoCappedScore(tempTeam);
+					ListView.Columns[3].Text = League.CalulateTeamCap(tempTeam).ToString() + "%";
 				} else
                 {
 					score = League.CalculateScore(tempTeam);
