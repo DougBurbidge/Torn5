@@ -1656,7 +1656,11 @@ namespace Torn
 				}
 			}
 
-			totalPoints += bonusTotal + penaltyTotal;
+			int missingPlayers = expectedTeamSize - gameTeam.Players.Count();
+
+			int missingPenalty = missingPlayers > 0 ? missingPlayerPenalty * missingPlayers : 0;
+
+			totalPoints += bonusTotal + penaltyTotal + missingPenalty;
 
 			return GetAutoHandicap(totalPoints);
 		}
