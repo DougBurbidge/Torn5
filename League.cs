@@ -1066,7 +1066,7 @@ namespace Torn
 			GridPlayers = root.GetInt("GridPlayers");
 			sortMode = root.GetInt("SortMode");
 			string s = root.GetString("HandicapStyle");
-			HandicapStyle = s == "%" ? HandicapStyle.Percent : s == "+" ? HandicapStyle.Plus : HandicapStyle.Minus;
+			HandicapStyle = s == "%" || s == "Percent" ? HandicapStyle.Percent : s == "+" || s == "Plus" ? HandicapStyle.Plus : HandicapStyle.Minus;
 			sortByRank = root.GetInt("SortByRank");
 			autoUpdate = root.GetInt("AutoUpdate");
 			updateTeams = root.GetInt("UpdateTeams");
