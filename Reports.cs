@@ -1961,7 +1961,7 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
-											   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Grade,Longitudinal",
+											   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Grade,Comments,Longitudinal",
 											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,float",
 											   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,,,")
 			{
@@ -1978,11 +1978,13 @@ namespace Torn.Report
 			string bestTagRatioText = "";
 			int atLeastN = rt.SettingInt("AtLeastN") ?? 1;
 			bool showGrades = rt.FindSetting("ShowGrades") >= 0;
-
-			Console.WriteLine(showGrades);
+			bool showComments = rt.FindSetting("ShowComments") >= 0;
 
 			if(showGrades)
 				report.AddColumn(new ZColumn("Grade"));
+
+			if (showComments)
+				report.AddColumn(new ZColumn("Comment"));
 
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
@@ -2069,9 +2071,10 @@ namespace Torn.Report
 					}
 
 					if(showGrades)
-                    {
 						row.AddCell(new ZCell(player.Grade));  // Player grade
-					}
+
+					if (showComments)
+						row.AddCell(new ZCell(player.Comment));  // Player comment
 
 					if (rt.Settings.Contains("Longitudinal"))
 						row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointRatios;  // Longitudinal scatter of score ratios and tag ratios.

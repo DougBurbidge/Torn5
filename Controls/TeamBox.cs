@@ -86,6 +86,19 @@ namespace Torn.UI
 			ListView.Columns[3].Text = "Grade";
 		}
 
+		LeagueTeam GetLeagueTeamFromFile()
+        {
+			League.Load(League.FileName);
+			List<string> playerIds = new List<string>();
+			foreach (ServerPlayer player in Players())
+			{
+				playerIds.Add(player.PlayerId);
+
+			}
+			LeagueTeam leagueTeam = League.GuessTeam(playerIds);
+			return leagueTeam;
+		}
+
 		protected override void Recalculate(bool guessTeam = true)
 		{
 			if (Items.Count == 0)
@@ -120,6 +133,13 @@ namespace Torn.UI
 				if (League.isAutoHandicap)
 				{
 					ListView.Columns[3].Text = League.CalulateTeamCap(GameTeam).ToString() + "%";
+				} else
+                {
+					LeagueTeam leagueTeam = GetLeagueTeamFromFile();
+					if (leagueTeam.Handicap != null)
+                    {
+						ListView.Columns[3].Text = leagueTeam.Handicap.ToString();
+					}
 				}
 				score = League.CalculateScore(GameTeam);
 			} else
@@ -143,7 +163,7 @@ namespace Torn.UI
 
 		void ContextMenuStrip1Opening(object sender, CancelEventArgs e)
 		{
-			menuHandicapTeam.Enabled   = League != null;
+			menuHandicapTeam.Enabled   = League != null && !League.isAutoHandicap;
 			menuRememberTeam.Enabled   = League != null;
 			menuUpdateTeam.Enabled     = LeagueTeam != null;
 			menuNameTeam.Enabled       = LeagueTeam != null;
@@ -234,8 +254,23 @@ namespace Torn.UI
 
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , Handicap.Value);
-			Recalculate(false);
+			LeagueTeam leagueTeam = GetLeagueTeamFromFile();
+
+			if (leagueTeam != null)
+            {
+				Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , Handicap.Value ?? 100);
+
+				int index = League.Teams.IndexOf(leagueTeam);
+
+				League.Teams[index].Handicap = new Handicap(Handicap.Value, League.HandicapStyle);
+
+				League.Save();
+				Recalculate(false);
+			} else
+            {
+				MessageBoxButtons buttons = MessageBoxButtons.OK;
+				MessageBox.Show("Please Identify Team before adding Handicap", "Cannot Apply Handicap", buttons);
+            }
 		}
 
 		private void MenuIdentifyTeamClick(object sender, EventArgs e)
