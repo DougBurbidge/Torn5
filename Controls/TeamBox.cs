@@ -101,7 +101,6 @@ namespace Torn.UI
 
 		protected override void Recalculate(bool guessTeam = true)
 		{
-			League.Load(League.FileName);
 			if (Items.Count == 0)
 			{
 				rank = 0;
