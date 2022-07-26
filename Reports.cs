@@ -1961,7 +1961,7 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
-											   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Longitudinal",
+											   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Grade,Longitudinal",
 											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,float",
 											   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,,,")
 			{
@@ -1977,6 +1977,12 @@ namespace Torn.Report
 			double bestTagRatio = 0;
 			string bestTagRatioText = "";
 			int atLeastN = rt.SettingInt("AtLeastN") ?? 1;
+			bool showGrades = rt.FindSetting("ShowGrades") >= 0;
+
+			Console.WriteLine(showGrades);
+
+			if(showGrades)
+				report.AddColumn(new ZColumn("Grade"));
 
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
@@ -2060,6 +2066,11 @@ namespace Torn.Report
 							row.Add(new ZCell(played.Count - countAfterDrops, ChartType.None, "N0"));  // games dropped
 						else
 							row.Add(new ZCell());  // games dropped
+					}
+
+					if(showGrades)
+                    {
+						row.AddCell(new ZCell(player.Grade));  // Player grade
 					}
 
 					if (rt.Settings.Contains("Longitudinal"))
