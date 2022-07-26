@@ -126,6 +126,8 @@ namespace Torn.UI
             this.automaticHandicapEnabled = new System.Windows.Forms.CheckBox();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
+            this.manualTeamCapLabel = new System.Windows.Forms.Label();
+            this.manualTeamCap = new System.Windows.Forms.NumericUpDown();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -152,6 +154,7 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.teamSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.manualTeamCap)).BeginInit();
             this.SuspendLayout();
             // 
             // treeView1
@@ -1077,6 +1080,8 @@ namespace Torn.UI
             // 
             // HandicapPage
             // 
+            this.HandicapPage.Controls.Add(this.manualTeamCap);
+            this.HandicapPage.Controls.Add(this.manualTeamCapLabel);
             this.HandicapPage.Controls.Add(this.playerGradeAlias);
             this.HandicapPage.Controls.Add(this.playerGradeBox);
             this.HandicapPage.Controls.Add(this.extraGBonus);
@@ -1256,6 +1261,40 @@ namespace Torn.UI
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
+            // manualTeamCapLabel
+            // 
+            this.manualTeamCapLabel.AutoSize = true;
+            this.manualTeamCapLabel.Location = new System.Drawing.Point(61, 161);
+            this.manualTeamCapLabel.Name = "manualTeamCapLabel";
+            this.manualTeamCapLabel.Size = new System.Drawing.Size(83, 13);
+            this.manualTeamCapLabel.TabIndex = 11;
+            this.manualTeamCapLabel.Text = "Team Handicap";
+            this.manualTeamCapLabel.Visible = false;
+            // 
+            // manualTeamCap
+            // 
+            this.manualTeamCap.Location = new System.Drawing.Point(64, 177);
+            this.manualTeamCap.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.manualTeamCap.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.manualTeamCap.Name = "manualTeamCap";
+            this.manualTeamCap.Size = new System.Drawing.Size(121, 20);
+            this.manualTeamCap.TabIndex = 12;
+            this.manualTeamCap.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.manualTeamCap.Visible = false;
+            this.manualTeamCap.ValueChanged += new System.EventHandler(this.manualTeamCap_ValueChanged);
+            // 
             // FormLeague
             // 
             this.AcceptButton = this.buttonOK;
@@ -1303,6 +1342,7 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.teamSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.manualTeamCap)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -1402,5 +1442,7 @@ namespace Torn.UI
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label playerGradeAlias;
         private System.Windows.Forms.ComboBox playerGradeBox;
+        private System.Windows.Forms.NumericUpDown manualTeamCap;
+        private System.Windows.Forms.Label manualTeamCapLabel;
     }
 }

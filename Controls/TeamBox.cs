@@ -136,7 +136,7 @@ namespace Torn.UI
 				} else
                 {
 					LeagueTeam leagueTeam = GetLeagueTeamFromFile();
-					if (leagueTeam.Handicap != null)
+					if (leagueTeam != null && leagueTeam.Handicap != null)
                     {
 						ListView.Columns[3].Text = leagueTeam.Handicap.ToString();
 					}

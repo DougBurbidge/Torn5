@@ -168,6 +168,7 @@ namespace Torn.UI
 
 				if (treeView1.SelectedNode.Tag is LeagueTeam team)
 				{
+					manualTeamCap.Value = Convert.ToDecimal(team.Handicap.Value ?? 100);
 					listViewScores.Items.Clear();
 					foreach (var gameTeam in League.Played(team))
 					{
@@ -199,6 +200,8 @@ namespace Torn.UI
 			buttonReIdPlayer.Enabled = treeView1.SelectedNode.Tag is LeaguePlayer;
 			playerGradeAlias.Visible = treeView1.SelectedNode.Tag is string || treeView1.SelectedNode.Tag is LeaguePlayer;
 			playerGradeBox.Visible = treeView1.SelectedNode.Tag is string || treeView1.SelectedNode.Tag is LeaguePlayer;
+			manualTeamCap.Visible = treeView1.SelectedNode.Tag is LeagueTeam;
+			manualTeamCapLabel.Visible = treeView1.SelectedNode.Tag is LeagueTeam;
 		}
 
 		TreeNode hovered;
@@ -468,6 +471,8 @@ namespace Torn.UI
 			radioButtonPlus.Enabled = !automaticHandicapEnabled.Checked;
 			radioButtonPercent.Enabled = !automaticHandicapEnabled.Checked;
 			radioButtonNone.Enabled = !automaticHandicapEnabled.Checked;
+			manualTeamCap.Enabled = !automaticHandicapEnabled.Checked;
+			manualTeamCapLabel.Enabled = !automaticHandicapEnabled.Checked;
 			League.Save();
 
 		}
@@ -490,7 +495,18 @@ namespace Torn.UI
 			League.Save();
         }
 
-        private void playerGradeBox_SelectedIndexChanged(object sender, EventArgs e)
+		private void manualTeamCap_ValueChanged(object sender, EventArgs e)
+		{
+			League.Load(League.FileName);
+			if (treeView1.SelectedNode.Tag is LeagueTeam leagueTeam)
+			{
+				int index = League.Teams.FindIndex(t => t.TeamId == leagueTeam.TeamId);
+				League.Teams[index].Handicap = new Handicap(Decimal.ToDouble(manualTeamCap.Value), League.HandicapStyle);
+				League.Save();
+			}
+		}
+
+		private void playerGradeBox_SelectedIndexChanged(object sender, EventArgs e)
         {
 			string grade = playerGradeBox.SelectedItem.ToString();
 			if (treeView1.SelectedNode.Tag is string && treeView1.SelectedNode.Parent.Tag is LeaguePlayer leaguePlayer)
