@@ -45,7 +45,7 @@ namespace Torn.UI
 					if(gamePlayer != null && gamePlayer.Grade != null)
                     {
 						player.Grade = gamePlayer.Grade;
-                    } else if (leaguePlayer != null && player.Grade == null)
+                    } else if (leaguePlayer != null && leaguePlayer.Grade != null)
 					{
 						player.Grade = leaguePlayer.Grade;
 					}

@@ -101,6 +101,7 @@ namespace Torn.UI
 
 		protected override void Recalculate(bool guessTeam = true)
 		{
+			League.Load(League.FileName);
 			if (Items.Count == 0)
 			{
 				rank = 0;
@@ -281,21 +282,36 @@ namespace Torn.UI
 
 		private void MenuGradePlayerClick(object sender, EventArgs e)
         {
-			Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
-			ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
+			LeagueTeam leagueTeam = GetLeagueTeamFromFile();
+			if (leagueTeam != null)
+			{
+				Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
+				ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
 
-			ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+				ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
 
-			if(GameTeam.Players.Count() == 0)
+				int teamIndex = League.Teams.IndexOf(leagueTeam);
+
+				int playerIndex = leagueTeam.Players.FindIndex(p => p.Id == player.PlayerId);
+
+				League.Teams[teamIndex].Players[playerIndex].Grade = grade.Name;
+				League.Save();
+
+				if (GameTeam.Players.Count() == 0)
+				{
+					GameTeam.Players.AddRange(Players());
+				}
+
+				int index = GameTeam.Players.FindIndex(p => p.PlayerId == player.PlayerId);
+
+				GameTeam.Players[index].Grade = grade.Name;
+				Recalculate(false);
+			} else
             {
-				GameTeam.Players.AddRange(Players());
+				MessageBoxButtons buttons = MessageBoxButtons.OK;
+				MessageBox.Show("Please Identify Team before grading players", "Cannot Apply Grade", buttons);
 			}
 
-			int index = GameTeam.Players.FindIndex(p => p.PlayerId == player.PlayerId);
-
-			GameTeam.Players[index].Grade = grade.Name;
-
-			Recalculate(false);
 
 		}
 

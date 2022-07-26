@@ -884,8 +884,11 @@ namespace Torn
 			// Update to latest grades
 			foreach(GamePlayer gamePlayer in teamData.Players)
             {
-				int index = leagueTeam.Players.FindIndex(p => p.Id == gamePlayer.PlayerId);
-				leagueTeam.Players[index].Grade = gamePlayer.Grade;
+				if (gamePlayer.Grade != null)
+				{
+					int index = leagueTeam.Players.FindIndex(p => p.Id == gamePlayer.PlayerId);
+					leagueTeam.Players[index].Grade = gamePlayer.Grade;
+				}
 
 			}
 
