@@ -83,6 +83,20 @@ namespace Torn.UI
 			handicap = new Handicap();
 			ListView.Columns[1].Text = "Players";
 			ListView.Columns[2].Text = "Score";
+			ListView.Columns[3].Text = "Grade";
+		}
+
+		LeagueTeam GetLeagueTeamFromFile()
+        {
+			League.Load(League.FileName);
+			List<string> playerIds = new List<string>();
+			foreach (ServerPlayer player in Players())
+			{
+				playerIds.Add(player.PlayerId);
+
+			}
+			LeagueTeam leagueTeam = League.GuessTeam(playerIds);
+			return leagueTeam;
 		}
 
 		protected override void Recalculate(bool guessTeam = true)
@@ -94,6 +108,7 @@ namespace Torn.UI
 				ListView.Columns[0].Text = "Pack";
 				ListView.Columns[1].Text = "Players";
 				ListView.Columns[2].Text = "Score";
+				ListView.Columns[3].Text = "Grade";
 				return;
 			}
 
@@ -113,7 +128,25 @@ namespace Torn.UI
 					tempTeam.TeamId = LeagueTeam.TeamId;
 			}
 
-			score = League == null ? 0 : League.CalculateScore(tempTeam);
+			if(League != null)
+            {
+				if (League.isAutoHandicap)
+				{
+					ListView.Columns[3].Text = League.CalulateTeamCap(GameTeam).ToString() + "%";
+				} else
+                {
+					LeagueTeam leagueTeam = GetLeagueTeamFromFile();
+					if (leagueTeam != null && leagueTeam.Handicap != null)
+                    {
+						ListView.Columns[3].Text = leagueTeam.Handicap.ToString();
+					}
+				}
+				score = League.CalculateScore(GameTeam);
+			} else
+            {
+				score = 0;
+            }
+
 			ListView.Columns[2].Text = Score.ToString(CultureInfo.InvariantCulture) +
 				(GameTeam.Adjustment == 0 ? "" : "*");
 		}
@@ -130,7 +163,7 @@ namespace Torn.UI
 
 		void ContextMenuStrip1Opening(object sender, CancelEventArgs e)
 		{
-			menuHandicapTeam.Enabled   = League != null;
+			menuHandicapTeam.Enabled   = League != null && !League.isAutoHandicap;
 			menuRememberTeam.Enabled   = League != null;
 			menuUpdateTeam.Enabled     = LeagueTeam != null;
 			menuNameTeam.Enabled       = LeagueTeam != null;
@@ -139,12 +172,24 @@ namespace Torn.UI
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
 			menuAdjustPlayerScore.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
+			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.isAutoHandicap && LeagueTeam != null;
 			//menuAdjustTeamScore.Enabled = always true.
 
 			menuIdentifyTeam.DropDownItems.Clear();
+			menuGradePlayer.DropDownItems.Clear();
 
 			if (League == null)
 				return;
+
+			foreach (var grade in League.Grades)
+			{
+				var item = new ToolStripMenuItem(grade.Name)
+				{
+					Tag = grade
+				};
+				item.Click += MenuGradePlayerClick;
+				menuGradePlayer.DropDownItems.Add(item);
+			}
 
 			if (League.Teams.Count < 49)
 				foreach (var team in League.Teams)
@@ -209,8 +254,23 @@ namespace Torn.UI
 
 		void MenuHandicapTeamClick(object sender, EventArgs e)
 		{
-			Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , Handicap.Value);
-			Recalculate(false);
+			LeagueTeam leagueTeam = GetLeagueTeamFromFile();
+
+			if (leagueTeam != null)
+            {
+				Handicap.Value = InputDialog.GetDouble("Handicap", "Set team handicap (" + League.HandicapStyle.ToString() + ")" , Handicap.Value ?? 100);
+
+				int index = League.Teams.IndexOf(leagueTeam);
+
+				League.Teams[index].Handicap = new Handicap(Handicap.Value, League.HandicapStyle);
+
+				League.Save();
+				Recalculate(false);
+			} else
+            {
+				MessageBoxButtons buttons = MessageBoxButtons.OK;
+				MessageBox.Show("Please Identify Team before adding Handicap", "Cannot Apply Handicap", buttons);
+            }
 		}
 
 		private void MenuIdentifyTeamClick(object sender, EventArgs e)
@@ -219,10 +279,47 @@ namespace Torn.UI
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
 		}
 
+		private void MenuGradePlayerClick(object sender, EventArgs e)
+        {
+			LeagueTeam leagueTeam = GetLeagueTeamFromFile();
+			if (leagueTeam != null)
+			{
+				Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
+				ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
+
+				ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+
+				int teamIndex = League.Teams.IndexOf(leagueTeam);
+
+				int playerIndex = leagueTeam.Players.FindIndex(p => p.Id == player.PlayerId);
+
+				League.Teams[teamIndex].Players[playerIndex].Grade = grade.Name;
+				League.Save();
+
+				if (GameTeam.Players.Count() == 0)
+				{
+					GameTeam.Players.AddRange(Players());
+				}
+
+				int index = GameTeam.Players.FindIndex(p => p.PlayerId == player.PlayerId);
+
+				GameTeam.Players[index].Grade = grade.Name;
+				Recalculate(false);
+			} else
+            {
+				MessageBoxButtons buttons = MessageBoxButtons.OK;
+				MessageBox.Show("Please Identify Team before grading players", "Cannot Apply Grade", buttons);
+			}
+
+
+		}
+
 		void MenuNameTeamClick(object sender, EventArgs e)
 		{
 			LeagueTeam.Name = InputDialog.GetInput("Name: ", "Set a team name", LeagueTeam.Name);
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
+			League.Save();
+			League.Load(League.FileName);
 		}
 
 		void MenuRememberTeamClick(object sender, EventArgs e)

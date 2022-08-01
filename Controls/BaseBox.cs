@@ -28,7 +28,7 @@ namespace Torn.UI
 
 		void ListView1SizeChanged(object sender, EventArgs e)
 		{
-			colPlayer.Width = listView1.Width - colPack.Width - colScore.Width - System.Windows.Forms.SystemInformation.VerticalScrollBarWidth - 4;
+			colPlayer.Width = listView1.Width - colPack.Width - colScore.Width - colGrade.Width - System.Windows.Forms.SystemInformation.VerticalScrollBarWidth - 4;
 		}
 
 		void ListView1ItemDrag(object sender, ItemDragEventArgs e)

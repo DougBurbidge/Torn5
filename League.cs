@@ -215,6 +215,8 @@ namespace Torn
 		public Handicap Handicap { get; set; }
 		/// <summary>User-defined. Often used for player grade.</summary>
 		public string Comment { get; set; }  // 
+
+		public string Grade { get; set;  }
 	
 		public LeaguePlayer Clone()
 		{
@@ -381,6 +383,7 @@ namespace Torn
 		/// <summary>Under-the-hood laser game system identifier e.g. "P11-JP9", "1-50-50", etc. Same as LeaguePlayer.Id.</summary>
 		public string PlayerId { get; set; }
 		public string QRCode { get; set; }
+		public string Grade { get; set; }
 		public string Pack { get; set; }
 		public double Score { get; set; }
 		public uint Rank { get; set; }
@@ -419,6 +422,7 @@ namespace Torn
 			target.TeamId = TeamId;
 			target.PlayerId = PlayerId;
 			target.QRCode = QRCode;
+			target.Grade = Grade;
 			target.Pack = Pack;
 			target.Score = Score;
 			target.Rank = Rank;
@@ -464,7 +468,7 @@ namespace Torn
 
 		public override string ToString()
 		{
-			return "GamePlayer " + PlayerId + "qr: " + QRCode;
+			return "GamePlayer " + PlayerId + " QRCode: " + QRCode;
 		}
 	}
 
@@ -617,6 +621,30 @@ namespace Torn
 		}
 	}
 
+	public class Grade
+	{
+		public string Name { get; set; }
+		public int Points { get; set; }
+		public bool HasPenalty { get; set; }
+		public bool HasBonus { get; set; }
+
+		public Grade(string name, int points, bool hasPenalty, bool hasBonus)
+		{
+			Name = name;
+			Points = points;
+			HasBonus = hasBonus;
+			HasPenalty = hasPenalty;
+		}
+
+		public Grade(string name, int points)
+		{
+			Name = name;
+			Points = points;
+			HasBonus = false;
+			HasPenalty = false;
+		}
+	}
+
 	/// <summary>Load and manage a .Torn league file, containing league teams and games.</summary>
 	public class League
 	{
@@ -658,6 +686,78 @@ namespace Torn
 		public double VictoryPointsHighScore { get; set; }
 		public double VictoryPointsProportional { get; set; }
 
+		public bool isAutoHandicap { get; set; }
+
+		public List<Grade> Grades { get; set; }
+
+		public int expectedTeamSize { get; set; }
+		public int missingPlayerPenalty { get; set; }
+		public int extraAPenalty { get; set; }
+		public int extraGBonus { get; set; }
+
+		private List<Grade> DEFAULT_GRADES = new List<Grade>
+		{
+			new Grade("AAA", 6, true, false),
+			new Grade("A", 5, true, false),
+			new Grade("BB", 5, false, false),
+			new Grade("B", 4, false, false),
+			new Grade("C", 3, false, false),
+			new Grade("D", 2, false, false),
+			new Grade("E", 1, false, false),
+			new Grade("F", 0, false, false),
+			new Grade("G", 0, false, true),
+			new Grade("H", 0, false, true),
+			new Grade("I", 0, false, true),
+		};
+
+		// CAP USED IN WA LEAGUES
+		// TODO MAKE THIS CONFIGURABLE
+		private readonly List<int> PositiveCap = new List<int> { 180, 170, 160, 155, 150, 145, 140, 135, 130, 127, 125, 123, 120, 117, 115, 113, 110, 107, 105, 103, 100, 100, 97, 95, 92, 90, 87, 85, 82, 80, 77, 75, 72, 70, 65 };
+
+		public int GetAutoHandicap(int points)
+        {
+			if(points >= 0)
+            {
+				if(points < PositiveCap.Count())
+                {
+					return PositiveCap[points];
+                }
+
+				int outOfRangeBy = points - PositiveCap.Count() - 1;
+				int lastValue = PositiveCap[PositiveCap.Count() - 1];
+				int multiplier = 5;
+				int result = lastValue - (multiplier * outOfRangeBy);
+				// cannot return a negative value to limit cap to 1%
+				return Math.Max(1, result);
+			}
+			int capToAdd = points * -20;
+			return PositiveCap[0] + capToAdd;
+        }
+
+		public int GetGradePoints(string playerGrade)
+        {
+			Grade grade = Grades.Find(g => g.Name == playerGrade);
+			return grade?.Points ?? 0;
+        }
+
+		public int GetGradePenalty(string playerGrade)
+		{
+			Grade grade = Grades.Find(g => g.Name == playerGrade);
+			if (grade!= null && grade.HasPenalty)
+				return extraAPenalty;
+			else
+				return 0;
+		}
+
+		public int GetGradeBonus(string playerGrade)
+		{
+			Grade grade = Grades.Find(g => g.Name == playerGrade);
+			if (grade != null && grade.HasBonus)
+				return extraGBonus;
+			else
+				return 0;
+		}
+
 		public League()
 		{
 			teams = new List<LeagueTeam>();
@@ -675,6 +775,11 @@ namespace Torn
 			GridWide = 1;
 			GridPlayers = 6;
 			HandicapStyle = HandicapStyle.Percent;
+			Grades = DEFAULT_GRADES;
+			expectedTeamSize = 5;
+			missingPlayerPenalty = 2;
+			extraAPenalty = 1;
+			extraGBonus = -1;
 		}
 
 		public League(string fileName): this()
@@ -718,7 +823,12 @@ namespace Torn
 
 				victoryPoints = new Collection<double>(VictoryPoints.Select(item => item).ToList()),
 				VictoryPointsHighScore = VictoryPointsHighScore,
-				VictoryPointsProportional = VictoryPointsProportional
+				VictoryPointsProportional = VictoryPointsProportional,
+				Grades = Grades,
+				expectedTeamSize = expectedTeamSize,
+				missingPlayerPenalty = missingPlayerPenalty,
+				extraAPenalty = extraAPenalty,
+				extraGBonus = extraGBonus
 			};
 
 			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone(clone)).ToList();
@@ -770,6 +880,23 @@ namespace Torn
 				};
 				Teams.Add(leagueTeam);
 			}
+
+			// Update to latest grades
+			foreach(GamePlayer gamePlayer in teamData.Players)
+            {
+				if (gamePlayer.Grade != null)
+				{
+					int index = leagueTeam.Players.FindIndex(p => p.Id == gamePlayer.PlayerId);
+					leagueTeam.Players[index].Grade = gamePlayer.Grade;
+				}
+
+			}
+
+			if(isAutoHandicap)
+            {
+				int cap = CalulateTeamCap(gameTeam);
+				leagueTeam.Handicap = new Handicap(cap, HandicapStyle.Percent);
+            }
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
@@ -933,6 +1060,7 @@ namespace Torn
 
 		void OnFileChanged(object sender, FileSystemEventArgs e)
 		{
+			System.Threading.Thread.Sleep(1000);
 			Load(fileName);
 		}
 
@@ -955,11 +1083,18 @@ namespace Torn
 			GridPlayers = root.GetInt("GridPlayers");
 			sortMode = root.GetInt("SortMode");
 			string s = root.GetString("HandicapStyle");
-			HandicapStyle = s == "%" ? HandicapStyle.Percent : s == "+" ? HandicapStyle.Plus : HandicapStyle.Minus;
+			HandicapStyle = s == "%" || s == "Percent" ? HandicapStyle.Percent : s == "+" || s == "Plus" ? HandicapStyle.Plus : HandicapStyle.Minus;
 			sortByRank = root.GetInt("SortByRank");
 			autoUpdate = root.GetInt("AutoUpdate");
 			updateTeams = root.GetInt("UpdateTeams");
 			elimMultiplier = root.GetInt("ElimMultiplier");
+			int teamSize = root.GetInt("ExpectedTeamSize");
+			missingPlayerPenalty = root.GetInt("MissingPlayerPenalty");
+			extraAPenalty = root.GetInt("ExtraAPenalty");
+			extraGBonus = root.GetInt("ExtraGBonus");
+			isAutoHandicap = root.GetInt("AutoHandicap") > 0;
+
+			expectedTeamSize = teamSize == 0 ? 5 : teamSize;
 
 			XmlNodeList points = root.SelectNodes("Points");
 			foreach (XmlNode point in points)
@@ -967,6 +1102,27 @@ namespace Torn
 
 			VictoryPointsHighScore = root.GetDouble("High");
 			VictoryPointsProportional = root.GetDouble("Proportional");
+
+			XmlNode gradesNode = root.SelectSingleNode("grades");
+
+			if (gradesNode != null)
+			{
+
+				XmlNodeList xgrades = gradesNode.SelectNodes("grade");
+
+				List<Grade> grades = new List<Grade>();
+
+				foreach (XmlNode xgrade in xgrades)
+				{
+					Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("hasPenalty") > 0, xgrade.GetInt("hasBonus") > 0);
+					grades.Add(grade);
+				}
+
+				Grades = grades;
+			} else
+            {
+				Grades = DEFAULT_GRADES;
+            }
 
 			XmlNodeList xteams = root.SelectSingleNode("leaguelist").SelectNodes("team");
 
@@ -1001,6 +1157,7 @@ namespace Torn
 						leaguePlayer.Name = xplayer.GetString("name");
 						leaguePlayer.Handicap = Handicap.Parse(xteam.GetString("handicap"));
 						leaguePlayer.Comment = xplayer.GetString("comment");
+						leaguePlayer.Grade = xplayer.GetString("grade");
 
 						if (!leagueTeam.Players.Exists(x => x.Id == id))
 							leagueTeam.Players.Add(leaguePlayer);
@@ -1057,6 +1214,7 @@ namespace Torn
 						QRCode = xplayer.GetString("qrcode"),
 						TeamId = xplayer.GetInt("teamid"),
 						Pack = xplayer.GetString("pack"),
+						Grade = xplayer.GetString("grade"),
 						Score = xplayer.GetInt("score"),
 						Rank = (uint)xplayer.GetInt("rank"),
 						HitsBy = xplayer.GetInt("hitsby"),
@@ -1134,6 +1292,25 @@ namespace Torn
 			doc.AppendNode(bodyNode, "AutoUpdate", autoUpdate);
 			doc.AppendNode(bodyNode, "UpdateTeams", updateTeams);
 			doc.AppendNonZero(bodyNode, "ElimMultiplier", elimMultiplier);
+			doc.AppendNode(bodyNode, "AutoHandicap", isAutoHandicap ? 1 : 0);
+			doc.AppendNonZero(bodyNode, "ExpectedTeamSize", expectedTeamSize);
+			doc.AppendNode(bodyNode, "MissingPlayerPenalty", missingPlayerPenalty);
+			doc.AppendNode(bodyNode, "ExtraAPenalty", extraAPenalty);
+			doc.AppendNode(bodyNode, "ExtraGBonus", extraGBonus);
+
+			XmlNode gradesNode = doc.CreateElement("grades");
+			bodyNode.AppendChild(gradesNode);
+
+			foreach (Grade grade in Grades)
+            {
+				XmlNode gradeNode = doc.CreateElement("grade");
+				gradesNode.AppendChild(gradeNode);
+
+				doc.AppendNode(gradeNode, "name", grade.Name);
+				doc.AppendNode(gradeNode, "points", grade.Points);
+				doc.AppendNode(gradeNode, "hasPenalty", grade.HasPenalty ? 1 : 0);
+				doc.AppendNode(gradeNode, "hasBonus", grade.HasBonus ? 1 : 0);
+			}
 
 			foreach (double point in victoryPoints)
 				doc.AppendNode(bodyNode, "Points", point.ToString());
@@ -1168,6 +1345,7 @@ namespace Torn
 					if (player.Handicap != null && !player.Handicap.IsZero())
 						doc.AppendNode(playerNode, "handicap", player.Handicap.ToString());
 					if (!string.IsNullOrEmpty(player.Comment)) doc.AppendNode(playerNode, "comment", player.Comment);
+					if (!string.IsNullOrEmpty(player.Grade)) doc.AppendNode(playerNode, "grade", player.Grade);
 				}
 			}
 
@@ -1215,6 +1393,7 @@ namespace Torn
 					doc.AppendNode(playerNode, "teamid", player.TeamId ?? -1);
 					doc.AppendNode(playerNode, "playerid", player.PlayerId);
 					doc.AppendNode(playerNode, "qrcode", player.QRCode);
+					doc.AppendNode(playerNode, "grade", player.Grade);
 					doc.AppendNode(playerNode, "pack", player.Pack);
 					doc.AppendNonZero(playerNode, "score", player.Score);
 					doc.AppendNode(playerNode, "rank", (int)player.Rank);
@@ -1454,15 +1633,71 @@ namespace Torn
 
 		public double CalculateScore(GameTeam gameTeam)
 		{
+			if(isAutoHandicap)
+            {
+				return CalculateAutoCappedScore(gameTeam);
+            } else
+            {
+				double score = 0;
+
+				foreach (var player in gameTeam.Players)
+					score += player.Score;
+
+				score += gameTeam.Adjustment;
+
+				LeagueTeam leagueTeam = LeagueTeam(gameTeam);
+				return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+			}			
+		}
+
+		public int CalulateTeamCap(GameTeam gameTeam)
+        {
+
+			int totalPoints = 0;
+			int bonusCount = 0;
+			int bonusTotal = 0;
+			int penaltyCount = 0;
+			int penaltyTotal = 0;
+			foreach (var player in gameTeam.Players)
+			{
+				totalPoints += GetGradePoints(player.Grade);
+				int bonus = GetGradeBonus(player.Grade);
+				int penalty = GetGradePenalty(player.Grade);
+
+				if (bonus > 0)
+				{
+					bonusCount++;
+					if (bonusCount > 1)
+						bonusTotal += bonus;
+				}
+
+				if (penalty > 0)
+				{
+					penaltyCount++;
+					if (penaltyCount > 1)
+						penaltyTotal += penalty;
+				}
+			}
+
+			int missingPlayers = expectedTeamSize - gameTeam.Players.Count();
+
+			int missingPenalty = missingPlayers > 0 ? missingPlayerPenalty * missingPlayers : 0;
+
+			totalPoints += bonusTotal + penaltyTotal + missingPenalty;
+
+			return GetAutoHandicap(totalPoints);
+		}
+
+		public double CalculateAutoCappedScore(GameTeam gameTeam)
+        {
 			double score = 0;
 
 			foreach (var player in gameTeam.Players)
 				score += player.Score;
 
-			score += gameTeam.Adjustment;
+			int cap = CalulateTeamCap(gameTeam);
 
-			LeagueTeam leagueTeam = LeagueTeam(gameTeam);
-			return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
+			return new Handicap(cap, HandicapStyle.Percent).Apply(score);
 		}
 
 		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy)

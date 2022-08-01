@@ -167,6 +167,7 @@ namespace Torn.UI
 			showColours.Enabled = r == ReportType.TeamLadder;
 			showPoints.Enabled = r == ReportType.TeamsVsTeams;
 			showComments.Enabled = r == ReportType.SoloLadder;
+			showGrades.Enabled = r == ReportType.SoloLadder;
 			chartType.Enabled = true;
 			showTopN.Enabled = isTeamOrSolo || r == ReportType.MultiLadder;
 			numericUpDownTopN.Enabled = showTopN.Enabled;
