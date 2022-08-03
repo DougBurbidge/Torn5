@@ -1,4 +1,4 @@
-<html><head><title>Torn 5 Help</title></head><body>
+<html><head><title>Torn 5 Help</title></head><meta charset="UTF-8"><body>
 <style type="text/css" media="screen">
 .mnu { font-family: Sans-Serif; outline: 1px solid #aaf }
 .url { font-family: Sans-Serif }
@@ -38,15 +38,13 @@ Click a game to see its packs/players. Now you can do all the usual Torn things 
 Because the games listing is now an always-visible list instead of being a drop-down "combo box", you can now select multiple games. Some features work on all selected games &mdash; e.g. <span class="mnu">Forget</span> will remove all the selected games from whatever league they had been committed to. <span class="mnu">Set Description</span> lets you title committed games or groups of games: "Round 1", "Repechage 3", "Cascade 2", "Finals", etc. These titles will be shown in reports.
 Games present in the game server are shown in white. Games only present in Torn files are shown slightly greyed.
 </p><p>
-Reporting is different in Torn 5 &mdash; click <span class="mnu">Set Folder</span> to set an initial folder for reports to be exported to. Then click <span class="mnu">Report</span>. Torn 5 will export a default set of reports to that folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click <span class="mnu">Configure</span> and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
+Reporting is different in Torn 5. When you click <span class="mnu">Report</span>, Torn 5 will export a default set of reports to a folder. Note that these will include details of each team, game and player. If you would like to configure different reports for the selected league, click <span class="mnu">Configure</span> and then add reports as desired. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
 If you select multiple leagues (select one, then hold down the ctrl key as you select more) and click <span class="mnu">Report</span>, all the selected leagues will have reports exported.
 </p><p>
 If you have enabled the web server under <span class="mnu">Preferences</span>, any web browser that can see the machine Torn is running on can view reports directly from Torn 5's latest data, without you needing to click <span class="mnu">Report</span>. If you're running Torn on a computer called mymachine and you've left it on the default port of 8080, point a web browser at <a href="http://localhost:8080">http://mymachine:8080</a> to see these interactive reports.
 </p><p>
 For P&amp;C systems, for games that are still in the lasergame server, more data is shown: each game has a "heat map" showing who shot who and a "worm" showing teams' scores. But this (extensive) data is not stored in the .Torn file, so once the lasergame server purges that data and Torn is restarted, a fresh report will <em>not</em> contain this additional detail.
-</p><p>
-Things not yet implemented: fixture generation, pushing scores to a scoreboard, and a variety of other bits and bobs.
 </p>
 <h2>The Main Window</h2>
 <p>
@@ -149,17 +147,17 @@ For a round draw, you typically want to take the top teams from each game in the
 <p>
 <strong><span class="mnu">Report</span></strong>: generates and saves a set of HTML reports for the selected leagues. If you have not used the Configure button to configure reports for a league, a default set will be used, which may include a team ladder, a games list, a games pyramid or games grid, and a solo ladder. Exactly what reports are in the default set depends on the type of league: if Torn recognises that you're using a pyramid-style fixture, it will include a games pyramid. If not, it won't. If it detects that you're titling groups of games, it will include a report for your semifinals and a report for your grand finals; if not, it won't. In addition to these "overview" reports, detailed reports will be generated for each game, team and player.
 </p><p>
-<strong><span class="mnu">Upload</span></strong>: All files in the reports folder will be uploaded to the web site you specified in Preferences.
+The first time you generate reports Torn will ask what folder to export to. You can change this in <span class="mnu">Preferences</span> &gt; <span class="mnu">Reports</span>.
 </p><p>
-<strong><span class="mnu">Print</span></strong>: Print whatever reports you have configured. Windows has print-to-PDF available as a default prionter device, so if you'd like to save reports as a PDF, that's how to do it.
+<strong><span class="mnu">Upload</span></strong>: All files in the reports folder will be uploaded to the web site you specified in <span class="mnu">Preferences</span>.
+</p><p>
+<strong><span class="mnu">Print</span></strong>: Print whatever reports you have configured. Windows has print-to-PDF available as a default printer device, so if you'd like to save reports as a PDF, that's how to do it.
 </p><p>
 <strong><span class="mnu">Configure</span></strong>: If this dialog is empty, reports for this league will be the default set described above. If you add reports here, those will be used instead. These are configured per-league. This dialog does not have an OK button &mdash; changes you make here are immediate. You can select the output format of your reports: HTML SVG is prettiest, but cannot be imported into Excel etc.
 </p><p>
-<strong><span class="mnu">Ad Hoc</span></strong>: Choose a report type, and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save or print that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
+<strong><span class="mnu">Ad Hoc</span></strong>: Choose a report type and set its various settings, and you'll see the report shown in a floating window. From the floating window you can save or print that report. That floating window doesn't block Torn -- it's "non-modal". That means you can do other things in Torn while the floating window is still open, including generating more ad hoc reports to their own floating windows.
 </p><p>
-When saving as a PNG image, there a super-secret feature only available to people who have read the manual: hold down any two of the Shift, Ctrl and Alt keys as you click <span class="mnu">PNG</span>, and a box will appear allowing you to set the scale of the saved image: 2.00 is 200%; etc.
-</p><p>
-<strong><span class="mnu">Set Folder</span></strong>: lets you set a folder that your reports, when generated, will be exported to. This same folder is used for TSV reports and fixture exports.
+<strong><span class="mnu">Export Json</span></strong> gets data about games from the lasergame server and saves it as JSON files. games.json contains a list of games; players.json contains a list of players; and there's a JSON file for each game, with details. This is the same data available from Torn's internal web server, except that detailed game files have _ in their name instead of : because Windows doesn't like filenames with : in them.
 </p>
 <h2>Misc</h2>
 <p>

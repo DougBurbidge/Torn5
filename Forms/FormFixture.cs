@@ -15,7 +15,8 @@ namespace Torn.UI
 	public partial class FormFixture : Form
 	{
 		public Holder Holder { get; set; }
-		
+		public string ExportFolder { get; set; }
+
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
 		bool resizing;
@@ -82,6 +83,12 @@ namespace Torn.UI
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			displayReportGames.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
 			displayReportGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+		}
+
+		private void ButtonExportClick(object sender, EventArgs e)
+		{
+			ExportPages.ExportFixture(ExportFolder, Holder);
+			MessageBox.Show("Fixture exported to " + System.IO.Path.Combine(ExportFolder, Holder.Key), "Fixture Exported");
 		}
 
 		List<LeagueTeam> Ladder()

@@ -59,11 +59,10 @@
 			// 
 			// printReport
 			// 
+			this.printReport.DisplayReport = this.displayReport;
 			this.printReport.Dock = System.Windows.Forms.DockStyle.Top;
-			this.printReport.Image = null;
 			this.printReport.Location = new System.Drawing.Point(0, 64);
 			this.printReport.Name = "printReport";
-			this.printReport.Report = null;
 			this.printReport.Size = new System.Drawing.Size(64, 480);
 			this.printReport.TabIndex = 2;
 			// 

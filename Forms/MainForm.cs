@@ -32,6 +32,7 @@ sanity check report. Add new check: are there odd games out with no victory poin
 tech report: hit totals for all sensors on all packs, plus games where a sensor takes 0 hits
 output to printer
 set up pyramid round
+read from O-Zone server
 
 TODO for BOTH:
 on commit auto-update scoreboard
@@ -47,7 +48,6 @@ recalculate scores on Helios
 OTHER:
 league copy from
 Space Marines match play
-read from O-Zone server
 spark lines
 check latest version via REST
 reports and uploads in worker thread
@@ -557,6 +557,7 @@ namespace Torn.UI
 			if (listViewLeagues.SelectedItems.Count == 1)
 			{
 				formFixture.Holder = (Holder)listViewLeagues.SelectedItems[0].Tag;
+				formFixture.ExportFolder = exportFolder;
 				formFixture.ShowDialog();
 			}
 		}

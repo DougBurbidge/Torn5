@@ -13,9 +13,6 @@ namespace Torn5.Controls
 	/// </summary>
 	public partial class PrintReport : UserControl
 	{
-		public ZoomReport Report { get; set; }
-		public Image Image { get; set; }
-
 		[Browsable(true)]
 		public DisplayReport DisplayReport { get; set; }
 
@@ -37,23 +34,21 @@ namespace Torn5.Controls
 				radioCsv.Checked ? OutputFormat.Csv :
 				OutputFormat.Png;
 
-			string file = (Report ?? DisplayReport.Report).Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
+			string file = DisplayReport.Report.Title.Replace('/', '-').Replace(' ', '_') + "." + outputFormat.ToExtension();  // Replace / with - so dates still look OK, and  space with _ to make URLs easier if this file is uploaded to the web.
 			saveFileDialog.FileName = Path.GetInvalidFileNameChars().Aggregate(file, (current, c) => current.Replace(c, '_'));  // Replace all other invalid chars with _.
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				if (radioPng.Checked)
 				{
-					Image = (Report ?? DisplayReport.Report).ToBitmap((float)numericScale.Value);
-
-					(Image ?? DisplayReport.BackgroundImage).Save(saveFileDialog.FileName);
+					if (checkBoxScale.Checked)
+						DisplayReport.Report.ToBitmap((float)numericScale.Value).Save(saveFileDialog.FileName);
+					else
+						DisplayReport.BackgroundImage.Save(saveFileDialog.FileName);
 				}
 				else
 				{
-					var reports = new ZoomReports()
-					{
-						(Report ?? DisplayReport.Report)
-					};
+					var reports = new ZoomReports() { DisplayReport.Report };
 
 					using (StreamWriter sw = File.CreateText(saveFileDialog.FileName))
 						sw.Write(reports.ToOutput(outputFormat));
@@ -70,45 +65,21 @@ namespace Torn5.Controls
 
 		private void ButtonPrintClick(object sender, EventArgs e)
 		{
-			var pd = (Report ?? DisplayReport.Report).ToPrint();
+			var pd = DisplayReport.Report.ToPrint();
 			if (printDialog.ShowDialog() == DialogResult.OK)
 				pd.Print();
 		}
 
 		private void ButtonPrintPreviewClick(object sender, EventArgs e)
 		{
-			printPreviewDialog.Document = (Report ?? DisplayReport.Report).ToPrint();
+			printPreviewDialog.Document = DisplayReport.Report.ToPrint();
 			printPreviewDialog.ShowDialog();
 		}
 
-		private void radioPng_Click(object sender, EventArgs e)
+		private void CheckedChanged(object sender, EventArgs e)
 		{
-			numericScale.Visible = true;
-			scaleLabel.Visible = true;
+			checkBoxScale.Enabled = radioPng.Checked;
+			numericScale.Enabled = radioPng.Checked && checkBoxScale.Checked;
 		}
-
-        private void radioSvg_CheckedChanged(object sender, EventArgs e)
-        {
-			numericScale.Visible = false;
-			scaleLabel.Visible = false;
-		}
-
-        private void radioTables_CheckedChanged(object sender, EventArgs e)
-        {
-			numericScale.Visible = false;
-			scaleLabel.Visible = false;
-		}
-
-        private void radioTsv_CheckedChanged(object sender, EventArgs e)
-        {
-			numericScale.Visible = false;
-			scaleLabel.Visible = false;
-		}
-
-        private void radioCsv_CheckedChanged(object sender, EventArgs e)
-        {
-			numericScale.Visible = false;
-			scaleLabel.Visible = false;
-		}
-    }
+	}
 }

@@ -13,7 +13,6 @@ namespace Torn.UI
 			get { return displayReport.Report; }
 			set
 			{
-				printReport.Report = value;
 				displayReport.Report = value;
 				if (value != null)
 					Text = value.Title;
@@ -31,7 +30,6 @@ namespace Torn.UI
 			try
 			{
 				displayReport.BackgroundImage = displayReport.Report.ToBitmap(displayReport.Width, displayReport.Height, true);
-				printReport.Image = displayReport.BackgroundImage;
 			}
 			finally
 			{
