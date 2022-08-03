@@ -720,8 +720,13 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 		/// <summary>Write out fixtures for the selected leagues.</summary>
 		public static void ExportFixtures(string path, List<Holder> leagues)
 		{
+			foreach (Holder holder in leagues)
+				ExportFixture(path, holder);
+		}
+
+		public static void ExportFixture(string path, Holder holder)
+		{
 			if (path != null)
-				foreach (Holder holder in leagues)
 			{
 				Directory.CreateDirectory(Path.Combine(path, holder.Key));
 

@@ -700,10 +700,15 @@ namespace Zoom
 		/// <summary>Render a report to bitmap.</summary>
 		public Bitmap ToBitmap(float scale)
 		{
-			double aspectRatio = document.ViewBox.Width / document.ViewBox.Height;
+			if (document == null)
+				using (StringWriter sw = new StringWriter())
+				{
+					sw.Write(ToSvg());
+					document = SvgDocument.FromSvg<SvgDocument>(sw.ToString());
+				}
 
-			document.Width = new SvgUnit(SvgUnitType.Pixel, document.Width * scale);
-			document.Height = new SvgUnit(SvgUnitType.Pixel, document.Height * scale);
+			document.Width = new SvgUnit(SvgUnitType.Pixel, document.ViewBox.Width * scale);
+			document.Height = new SvgUnit(SvgUnitType.Pixel, document.ViewBox.Height * scale);
 
 			return document.Draw();
 		}
