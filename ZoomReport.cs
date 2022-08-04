@@ -953,7 +953,7 @@ namespace Zoom
 					width = Width - x - 1;  // tuck in so we don't draw off the edge.
 
 				int len = s.Length;
-				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F0}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 1, width + 1, height + 1);
+				s.AppendFormat("<rect x=\"{0:F1}\" y=\"{1:F1}\" width=\"{2:F1}\" height=\"{3:F0}\" style=\"", x - 0.5, y - 0.5, width + 1, height + 1);
 				s.Replace(".0", "", len, s.Length - len);
 
 				if (fill == default)
