@@ -518,8 +518,8 @@ namespace Torn.UI
 				if (new FormReport
 				{
 					Text = "Report on " + (SelectedLeagues().Count == 1 ? holder.League.Title : SelectedLeagues().Count.ToString() + " leagues"),
-					From = (holder.League.AllGames.FirstOrDefault()?.Time ?? default).Date,
-					To = (holder.League.AllGames.LastOrDefault()?.Time ?? default).Date,
+					From = (holder.League.AllGames.FirstOrDefault()?.Time ?? DateTime.Now).Date,
+					To = (holder.League.AllGames.LastOrDefault()?.Time ?? DateTime.Now).Date,
 					ReportTemplate = adhocReportTemplate,
 					League = SelectedLeagues().FirstOrDefault()?.League,
 					Icon = (Icon)this.Icon.Clone()
