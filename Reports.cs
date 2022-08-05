@@ -601,7 +601,7 @@ namespace Torn.Report
 
 				ZRow row = report.AddRow(new ZRow());
 
-				ZCell dateCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
+				ZCell dateCell = new ZCell(game.ShortTitle())
 				{
 					Hyper = GameHyper(game)
 				};
@@ -690,6 +690,7 @@ namespace Torn.Report
 			return report;
 		}
 
+		/// <summary>Build a report showing games. Each game fills several rows: one row for team scores, followed by rows for player scores, in the same column as their team.</summary>
 		public static ZoomReport DetailedGamesList(League league, bool includeSecret, ReportTemplate rt)
 		{
 			ZoomReport report = new ZoomReport("", "Game", "right")
@@ -703,76 +704,78 @@ namespace Torn.Report
 
 			int mostTeams = games.Count == 0 ? 0 : games.Max(g => g.Teams.Count);
 
-			while (thisgame < games.Count)// && (to == null || games[thisgame].Time < to))  // loop through each game, and create a row for it
+			while (thisgame < games.Count)  // loop through each game, and create a row for it
 			{
 				Game game = games[thisgame];
 				if (thisgame == 0 || (games[thisgame - 1].Time.Date < game.Time.Date))  // We've crossed a date boundary, so
-					report.AddRow(new ZRow()).Add(new ZCell(game.Time.ToShortDateString()));  // Create a row to show the new date.
+					report.AddRow(new ZRow()).Add(new ZCell(game.Time.ToShortDateString()) { Color = report.Colors.OddColor });  // Create a row to show the new date.
 
-				ZRow row = report.AddRow(new ZRow());
+				ZRow teamsRow = report.AddRow(new ZRow() { Color = report.Colors.OddColor } );
 
-				ZCell dateCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
+				ZCell dateCell = new ZCell(game.ShortTitle())
 				{
 					Hyper = GameHyper(game)
 				};
-				row.Add(dateCell);
+				teamsRow.Add(dateCell);
 
-				int largestTeam = 0;
+				int largestTeam = game.Teams.Max(gt => gt.Players.Count);
 
+				// Add team names and team scores.
 				foreach (GameTeam gameTeam in game.Teams)
 				{
-					largestTeam = Math.Max(gameTeam.Players.Count(), largestTeam);
-				}
+					var leagueTeam = league.LeagueTeam(gameTeam);
 
-				Console.WriteLine("largest team " + largestTeam);
-
-				foreach (GameTeam gameTeam in game.Teams)
-				{
-					
-					ZCell teamCell = new ZCell(league.LeagueTeam(gameTeam) == null ? "Team ?" : league.LeagueTeam(gameTeam).Name,
-											   gameTeam.Colour.ToColor())
+					ZCell teamCell = new ZCell(leagueTeam == null ? "Team ?" : leagueTeam.Name, gameTeam.Colour.ToColor())
 					{
-						Hyper = "team" + (gameTeam.TeamId ?? -1).ToString("D2", CultureInfo.InvariantCulture) + ".html"
+						Hyper = TeamHyper(leagueTeam)
 					};  // team name
-					row.Add(teamCell);
+					teamsRow.Add(teamCell);
 					ZCell scoreCell = new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
-					row.Add(scoreCell);
+					teamsRow.Add(scoreCell);
 					teamCell.ChartCell = scoreCell;
 					scoreCell.ChartCell = scoreCell;
 					if (league.IsPoints())  // there are victory points for this league
 					{
 						if (game.IsPoints())
-							row.Add(new ZCell(gameTeam.Points, ChartType.None, "", gameTeam.Colour.ToColor()));
+							teamsRow.Add(new ZCell(gameTeam.Points, ChartType.None, "", gameTeam.Colour.ToColor()));
 						else
-							row.Add(new ZCell());  // This whole game has no victory points, so don't show any.
-						row.Last().ChartCell = scoreCell;
+							teamsRow.Add(new ZCell());  // This whole game has no victory points, so don't show any.
+						teamsRow.Last().ChartCell = scoreCell;
 					}
 					else
-						row.Add(new ZCell());
+						teamsRow.Add(new ZCell());
 				}  // foreach gameTeam
 
 				int currentPlayer = 0;
+				var maxScore = game.Teams.Max(t => t.Players.Max(p => p.Score));
+
+				// Add player aliases and player scores.
 				while (currentPlayer < largestTeam)
 				{
-					ZRow currentRow = report.AddRow(new ZRow());
+					ZRow playersRow = report.AddRow(new ZRow());
 
 					foreach (GameTeam gameTeam in game.Teams)
 					{
 						if (currentPlayer < gameTeam.Players.Count())
 						{
-							currentRow.Add(new ZCell());
+							playersRow.Add(new ZCell());
 							GamePlayer player = gameTeam.Players[currentPlayer];
 							ZCell aliasCell = new ZCell(league.LeaguePlayer(player) == null ? "Player ?" : league.LeaguePlayer(player).Name, gameTeam.Colour.ToColor());
-							currentRow.Add(aliasCell);
-							ZCell scoreCell = new ZCell(player.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
-							currentRow.Add(scoreCell);
-						} else
+							playersRow.Add(aliasCell);
+
+							ZCell scoreCell = new ZCell(player.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor())
+							{
+								Tag = maxScore
+							};
+							if (league.VictoryPointsHighScore != 0 && player.Score == maxScore)
+								scoreCell.Border = Color.Black;
+							playersRow.Add(scoreCell);
+						}
+						else
                         {
-							currentRow.Add(new ZCell());
-							ZCell aliasCell = new ZCell("", gameTeam.Colour.ToColor());
-							currentRow.Add(aliasCell);
-							ZCell scoreCell = new ZCell(0, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
-							currentRow.Add(scoreCell);
+							playersRow.Add(new ZCell());
+							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
+							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 						}
 					}
 
@@ -781,25 +784,27 @@ namespace Torn.Report
 
 				if (league.VictoryPointsHighScore != 0 && game.Players().Any() && league.LeaguePlayer(game.SortedPlayers().First()) != null)  // there is a highscore entry at the end of each row
 				{
+					// Add blank cells as necessary to fill to the end of the regular part of the row.
 					for (int i = game.Teams.Count; i < mostTeams; i++)
 					{
-						row.Add(new ZCell());
-						row.Add(new ZCell());
-						row.Add(new ZCell());
+						teamsRow.Add(new ZCell());
+						teamsRow.Add(new ZCell());
+						teamsRow.Add(new ZCell());
 					}
 
 					var highPlayer = game.SortedPlayers().First();
 
-					row.Add(new ZCell());
+					teamsRow.Add(new ZCell());
 					Color highScoreColor = Color.Empty;
 					foreach (GameTeam gameTeam in game.Teams)
 						if (gameTeam.TeamId == highPlayer.TeamId)
 							highScoreColor = gameTeam.Colour.ToColor();
 
-					row.Add(new ZCell(league.LeaguePlayer(highPlayer).Name, highScoreColor));
-					row.Add(new ZCell(highPlayer.Score, ChartType.Bar, "N0", highScoreColor));
-					row[row.Count - 2].ChartCell = row.Last();
-					row.Last().ChartCell = row.Last();
+					teamsRow.Add(new ZCell(league.LeaguePlayer(highPlayer).Name, highScoreColor));
+					teamsRow.Add(new ZCell(highPlayer.Score, ChartType.Bar, "N0", highScoreColor) { Tag = maxScore });
+
+					teamsRow[teamsRow.Count - 2].ChartCell = teamsRow.Last();
+					teamsRow.Last().ChartCell = teamsRow.Last();
 				}
 
 				thisgame++;
@@ -825,6 +830,14 @@ namespace Torn.Report
 				report.AddColumn(new ZColumn("Best player", ZAlignment.Right));
 				report.AddColumn(new ZColumn("Score", ZAlignment.Right));
 			}
+
+			report.CalculateFill = delegate (ZRow row, int col, double chartMin, double chartMax, ref double? fill)
+			{
+				if (row[col].Tag is double)
+					fill = row[col].Number / (double)row[col].Tag;
+			};
+
+			report.Colors.OddColor = default;
 
 			if (rt.Settings.Contains("Description"))
 			{
@@ -1070,6 +1083,11 @@ namespace Torn.Report
 						if (column.Arrows[i].From.Min(x => x.Row) > topN && column.Arrows[i].To.Min(x => x.Row) > topN)
 							column.Arrows.RemoveAt(i);
 			}
+
+			if (rt.Settings.Contains("Description"))
+				report.Description = "This report shows each team's progress through the tournament. Between each of the " + groups.Count() + 
+					"rounds, follow a team's rise or fall by following their arrow(s). To see a team's final placing, look for the right-most mention of their name; e.g. " + 
+					report.Rows[0][report.Rows[0].Count - 3].Text + " placed 1st.";
 
 			return report;
 		}
@@ -1368,7 +1386,7 @@ namespace Torn.Report
 
 			report.Title += " \u2014 " + string.Join(", ", teams.Select(t => t.Name));
 			if (teams.Count == 1)
-				report.TitleHyper = "team" + TeamHyper(teams[0]);
+				report.TitleHyper = TeamHyper(teams[0]);
 			else
 				report.Columns.Insert(1, new ZColumn("Team"));
 
@@ -1389,7 +1407,7 @@ namespace Torn.Report
 					row.Add(new ZCell("Game ??", color));
 				else
 				{
-					var gameCell = new ZCell((game.Title + " " + game.Time.ShortDateTime()).Trim(), color)
+					var gameCell = new ZCell(game.LongTitle(), color)
 					{
 						Hyper = GameHyper(game)
 					};  // Game time
@@ -1526,7 +1544,7 @@ namespace Torn.Report
 						Color = report.Rows.Count % 2 == 0 ? evenColor : oddColor
 					};
 					report.Rows.Add(gameRow);
-					var timeCell = new ZCell((game.Title + " " + game.Time.ToShortTimeString()).Trim())
+					var timeCell = new ZCell(game.LongTitle())
 					{
 						Hyper = GameHyper(game)
 					};

@@ -544,11 +544,16 @@ namespace Torn
 			return false;
 		}
 
-		public string LongTitle()
+		public string ShortTitle()
 		{
 			string timeFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(":ss", "");
 
-			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Time.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + timeFormat);
+			return (Title + " " + Time.ToString(timeFormat)).Trim();
+		}
+
+		public string LongTitle()
+		{
+			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Utility.ShortDateTime(Time);
 		}
 
 		/// <summary>Pull Event data from ServerGames and put it into GamePlayers.</summary>
