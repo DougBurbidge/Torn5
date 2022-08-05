@@ -71,6 +71,8 @@ namespace Torn.UI
 			for (int i = 0; i < League.VictoryPoints.Count; i++)
 				SetVictoryBox(i, League.VictoryPoints[i]);
 
+			numericHighScore.Value = (decimal)League.VictoryPointsHighScore;
+
 			radioButtonPercent.Checked = League.HandicapStyle == HandicapStyle.Percent;
 			radioButtonPlus.Checked = League.HandicapStyle == HandicapStyle.Plus;
 			radioButtonMinus.Checked = League.HandicapStyle == HandicapStyle.Minus;
@@ -411,7 +413,12 @@ namespace Torn.UI
 			while (League.VictoryPoints.Any() && League.VictoryPoints.Last() == 0)
 				League.VictoryPoints.RemoveAt(League.VictoryPoints.Count - 1);
 		}
-		
+
+		private void NumericHighScore_ValueChanged(object sender, EventArgs e)
+		{
+			League.VictoryPointsHighScore = (double)numericHighScore.Value;
+		}
+
 		void RadioButtonHandicapCheckedChanged(object sender, EventArgs e)
 		{
 			League.HandicapStyle = HandicapExtensions.ToHandicapStyle(((Control)sender).Text);
@@ -888,5 +895,5 @@ namespace Torn.UI
 			League.extraGBonus = (int)extraGBonus.Value;
 			League.Save();
 		}
-    }
+	}
 }
