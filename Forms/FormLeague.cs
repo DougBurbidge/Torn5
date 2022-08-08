@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Torn5.Controls;
@@ -42,9 +43,6 @@ namespace Torn.UI
 					{
 						Tag = player
 					};
-
-					var gradeNode = playerNode.Nodes.Add(player.Grade);
-					gradeNode.Tag = player.Grade;
 
 					teamNode.Nodes.Add(playerNode);
 				}
@@ -139,6 +137,14 @@ namespace Torn.UI
 			playerGradeBox.Visible = treeView1.SelectedNode.Tag is string || treeView1.SelectedNode.Tag is LeaguePlayer;
 			manualTeamCap.Visible = treeView1.SelectedNode.Tag is LeagueTeam;
 			manualTeamCapLabel.Visible = treeView1.SelectedNode.Tag is LeagueTeam;
+		}
+
+		/// <summary>Draw player grade (if any).</summary>
+		private void TreeView1DrawNode(object sender, DrawTreeNodeEventArgs e)
+		{
+			e.DrawDefault = true;
+			if (e.Node.Tag is LeaguePlayer lp && !string.IsNullOrEmpty(lp.Grade))
+				e.Graphics.DrawString(lp.Grade, e.Node.NodeFont ?? ((TreeView)sender).Font, Brushes.Gray, Math.Max(e.Node.Bounds.Right + 10, 120), e.Node.Bounds.Top);
 		}
 
 		TreeNode hovered;
@@ -414,19 +420,13 @@ namespace Torn.UI
 		private void playerGradeBox_SelectedIndexChanged(object sender, EventArgs e)
         {
 			string grade = playerGradeBox.SelectedItem.ToString();
-			if (treeView1.SelectedNode.Tag is string && treeView1.SelectedNode.Parent.Tag is LeaguePlayer leaguePlayer)
-			{
-				leaguePlayer.Grade = grade;
-				treeView1.SelectedNode.Text = grade;
-				UpdatePlayerGrade(leaguePlayer);
-			}
 			if (treeView1.SelectedNode.Tag is LeaguePlayer player)
 			{
 				player.Grade = grade;
-				treeView1.SelectedNode.Nodes[0].Text = grade;
 				UpdatePlayerGrade(player);
+				treeView1.Invalidate();
 			}
-        }
+		}
 
 		/// <summary>Ensure that there is an i'th grade editor.</summary>
 		void SetGradeBox(int i)
@@ -461,26 +461,22 @@ namespace Torn.UI
 		}
 
 		private void teamSize_ValueChanged(object sender, EventArgs e)
-        {
+		{
 			League.ExpectedTeamSize = (int)teamSize.Value;
-        }
+		}
 
-        private void missingPlayerPenalty_ValueChanged(object sender, EventArgs e)
-        {
-			League.Load(League.FileName);
+		private void missingPlayerPenalty_ValueChanged(object sender, EventArgs e)
+		{
 			League.MissingPlayerPenalty = (int)missingPlayerPenalty.Value;
-			League.Save();
 		}
 
-        private void extraAPenalty_ValueChanged(object sender, EventArgs e)
-        {
-			League.Load(League.FileName);
+		private void extraAPenalty_ValueChanged(object sender, EventArgs e)
+		{
 			League.ExtraAPenalty = (int)extraAPenalty.Value;
-			League.Save();
 		}
 
-        private void extraGBonus_ValueChanged(object sender, EventArgs e)
-        {
+		private void extraGBonus_ValueChanged(object sender, EventArgs e)
+		{
 			League.ExtraGBonus = (int)extraGBonus.Value;
 		}
 	}
