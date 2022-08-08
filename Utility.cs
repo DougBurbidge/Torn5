@@ -120,6 +120,12 @@ namespace Torn
 			return child == null ? 0.0 : double.Parse(child.InnerText, CultureInfo.InvariantCulture);
 		}
 
+		public static decimal GetDecimal(this XmlNode node, string name)
+		{
+			var child = node.SelectSingleNode(name);
+			return child == null ? 0 : decimal.Parse(child.InnerText, CultureInfo.InvariantCulture);
+		}
+
 		public static int GetInt(this XmlNode node, string name)
 		{
 			var child = node.SelectSingleNode(name);

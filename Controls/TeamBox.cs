@@ -130,7 +130,7 @@ namespace Torn.UI
 
 			if(League != null)
             {
-				if (League.isAutoHandicap)
+				if (League.IsAutoHandicap)
 				{
 					ListView.Columns[3].Text = League.CalulateTeamCap(GameTeam).ToString() + "%";
 				} else
@@ -163,7 +163,7 @@ namespace Torn.UI
 
 		void ContextMenuStrip1Opening(object sender, CancelEventArgs e)
 		{
-			menuHandicapTeam.Enabled   = League != null && !League.isAutoHandicap;
+			menuHandicapTeam.Enabled   = League != null && !League.IsAutoHandicap;
 			menuRememberTeam.Enabled   = League != null;
 			menuUpdateTeam.Enabled     = LeagueTeam != null;
 			menuNameTeam.Enabled       = LeagueTeam != null;
@@ -172,7 +172,7 @@ namespace Torn.UI
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
 			menuAdjustPlayerScore.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
-			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.isAutoHandicap && LeagueTeam != null;
+			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.IsAutoHandicap && LeagueTeam != null;
 			//menuAdjustTeamScore.Enabled = always true.
 
 			menuIdentifyTeam.DropDownItems.Clear();

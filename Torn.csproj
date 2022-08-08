@@ -27,7 +27,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>6</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -171,6 +171,12 @@
     <Compile Include="Controls\DisplayReport.Designer.cs">
       <DependentUpon>DisplayReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Grade.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Grade.Designer.cs">
+      <DependentUpon>Grade.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PrintReport.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -313,6 +319,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DisplayReport.resx">
       <DependentUpon>DisplayReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Grade.resx">
+      <DependentUpon>Grade.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PrintReport.resx">
       <DependentUpon>PrintReport.cs</DependentUpon>

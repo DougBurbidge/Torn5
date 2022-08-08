@@ -225,7 +225,8 @@ namespace Torn
 				Name = Name,
 				Id = Id,
 				Handicap = Handicap,
-				Comment = Comment
+				Comment = Comment,
+				Grade = Grade
 			};
 		}
 
@@ -629,11 +630,11 @@ namespace Torn
 	public class Grade
 	{
 		public string Name { get; set; }
-		public int Points { get; set; }
+		public decimal Points { get; set; }
 		public bool HasPenalty { get; set; }
 		public bool HasBonus { get; set; }
 
-		public Grade(string name, int points, bool hasPenalty, bool hasBonus)
+		public Grade(string name, decimal points, bool hasPenalty, bool hasBonus)
 		{
 			Name = name;
 			Points = points;
@@ -641,7 +642,7 @@ namespace Torn
 			HasPenalty = hasPenalty;
 		}
 
-		public Grade(string name, int points)
+		public Grade(string name, decimal points)
 		{
 			Name = name;
 			Points = points;
@@ -691,16 +692,16 @@ namespace Torn
 		public double VictoryPointsHighScore { get; set; }
 		public double VictoryPointsProportional { get; set; }
 
-		public bool isAutoHandicap { get; set; }
+		public bool IsAutoHandicap { get; set; }
 
 		public List<Grade> Grades { get; set; }
 
-		public int expectedTeamSize { get; set; }
-		public int missingPlayerPenalty { get; set; }
-		public int extraAPenalty { get; set; }
-		public int extraGBonus { get; set; }
+		public int ExpectedTeamSize { get; set; }
+		public decimal MissingPlayerPenalty { get; set; }
+		public decimal ExtraAPenalty { get; set; }
+		public decimal ExtraGBonus { get; set; }
 
-		private List<Grade> DEFAULT_GRADES = new List<Grade>
+		private readonly List<Grade> DEFAULT_GRADES = new List<Grade>
 		{
 			new Grade("AAA", 6, true, false),
 			new Grade("A", 5, true, false),
@@ -710,9 +711,7 @@ namespace Torn
 			new Grade("D", 2, false, false),
 			new Grade("E", 1, false, false),
 			new Grade("F", 0, false, false),
-			new Grade("G", 0, false, true),
-			new Grade("H", 0, false, true),
-			new Grade("I", 0, false, true),
+			new Grade("G", 0, false, true)
 		};
 
 		// CAP USED IN WA LEAGUES
@@ -739,26 +738,26 @@ namespace Torn
 			return PositiveCap[0] + capToAdd;
         }
 
-		public int GetGradePoints(string playerGrade)
+		public decimal GetGradePoints(string playerGrade)
         {
 			Grade grade = Grades.Find(g => g.Name == playerGrade);
 			return grade?.Points ?? 0;
         }
 
-		public int GetGradePenalty(string playerGrade)
+		public decimal GetGradePenalty(string playerGrade)
 		{
 			Grade grade = Grades.Find(g => g.Name == playerGrade);
 			if (grade!= null && grade.HasPenalty)
-				return extraAPenalty;
+				return ExtraAPenalty;
 			else
 				return 0;
 		}
 
-		public int GetGradeBonus(string playerGrade)
+		public decimal GetGradeBonus(string playerGrade)
 		{
 			Grade grade = Grades.Find(g => g.Name == playerGrade);
 			if (grade != null && grade.HasBonus)
-				return extraGBonus;
+				return ExtraGBonus;
 			else
 				return 0;
 		}
@@ -781,10 +780,10 @@ namespace Torn
 			GridPlayers = 6;
 			HandicapStyle = HandicapStyle.Percent;
 			Grades = DEFAULT_GRADES;
-			expectedTeamSize = 5;
-			missingPlayerPenalty = 2;
-			extraAPenalty = 1;
-			extraGBonus = -1;
+			ExpectedTeamSize = 5;
+			MissingPlayerPenalty = 2;
+			ExtraAPenalty = 1;
+			ExtraGBonus = -1;
 		}
 
 		public League(string fileName): this()
@@ -830,10 +829,10 @@ namespace Torn
 				VictoryPointsHighScore = VictoryPointsHighScore,
 				VictoryPointsProportional = VictoryPointsProportional,
 				Grades = Grades,
-				expectedTeamSize = expectedTeamSize,
-				missingPlayerPenalty = missingPlayerPenalty,
-				extraAPenalty = extraAPenalty,
-				extraGBonus = extraGBonus
+				ExpectedTeamSize = ExpectedTeamSize,
+				MissingPlayerPenalty = MissingPlayerPenalty,
+				ExtraAPenalty = ExtraAPenalty,
+				ExtraGBonus = ExtraGBonus
 			};
 
 			clone.teams = Teams.Select(item => (LeagueTeam)item.Clone(clone)).ToList();
@@ -897,7 +896,7 @@ namespace Torn
 
 			}
 
-			if(isAutoHandicap)
+			if(IsAutoHandicap)
             {
 				int cap = CalulateTeamCap(gameTeam);
 				leagueTeam.Handicap = new Handicap(cap, HandicapStyle.Percent);
@@ -1094,12 +1093,12 @@ namespace Torn
 			updateTeams = root.GetInt("UpdateTeams");
 			elimMultiplier = root.GetInt("ElimMultiplier");
 			int teamSize = root.GetInt("ExpectedTeamSize");
-			missingPlayerPenalty = root.GetInt("MissingPlayerPenalty");
-			extraAPenalty = root.GetInt("ExtraAPenalty");
-			extraGBonus = root.GetInt("ExtraGBonus");
-			isAutoHandicap = root.GetInt("AutoHandicap") > 0;
+			MissingPlayerPenalty = root.GetDecimal("MissingPlayerPenalty");
+			ExtraAPenalty = root.GetDecimal("ExtraAPenalty");
+			ExtraGBonus = root.GetDecimal("ExtraGBonus");
+			IsAutoHandicap = root.GetInt("AutoHandicap") > 0;
 
-			expectedTeamSize = teamSize == 0 ? 5 : teamSize;
+			ExpectedTeamSize = teamSize == 0 ? 5 : teamSize;
 
 			XmlNodeList points = root.SelectNodes("Points");
 			foreach (XmlNode point in points)
@@ -1119,7 +1118,7 @@ namespace Torn
 
 				foreach (XmlNode xgrade in xgrades)
 				{
-					Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetInt("points"), xgrade.GetInt("hasPenalty") > 0, xgrade.GetInt("hasBonus") > 0);
+					Grade grade = new Grade(xgrade.GetString("name"), xgrade.GetDecimal("points"), xgrade.GetInt("hasPenalty") > 0, xgrade.GetInt("hasBonus") > 0);
 					grades.Add(grade);
 				}
 
@@ -1297,11 +1296,11 @@ namespace Torn
 			doc.AppendNode(bodyNode, "AutoUpdate", autoUpdate);
 			doc.AppendNode(bodyNode, "UpdateTeams", updateTeams);
 			doc.AppendNonZero(bodyNode, "ElimMultiplier", elimMultiplier);
-			doc.AppendNode(bodyNode, "AutoHandicap", isAutoHandicap ? 1 : 0);
-			doc.AppendNonZero(bodyNode, "ExpectedTeamSize", expectedTeamSize);
-			doc.AppendNode(bodyNode, "MissingPlayerPenalty", missingPlayerPenalty);
-			doc.AppendNode(bodyNode, "ExtraAPenalty", extraAPenalty);
-			doc.AppendNode(bodyNode, "ExtraGBonus", extraGBonus);
+			doc.AppendNode(bodyNode, "AutoHandicap", IsAutoHandicap ? 1 : 0);
+			doc.AppendNonZero(bodyNode, "ExpectedTeamSize", ExpectedTeamSize);
+			doc.AppendNode(bodyNode, "MissingPlayerPenalty", MissingPlayerPenalty.ToString());
+			doc.AppendNode(bodyNode, "ExtraAPenalty", ExtraAPenalty.ToString());
+			doc.AppendNode(bodyNode, "ExtraGBonus", ExtraGBonus.ToString());
 
 			XmlNode gradesNode = doc.CreateElement("grades");
 			bodyNode.AppendChild(gradesNode);
@@ -1312,9 +1311,11 @@ namespace Torn
 				gradesNode.AppendChild(gradeNode);
 
 				doc.AppendNode(gradeNode, "name", grade.Name);
-				doc.AppendNode(gradeNode, "points", grade.Points);
-				doc.AppendNode(gradeNode, "hasPenalty", grade.HasPenalty ? 1 : 0);
-				doc.AppendNode(gradeNode, "hasBonus", grade.HasBonus ? 1 : 0);
+				doc.AppendNode(gradeNode, "points", grade.Points.ToString());
+				if (grade.HasPenalty)
+					doc.AppendNode(gradeNode, "hasPenalty", 1);
+				if (grade.HasBonus)
+				doc.AppendNode(gradeNode, "hasBonus", 1);
 			}
 
 			foreach (double point in victoryPoints)
@@ -1638,7 +1639,7 @@ namespace Torn
 
 		public double CalculateScore(GameTeam gameTeam)
 		{
-			if(isAutoHandicap)
+			if(IsAutoHandicap)
             {
 				return CalculateAutoCappedScore(gameTeam);
             } else
@@ -1658,16 +1659,16 @@ namespace Torn
 		public int CalulateTeamCap(GameTeam gameTeam)
         {
 
-			int totalPoints = 0;
+			decimal totalPoints = 0;
 			int bonusCount = 0;
-			int bonusTotal = 0;
+			decimal bonusTotal = 0;
 			int penaltyCount = 0;
-			int penaltyTotal = 0;
+			decimal penaltyTotal = 0;
 			foreach (var player in gameTeam.Players)
 			{
 				totalPoints += GetGradePoints(player.Grade);
-				int bonus = GetGradeBonus(player.Grade);
-				int penalty = GetGradePenalty(player.Grade);
+				decimal bonus = GetGradeBonus(player.Grade);
+				decimal penalty = GetGradePenalty(player.Grade);
 
 				if (bonus > 0)
 				{
@@ -1684,13 +1685,13 @@ namespace Torn
 				}
 			}
 
-			int missingPlayers = expectedTeamSize - gameTeam.Players.Count();
+			int missingPlayers = ExpectedTeamSize - gameTeam.Players.Count();
 
-			int missingPenalty = missingPlayers > 0 ? missingPlayerPenalty * missingPlayers : 0;
+			decimal missingPenalty = missingPlayers > 0 ? MissingPlayerPenalty * missingPlayers : 0;
 
 			totalPoints += bonusTotal + penaltyTotal + missingPenalty;
 
-			return GetAutoHandicap(totalPoints);
+			return GetAutoHandicap((int)totalPoints);
 		}
 
 		public double CalculateAutoCappedScore(GameTeam gameTeam)

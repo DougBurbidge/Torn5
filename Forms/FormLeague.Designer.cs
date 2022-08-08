@@ -50,6 +50,8 @@ namespace Torn.UI
 			this.panelRight = new System.Windows.Forms.Panel();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.leaguePage = new System.Windows.Forms.TabPage();
+			this.numericHighScore = new System.Windows.Forms.NumericUpDown();
+			this.labelHighScore = new System.Windows.Forms.Label();
 			this.groupBoxHandicapStyle = new System.Windows.Forms.GroupBox();
 			this.radioButtonMinus = new System.Windows.Forms.RadioButton();
 			this.radioButtonPlus = new System.Windows.Forms.RadioButton();
@@ -63,55 +65,6 @@ namespace Torn.UI
 			this.colGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colScore = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colRankorPoints = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.GradesPage = new System.Windows.Forms.TabPage();
-			this.IBonus = new System.Windows.Forms.CheckBox();
-			this.HBonus = new System.Windows.Forms.CheckBox();
-			this.GBonus = new System.Windows.Forms.CheckBox();
-			this.FBonus = new System.Windows.Forms.CheckBox();
-			this.EBonus = new System.Windows.Forms.CheckBox();
-			this.DBonus = new System.Windows.Forms.CheckBox();
-			this.CBonus = new System.Windows.Forms.CheckBox();
-			this.BBonus = new System.Windows.Forms.CheckBox();
-			this.BBBonus = new System.Windows.Forms.CheckBox();
-			this.ABonus = new System.Windows.Forms.CheckBox();
-			this.AAABonus = new System.Windows.Forms.CheckBox();
-			this.IPenalty = new System.Windows.Forms.CheckBox();
-			this.HPenalty = new System.Windows.Forms.CheckBox();
-			this.GPenalty = new System.Windows.Forms.CheckBox();
-			this.FPenalty = new System.Windows.Forms.CheckBox();
-			this.EPenalty = new System.Windows.Forms.CheckBox();
-			this.DPenalty = new System.Windows.Forms.CheckBox();
-			this.CPenalty = new System.Windows.Forms.CheckBox();
-			this.BPenalty = new System.Windows.Forms.CheckBox();
-			this.BBPenalty = new System.Windows.Forms.CheckBox();
-			this.APenalty = new System.Windows.Forms.CheckBox();
-			this.AAAPenalty = new System.Windows.Forms.CheckBox();
-			this.label5 = new System.Windows.Forms.Label();
-			this.label4 = new System.Windows.Forms.Label();
-			this.IPoints = new System.Windows.Forms.NumericUpDown();
-			this.IName = new System.Windows.Forms.TextBox();
-			this.HPoints = new System.Windows.Forms.NumericUpDown();
-			this.HName = new System.Windows.Forms.TextBox();
-			this.GPoints = new System.Windows.Forms.NumericUpDown();
-			this.GName = new System.Windows.Forms.TextBox();
-			this.FPoints = new System.Windows.Forms.NumericUpDown();
-			this.FName = new System.Windows.Forms.TextBox();
-			this.EPoints = new System.Windows.Forms.NumericUpDown();
-			this.EName = new System.Windows.Forms.TextBox();
-			this.DPoints = new System.Windows.Forms.NumericUpDown();
-			this.DName = new System.Windows.Forms.TextBox();
-			this.CPoints = new System.Windows.Forms.NumericUpDown();
-			this.CName = new System.Windows.Forms.TextBox();
-			this.BPoints = new System.Windows.Forms.NumericUpDown();
-			this.BName = new System.Windows.Forms.TextBox();
-			this.BBPoints = new System.Windows.Forms.NumericUpDown();
-			this.BBName = new System.Windows.Forms.TextBox();
-			this.APoints = new System.Windows.Forms.NumericUpDown();
-			this.AName = new System.Windows.Forms.TextBox();
-			this.AAAPoints = new System.Windows.Forms.NumericUpDown();
-			this.AAAName = new System.Windows.Forms.TextBox();
-			this.label3 = new System.Windows.Forms.Label();
-			this.label2 = new System.Windows.Forms.Label();
 			this.HandicapPage = new System.Windows.Forms.TabPage();
 			this.manualTeamCap = new System.Windows.Forms.NumericUpDown();
 			this.manualTeamCapLabel = new System.Windows.Forms.Label();
@@ -126,10 +79,13 @@ namespace Torn.UI
 			this.label6 = new System.Windows.Forms.Label();
 			this.teamSize = new System.Windows.Forms.NumericUpDown();
 			this.automaticHandicapEnabled = new System.Windows.Forms.CheckBox();
+			this.GradesPage = new System.Windows.Forms.TabPage();
+			this.labelGrade = new System.Windows.Forms.Label();
+			this.labelPoints = new System.Windows.Forms.Label();
+			this.labelPenalty = new System.Windows.Forms.Label();
+			this.labelBonus = new System.Windows.Forms.Label();
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonCancel = new System.Windows.Forms.Button();
-			this.labelHighScore = new System.Windows.Forms.Label();
-			this.numericHighScore = new System.Windows.Forms.NumericUpDown();
 			this.contextMenuStrip1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -137,27 +93,16 @@ namespace Torn.UI
 			this.panelRight.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.leaguePage.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).BeginInit();
 			this.groupBoxHandicapStyle.SuspendLayout();
 			this.scoresPage.SuspendLayout();
-			this.GradesPage.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.IPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.HPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.GPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.FPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.EPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.DPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.CPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.BPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.BBPoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.APoints)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.AAAPoints)).BeginInit();
 			this.HandicapPage.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.manualTeamCap)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.extraGBonus)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.teamSize)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).BeginInit();
+			this.GradesPage.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeView1
@@ -346,8 +291,8 @@ namespace Torn.UI
 			// 
 			this.tabControl1.Controls.Add(this.leaguePage);
 			this.tabControl1.Controls.Add(this.scoresPage);
-			this.tabControl1.Controls.Add(this.GradesPage);
 			this.tabControl1.Controls.Add(this.HandicapPage);
+			this.tabControl1.Controls.Add(this.GradesPage);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
 			this.tabControl1.Name = "tabControl1";
@@ -370,6 +315,25 @@ namespace Torn.UI
 			this.leaguePage.TabIndex = 0;
 			this.leaguePage.Text = "League";
 			this.leaguePage.UseVisualStyleBackColor = true;
+			// 
+			// numericHighScore
+			// 
+			this.numericHighScore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.numericHighScore.Location = new System.Drawing.Point(110, 246);
+			this.numericHighScore.Name = "numericHighScore";
+			this.numericHighScore.Size = new System.Drawing.Size(60, 20);
+			this.numericHighScore.TabIndex = 5;
+			this.numericHighScore.ValueChanged += new System.EventHandler(this.NumericHighScore_ValueChanged);
+			// 
+			// labelHighScore
+			// 
+			this.labelHighScore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.labelHighScore.AutoSize = true;
+			this.labelHighScore.Location = new System.Drawing.Point(32, 248);
+			this.labelHighScore.Name = "labelHighScore";
+			this.labelHighScore.Size = new System.Drawing.Size(74, 13);
+			this.labelHighScore.TabIndex = 4;
+			this.labelHighScore.Text = "For high score";
 			// 
 			// groupBoxHandicapStyle
 			// 
@@ -504,585 +468,6 @@ namespace Torn.UI
 			this.colRankorPoints.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.colRankorPoints.Width = 44;
 			// 
-			// GradesPage
-			// 
-			this.GradesPage.Controls.Add(this.IBonus);
-			this.GradesPage.Controls.Add(this.HBonus);
-			this.GradesPage.Controls.Add(this.GBonus);
-			this.GradesPage.Controls.Add(this.FBonus);
-			this.GradesPage.Controls.Add(this.EBonus);
-			this.GradesPage.Controls.Add(this.DBonus);
-			this.GradesPage.Controls.Add(this.CBonus);
-			this.GradesPage.Controls.Add(this.BBonus);
-			this.GradesPage.Controls.Add(this.BBBonus);
-			this.GradesPage.Controls.Add(this.ABonus);
-			this.GradesPage.Controls.Add(this.AAABonus);
-			this.GradesPage.Controls.Add(this.IPenalty);
-			this.GradesPage.Controls.Add(this.HPenalty);
-			this.GradesPage.Controls.Add(this.GPenalty);
-			this.GradesPage.Controls.Add(this.FPenalty);
-			this.GradesPage.Controls.Add(this.EPenalty);
-			this.GradesPage.Controls.Add(this.DPenalty);
-			this.GradesPage.Controls.Add(this.CPenalty);
-			this.GradesPage.Controls.Add(this.BPenalty);
-			this.GradesPage.Controls.Add(this.BBPenalty);
-			this.GradesPage.Controls.Add(this.APenalty);
-			this.GradesPage.Controls.Add(this.AAAPenalty);
-			this.GradesPage.Controls.Add(this.label5);
-			this.GradesPage.Controls.Add(this.label4);
-			this.GradesPage.Controls.Add(this.IPoints);
-			this.GradesPage.Controls.Add(this.IName);
-			this.GradesPage.Controls.Add(this.HPoints);
-			this.GradesPage.Controls.Add(this.HName);
-			this.GradesPage.Controls.Add(this.GPoints);
-			this.GradesPage.Controls.Add(this.GName);
-			this.GradesPage.Controls.Add(this.FPoints);
-			this.GradesPage.Controls.Add(this.FName);
-			this.GradesPage.Controls.Add(this.EPoints);
-			this.GradesPage.Controls.Add(this.EName);
-			this.GradesPage.Controls.Add(this.DPoints);
-			this.GradesPage.Controls.Add(this.DName);
-			this.GradesPage.Controls.Add(this.CPoints);
-			this.GradesPage.Controls.Add(this.CName);
-			this.GradesPage.Controls.Add(this.BPoints);
-			this.GradesPage.Controls.Add(this.BName);
-			this.GradesPage.Controls.Add(this.BBPoints);
-			this.GradesPage.Controls.Add(this.BBName);
-			this.GradesPage.Controls.Add(this.APoints);
-			this.GradesPage.Controls.Add(this.AName);
-			this.GradesPage.Controls.Add(this.AAAPoints);
-			this.GradesPage.Controls.Add(this.AAAName);
-			this.GradesPage.Controls.Add(this.label3);
-			this.GradesPage.Controls.Add(this.label2);
-			this.GradesPage.Location = new System.Drawing.Point(4, 22);
-			this.GradesPage.Name = "GradesPage";
-			this.GradesPage.Padding = new System.Windows.Forms.Padding(3);
-			this.GradesPage.Size = new System.Drawing.Size(265, 328);
-			this.GradesPage.TabIndex = 2;
-			this.GradesPage.Text = "Grades";
-			this.GradesPage.UseVisualStyleBackColor = true;
-			// 
-			// IBonus
-			// 
-			this.IBonus.AutoSize = true;
-			this.IBonus.Checked = true;
-			this.IBonus.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.IBonus.Enabled = false;
-			this.IBonus.Location = new System.Drawing.Point(182, 298);
-			this.IBonus.Name = "IBonus";
-			this.IBonus.Size = new System.Drawing.Size(15, 14);
-			this.IBonus.TabIndex = 47;
-			this.IBonus.UseVisualStyleBackColor = true;
-			this.IBonus.CheckedChanged += new System.EventHandler(this.IBonus_CheckedChanged);
-			// 
-			// HBonus
-			// 
-			this.HBonus.AutoSize = true;
-			this.HBonus.Checked = true;
-			this.HBonus.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.HBonus.Enabled = false;
-			this.HBonus.Location = new System.Drawing.Point(182, 272);
-			this.HBonus.Name = "HBonus";
-			this.HBonus.Size = new System.Drawing.Size(15, 14);
-			this.HBonus.TabIndex = 46;
-			this.HBonus.UseVisualStyleBackColor = true;
-			this.HBonus.CheckedChanged += new System.EventHandler(this.HBonus_CheckedChanged);
-			// 
-			// GBonus
-			// 
-			this.GBonus.AutoSize = true;
-			this.GBonus.Checked = true;
-			this.GBonus.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.GBonus.Enabled = false;
-			this.GBonus.Location = new System.Drawing.Point(182, 246);
-			this.GBonus.Name = "GBonus";
-			this.GBonus.Size = new System.Drawing.Size(15, 14);
-			this.GBonus.TabIndex = 45;
-			this.GBonus.UseVisualStyleBackColor = true;
-			this.GBonus.CheckedChanged += new System.EventHandler(this.GBonus_CheckedChanged);
-			// 
-			// FBonus
-			// 
-			this.FBonus.AutoSize = true;
-			this.FBonus.Enabled = false;
-			this.FBonus.Location = new System.Drawing.Point(182, 220);
-			this.FBonus.Name = "FBonus";
-			this.FBonus.Size = new System.Drawing.Size(15, 14);
-			this.FBonus.TabIndex = 44;
-			this.FBonus.UseVisualStyleBackColor = true;
-			this.FBonus.CheckedChanged += new System.EventHandler(this.FBonus_CheckedChanged);
-			// 
-			// EBonus
-			// 
-			this.EBonus.AutoSize = true;
-			this.EBonus.Enabled = false;
-			this.EBonus.Location = new System.Drawing.Point(182, 194);
-			this.EBonus.Name = "EBonus";
-			this.EBonus.Size = new System.Drawing.Size(15, 14);
-			this.EBonus.TabIndex = 43;
-			this.EBonus.UseVisualStyleBackColor = true;
-			this.EBonus.CheckedChanged += new System.EventHandler(this.EBonus_CheckedChanged);
-			// 
-			// DBonus
-			// 
-			this.DBonus.AutoSize = true;
-			this.DBonus.Enabled = false;
-			this.DBonus.Location = new System.Drawing.Point(182, 168);
-			this.DBonus.Name = "DBonus";
-			this.DBonus.Size = new System.Drawing.Size(15, 14);
-			this.DBonus.TabIndex = 42;
-			this.DBonus.UseVisualStyleBackColor = true;
-			this.DBonus.CheckedChanged += new System.EventHandler(this.DBonus_CheckedChanged);
-			// 
-			// CBonus
-			// 
-			this.CBonus.AutoSize = true;
-			this.CBonus.Enabled = false;
-			this.CBonus.Location = new System.Drawing.Point(182, 142);
-			this.CBonus.Name = "CBonus";
-			this.CBonus.Size = new System.Drawing.Size(15, 14);
-			this.CBonus.TabIndex = 41;
-			this.CBonus.UseVisualStyleBackColor = true;
-			this.CBonus.CheckedChanged += new System.EventHandler(this.CBonus_CheckedChanged);
-			// 
-			// BBonus
-			// 
-			this.BBonus.AutoSize = true;
-			this.BBonus.Enabled = false;
-			this.BBonus.Location = new System.Drawing.Point(182, 116);
-			this.BBonus.Name = "BBonus";
-			this.BBonus.Size = new System.Drawing.Size(15, 14);
-			this.BBonus.TabIndex = 40;
-			this.BBonus.UseVisualStyleBackColor = true;
-			this.BBonus.CheckedChanged += new System.EventHandler(this.BBonus_CheckedChanged);
-			// 
-			// BBBonus
-			// 
-			this.BBBonus.AutoSize = true;
-			this.BBBonus.Enabled = false;
-			this.BBBonus.Location = new System.Drawing.Point(182, 90);
-			this.BBBonus.Name = "BBBonus";
-			this.BBBonus.Size = new System.Drawing.Size(15, 14);
-			this.BBBonus.TabIndex = 39;
-			this.BBBonus.UseVisualStyleBackColor = true;
-			this.BBBonus.CheckedChanged += new System.EventHandler(this.BBBonus_CheckedChanged);
-			// 
-			// ABonus
-			// 
-			this.ABonus.AutoSize = true;
-			this.ABonus.Enabled = false;
-			this.ABonus.Location = new System.Drawing.Point(182, 64);
-			this.ABonus.Name = "ABonus";
-			this.ABonus.Size = new System.Drawing.Size(15, 14);
-			this.ABonus.TabIndex = 38;
-			this.ABonus.UseVisualStyleBackColor = true;
-			this.ABonus.CheckedChanged += new System.EventHandler(this.ABonus_CheckedChanged);
-			// 
-			// AAABonus
-			// 
-			this.AAABonus.AutoSize = true;
-			this.AAABonus.Enabled = false;
-			this.AAABonus.Location = new System.Drawing.Point(182, 38);
-			this.AAABonus.Name = "AAABonus";
-			this.AAABonus.Size = new System.Drawing.Size(15, 14);
-			this.AAABonus.TabIndex = 37;
-			this.AAABonus.UseVisualStyleBackColor = true;
-			this.AAABonus.CheckedChanged += new System.EventHandler(this.AAABonus_CheckedChanged);
-			// 
-			// IPenalty
-			// 
-			this.IPenalty.AutoSize = true;
-			this.IPenalty.Enabled = false;
-			this.IPenalty.Location = new System.Drawing.Point(121, 298);
-			this.IPenalty.Name = "IPenalty";
-			this.IPenalty.Size = new System.Drawing.Size(15, 14);
-			this.IPenalty.TabIndex = 36;
-			this.IPenalty.UseVisualStyleBackColor = true;
-			this.IPenalty.CheckedChanged += new System.EventHandler(this.IPenalty_CheckedChanged);
-			// 
-			// HPenalty
-			// 
-			this.HPenalty.AutoSize = true;
-			this.HPenalty.Enabled = false;
-			this.HPenalty.Location = new System.Drawing.Point(121, 272);
-			this.HPenalty.Name = "HPenalty";
-			this.HPenalty.Size = new System.Drawing.Size(15, 14);
-			this.HPenalty.TabIndex = 35;
-			this.HPenalty.UseVisualStyleBackColor = true;
-			this.HPenalty.CheckedChanged += new System.EventHandler(this.HPenalty_CheckedChanged);
-			// 
-			// GPenalty
-			// 
-			this.GPenalty.AutoSize = true;
-			this.GPenalty.Enabled = false;
-			this.GPenalty.Location = new System.Drawing.Point(121, 246);
-			this.GPenalty.Name = "GPenalty";
-			this.GPenalty.Size = new System.Drawing.Size(15, 14);
-			this.GPenalty.TabIndex = 34;
-			this.GPenalty.UseVisualStyleBackColor = true;
-			this.GPenalty.CheckedChanged += new System.EventHandler(this.GPenalty_CheckedChanged);
-			// 
-			// FPenalty
-			// 
-			this.FPenalty.AutoSize = true;
-			this.FPenalty.Enabled = false;
-			this.FPenalty.Location = new System.Drawing.Point(121, 220);
-			this.FPenalty.Name = "FPenalty";
-			this.FPenalty.Size = new System.Drawing.Size(15, 14);
-			this.FPenalty.TabIndex = 33;
-			this.FPenalty.UseVisualStyleBackColor = true;
-			this.FPenalty.CheckedChanged += new System.EventHandler(this.FPenalty_CheckedChanged);
-			// 
-			// EPenalty
-			// 
-			this.EPenalty.AutoSize = true;
-			this.EPenalty.Enabled = false;
-			this.EPenalty.Location = new System.Drawing.Point(121, 194);
-			this.EPenalty.Name = "EPenalty";
-			this.EPenalty.Size = new System.Drawing.Size(15, 14);
-			this.EPenalty.TabIndex = 32;
-			this.EPenalty.UseVisualStyleBackColor = true;
-			this.EPenalty.CheckedChanged += new System.EventHandler(this.EPenalty_CheckedChanged);
-			// 
-			// DPenalty
-			// 
-			this.DPenalty.AutoSize = true;
-			this.DPenalty.Enabled = false;
-			this.DPenalty.Location = new System.Drawing.Point(121, 168);
-			this.DPenalty.Name = "DPenalty";
-			this.DPenalty.Size = new System.Drawing.Size(15, 14);
-			this.DPenalty.TabIndex = 31;
-			this.DPenalty.UseVisualStyleBackColor = true;
-			this.DPenalty.CheckedChanged += new System.EventHandler(this.DPenalty_CheckedChanged);
-			// 
-			// CPenalty
-			// 
-			this.CPenalty.AutoSize = true;
-			this.CPenalty.Enabled = false;
-			this.CPenalty.Location = new System.Drawing.Point(121, 142);
-			this.CPenalty.Name = "CPenalty";
-			this.CPenalty.Size = new System.Drawing.Size(15, 14);
-			this.CPenalty.TabIndex = 30;
-			this.CPenalty.UseVisualStyleBackColor = true;
-			this.CPenalty.CheckedChanged += new System.EventHandler(this.CPenalty_CheckedChanged);
-			// 
-			// BPenalty
-			// 
-			this.BPenalty.AutoSize = true;
-			this.BPenalty.Enabled = false;
-			this.BPenalty.Location = new System.Drawing.Point(121, 116);
-			this.BPenalty.Name = "BPenalty";
-			this.BPenalty.Size = new System.Drawing.Size(15, 14);
-			this.BPenalty.TabIndex = 29;
-			this.BPenalty.UseVisualStyleBackColor = true;
-			this.BPenalty.CheckedChanged += new System.EventHandler(this.BPenalty_CheckedChanged);
-			// 
-			// BBPenalty
-			// 
-			this.BBPenalty.AutoSize = true;
-			this.BBPenalty.Enabled = false;
-			this.BBPenalty.Location = new System.Drawing.Point(121, 90);
-			this.BBPenalty.Name = "BBPenalty";
-			this.BBPenalty.Size = new System.Drawing.Size(15, 14);
-			this.BBPenalty.TabIndex = 28;
-			this.BBPenalty.UseVisualStyleBackColor = true;
-			this.BBPenalty.CheckedChanged += new System.EventHandler(this.BBPenalty_CheckedChanged);
-			// 
-			// APenalty
-			// 
-			this.APenalty.AutoSize = true;
-			this.APenalty.Checked = true;
-			this.APenalty.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.APenalty.Enabled = false;
-			this.APenalty.Location = new System.Drawing.Point(121, 64);
-			this.APenalty.Name = "APenalty";
-			this.APenalty.Size = new System.Drawing.Size(15, 14);
-			this.APenalty.TabIndex = 27;
-			this.APenalty.UseVisualStyleBackColor = true;
-			this.APenalty.CheckedChanged += new System.EventHandler(this.APenalty_CheckedChanged);
-			// 
-			// AAAPenalty
-			// 
-			this.AAAPenalty.AutoSize = true;
-			this.AAAPenalty.Checked = true;
-			this.AAAPenalty.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.AAAPenalty.Enabled = false;
-			this.AAAPenalty.Location = new System.Drawing.Point(121, 38);
-			this.AAAPenalty.Name = "AAAPenalty";
-			this.AAAPenalty.Size = new System.Drawing.Size(15, 14);
-			this.AAAPenalty.TabIndex = 26;
-			this.AAAPenalty.UseVisualStyleBackColor = true;
-			this.AAAPenalty.CheckedChanged += new System.EventHandler(this.AAAPenalty_CheckedChanged);
-			// 
-			// label5
-			// 
-			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(179, 13);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(37, 13);
-			this.label5.TabIndex = 25;
-			this.label5.Text = "Bonus";
-			// 
-			// label4
-			// 
-			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(118, 13);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(42, 13);
-			this.label4.TabIndex = 24;
-			this.label4.Text = "Penalty";
-			// 
-			// IPoints
-			// 
-			this.IPoints.Enabled = false;
-			this.IPoints.Location = new System.Drawing.Point(69, 299);
-			this.IPoints.Name = "IPoints";
-			this.IPoints.Size = new System.Drawing.Size(33, 20);
-			this.IPoints.TabIndex = 23;
-			this.IPoints.ValueChanged += new System.EventHandler(this.IPoints_ValueChanged);
-			// 
-			// IName
-			// 
-			this.IName.Location = new System.Drawing.Point(9, 298);
-			this.IName.Name = "IName";
-			this.IName.Size = new System.Drawing.Size(48, 20);
-			this.IName.TabIndex = 22;
-			this.IName.Text = "I";
-			this.IName.TextChanged += new System.EventHandler(this.IName_TextChanged);
-			// 
-			// HPoints
-			// 
-			this.HPoints.Enabled = false;
-			this.HPoints.Location = new System.Drawing.Point(69, 273);
-			this.HPoints.Name = "HPoints";
-			this.HPoints.Size = new System.Drawing.Size(33, 20);
-			this.HPoints.TabIndex = 21;
-			this.HPoints.ValueChanged += new System.EventHandler(this.HPoints_ValueChanged);
-			// 
-			// HName
-			// 
-			this.HName.Location = new System.Drawing.Point(9, 272);
-			this.HName.Name = "HName";
-			this.HName.Size = new System.Drawing.Size(48, 20);
-			this.HName.TabIndex = 20;
-			this.HName.Text = "H";
-			this.HName.TextChanged += new System.EventHandler(this.HName_TextChanged);
-			// 
-			// GPoints
-			// 
-			this.GPoints.Enabled = false;
-			this.GPoints.Location = new System.Drawing.Point(69, 247);
-			this.GPoints.Name = "GPoints";
-			this.GPoints.Size = new System.Drawing.Size(33, 20);
-			this.GPoints.TabIndex = 19;
-			this.GPoints.ValueChanged += new System.EventHandler(this.GPoints_ValueChanged);
-			// 
-			// GName
-			// 
-			this.GName.Location = new System.Drawing.Point(9, 246);
-			this.GName.Name = "GName";
-			this.GName.Size = new System.Drawing.Size(48, 20);
-			this.GName.TabIndex = 18;
-			this.GName.Text = "G";
-			this.GName.TextChanged += new System.EventHandler(this.GName_TextChanged);
-			// 
-			// FPoints
-			// 
-			this.FPoints.Enabled = false;
-			this.FPoints.Location = new System.Drawing.Point(69, 221);
-			this.FPoints.Name = "FPoints";
-			this.FPoints.Size = new System.Drawing.Size(33, 20);
-			this.FPoints.TabIndex = 17;
-			this.FPoints.ValueChanged += new System.EventHandler(this.FPoints_ValueChanged);
-			// 
-			// FName
-			// 
-			this.FName.Location = new System.Drawing.Point(9, 220);
-			this.FName.Name = "FName";
-			this.FName.Size = new System.Drawing.Size(48, 20);
-			this.FName.TabIndex = 16;
-			this.FName.Text = "F";
-			this.FName.TextChanged += new System.EventHandler(this.FName_TextChanged);
-			// 
-			// EPoints
-			// 
-			this.EPoints.Enabled = false;
-			this.EPoints.Location = new System.Drawing.Point(69, 195);
-			this.EPoints.Name = "EPoints";
-			this.EPoints.Size = new System.Drawing.Size(33, 20);
-			this.EPoints.TabIndex = 15;
-			this.EPoints.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.EPoints.ValueChanged += new System.EventHandler(this.EPoints_ValueChanged);
-			// 
-			// EName
-			// 
-			this.EName.Location = new System.Drawing.Point(9, 194);
-			this.EName.Name = "EName";
-			this.EName.Size = new System.Drawing.Size(48, 20);
-			this.EName.TabIndex = 14;
-			this.EName.Text = "E";
-			this.EName.TextChanged += new System.EventHandler(this.EName_TextChanged);
-			// 
-			// DPoints
-			// 
-			this.DPoints.Enabled = false;
-			this.DPoints.Location = new System.Drawing.Point(69, 169);
-			this.DPoints.Name = "DPoints";
-			this.DPoints.Size = new System.Drawing.Size(33, 20);
-			this.DPoints.TabIndex = 13;
-			this.DPoints.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-			this.DPoints.ValueChanged += new System.EventHandler(this.DPoints_ValueChanged);
-			// 
-			// DName
-			// 
-			this.DName.Location = new System.Drawing.Point(9, 168);
-			this.DName.Name = "DName";
-			this.DName.Size = new System.Drawing.Size(48, 20);
-			this.DName.TabIndex = 12;
-			this.DName.Text = "D";
-			this.DName.TextChanged += new System.EventHandler(this.DName_TextChanged);
-			// 
-			// CPoints
-			// 
-			this.CPoints.Enabled = false;
-			this.CPoints.Location = new System.Drawing.Point(69, 143);
-			this.CPoints.Name = "CPoints";
-			this.CPoints.Size = new System.Drawing.Size(33, 20);
-			this.CPoints.TabIndex = 11;
-			this.CPoints.Value = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-			this.CPoints.ValueChanged += new System.EventHandler(this.CPoints_ValueChanged);
-			// 
-			// CName
-			// 
-			this.CName.Location = new System.Drawing.Point(9, 142);
-			this.CName.Name = "CName";
-			this.CName.Size = new System.Drawing.Size(48, 20);
-			this.CName.TabIndex = 10;
-			this.CName.Text = "C";
-			this.CName.TextChanged += new System.EventHandler(this.CName_TextChanged);
-			// 
-			// BPoints
-			// 
-			this.BPoints.Enabled = false;
-			this.BPoints.Location = new System.Drawing.Point(69, 117);
-			this.BPoints.Name = "BPoints";
-			this.BPoints.Size = new System.Drawing.Size(33, 20);
-			this.BPoints.TabIndex = 9;
-			this.BPoints.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
-			this.BPoints.ValueChanged += new System.EventHandler(this.BPoints_ValueChanged);
-			// 
-			// BName
-			// 
-			this.BName.Location = new System.Drawing.Point(9, 116);
-			this.BName.Name = "BName";
-			this.BName.Size = new System.Drawing.Size(48, 20);
-			this.BName.TabIndex = 8;
-			this.BName.Text = "B";
-			this.BName.TextChanged += new System.EventHandler(this.BName_TextChanged);
-			// 
-			// BBPoints
-			// 
-			this.BBPoints.Enabled = false;
-			this.BBPoints.Location = new System.Drawing.Point(69, 91);
-			this.BBPoints.Name = "BBPoints";
-			this.BBPoints.Size = new System.Drawing.Size(33, 20);
-			this.BBPoints.TabIndex = 7;
-			this.BBPoints.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-			this.BBPoints.ValueChanged += new System.EventHandler(this.BBPoints_ValueChanged);
-			// 
-			// BBName
-			// 
-			this.BBName.Location = new System.Drawing.Point(9, 90);
-			this.BBName.Name = "BBName";
-			this.BBName.Size = new System.Drawing.Size(48, 20);
-			this.BBName.TabIndex = 6;
-			this.BBName.Text = "BB";
-			this.BBName.TextChanged += new System.EventHandler(this.BBName_TextChanged);
-			// 
-			// APoints
-			// 
-			this.APoints.Enabled = false;
-			this.APoints.Location = new System.Drawing.Point(69, 65);
-			this.APoints.Name = "APoints";
-			this.APoints.Size = new System.Drawing.Size(33, 20);
-			this.APoints.TabIndex = 5;
-			this.APoints.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-			this.APoints.ValueChanged += new System.EventHandler(this.APoints_ValueChanged);
-			// 
-			// AName
-			// 
-			this.AName.Location = new System.Drawing.Point(9, 64);
-			this.AName.Name = "AName";
-			this.AName.Size = new System.Drawing.Size(48, 20);
-			this.AName.TabIndex = 4;
-			this.AName.Text = "A";
-			this.AName.TextChanged += new System.EventHandler(this.AName_TextChanged);
-			// 
-			// AAAPoints
-			// 
-			this.AAAPoints.Enabled = false;
-			this.AAAPoints.Location = new System.Drawing.Point(69, 39);
-			this.AAAPoints.Name = "AAAPoints";
-			this.AAAPoints.Size = new System.Drawing.Size(33, 20);
-			this.AAAPoints.TabIndex = 3;
-			this.AAAPoints.Value = new decimal(new int[] {
-            6,
-            0,
-            0,
-            0});
-			this.AAAPoints.ValueChanged += new System.EventHandler(this.AAAPoints_ValueChanged);
-			// 
-			// AAAName
-			// 
-			this.AAAName.Location = new System.Drawing.Point(9, 38);
-			this.AAAName.Name = "AAAName";
-			this.AAAName.Size = new System.Drawing.Size(48, 20);
-			this.AAAName.TabIndex = 2;
-			this.AAAName.Text = "AAA";
-			this.AAAName.TextChanged += new System.EventHandler(this.AAAName_TextChanged);
-			// 
-			// label3
-			// 
-			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(66, 13);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(36, 13);
-			this.label3.TabIndex = 1;
-			this.label3.Text = "Points";
-			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(6, 13);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(36, 13);
-			this.label2.TabIndex = 0;
-			this.label2.Text = "Grade";
-			// 
 			// HandicapPage
 			// 
 			this.HandicapPage.Controls.Add(this.manualTeamCap);
@@ -1140,13 +525,14 @@ namespace Torn.UI
 			this.playerGradeAlias.AutoSize = true;
 			this.playerGradeAlias.Location = new System.Drawing.Point(61, 220);
 			this.playerGradeAlias.Name = "playerGradeAlias";
-			this.playerGradeAlias.Size = new System.Drawing.Size(68, 13);
+			this.playerGradeAlias.Size = new System.Drawing.Size(73, 13);
 			this.playerGradeAlias.TabIndex = 10;
-			this.playerGradeAlias.Text = "Player Grade";
+			this.playerGradeAlias.Text = "[player] Grade";
 			this.playerGradeAlias.Visible = false;
 			// 
 			// playerGradeBox
 			// 
+			this.playerGradeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.playerGradeBox.FormattingEnabled = true;
 			this.playerGradeBox.Location = new System.Drawing.Point(64, 236);
 			this.playerGradeBox.Name = "playerGradeBox";
@@ -1273,6 +659,56 @@ namespace Torn.UI
 			this.automaticHandicapEnabled.UseVisualStyleBackColor = true;
 			this.automaticHandicapEnabled.CheckedChanged += new System.EventHandler(this.automaticHandicapEnabled_CheckedChanged);
 			// 
+			// GradesPage
+			// 
+			this.GradesPage.Controls.Add(this.labelGrade);
+			this.GradesPage.Controls.Add(this.labelPoints);
+			this.GradesPage.Controls.Add(this.labelPenalty);
+			this.GradesPage.Controls.Add(this.labelBonus);
+			this.GradesPage.Location = new System.Drawing.Point(4, 22);
+			this.GradesPage.Name = "GradesPage";
+			this.GradesPage.Padding = new System.Windows.Forms.Padding(3);
+			this.GradesPage.Size = new System.Drawing.Size(265, 328);
+			this.GradesPage.TabIndex = 2;
+			this.GradesPage.Text = "Grades";
+			this.GradesPage.UseVisualStyleBackColor = true;
+			// 
+			// labelGrade
+			// 
+			this.labelGrade.AutoSize = true;
+			this.labelGrade.Location = new System.Drawing.Point(8, 9);
+			this.labelGrade.Name = "labelGrade";
+			this.labelGrade.Size = new System.Drawing.Size(36, 13);
+			this.labelGrade.TabIndex = 0;
+			this.labelGrade.Text = "Grade";
+			// 
+			// labelPoints
+			// 
+			this.labelPoints.AutoSize = true;
+			this.labelPoints.Location = new System.Drawing.Point(67, 9);
+			this.labelPoints.Name = "labelPoints";
+			this.labelPoints.Size = new System.Drawing.Size(36, 13);
+			this.labelPoints.TabIndex = 1;
+			this.labelPoints.Text = "Points";
+			// 
+			// labelPenalty
+			// 
+			this.labelPenalty.AutoSize = true;
+			this.labelPenalty.Location = new System.Drawing.Point(110, 9);
+			this.labelPenalty.Name = "labelPenalty";
+			this.labelPenalty.Size = new System.Drawing.Size(42, 13);
+			this.labelPenalty.TabIndex = 24;
+			this.labelPenalty.Text = "Penalty";
+			// 
+			// labelBonus
+			// 
+			this.labelBonus.AutoSize = true;
+			this.labelBonus.Location = new System.Drawing.Point(172, 9);
+			this.labelBonus.Name = "labelBonus";
+			this.labelBonus.Size = new System.Drawing.Size(37, 13);
+			this.labelBonus.TabIndex = 25;
+			this.labelBonus.Text = "Bonus";
+			// 
 			// buttonOK
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -1294,25 +730,6 @@ namespace Torn.UI
 			this.buttonCancel.TabIndex = 6;
 			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			// 
-			// labelHighScore
-			// 
-			this.labelHighScore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.labelHighScore.AutoSize = true;
-			this.labelHighScore.Location = new System.Drawing.Point(32, 248);
-			this.labelHighScore.Name = "labelHighScore";
-			this.labelHighScore.Size = new System.Drawing.Size(74, 13);
-			this.labelHighScore.TabIndex = 4;
-			this.labelHighScore.Text = "For high score";
-			// 
-			// numericHighScore
-			// 
-			this.numericHighScore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.numericHighScore.Location = new System.Drawing.Point(110, 246);
-			this.numericHighScore.Name = "numericHighScore";
-			this.numericHighScore.Size = new System.Drawing.Size(60, 20);
-			this.numericHighScore.TabIndex = 5;
-			this.numericHighScore.ValueChanged += new System.EventHandler(this.NumericHighScore_ValueChanged);
 			// 
 			// FormLeague
 			// 
@@ -1340,21 +757,9 @@ namespace Torn.UI
 			this.tabControl1.ResumeLayout(false);
 			this.leaguePage.ResumeLayout(false);
 			this.leaguePage.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).EndInit();
 			this.groupBoxHandicapStyle.ResumeLayout(false);
 			this.scoresPage.ResumeLayout(false);
-			this.GradesPage.ResumeLayout(false);
-			this.GradesPage.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.IPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.HPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.GPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.FPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.EPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.DPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.CPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.BPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.BBPoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.APoints)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.AAAPoints)).EndInit();
 			this.HandicapPage.ResumeLayout(false);
 			this.HandicapPage.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.manualTeamCap)).EndInit();
@@ -1362,7 +767,8 @@ namespace Torn.UI
 			((System.ComponentModel.ISupportInitialize)(this.extraAPenalty)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.missingPlayerPenalty)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.teamSize)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).EndInit();
+			this.GradesPage.ResumeLayout(false);
+			this.GradesPage.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -1402,54 +808,10 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem deletePlayerMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem reIDPlayerMenuItem;
         private System.Windows.Forms.TabPage GradesPage;
-        private System.Windows.Forms.NumericUpDown IPoints;
-        private System.Windows.Forms.TextBox IName;
-        private System.Windows.Forms.NumericUpDown HPoints;
-        private System.Windows.Forms.TextBox HName;
-        private System.Windows.Forms.NumericUpDown GPoints;
-        private System.Windows.Forms.TextBox GName;
-        private System.Windows.Forms.NumericUpDown FPoints;
-        private System.Windows.Forms.TextBox FName;
-        private System.Windows.Forms.NumericUpDown EPoints;
-        private System.Windows.Forms.TextBox EName;
-        private System.Windows.Forms.NumericUpDown DPoints;
-        private System.Windows.Forms.TextBox DName;
-        private System.Windows.Forms.NumericUpDown CPoints;
-        private System.Windows.Forms.TextBox CName;
-        private System.Windows.Forms.NumericUpDown BPoints;
-        private System.Windows.Forms.TextBox BName;
-        private System.Windows.Forms.NumericUpDown BBPoints;
-        private System.Windows.Forms.TextBox BBName;
-        private System.Windows.Forms.NumericUpDown APoints;
-        private System.Windows.Forms.TextBox AName;
-        private System.Windows.Forms.NumericUpDown AAAPoints;
-        private System.Windows.Forms.TextBox AAAName;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.CheckBox IBonus;
-        private System.Windows.Forms.CheckBox HBonus;
-        private System.Windows.Forms.CheckBox GBonus;
-        private System.Windows.Forms.CheckBox FBonus;
-        private System.Windows.Forms.CheckBox EBonus;
-        private System.Windows.Forms.CheckBox DBonus;
-        private System.Windows.Forms.CheckBox CBonus;
-        private System.Windows.Forms.CheckBox BBonus;
-        private System.Windows.Forms.CheckBox BBBonus;
-        private System.Windows.Forms.CheckBox ABonus;
-        private System.Windows.Forms.CheckBox AAABonus;
-        private System.Windows.Forms.CheckBox IPenalty;
-        private System.Windows.Forms.CheckBox HPenalty;
-        private System.Windows.Forms.CheckBox GPenalty;
-        private System.Windows.Forms.CheckBox FPenalty;
-        private System.Windows.Forms.CheckBox EPenalty;
-        private System.Windows.Forms.CheckBox DPenalty;
-        private System.Windows.Forms.CheckBox CPenalty;
-        private System.Windows.Forms.CheckBox BPenalty;
-        private System.Windows.Forms.CheckBox BBPenalty;
-        private System.Windows.Forms.CheckBox APenalty;
-        private System.Windows.Forms.CheckBox AAAPenalty;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label labelPoints;
+        private System.Windows.Forms.Label labelGrade;
+        private System.Windows.Forms.Label labelBonus;
+        private System.Windows.Forms.Label labelPenalty;
         private System.Windows.Forms.TabPage HandicapPage;
         private System.Windows.Forms.CheckBox automaticHandicapEnabled;
         private System.Windows.Forms.Label label6;
