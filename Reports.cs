@@ -949,11 +949,13 @@ namespace Torn.Report
 				report.AddRow(new ZRow()).Add(new ZCell(report.Rows.Count));  // Rank
 
 			List<TeamLadderEntry> previousLadder = null;
+			string previousGroupName = "";
 			for (int group = 0; group < groups.Count(); group++)  // for each group of games
 			{
 				string groupName = groups[group]?.ToLower() ?? "";
 
-				if ((groupName.Contains("final") && !groupName.Contains("semi")) || groupName.Contains("repechage") || groupName.Contains("repêchage"))
+				if ((groupName.Contains("final") && !groupName.Contains("semi")) || groupName.StartsWith("rep ") || groupName.Contains("repechage") || groupName.Contains("repêchage") || 
+						previousGroupName.StartsWith("rep ") || previousGroupName.Contains("repechage") || previousGroupName.Contains("repêchage"))
 					groupGames.Clear();  // Disregard previous results -- use only results from this round to rank.
 
 				var thisGroupGames = games.Where(g => g.Title == groups[group]).ToList();
@@ -1064,10 +1066,11 @@ namespace Torn.Report
 							row.Add(new ZCell(gamesPlayedThisGroup));  // Games
 							row.Add(new ZCell());  // Arrow
 
-							MultiLadderArrow(report, teamCell, group, columnsPerGroup, t);
+							MultiLadderArrow(report, teamCell, group, columnsPerGroup, t + offset);
 						}
 					}
 				}
+				previousGroupName = groupName;
 			}
 
 			report.RemoveZeroColumns();
