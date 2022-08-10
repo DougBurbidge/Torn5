@@ -1445,7 +1445,7 @@ namespace Zoom
 					s.Append("\t<text alignment-baseline=\"middle\" ");
 
 					s.AppendFormat("text-anchor=\"end\" x=\"{0:F0}\" y=\"{1:F0}\" width=\"{2:F0}\" transform=\"rotate(90 {0:F0},{1:F0})\" font-size=\"{3}\" fill=\"",
-									x + widths[col] / 2, rowTop + headerHeight - 3, headerHeight, Math.Min(rowHeight * 3 / 4, widths[col]));
+									x + widths[col] / 2 - rowHeight / 4, rowTop + headerHeight - rowHeight / 4, headerHeight, Math.Min(rowHeight * 3 / 4, widths[col]));
 					s.Append(System.Drawing.ColorTranslator.ToHtml(textColor));
 					s.Append("\">");
 
