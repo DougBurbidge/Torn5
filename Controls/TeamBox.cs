@@ -321,13 +321,11 @@ namespace Torn.UI
 			int index = League.Teams.FindIndex(leagueTeam => leagueTeam.Name == LeagueTeam.Name);
 			LeagueTeam.Name = InputDialog.GetInput("Name: ", "Set a team name", LeagueTeam.Name);
 			ListView.Columns[1].Text = LeagueTeam == null ? "Players" : LeagueTeam.Name;
-			League.Load(League.FileName);
-
-
 
 			League.Teams[index].Name = LeagueTeam.Name;
 
 			League.Save();
+			League.Load(League.FileName);
 		}
 
 		void MenuRememberTeamClick(object sender, EventArgs e)
