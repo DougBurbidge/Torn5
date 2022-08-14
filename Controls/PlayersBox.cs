@@ -54,10 +54,16 @@ namespace Torn.UI
 
 					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
 
+					bool isNewPlayer = league != null && league.Players.Find(p => p.Id == player.PlayerId) == null;
+
 					ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
-					if ((player.Grade == null && league != null && league.IsAutoHandicap) || isRichoCard)
+					if ((player.Grade == null && league != null && league.isAutoHandicap) )
                     {
 						item.BackColor = Color.FromName("yellow");
+					}
+					if (isNewPlayer)
+					{
+						item.BackColor = Color.FromName("lightgreen");
 					}
 					item.SubItems.Add(alias);
 					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
