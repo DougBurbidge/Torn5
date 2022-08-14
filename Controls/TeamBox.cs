@@ -141,7 +141,7 @@ namespace Torn.UI
 						ListView.Columns[3].Text = leagueTeam.Handicap.ToString();
 					}
 				}
-				score = League.CalculateScore(GameTeam);
+				score = League.CalculateScore(tempTeam);
 			} else
             {
 				score = 0;
