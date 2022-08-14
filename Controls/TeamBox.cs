@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -132,7 +133,7 @@ namespace Torn.UI
             {
 				if (League.IsAutoHandicap)
 				{
-					ListView.Columns[3].Text = League.CalulateTeamCap(GameTeam).ToString() + "%";
+					ListView.Columns[3].Text = League.CalulateTeamCap(tempTeam).ToString() + "%";
 				} else
                 {
 					LeagueTeam leagueTeam = GetLeagueTeamFromFile();
@@ -417,9 +418,31 @@ namespace Torn.UI
 
 			Recalculate(false);
 		}
-	}
 
-	class SortByScore : IComparer
+        private void changeAliasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+			int playerIndex = League.Players.FindIndex(p => p.Id == player.PlayerId);
+			if (playerIndex >= 0)
+			{
+				string alias = InputDialog.GetInput("Rename Player", "Update players alias in league", player.Alias);
+				League.Players[playerIndex].Name = alias;
+				League.Save();
+
+				bool isChangedAlias = League.Players.Find(p => p.Name == player.Alias) == null;
+
+				ListView.SelectedItems[0].BackColor = isChangedAlias ? Color.FromName("orange") : Color.FromName("white");
+				ListView.SelectedItems[0].ToolTipText = isChangedAlias ? "Player Alias does not match saved alias for player.\n" + "Server: " + player.Alias + " League: " + League.Players[playerIndex].Name : "";
+
+				ListView.SelectedItems[0].SubItems[1].Text = alias;
+			} else
+            {
+				MessageBox.Show("Could not find player in league");
+            }
+		}
+    }
+
+    class SortByScore : IComparer
 	{
 		int IComparer.Compare(object x, object y)
 		{
