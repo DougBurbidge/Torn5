@@ -39,7 +39,7 @@ namespace Torn.UI
 			if (serverGame.Players != null)
 				foreach (var player in serverGame.Players)
 				{
-					league.Load(league.FileName);
+					league?.Load(league?.FileName);
 					LeaguePlayer leaguePlayer = league?.Players?.Find(p => p.Id == player.PlayerId);
 					GamePlayer gamePlayer = league?.Games(false)?.Find(g => g.Time == serverGame.Time)?.Players()?.Find(p => p.PlayerId == player.PlayerId);
 					if(gamePlayer != null && gamePlayer.Grade != null)
@@ -61,7 +61,7 @@ namespace Torn.UI
 					string tooltip = "";
 
 					ListViewItem item = new ListViewItem(player.Pack, (int)player.Colour);
-					if ((player.Grade == null && league != null && league.isAutoHandicap) )
+					if ((player.Grade == null && league != null && league.IsAutoHandicap) )
                     {
 						item.BackColor = Color.FromName("yellow");
 						tooltip += "No grade found on player.";

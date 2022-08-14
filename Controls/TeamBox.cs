@@ -173,6 +173,7 @@ namespace Torn.UI
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
 			menuAdjustPlayerScore.Enabled = ListView.SelectedItems.Count == 1;
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
+			changeAliasToolStripMenuItem.Enabled = League != null;
 			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.IsAutoHandicap && LeagueTeam != null;
 			//menuAdjustTeamScore.Enabled = always true.
 
