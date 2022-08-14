@@ -1454,5 +1454,38 @@ namespace Torn.UI
 			Directory.CreateDirectory(path);
 			doc.Save(Path.Combine(path, "Torn5.Settings"));
 		}
-	}
+
+		private void exportJSONToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			League league = activeHolder?.League;
+			Console.WriteLine(sender);
+			Console.WriteLine(e);
+
+			List<ServerGame> serverGames = new List<ServerGame>();
+
+			foreach(ListViewItem item in listViewGames.SelectedItems)
+            {
+				if (item.Tag is ServerGame serverGame)
+				{
+					laserGameServer.PopulateGame(serverGame);
+					serverGames.Add(serverGame);
+				}
+			}
+
+			if (GetExportFolder())
+			{
+				Cursor.Current = Cursors.WaitCursor;
+				progressBar1.Value = 0;
+				try
+				{
+					webOutput.ExportGamesToJSON(exportFolder, serverGames, ProgressBar);
+				}
+				finally
+				{
+					FinishProgress();
+				}
+			}
+
+		}
+    }
 }

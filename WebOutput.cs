@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using Zoom;
+using Newtonsoft.Json.Linq;
 
 namespace Torn.Report
 {
@@ -583,6 +584,28 @@ xhr.send();
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\players.json")))
 					sw.Write(RestPlayers(""));
 				myProgress.Increment("Players list exported.");
+			}
+		}
+
+		public void ExportGamesToJSON(string path, List<ServerGame> games, ShowProgress progress = null)
+        {
+			if (path != null)
+			{
+				Progress myProgress = new Progress() { Denominator = games.Count + 2, ShowProgress = progress };
+
+				Directory.CreateDirectory(Path.Combine(path, "json"));
+
+				Console.WriteLine("Here");
+
+				foreach (var game in games)
+				{
+					Console.WriteLine(game.ToString());
+					JObject output = JObject.FromObject(game);
+					Console.WriteLine(output.ToString());
+					using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\game" + game.Time.ToString("yyyy-MM-ddTHH_mm_ss") + ".json")))
+						sw.Write(output.ToString());
+					myProgress.Increment("Game" + game.Time.ToString("yyyy-MM-ddTHH-mm-ss") + " exported.");
+				}
 			}
 		}
 	}

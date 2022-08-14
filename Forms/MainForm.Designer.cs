@@ -100,6 +100,7 @@ namespace Torn.UI
             this.timerGame = new System.Windows.Forms.Timer(this.components);
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.printDialog = new System.Windows.Forms.PrintDialog();
+            this.exportJSONToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.panelGames.SuspendLayout();
             this.contextMenuStripGames.SuspendLayout();
@@ -525,28 +526,29 @@ namespace Torn.UI
             this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.commitToolStripMenuItem,
             this.setDescriptionToolStripMenuItem,
-            this.forgetToolStripMenuItem});
+            this.forgetToolStripMenuItem,
+            this.exportJSONToolStripMenuItem});
             this.contextMenuStripGames.Name = "contextMenuStripGames";
-            this.contextMenuStripGames.Size = new System.Drawing.Size(154, 70);
+            this.contextMenuStripGames.Size = new System.Drawing.Size(181, 114);
             // 
             // commitToolStripMenuItem
             // 
             this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
-            this.commitToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.commitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.commitToolStripMenuItem.Text = "Commit";
             this.commitToolStripMenuItem.Click += new System.EventHandler(this.ButtonCommitClick);
             // 
             // setDescriptionToolStripMenuItem
             // 
             this.setDescriptionToolStripMenuItem.Name = "setDescriptionToolStripMenuItem";
-            this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.setDescriptionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.setDescriptionToolStripMenuItem.Text = "Set Description";
             this.setDescriptionToolStripMenuItem.Click += new System.EventHandler(this.ButtonSetDescriptionClick);
             // 
             // forgetToolStripMenuItem
             // 
             this.forgetToolStripMenuItem.Name = "forgetToolStripMenuItem";
-            this.forgetToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.forgetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.forgetToolStripMenuItem.Text = "Forget";
             this.forgetToolStripMenuItem.Click += new System.EventHandler(this.ButtonForgetClick);
             // 
@@ -712,6 +714,13 @@ namespace Torn.UI
             // 
             this.printDialog.AllowSomePages = true;
             // 
+            // exportJSONToolStripMenuItem
+            // 
+            this.exportJSONToolStripMenuItem.Name = "exportJSONToolStripMenuItem";
+            this.exportJSONToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportJSONToolStripMenuItem.Text = "Export JSON";
+            this.exportJSONToolStripMenuItem.Click += new System.EventHandler(this.exportJSONToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -799,5 +808,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem setDescriptionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem forgetToolStripMenuItem;
 		private System.Windows.Forms.RibbonButton ribbonButtonExportJson;
-	}
+        private System.Windows.Forms.ToolStripMenuItem exportJSONToolStripMenuItem;
+    }
 }
