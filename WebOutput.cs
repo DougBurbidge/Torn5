@@ -627,6 +627,8 @@ xhr.send();
 						playersJSON.Add(obj);
 					}
 
+					gameJSON.Add(new JProperty("Title", game.Description));
+					gameJSON.Add(new JProperty("Time", game.Time));
 					gameJSON.Add(new JProperty("Players", playersJSON));
 					gameJSON.Add(new JProperty("Events", eventsJSON));
 
