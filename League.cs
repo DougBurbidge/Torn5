@@ -372,6 +372,16 @@ namespace Torn
 
 		public static Comparison<GameTeam> CompareTime = (gameTeam1, gameTeam2) => gameTeam1.Time.CompareTo(gameTeam2.Time);
 
+		public int GetHitsBy()
+        {
+			int hitsBy = 0;
+			foreach(GamePlayer player in players)
+            {
+				hitsBy += player.HitsBy;
+            }
+			return hitsBy;
+        }
+
 		public override string ToString()
 		{
 			return "GameTeam " + (TeamId ?? -1).ToString() + " " + Score.ToString();
@@ -988,7 +998,7 @@ namespace Torn
 			serverGame.League = this;
 
 			foreach (var teamData in teamDatas)
-				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam, groupPlayersBy);
+				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam, groupPlayersBy, serverGame.Description);
 
 			Save();
 			return debug.ToString();
@@ -1707,15 +1717,22 @@ namespace Torn
 			return new Handicap(cap, HandicapStyle.Percent).Apply(score);
 		}
 
-		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy)
+		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy, string gameTitle = "")
 		{
-			var game = Game(gameTeam);
+			Game game = Game(gameTeam);
 			if (game != null)
 			{
+				bool isBaseFlags = gameTitle == "Base Flags";
 				var relevantTeams = (groupPlayersBy == GroupPlayersBy.Lotr ?  // For Lord of the Ring we want just "teams" of this colour. For other modes, we want all teams. 
 				                     game.Teams.Where(t => t.Colour == gameTeam.Colour) : game.Teams).OrderBy(x => -x.Score).ToList();
 
-				var ties = relevantTeams.Where(t => t.Score == gameTeam.Score);  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
+				Console.WriteLine(gameTitle);
+				if(isBaseFlags)
+                {
+					relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetHitsBy());
+				}
+				
+				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((isBaseFlags && t.GetHitsBy() == gameTeam.GetHitsBy()) || !isBaseFlags));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
 
 				double totalPoints = 0;
 				foreach (var team in ties)
