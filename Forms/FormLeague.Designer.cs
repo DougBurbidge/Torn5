@@ -86,6 +86,7 @@ namespace Torn.UI
 			this.labelBonus = new System.Windows.Forms.Label();
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonCancel = new System.Windows.Forms.Button();
+			this.hitsTieBreak = new System.Windows.Forms.CheckBox();
 			this.contextMenuStrip1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -304,6 +305,7 @@ namespace Torn.UI
 			// 
 			// leaguePage
 			// 
+			this.leaguePage.Controls.Add(this.hitsTieBreak);
 			this.leaguePage.Controls.Add(this.numericHighScore);
 			this.leaguePage.Controls.Add(this.labelHighScore);
 			this.leaguePage.Controls.Add(this.groupBoxHandicapStyle);
@@ -732,10 +734,22 @@ namespace Torn.UI
 			this.buttonCancel.TabIndex = 6;
 			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
-			// 
-			// FormLeague
-			// 
-			this.AcceptButton = this.buttonOK;
+            // 
+            // hitsTieBreak
+            // 
+            this.hitsTieBreak.AutoSize = true;
+            this.hitsTieBreak.Enabled = false;
+            this.hitsTieBreak.Location = new System.Drawing.Point(130, 49);
+            this.hitsTieBreak.Name = "hitsTieBreak";
+            this.hitsTieBreak.Size = new System.Drawing.Size(93, 17);
+            this.hitsTieBreak.TabIndex = 4;
+            this.hitsTieBreak.Text = "Hits Tie Break";
+            this.hitsTieBreak.UseVisualStyleBackColor = true;
+            this.hitsTieBreak.CheckedChanged += new System.EventHandler(this.hitsTieBreak_CheckedChanged);
+            // 
+            // FormLeague
+            // 
+            this.AcceptButton = this.buttonOK;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.buttonCancel;
@@ -828,6 +842,7 @@ namespace Torn.UI
         private System.Windows.Forms.ComboBox playerGradeBox;
         private System.Windows.Forms.NumericUpDown manualTeamCap;
         private System.Windows.Forms.Label manualTeamCapLabel;
+        private System.Windows.Forms.CheckBox hitsTieBreak;
 		private System.Windows.Forms.NumericUpDown numericHighScore;
 		private System.Windows.Forms.Label labelHighScore;
 	}

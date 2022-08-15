@@ -51,6 +51,8 @@ namespace Torn.UI
 
 			totalScore.Checked = League.VictoryPoints.Count == 0;
 			victoryPoints.Checked = League.VictoryPoints.Any();
+			hitsTieBreak.Checked = League.hitsTieBreak;
+			hitsTieBreak.Enabled = victoryPoints.Checked;
 
 			for (int i = 0; i < League.VictoryPoints.Count; i++)
 				SetVictoryBox(i, League.VictoryPoints[i]);
@@ -479,5 +481,10 @@ namespace Torn.UI
 		{
 			League.ExtraGBonus = (int)extraGBonus.Value;
 		}
-	}
+
+        private void hitsTieBreak_CheckedChanged(object sender, EventArgs e)
+        {
+			League.hitsTieBreak = hitsTieBreak.Checked;
+        }
+    }
 }

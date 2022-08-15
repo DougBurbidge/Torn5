@@ -699,6 +699,8 @@ namespace Torn
 
 		Collection<double> victoryPoints;
 		public Collection<double> VictoryPoints { get { return victoryPoints; } }
+
+		public bool hitsTieBreak { get; set; }
 		
 		public double VictoryPointsHighScore { get; set; }
 		public double VictoryPointsProportional { get; set; }
@@ -1108,6 +1110,7 @@ namespace Torn
 			ExtraAPenalty = root.GetDecimal("ExtraAPenalty");
 			ExtraGBonus = root.GetDecimal("ExtraGBonus");
 			IsAutoHandicap = root.GetInt("AutoHandicap") > 0;
+			hitsTieBreak = root.GetInt("HitsTieBreak") > 0;
 
 			ExpectedTeamSize = teamSize == 0 ? 5 : teamSize;
 
@@ -1312,6 +1315,7 @@ namespace Torn
 			doc.AppendNode(bodyNode, "MissingPlayerPenalty", MissingPlayerPenalty.ToString());
 			doc.AppendNode(bodyNode, "ExtraAPenalty", ExtraAPenalty.ToString());
 			doc.AppendNode(bodyNode, "ExtraGBonus", ExtraGBonus.ToString());
+			doc.AppendNode(bodyNode, "HitsTieBreak", hitsTieBreak ? 1 : 0);
 
 			XmlNode gradesNode = doc.CreateElement("grades");
 			bodyNode.AppendChild(gradesNode);
@@ -1722,17 +1726,16 @@ namespace Torn
 			Game game = Game(gameTeam);
 			if (game != null)
 			{
-				bool isBaseFlags = gameTitle == "Base Flags";
 				var relevantTeams = (groupPlayersBy == GroupPlayersBy.Lotr ?  // For Lord of the Ring we want just "teams" of this colour. For other modes, we want all teams. 
 				                     game.Teams.Where(t => t.Colour == gameTeam.Colour) : game.Teams).OrderBy(x => -x.Score).ToList();
 
 				Console.WriteLine(gameTitle);
-				if(isBaseFlags)
+				if(hitsTieBreak)
                 {
 					relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetHitsBy());
 				}
 				
-				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((isBaseFlags && t.GetHitsBy() == gameTeam.GetHitsBy()) || !isBaseFlags));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
+				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((hitsTieBreak && t.GetHitsBy() == gameTeam.GetHitsBy()) || !hitsTieBreak));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
 
 				double totalPoints = 0;
 				foreach (var team in ties)

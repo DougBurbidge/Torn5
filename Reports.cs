@@ -616,9 +616,16 @@ namespace Torn.Report
 					};  // team name
 					row.Add(teamCell);
 					ZCell scoreCell = new ZCell(gameTeam.Score, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
+					
 					row.Add(scoreCell);
 					teamCell.ChartCell = scoreCell;
 					scoreCell.ChartCell = scoreCell;
+					if (league.hitsTieBreak)
+					{
+						ZCell hitsCell = new ZCell(gameTeam.GetHitsBy(), ChartType.Bar, "N0", gameTeam.Colour.ToColor());
+						row.Add(hitsCell);
+						hitsCell.ChartCell = hitsCell;
+					}
 					if (league.IsPoints())  // there are victory points for this league
 					{
 						if (game.IsPoints())
@@ -665,6 +672,8 @@ namespace Torn.Report
 			{
 				report.AddColumn(new ZColumn("Team", ZAlignment.Left));
 				report.AddColumn(new ZColumn("Score", ZAlignment.Right));
+				if(league.hitsTieBreak)
+					report.AddColumn(new ZColumn("Hits", ZAlignment.Right));
 				if (league.IsPoints())  // there are victory points for this league
 					report.AddColumn(new ZColumn("Pts", ZAlignment.Right));
 				else
@@ -734,6 +743,12 @@ namespace Torn.Report
 					teamsRow.Add(scoreCell);
 					teamCell.ChartCell = scoreCell;
 					scoreCell.ChartCell = scoreCell;
+					if (league.hitsTieBreak)
+					{
+						ZCell hitsCell = new ZCell(gameTeam.GetHitsBy(), ChartType.Bar, "N0", gameTeam.Colour.ToColor());
+						row.Add(hitsCell);
+						hitsCell.ChartCell = hitsCell;
+					}
 					if (league.IsPoints())  // there are victory points for this league
 					{
 						if (game.IsPoints())
@@ -769,13 +784,21 @@ namespace Torn.Report
 							};
 							if (league.VictoryPointsHighScore != 0 && player.Score == maxScore)
 								scoreCell.Border = Color.Black;
+
 							playersRow.Add(scoreCell);
+							if (league.hitsTieBreak)
+							{
+								ZCell hitsCell = new ZCell(player.HitsBy, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
+								playersRow.Add(hitsCell);
+							}
 						}
 						else
                         {
 							playersRow.Add(new ZCell());
 							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
+							if (league.hitsTieBreak)
+								currentRow.Add((new ZCell("", gameTeam.Colour.ToColor()));
 						}
 					}
 
@@ -818,6 +841,8 @@ namespace Torn.Report
 			{
 				report.AddColumn(new ZColumn("Team", ZAlignment.Left));
 				report.AddColumn(new ZColumn("Score", ZAlignment.Right));
+				if (league.hitsTieBreak)
+					report.AddColumn(new ZColumn("Hits", ZAlignment.Right));
 				if (league.IsPoints())  // there are victory points for this league
 					report.AddColumn(new ZColumn("Pts", ZAlignment.Right));
 				else
