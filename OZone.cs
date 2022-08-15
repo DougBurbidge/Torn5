@@ -231,8 +231,16 @@ namespace Torn
 			eventNames.Add(33, "Tagged by Base");
 			eventNames.Add(34, "Tagged by Mine");
 
-			eventNames.Add(61, "Denied Player");
-			eventNames.Add(63, "Denied");
+			eventNames.Add(55, "Locked on");
+			eventNames.Add(56, "Launch Missile");
+			eventNames.Add(57, "Missile Tag");
+
+			eventNames.Add(60, "Denied Ally");
+			eventNames.Add(61, "Denied Foe");
+			eventNames.Add(62, "Denied by Ally");
+			eventNames.Add(63, "Denied by Foe");
+			eventNames.Add(64, "Denied by Timeout");
+			eventNames.Add(65, "Assist Denied Foe");
 
 			if (root["events"] != null)
 			{
