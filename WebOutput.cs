@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Torn.Report
 {
+
 	public delegate void ShowProgress (double progress, string status = "");
 
 	public class Progress
@@ -599,11 +600,37 @@ xhr.send();
 
 				foreach (var game in games)
 				{
-					Console.WriteLine(game.ToString());
-					JObject output = JObject.FromObject(game);
-					Console.WriteLine(output.ToString());
+
+					JObject gameJSON = new JObject();
+
+					JArray eventsJSON = new JArray();
+					JArray playersJSON = new JArray();
+
+					List<Event> sortedEvents = game.Events.OrderBy(e => e.Time).ToList();
+
+					foreach (Event ev in sortedEvents)
+					{
+						JObject obj = JObject.FromObject(ev);
+
+                        string playerAlias = game.Players.Find(p => p.ServerPlayerId == ev.ServerPlayerId)?.Alias;
+                        string otherPlayerAlias = game.Players.Find(p => p.ServerPlayerId == ev.OtherPlayer)?.Alias;
+
+						obj.Add(new JProperty("alias", playerAlias));
+						obj.Add(new JProperty("otherPlayerAlias", otherPlayerAlias));
+
+						eventsJSON.Add(obj);
+					}
+					foreach (GamePlayer player in game.Players)
+                    {
+						JObject obj = JObject.FromObject(player);
+						playersJSON.Add(obj);
+					}
+
+					gameJSON.Add(new JProperty("Players", playersJSON));
+					gameJSON.Add(new JProperty("Events", eventsJSON));
+
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\game" + game.Time.ToString("yyyy-MM-ddTHH_mm_ss") + ".json")))
-						sw.Write(output.ToString());
+						sw.Write(gameJSON.ToString());
 					myProgress.Increment("Game" + game.Time.ToString("yyyy-MM-ddTHH-mm-ss") + " exported.");
 				}
 			}

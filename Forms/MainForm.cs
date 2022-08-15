@@ -359,9 +359,10 @@ namespace Torn.UI
 
 		void ButtonCommitClick(object sender, EventArgs e)
 		{
+			List<ServerGame> serverGames = new List<ServerGame>();
+
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 			{
-
 				var teamDatas = new List<GameTeamData>();
 				var teamBoxes = TeamBoxes();
 				// Build a list, one TeamData per TeamBox, connecting each GameTeam to its ServerPlayers.
@@ -376,6 +377,9 @@ namespace Torn.UI
 				if (teamDatas.Any())
 				{
 					ServerGame serverGame = item.Tag as ServerGame;
+
+					laserGameServer.PopulateGame(serverGame);
+					serverGames.Add(serverGame);
 
 					activeHolder.League.CommitGame(serverGame, teamDatas, groupPlayersBy);
 
@@ -399,6 +403,20 @@ namespace Torn.UI
 					listViewGames.Focus();
 //					if (autoUpdateScoreboard)
 //						UpdateScoreboard();
+				}
+			}
+
+			if (GetExportFolder())
+			{
+				Cursor.Current = Cursors.WaitCursor;
+				progressBar1.Value = 0;
+				try
+				{
+					webOutput.ExportGamesToJSON(exportFolder, serverGames, ProgressBar);
+				}
+				finally
+				{
+					FinishProgress();
 				}
 			}
 		}
@@ -1458,8 +1476,6 @@ namespace Torn.UI
 		private void exportJSONToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			League league = activeHolder?.League;
-			Console.WriteLine(sender);
-			Console.WriteLine(e);
 
 			List<ServerGame> serverGames = new List<ServerGame>();
 

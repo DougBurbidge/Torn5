@@ -1739,6 +1739,7 @@ namespace Torn
 		public string QRCode { get; set; }  // QR code from O-Zone of player that this record is about
 		[JsonPropertyName("eventType")]
 		public int Event_Type { get; set; }  // see below
+		public string Event_Name { get; set; }
 
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public int Score { get; set; }  // points gained by shooter
