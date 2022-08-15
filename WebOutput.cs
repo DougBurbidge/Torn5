@@ -607,6 +607,7 @@ xhr.send();
 					JArray playersJSON = new JArray();
 
 					List<Event> sortedEvents = game.Events.OrderBy(e => e.Time).ToList();
+					List<ServerPlayer> sortedPlayers = game.Players.OrderBy(p => p.Colour).ThenBy(p => p.Rank).ToList();
 
 					foreach (Event ev in sortedEvents)
 					{
@@ -620,7 +621,7 @@ xhr.send();
 
 						eventsJSON.Add(obj);
 					}
-					foreach (GamePlayer player in game.Players)
+					foreach (ServerPlayer player in sortedPlayers)
                     {
 						JObject obj = JObject.FromObject(player);
 						playersJSON.Add(obj);

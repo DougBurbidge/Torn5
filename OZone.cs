@@ -290,6 +290,9 @@ namespace Torn
 					ServerPlayer serverPlayer = new ServerPlayer();
 					if (playerRoot["alias"] != null) serverPlayer.Alias = playerRoot["alias"].ToString();
 					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
+					if (playerRoot["wterm"] != null) serverPlayer.YellowCards = Int32.Parse(playerRoot["wterm"].ToString());
+					if (playerRoot["term"] != null) serverPlayer.RedCards = Int32.Parse(playerRoot["term"].ToString());
+					if (playerRoot["rank"] != null) serverPlayer.Rank = UInt32.Parse(playerRoot["rank"].ToString());
 					if (playerRoot["omid"] != null) 
 					{
 						string omid = playerRoot["omid"].ToString();
