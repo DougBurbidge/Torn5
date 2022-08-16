@@ -306,6 +306,7 @@ namespace Torn.UI
 			if (victory.Count == 0)
 				SetVictoryBox(0);
 			}
+			hitsTieBreak.Enabled = victoryPoints.Checked;
 		}
 
 		/// <summary>Ensure that there is an i'th victory points box, and set its value.</summary>

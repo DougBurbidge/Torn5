@@ -1660,7 +1660,6 @@ namespace Torn
             } else
             {
 				double score = 0;
-
 				foreach (var player in gameTeam.Players)
 					score += player.Score;
 

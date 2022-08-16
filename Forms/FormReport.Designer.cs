@@ -69,6 +69,7 @@ namespace Torn.UI
             this.title = new System.Windows.Forms.TextBox();
             this.longitudinal = new System.Windows.Forms.CheckBox();
             this.showGrades = new System.Windows.Forms.CheckBox();
+            this.showHits = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
             this.groupBoxDateRange.SuspendLayout();
@@ -544,6 +545,16 @@ namespace Torn.UI
             this.showGrades.Text = "show grades column";
             this.showGrades.UseVisualStyleBackColor = true;
             // 
+            // showHits
+            // 
+            this.showHits.Location = new System.Drawing.Point(12, 560);
+            this.showHits.Name = "showHits";
+            this.showHits.Size = new System.Drawing.Size(250, 24);
+            this.showHits.TabIndex = 24;
+            this.showHits.Tag = "ShowHits";
+            this.showHits.Text = "show hits";
+            this.showHits.UseVisualStyleBackColor = true;
+            // 
             // FormReport
             // 
             this.AcceptButton = this.buttonOK;
@@ -551,6 +562,7 @@ namespace Torn.UI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(564, 661);
+            this.Controls.Add(this.showHits);
             this.Controls.Add(this.showGrades);
             this.Controls.Add(this.longitudinal);
             this.Controls.Add(this.title);
@@ -628,5 +640,6 @@ namespace Torn.UI
 		private System.Windows.Forms.ComboBox descriptionGroup;
 		private System.Windows.Forms.CheckBox withDescription;
         private System.Windows.Forms.CheckBox showGrades;
+        private System.Windows.Forms.CheckBox showHits;
     }
 }

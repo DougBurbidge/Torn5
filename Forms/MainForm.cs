@@ -119,6 +119,8 @@ namespace Torn.UI
 
 		void MainFormShown(object sender, EventArgs e)
 		{
+			// Tries to export entire server could be 500 games and crashes everything
+			ribbonButtonExportJson.Enabled = false;
 			leagues = new Holders();
 			webPort = 8080;
 			systemType = SystemType.Demo;
