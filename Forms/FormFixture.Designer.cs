@@ -281,10 +281,10 @@ namespace Torn.UI
 			this.label2.TabIndex = 20;
 			this.label2.Text = "Enter a list of games, one game per line.\r\n(Date/time,teamnumber,teamnumber, ...)" +
     "";
-			// 
-			// textBoxGames
-			// 
-			this.textBoxGames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            // 
+            // textBoxGames
+            // 
+            this.textBoxGames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.textBoxGames.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -296,12 +296,12 @@ namespace Torn.UI
 			this.textBoxGames.TabIndex = 18;
 			this.textBoxGames.Text = "1/1/2000 7:00pm\t1\t2\t3\r\n1/1/2000 7:15pm\t2\t3\t4\r\n1/1/2000 7:30pm\t3\t4\t1\r\n1/1/2000 7:4" +
     "5pm\t2\t3\t4";
-			this.textBoxGames.WordWrap = false;
-			this.textBoxGames.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
-			// 
-			// tabControl1
-			// 
-			this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBoxGames.WordWrap = false;
+            this.textBoxGames.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
+            // 
+            // tabControl1
+            // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControl1.Controls.Add(this.tabTeams);
@@ -465,10 +465,10 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericMinutes.Name = "numericMinutes";
-			this.numericMinutes.Size = new System.Drawing.Size(61, 20);
-			this.numericMinutes.TabIndex = 30;
-			this.numericMinutes.Value = new decimal(new int[] {
+            this.numericMinutes.Name = "numericMinutes";
+            this.numericMinutes.Size = new System.Drawing.Size(61, 20);
+            this.numericMinutes.TabIndex = 30;
+            this.numericMinutes.Value = new decimal(new int[] {
             15,
             0,
             0,
@@ -561,19 +561,19 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericSize.Name = "numericSize";
-			this.numericSize.Size = new System.Drawing.Size(56, 20);
-			this.numericSize.TabIndex = 1;
-			this.numericSize.Value = new decimal(new int[] {
+            this.numericSize.Name = "numericSize";
+            this.numericSize.Size = new System.Drawing.Size(56, 20);
+            this.numericSize.TabIndex = 1;
+            this.numericSize.Value = new decimal(new int[] {
             15,
             0,
             0,
             0});
-			this.numericSize.ValueChanged += new System.EventHandler(this.NumericSizeValueChanged);
-			// 
-			// panelGraphic
-			// 
-			this.panelGraphic.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.numericSize.ValueChanged += new System.EventHandler(this.NumericSizeValueChanged);
+            // 
+            // panelGraphic
+            // 
+            this.panelGraphic.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.panelGraphic.Location = new System.Drawing.Point(6, 6);
@@ -621,145 +621,145 @@ namespace Torn.UI
 			this.displayReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.displayReportFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-			this.displayReportFinals.Location = new System.Drawing.Point(3, 70);
-			this.displayReportFinals.Name = "displayReportFinals";
-			this.displayReportFinals.Report = null;
-			this.displayReportFinals.Size = new System.Drawing.Size(1145, 559);
-			this.displayReportFinals.TabIndex = 14;
-			// 
-			// labelTeamsToSendUp
-			// 
-			this.labelTeamsToSendUp.AutoSize = true;
-			this.labelTeamsToSendUp.Location = new System.Drawing.Point(528, 5);
-			this.labelTeamsToSendUp.Name = "labelTeamsToSendUp";
-			this.labelTeamsToSendUp.Size = new System.Drawing.Size(174, 13);
-			this.labelTeamsToSendUp.TabIndex = 12;
-			this.labelTeamsToSendUp.Text = "Teams to send up from each game:";
-			// 
-			// numericFreeRides
-			// 
-			this.numericFreeRides.Location = new System.Drawing.Point(472, 29);
-			this.numericFreeRides.Maximum = new decimal(new int[] {
+            this.displayReportFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.displayReportFinals.Location = new System.Drawing.Point(3, 70);
+            this.displayReportFinals.Name = "displayReportFinals";
+            this.displayReportFinals.Report = null;
+            this.displayReportFinals.Size = new System.Drawing.Size(1145, 559);
+            this.displayReportFinals.TabIndex = 14;
+            // 
+            // labelTeamsToSendUp
+            // 
+            this.labelTeamsToSendUp.AutoSize = true;
+            this.labelTeamsToSendUp.Location = new System.Drawing.Point(528, 5);
+            this.labelTeamsToSendUp.Name = "labelTeamsToSendUp";
+            this.labelTeamsToSendUp.Size = new System.Drawing.Size(174, 13);
+            this.labelTeamsToSendUp.TabIndex = 12;
+            this.labelTeamsToSendUp.Text = "Teams to send up from each game:";
+            // 
+            // numericFreeRides
+            // 
+            this.numericFreeRides.Location = new System.Drawing.Point(472, 29);
+            this.numericFreeRides.Maximum = new decimal(new int[] {
             2,
             0,
             0,
             0});
-			this.numericFreeRides.Name = "numericFreeRides";
-			this.numericFreeRides.Size = new System.Drawing.Size(50, 20);
-			this.numericFreeRides.TabIndex = 11;
-			this.numericFreeRides.ValueChanged += new System.EventHandler(this.RefreshFinals);
-			// 
-			// label10
-			// 
-			this.label10.AutoSize = true;
-			this.label10.Location = new System.Drawing.Point(266, 31);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(200, 13);
-			this.label10.TabIndex = 10;
-			this.label10.Text = "Teams that get a free ride to grand finals:";
-			// 
-			// buttonFormatD
-			// 
-			this.buttonFormatD.Location = new System.Drawing.Point(175, 29);
-			this.buttonFormatD.Name = "buttonFormatD";
-			this.buttonFormatD.Size = new System.Drawing.Size(75, 23);
-			this.buttonFormatD.TabIndex = 8;
-			this.buttonFormatD.Text = "Format D";
-			this.buttonFormatD.UseVisualStyleBackColor = true;
-			this.buttonFormatD.Click += new System.EventHandler(this.ButtonFormatDClick);
-			// 
-			// buttonTwoTrack
-			// 
-			this.buttonTwoTrack.Location = new System.Drawing.Point(94, 29);
-			this.buttonTwoTrack.Name = "buttonTwoTrack";
-			this.buttonTwoTrack.Size = new System.Drawing.Size(75, 23);
-			this.buttonTwoTrack.TabIndex = 7;
-			this.buttonTwoTrack.Text = "Two Track";
-			this.buttonTwoTrack.UseVisualStyleBackColor = true;
-			this.buttonTwoTrack.Click += new System.EventHandler(this.ButtonTwoTrackClick);
-			// 
-			// numericTeamsPerGame
-			// 
-			this.numericTeamsPerGame.Location = new System.Drawing.Point(210, 3);
-			this.numericTeamsPerGame.Maximum = new decimal(new int[] {
+            this.numericFreeRides.Name = "numericFreeRides";
+            this.numericFreeRides.Size = new System.Drawing.Size(50, 20);
+            this.numericFreeRides.TabIndex = 11;
+            this.numericFreeRides.ValueChanged += new System.EventHandler(this.RefreshFinals);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(266, 31);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(200, 13);
+            this.label10.TabIndex = 10;
+            this.label10.Text = "Teams that get a free ride to grand finals:";
+            // 
+            // buttonFormatD
+            // 
+            this.buttonFormatD.Location = new System.Drawing.Point(175, 29);
+            this.buttonFormatD.Name = "buttonFormatD";
+            this.buttonFormatD.Size = new System.Drawing.Size(75, 23);
+            this.buttonFormatD.TabIndex = 8;
+            this.buttonFormatD.Text = "Format D";
+            this.buttonFormatD.UseVisualStyleBackColor = true;
+            this.buttonFormatD.Click += new System.EventHandler(this.ButtonFormatDClick);
+            // 
+            // buttonTwoTrack
+            // 
+            this.buttonTwoTrack.Location = new System.Drawing.Point(94, 29);
+            this.buttonTwoTrack.Name = "buttonTwoTrack";
+            this.buttonTwoTrack.Size = new System.Drawing.Size(75, 23);
+            this.buttonTwoTrack.TabIndex = 7;
+            this.buttonTwoTrack.Text = "Two Track";
+            this.buttonTwoTrack.UseVisualStyleBackColor = true;
+            this.buttonTwoTrack.Click += new System.EventHandler(this.ButtonTwoTrackClick);
+            // 
+            // numericTeamsPerGame
+            // 
+            this.numericTeamsPerGame.Location = new System.Drawing.Point(210, 3);
+            this.numericTeamsPerGame.Maximum = new decimal(new int[] {
             99,
             0,
             0,
             0});
-			this.numericTeamsPerGame.Minimum = new decimal(new int[] {
+            this.numericTeamsPerGame.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericTeamsPerGame.Name = "numericTeamsPerGame";
-			this.numericTeamsPerGame.Size = new System.Drawing.Size(50, 20);
-			this.numericTeamsPerGame.TabIndex = 3;
-			this.numericTeamsPerGame.Value = new decimal(new int[] {
+            this.numericTeamsPerGame.Name = "numericTeamsPerGame";
+            this.numericTeamsPerGame.Size = new System.Drawing.Size(50, 20);
+            this.numericTeamsPerGame.TabIndex = 3;
+            this.numericTeamsPerGame.Value = new decimal(new int[] {
             3,
             0,
             0,
             0});
-			this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.NumericTeamsPerGameValueChanged);
-			// 
-			// label9
-			// 
-			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(115, 5);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(89, 13);
-			this.label9.TabIndex = 2;
-			this.label9.Text = "Teams per game:";
-			// 
-			// numericTeamsToCut
-			// 
-			this.numericTeamsToCut.Location = new System.Drawing.Point(472, 3);
-			this.numericTeamsToCut.Maximum = new decimal(new int[] {
+            this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.NumericTeamsPerGameValueChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(115, 5);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(89, 13);
+            this.label9.TabIndex = 2;
+            this.label9.Text = "Teams per game:";
+            // 
+            // numericTeamsToCut
+            // 
+            this.numericTeamsToCut.Location = new System.Drawing.Point(472, 3);
+            this.numericTeamsToCut.Maximum = new decimal(new int[] {
             2,
             0,
             0,
             0});
-			this.numericTeamsToCut.Minimum = new decimal(new int[] {
+            this.numericTeamsToCut.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericTeamsToCut.Name = "numericTeamsToCut";
-			this.numericTeamsToCut.Size = new System.Drawing.Size(50, 20);
-			this.numericTeamsToCut.TabIndex = 5;
-			this.numericTeamsToCut.Value = new decimal(new int[] {
+            this.numericTeamsToCut.Name = "numericTeamsToCut";
+            this.numericTeamsToCut.Size = new System.Drawing.Size(50, 20);
+            this.numericTeamsToCut.TabIndex = 5;
+            this.numericTeamsToCut.Value = new decimal(new int[] {
             2,
             0,
             0,
             0});
-			this.numericTeamsToCut.ValueChanged += new System.EventHandler(this.RefreshFinals);
-			// 
-			// label8
-			// 
-			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(266, 5);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(188, 13);
-			this.label8.TabIndex = 4;
-			this.label8.Text = "Teams to send down from each game:";
-			// 
-			// numericTracks
-			// 
-			this.numericTracks.Location = new System.Drawing.Point(59, 3);
-			this.numericTracks.Maximum = new decimal(new int[] {
+            this.numericTeamsToCut.ValueChanged += new System.EventHandler(this.RefreshFinals);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(266, 5);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(188, 13);
+            this.label8.TabIndex = 4;
+            this.label8.Text = "Teams to send down from each game:";
+            // 
+            // numericTracks
+            // 
+            this.numericTracks.Location = new System.Drawing.Point(59, 3);
+            this.numericTracks.Maximum = new decimal(new int[] {
             99,
             0,
             0,
             0});
-			this.numericTracks.Minimum = new decimal(new int[] {
+            this.numericTracks.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericTracks.Name = "numericTracks";
-			this.numericTracks.Size = new System.Drawing.Size(50, 20);
-			this.numericTracks.TabIndex = 1;
-			this.numericTracks.Value = new decimal(new int[] {
+            this.numericTracks.Name = "numericTracks";
+            this.numericTracks.Size = new System.Drawing.Size(50, 20);
+            this.numericTracks.TabIndex = 1;
+            this.numericTracks.Value = new decimal(new int[] {
             2,
             0,
             0,
@@ -826,187 +826,187 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericPyramidFinalsGames.Name = "numericPyramidFinalsGames";
-			this.numericPyramidFinalsGames.Size = new System.Drawing.Size(60, 20);
-			this.numericPyramidFinalsGames.TabIndex = 7;
-			this.numericPyramidFinalsGames.Value = new decimal(new int[] {
+            this.numericPyramidFinalsGames.Name = "numericPyramidFinalsGames";
+            this.numericPyramidFinalsGames.Size = new System.Drawing.Size(60, 20);
+            this.numericPyramidFinalsGames.TabIndex = 7;
+            this.numericPyramidFinalsGames.Value = new decimal(new int[] {
             4,
             0,
             0,
             0});
-			this.numericPyramidFinalsGames.ValueChanged += new System.EventHandler(this.NumericPyramidFinalsGamesValueChanged);
-			// 
-			// label19
-			// 
-			this.label19.AutoSize = true;
-			this.label19.Location = new System.Drawing.Point(135, 302);
-			this.label19.Name = "label19";
-			this.label19.Size = new System.Drawing.Size(78, 13);
-			this.label19.TabIndex = 6;
-			this.label19.Text = "Games in finals";
-			// 
-			// numericPyramidFinalsTeams
-			// 
-			this.numericPyramidFinalsTeams.Enabled = false;
-			this.numericPyramidFinalsTeams.Location = new System.Drawing.Point(63, 318);
-			this.numericPyramidFinalsTeams.Minimum = new decimal(new int[] {
+            this.numericPyramidFinalsGames.ValueChanged += new System.EventHandler(this.NumericPyramidFinalsGamesValueChanged);
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(135, 302);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(78, 13);
+            this.label19.TabIndex = 6;
+            this.label19.Text = "Games in finals";
+            // 
+            // numericPyramidFinalsTeams
+            // 
+            this.numericPyramidFinalsTeams.Enabled = false;
+            this.numericPyramidFinalsTeams.Location = new System.Drawing.Point(63, 318);
+            this.numericPyramidFinalsTeams.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericPyramidFinalsTeams.Name = "numericPyramidFinalsTeams";
-			this.numericPyramidFinalsTeams.Size = new System.Drawing.Size(60, 20);
-			this.numericPyramidFinalsTeams.TabIndex = 5;
-			this.numericPyramidFinalsTeams.Value = new decimal(new int[] {
+            this.numericPyramidFinalsTeams.Name = "numericPyramidFinalsTeams";
+            this.numericPyramidFinalsTeams.Size = new System.Drawing.Size(60, 20);
+            this.numericPyramidFinalsTeams.TabIndex = 5;
+            this.numericPyramidFinalsTeams.Value = new decimal(new int[] {
             8,
             0,
             0,
             0});
-			// 
-			// label18
-			// 
-			this.label18.AutoSize = true;
-			this.label18.Location = new System.Drawing.Point(47, 302);
-			this.label18.Name = "label18";
-			this.label18.Size = new System.Drawing.Size(77, 13);
-			this.label18.TabIndex = 4;
-			this.label18.Text = "Teams in finals";
-			// 
-			// panel1
-			// 
-			this.panel1.Controls.Add(this.buttonIdealise);
-			this.panel1.Controls.Add(this.numericPyramidDesiredTeamsPerGame);
-			this.panel1.Controls.Add(this.label21);
-			this.panel1.Controls.Add(this.label20);
-			this.panel1.Controls.Add(this.numericPyramidGamesPerTeam);
-			this.panel1.Controls.Add(this.numericPyramidTeams);
-			this.panel1.Controls.Add(this.label17);
-			this.panel1.Controls.Add(this.numericPyramidRounds);
-			this.panel1.Controls.Add(this.label11);
-			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.panel1.Location = new System.Drawing.Point(0, 0);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(1224, 100);
-			this.panel1.TabIndex = 0;
-			// 
-			// buttonIdealise
-			// 
-			this.buttonIdealise.Location = new System.Drawing.Point(437, 46);
-			this.buttonIdealise.Name = "buttonIdealise";
-			this.buttonIdealise.Size = new System.Drawing.Size(75, 23);
-			this.buttonIdealise.TabIndex = 13;
-			this.buttonIdealise.Text = "Idealise";
-			this.buttonIdealise.UseVisualStyleBackColor = true;
-			this.buttonIdealise.Click += new System.EventHandler(this.ButtonIdealiseClick);
-			// 
-			// numericPyramidDesiredTeamsPerGame
-			// 
-			this.numericPyramidDesiredTeamsPerGame.Location = new System.Drawing.Point(362, 49);
-			this.numericPyramidDesiredTeamsPerGame.Minimum = new decimal(new int[] {
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(47, 302);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(77, 13);
+            this.label18.TabIndex = 4;
+            this.label18.Text = "Teams in finals";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.buttonIdealise);
+            this.panel1.Controls.Add(this.numericPyramidDesiredTeamsPerGame);
+            this.panel1.Controls.Add(this.label21);
+            this.panel1.Controls.Add(this.label20);
+            this.panel1.Controls.Add(this.numericPyramidGamesPerTeam);
+            this.panel1.Controls.Add(this.numericPyramidTeams);
+            this.panel1.Controls.Add(this.label17);
+            this.panel1.Controls.Add(this.numericPyramidRounds);
+            this.panel1.Controls.Add(this.label11);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1224, 100);
+            this.panel1.TabIndex = 0;
+            // 
+            // buttonIdealise
+            // 
+            this.buttonIdealise.Location = new System.Drawing.Point(437, 46);
+            this.buttonIdealise.Name = "buttonIdealise";
+            this.buttonIdealise.Size = new System.Drawing.Size(75, 23);
+            this.buttonIdealise.TabIndex = 13;
+            this.buttonIdealise.Text = "Idealise";
+            this.buttonIdealise.UseVisualStyleBackColor = true;
+            this.buttonIdealise.Click += new System.EventHandler(this.ButtonIdealiseClick);
+            // 
+            // numericPyramidDesiredTeamsPerGame
+            // 
+            this.numericPyramidDesiredTeamsPerGame.Location = new System.Drawing.Point(362, 49);
+            this.numericPyramidDesiredTeamsPerGame.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericPyramidDesiredTeamsPerGame.Name = "numericPyramidDesiredTeamsPerGame";
-			this.numericPyramidDesiredTeamsPerGame.Size = new System.Drawing.Size(60, 20);
-			this.numericPyramidDesiredTeamsPerGame.TabIndex = 12;
-			this.numericPyramidDesiredTeamsPerGame.Value = new decimal(new int[] {
+            this.numericPyramidDesiredTeamsPerGame.Name = "numericPyramidDesiredTeamsPerGame";
+            this.numericPyramidDesiredTeamsPerGame.Size = new System.Drawing.Size(60, 20);
+            this.numericPyramidDesiredTeamsPerGame.TabIndex = 12;
+            this.numericPyramidDesiredTeamsPerGame.Value = new decimal(new int[] {
             8,
             0,
             0,
             0});
-			// 
-			// label21
-			// 
-			this.label21.AutoSize = true;
-			this.label21.Location = new System.Drawing.Point(359, 33);
-			this.label21.Name = "label21";
-			this.label21.Size = new System.Drawing.Size(121, 13);
-			this.label21.TabIndex = 11;
-			this.label21.Text = "Desired teams per game";
-			// 
-			// label20
-			// 
-			this.label20.AutoSize = true;
-			this.label20.Location = new System.Drawing.Point(210, 33);
-			this.label20.Name = "label20";
-			this.label20.Size = new System.Drawing.Size(139, 13);
-			this.label20.TabIndex = 4;
-			this.label20.Text = "Games per team in Round 1";
-			// 
-			// numericPyramidGamesPerTeam
-			// 
-			this.numericPyramidGamesPerTeam.Location = new System.Drawing.Point(213, 49);
-			this.numericPyramidGamesPerTeam.Maximum = new decimal(new int[] {
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(359, 33);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(121, 13);
+            this.label21.TabIndex = 11;
+            this.label21.Text = "Desired teams per game";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(210, 33);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(139, 13);
+            this.label20.TabIndex = 4;
+            this.label20.Text = "Games per team in Round 1";
+            // 
+            // numericPyramidGamesPerTeam
+            // 
+            this.numericPyramidGamesPerTeam.Location = new System.Drawing.Point(213, 49);
+            this.numericPyramidGamesPerTeam.Maximum = new decimal(new int[] {
             10,
             0,
             0,
             0});
-			this.numericPyramidGamesPerTeam.Minimum = new decimal(new int[] {
+            this.numericPyramidGamesPerTeam.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericPyramidGamesPerTeam.Name = "numericPyramidGamesPerTeam";
-			this.numericPyramidGamesPerTeam.Size = new System.Drawing.Size(60, 20);
-			this.numericPyramidGamesPerTeam.TabIndex = 5;
-			this.numericPyramidGamesPerTeam.Value = new decimal(new int[] {
+            this.numericPyramidGamesPerTeam.Name = "numericPyramidGamesPerTeam";
+            this.numericPyramidGamesPerTeam.Size = new System.Drawing.Size(60, 20);
+            this.numericPyramidGamesPerTeam.TabIndex = 5;
+            this.numericPyramidGamesPerTeam.Value = new decimal(new int[] {
             2,
             0,
             0,
             0});
-			this.numericPyramidGamesPerTeam.ValueChanged += new System.EventHandler(this.NumericPyramidGamesPerTeamValueChanged);
-			// 
-			// numericPyramidTeams
-			// 
-			this.numericPyramidTeams.Location = new System.Drawing.Point(63, 49);
-			this.numericPyramidTeams.Maximum = new decimal(new int[] {
+            this.numericPyramidGamesPerTeam.ValueChanged += new System.EventHandler(this.NumericPyramidGamesPerTeamValueChanged);
+            // 
+            // numericPyramidTeams
+            // 
+            this.numericPyramidTeams.Location = new System.Drawing.Point(63, 49);
+            this.numericPyramidTeams.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-			this.numericPyramidTeams.Minimum = new decimal(new int[] {
+            this.numericPyramidTeams.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericPyramidTeams.Name = "numericPyramidTeams";
-			this.numericPyramidTeams.Size = new System.Drawing.Size(60, 20);
-			this.numericPyramidTeams.TabIndex = 1;
-			this.numericPyramidTeams.Value = new decimal(new int[] {
+            this.numericPyramidTeams.Name = "numericPyramidTeams";
+            this.numericPyramidTeams.Size = new System.Drawing.Size(60, 20);
+            this.numericPyramidTeams.TabIndex = 1;
+            this.numericPyramidTeams.Value = new decimal(new int[] {
             56,
             0,
             0,
             0});
-			this.numericPyramidTeams.ValueChanged += new System.EventHandler(this.NumericPyramidTeamsValueChanged);
-			// 
-			// label17
-			// 
-			this.label17.AutoSize = true;
-			this.label17.Location = new System.Drawing.Point(60, 33);
-			this.label17.Name = "label17";
-			this.label17.Size = new System.Drawing.Size(74, 13);
-			this.label17.TabIndex = 0;
-			this.label17.Text = "Starting teams";
-			// 
-			// numericPyramidRounds
-			// 
-			this.numericPyramidRounds.Enabled = false;
-			this.numericPyramidRounds.Location = new System.Drawing.Point(138, 49);
-			this.numericPyramidRounds.Maximum = new decimal(new int[] {
+            this.numericPyramidTeams.ValueChanged += new System.EventHandler(this.NumericPyramidTeamsValueChanged);
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(60, 33);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(74, 13);
+            this.label17.TabIndex = 0;
+            this.label17.Text = "Starting teams";
+            // 
+            // numericPyramidRounds
+            // 
+            this.numericPyramidRounds.Enabled = false;
+            this.numericPyramidRounds.Location = new System.Drawing.Point(138, 49);
+            this.numericPyramidRounds.Maximum = new decimal(new int[] {
             99,
             0,
             0,
             0});
-			this.numericPyramidRounds.Minimum = new decimal(new int[] {
+            this.numericPyramidRounds.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericPyramidRounds.Name = "numericPyramidRounds";
-			this.numericPyramidRounds.Size = new System.Drawing.Size(60, 20);
-			this.numericPyramidRounds.TabIndex = 3;
-			this.numericPyramidRounds.Value = new decimal(new int[] {
+            this.numericPyramidRounds.Name = "numericPyramidRounds";
+            this.numericPyramidRounds.Size = new System.Drawing.Size(60, 20);
+            this.numericPyramidRounds.TabIndex = 3;
+            this.numericPyramidRounds.Value = new decimal(new int[] {
             3,
             0,
             0,
@@ -1302,88 +1302,88 @@ namespace Torn.UI
             0,
             0,
             0});
-			this.numericGames.Name = "numericGames";
-			this.numericGames.Size = new System.Drawing.Size(64, 20);
-			this.numericGames.TabIndex = 2;
-			this.numericGames.Value = new decimal(new int[] {
+            this.numericGames.Name = "numericGames";
+            this.numericGames.Size = new System.Drawing.Size(64, 20);
+            this.numericGames.TabIndex = 2;
+            this.numericGames.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.numericGames.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
-			this.numericGames.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
-			// 
-			// labelRoundTitle
-			// 
-			this.labelRoundTitle.AutoSize = true;
-			this.labelRoundTitle.Location = new System.Drawing.Point(3, 174);
-			this.labelRoundTitle.Name = "labelRoundTitle";
-			this.labelRoundTitle.Size = new System.Drawing.Size(61, 13);
-			this.labelRoundTitle.TabIndex = 11;
-			this.labelRoundTitle.Text = "Round title:";
-			// 
-			// label16
-			// 
-			this.label16.AutoSize = true;
-			this.label16.Location = new System.Drawing.Point(3, 148);
-			this.label16.Name = "label16";
-			this.label16.Size = new System.Drawing.Size(137, 13);
-			this.label16.TabIndex = 9;
-			this.label16.Text = "Number of teams per game:";
-			// 
-			// label15
-			// 
-			this.label15.AutoSize = true;
-			this.label15.Location = new System.Drawing.Point(3, 122);
-			this.label15.Name = "label15";
-			this.label15.Size = new System.Drawing.Size(154, 13);
-			this.label15.TabIndex = 7;
-			this.label15.Text = "Number of teams in next round:";
-			// 
-			// label14
-			// 
-			this.label14.AutoSize = true;
-			this.label14.Location = new System.Drawing.Point(3, 96);
-			this.label14.Name = "label14";
-			this.label14.Size = new System.Drawing.Size(186, 13);
-			this.label14.TabIndex = 5;
-			this.label14.Text = "Number of teams from last repêchage:";
-			// 
-			// label13
-			// 
-			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(3, 70);
-			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(162, 13);
-			this.label13.TabIndex = 3;
-			this.label13.Text = "Number of teams from last round:";
-			// 
-			// label12
-			// 
-			this.label12.AutoSize = true;
-			this.label12.Location = new System.Drawing.Point(3, 44);
-			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(157, 13);
-			this.label12.TabIndex = 1;
-			this.label12.Text = "Number of games in next round:";
-			// 
-			// labelPyramidGamesIntro
-			// 
-			this.labelPyramidGamesIntro.AutoSize = true;
-			this.labelPyramidGamesIntro.Location = new System.Drawing.Point(3, 8);
-			this.labelPyramidGamesIntro.Name = "labelPyramidGamesIntro";
-			this.labelPyramidGamesIntro.Size = new System.Drawing.Size(581, 26);
-			this.labelPyramidGamesIntro.TabIndex = 0;
-			this.labelPyramidGamesIntro.Text = "Pyramids can be used in large solos, doubles, etc. tournaments.\r\nSelect the games" +
+            this.numericGames.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
+            this.numericGames.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
+            // 
+            // labelRoundTitle
+            // 
+            this.labelRoundTitle.AutoSize = true;
+            this.labelRoundTitle.Location = new System.Drawing.Point(3, 174);
+            this.labelRoundTitle.Name = "labelRoundTitle";
+            this.labelRoundTitle.Size = new System.Drawing.Size(61, 13);
+            this.labelRoundTitle.TabIndex = 11;
+            this.labelRoundTitle.Text = "Round title:";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(3, 148);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(137, 13);
+            this.label16.TabIndex = 9;
+            this.label16.Text = "Number of teams per game:";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(3, 122);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(154, 13);
+            this.label15.TabIndex = 7;
+            this.label15.Text = "Number of teams in next round:";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(3, 96);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(186, 13);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "Number of teams from last repêchage:";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(3, 70);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(162, 13);
+            this.label13.TabIndex = 3;
+            this.label13.Text = "Number of teams from last round:";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 44);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(157, 13);
+            this.label12.TabIndex = 1;
+            this.label12.Text = "Number of games in next round:";
+            // 
+            // labelPyramidGamesIntro
+            // 
+            this.labelPyramidGamesIntro.AutoSize = true;
+            this.labelPyramidGamesIntro.Location = new System.Drawing.Point(3, 8);
+            this.labelPyramidGamesIntro.Name = "labelPyramidGamesIntro";
+            this.labelPyramidGamesIntro.Size = new System.Drawing.Size(581, 26);
+            this.labelPyramidGamesIntro.TabIndex = 0;
+            this.labelPyramidGamesIntro.Text = "Pyramids can be used in large solos, doubles, etc. tournaments.\r\nSelect the games" +
     " from the previous round to draw teams from, and decide how many teams will proc" +
     "eed to the next round.";
-			// 
-			// listViewGames
-			// 
-			this.listViewGames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            // 
+            // listViewGames
+            // 
+            this.listViewGames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.listViewGames.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.listViewGames.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnGame,
             this.columnDescription,
             this.columnTeams,
