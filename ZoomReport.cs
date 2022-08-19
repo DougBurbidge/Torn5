@@ -605,10 +605,16 @@ namespace Zoom
 							hasNumber = true;
 							min = Math.Min(min, cell.Data.Min());
 							max = Math.Max(max, cell.Data.Max());
+
+							if(Math.Abs(min) > max)
+                            {
+								max = min;
+                            }
 							maxPoints = Math.Max(maxPoints, cell.Data.Count);
 						}
 						else if (cell.Tag is List<ChartPoint> points && points.Any())
 						{
+
 							if (min == 0.0)
 								min = double.MaxValue; // For most data types we want an all-positive data series to have a  min of 0, not its actual series minimum. But for chart points, where X is a date/time, that starts the chart at 1900, which is bad. So one-off setting the min to MaxValue means we'll end with a min of the earliest time in the series. 
 							hasNumber = true;
@@ -631,7 +637,9 @@ namespace Zoom
 						}
 
 						if (hasNumber && !string.IsNullOrEmpty(cell.NumberFormat))
+						{
 							numberFormat = cell.NumberFormat;
+						}
 					}
 				}
 
