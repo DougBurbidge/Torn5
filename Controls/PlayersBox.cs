@@ -52,7 +52,10 @@ namespace Torn.UI
 
 					bool isRichoCard = player.QRCode != null && player.QRCode.StartsWith("00005");
 
-					string alias = isRichoCard ? "**** " + player.Alias + " ****" : player.Alias;
+					int yCard = player.YellowCards;
+					int rCard = player.RedCards;
+
+					string alias = (rCard > 0 ? (rCard + "R ") : "") + (yCard > 0 ? (yCard + "Y ") : "") + (isRichoCard ? "**** " + player.Alias + " ****" : player.Alias);
 
 					bool isNewPlayer = league != null && leaguePlayer == null;
 

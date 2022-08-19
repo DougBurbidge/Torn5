@@ -79,6 +79,7 @@ namespace Torn.UI
             // 
             // colGrade
             // 
+            this.colGrade.DisplayIndex = 3;
             this.colGrade.Text = "Grade";
             this.colGrade.Width = 45;
             // 
