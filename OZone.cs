@@ -327,6 +327,8 @@ namespace Torn
 
 					if (!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
 
+					serverPlayer.Pack = "Pack " + id;
+
 					game.Players.Add(serverPlayer);
 
 				}
