@@ -401,7 +401,7 @@ namespace Torn.Report
 
 			int averageCol = report.Columns.Count();
 			int hitsCol = averageCol + 1;
-			int pointsCol = averageCol + (hasHits ? 2 : 1);
+			int pointsCol = averageCol + 1;
 			if (rt.ReportType == ReportType.GameGrid)
 			{
 				report.AddColumn(new ZColumn("Average"));
@@ -414,7 +414,7 @@ namespace Torn.Report
 				if (league.IsPoints(games))
 				{
 					report.AddColumn(new ZColumn("Pts"));
-					pointsCol = report.Columns.Count() - (hasHits ? 2 : 1);
+					pointsCol = report.Columns.Count() - 1;
 				}
 
 				if (rt.Drops != null && (rt.Drops.DropWorst(100) > 0 || rt.Drops.DropBest(100) > 0))
@@ -469,7 +469,7 @@ namespace Torn.Report
 				}
 			}  // foreach leagueTeam
 
-			SortGridReport(league, report, rt, games, averageCol, pointsCol, false);
+			SortGridReport(league, report, rt, games, averageCol, pointsCol, false, hitsCol);
 
 			if (rt.Settings.Contains("Description"))
 				report.Description = "This is a grid of games. Each row in the table is one team. Each column is one game.";
@@ -3188,7 +3188,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return game == null ? -1 : game.Teams.FindIndex(t => t.TeamId == team.TeamId) + 1;
 		}
 
-		static void SortGridReport(League league, ZoomReport report, ReportTemplate rt, List<Game> games, int averageCol, int pointsCol, bool reversed)
+		static void SortGridReport(League league, ZoomReport report, ReportTemplate rt, List<Game> games, int averageCol, int pointsCol, bool reversed, int hitsCol = 0)
 		{
 			switch (rt.ReportType)
 			{
@@ -3196,14 +3196,17 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 				report.Rows.Sort(delegate(ZRow x, ZRow y)
 			                 {
 			                 	double? result = 0;
-			                 	if (league.IsPoints(games))
+								 Console.WriteLine(y[hitsCol].Number + " hits");
+								 Console.WriteLine(y[averageCol].Number + " avg");
+								 Console.WriteLine(y[pointsCol].Number + " points");
+								 if (league.IsPoints(games))
 			                 	{
 			                 		if (x.Count <= pointsCol || x[pointsCol].Number == null)
 										return 1;
 			                 		if (y.Count <= pointsCol || y[pointsCol].Number == null)
 										return -1;
 
-			                 		result = y[pointsCol].Number - x[pointsCol].Number;
+									 result = y[pointsCol].Number - x[pointsCol].Number;
 			                 	}
 			                 	if (result == 0)
 			                 	{
@@ -3212,9 +3215,18 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			                 		if (y.Count <= averageCol || y[averageCol].Number == null)
 										return -1;
 
-			                 		result = y[averageCol].Number - x[averageCol].Number;
+									 result = y[averageCol].Number - x[averageCol].Number;
 			                 	}
-			                 	return Math.Sign(result ?? 0);
+								 if (result == 0 && hitsCol > 0)
+								 {
+									 if (x.Count <= hitsCol || x[hitsCol].Number == null)
+										 return 1;
+									 if (y.Count <= hitsCol || y[hitsCol].Number == null)
+										 return -1;
+
+									 result = y[hitsCol].Number - x[hitsCol].Number;
+								 }
+								 return Math.Sign(result ?? 0);
 			                 }
 			                );
 					break;
