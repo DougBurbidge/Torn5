@@ -3156,7 +3156,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			
 			DropScores(scoresList, drops);
 			DropScores(pointsList, drops);
-			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, "N0"));  // average game score
+			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, "N2"));  // average game score
 			if (hitsList != null && hitsList.Count() > 0)
 				row.Add(new ZCell(hitsList.Average(), ChartType.Bar, "N0")); // average hits
 			if (league.IsPoints())
@@ -3196,21 +3196,19 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 				report.Rows.Sort(delegate(ZRow x, ZRow y)
 			                 {
 			                 	double? result = 0;
-								 Console.WriteLine(y[hitsCol].Number + " hits");
-								 Console.WriteLine(y[averageCol].Number + " avg");
-								 Console.WriteLine(y[pointsCol].Number + " points");
+								 
 								 if (league.IsPoints(games))
-			                 	{
-			                 		if (x.Count <= pointsCol || x[pointsCol].Number == null)
+								 {
+									 if (x.Count <= pointsCol || x[pointsCol].Number == null)
 										return 1;
 			                 		if (y.Count <= pointsCol || y[pointsCol].Number == null)
 										return -1;
 
 									 result = y[pointsCol].Number - x[pointsCol].Number;
 			                 	}
-			                 	if (result == 0)
+			                 	 if (result == 0)
 			                 	{
-			                 		if (x.Count <= averageCol || x[averageCol].Number == null)
+									 if (x.Count <= averageCol || x[averageCol].Number == null)
 										return 1;
 			                 		if (y.Count <= averageCol || y[averageCol].Number == null)
 										return -1;
@@ -3220,13 +3218,13 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 								 if (result == 0 && hitsCol > 0)
 								 {
 									 if (x.Count <= hitsCol || x[hitsCol].Number == null)
-										 return 1;
-									 if (y.Count <= hitsCol || y[hitsCol].Number == null)
-										 return -1;
+										return 1;
+									if (y.Count <= hitsCol || y[hitsCol].Number == null)
+										return -1;
 
-									 result = y[hitsCol].Number - x[hitsCol].Number;
-								 }
-								 return Math.Sign(result ?? 0);
+									result = y[hitsCol].Number - x[hitsCol].Number;
+								}
+								return Math.Sign(result ?? 0);
 			                 }
 			                );
 					break;
