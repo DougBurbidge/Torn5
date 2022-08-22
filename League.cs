@@ -378,6 +378,7 @@ namespace Torn
 			foreach(GamePlayer player in players)
             {
 				hitsBy += player.HitsBy;
+				hitsBy -= player.BaseDestroys;
             }
 			return hitsBy;
         }
