@@ -1000,7 +1000,7 @@ namespace Torn
 			serverGame.League = this;
 
 			foreach (var teamData in teamDatas)
-				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam, groupPlayersBy, serverGame.Description);
+				teamData.GameTeam.Points = CalculatePoints(teamData.GameTeam, groupPlayersBy);
 
 			Save();
 			return debug.ToString();
@@ -1720,7 +1720,7 @@ namespace Torn
 			return new Handicap(cap, HandicapStyle.Percent).Apply(score);
 		}
 
-		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy, string gameTitle = "")
+		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy)
 		{
 			Game game = Game(gameTeam);
 			if (game != null)
@@ -1728,10 +1728,9 @@ namespace Torn
 				var relevantTeams = (groupPlayersBy == GroupPlayersBy.Lotr ?  // For Lord of the Ring we want just "teams" of this colour. For other modes, we want all teams. 
 				                     game.Teams.Where(t => t.Colour == gameTeam.Colour) : game.Teams).OrderBy(x => -x.Score).ToList();
 
-				Console.WriteLine(gameTitle);
 				if(hitsTieBreak)
                 {
-					relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetHitsBy());
+					relevantTeams = relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetHitsBy()).ToList();
 				}
 				
 				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((hitsTieBreak && t.GetHitsBy() == gameTeam.GetHitsBy()) || !hitsTieBreak));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
