@@ -637,7 +637,8 @@ namespace Zoom
 
 				if (hasNumber)
 				{
-					string stringMax = string.IsNullOrEmpty(numberFormat) ? max.ToString() : max.ToString(numberFormat);
+					double furthestFromZero = max > -min ? max : min;
+					string stringMax = string.IsNullOrEmpty(numberFormat) ? furthestFromZero.ToString() : furthestFromZero.ToString(numberFormat);
 					if (double.IsInfinity(max) && !string.IsNullOrEmpty(numberFormat) && numberFormat.Length > 1 && numberFormat[0] == 'P' && stringMax.Length < 4)
 						stringMax = 9.99.ToString(numberFormat);
 
