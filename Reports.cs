@@ -1089,8 +1089,8 @@ namespace Torn.Report
 
 			if (rt.Settings.Contains("Description"))
 				report.Description = "This report shows each team's progress through the tournament. Between each of the " + groups.Count() + 
-					"rounds, follow a team's rise or fall by following their arrow(s). To see a team's final placing, look for the right-most mention of their name; e.g. " + 
-					report.Rows[0][report.Rows[0].Count - 3].Text + " placed 1st.";
+					" rounds, follow a team's rise or fall by following their arrow(s). To see a team's final placing, look for the right-most mention of their name; e.g. " + 
+					report.Rows[0][report.Rows[0].Count - (league.IsPoints() ? 4 : 3)].Text + " placed 1st.";
 
 			return report;
 		}
@@ -1620,7 +1620,7 @@ namespace Torn.Report
 			FillAverages(report, averageRow);
 
 			DoRatio(report, averageRow, "Tags +", "Tags -", "Tag Ratio");
-			double averageTotalScore = played.Average(gt => league.Game(gt).TotalScore() / league.Game(gt).Teams.Count);
+			double averageTotalScore = played.Any() ? played.Average(gt => league.Game(gt).TotalScore() / league.Game(gt).Teams.Count) : 0;
 			if (averageTotalScore != 0)
 				report.Cell(averageRow, "Score Ratio").Number = played.Average(gt => gt.Score) / averageTotalScore;
 			report.Cell(averageRow, "TR\u00D7SR").Number = report.Cell(averageRow, "Tag Ratio").Number * report.Cell(averageRow, "Score Ratio").Number;
