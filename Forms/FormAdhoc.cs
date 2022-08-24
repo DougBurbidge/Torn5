@@ -15,7 +15,10 @@ namespace Torn.UI
 			{
 				displayReport.Report = value;
 				if (value != null)
+				{
 					Text = value.Title;
+					textBoxDescription.Text = Report.Description;
+				}
 			}
 		}
 
