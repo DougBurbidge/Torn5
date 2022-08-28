@@ -359,6 +359,7 @@ namespace Torn.Report
 		static ZoomReport GamesGrid(League league, List<Game> games, ReportTemplate rt)
 		{
 			bool hasHits = rt.FindSetting("showHits") >= 0;
+			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
 			DateTime thisgametime = DateTime.MinValue;
@@ -463,7 +464,7 @@ namespace Torn.Report
 				if (scoresList.Any())
 				{
 					if (rt.ReportType == ReportType.GameGrid || rt.ReportType == ReportType.GameGridCondensed)
-						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList, hitsList);
+						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList, hitsList, isDecimal);
 
 					report.Rows.Add(row);
 				}
@@ -481,6 +482,7 @@ namespace Torn.Report
 		/// <summary> Build a list of games. One team per row.</summary>
 		public static ZoomReport GamesGridCondensed(League league, bool includeSecret, ReportTemplate rt)
 		{
+			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
 			ZoomReport report = new ZoomReport("", "Rank,Team", "center,left");
 
 			List<Game> games = Games(league, includeSecret, rt);
@@ -591,7 +593,7 @@ namespace Torn.Report
 				if (scoresList.Any())
 				{
 					if (rt.ReportType == ReportType.GameGridCondensed)
-						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList);
+						AddAverageAndDrops(league, row, rt.Drops, scoresList, pointsList, isDecimal);
 
 					report.Rows.Add(row);
 				}
@@ -2033,6 +2035,7 @@ namespace Torn.Report
 		/// <summary>List each player and their number of games, average score, tag ratio, etc.</summary>
 		public static ZoomReport SoloLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
+			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
@@ -2080,7 +2083,7 @@ namespace Torn.Report
 
 					var played = League.Played(games, player, includeSecret);
 
-					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, "N0"));  // Av score
+					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0"));  // Av score
 					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
 					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
 					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
@@ -2197,6 +2200,7 @@ namespace Torn.Report
 		/// <summary>List each team and their number of games, average score, victory points, etc.</summary>
 		public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
+			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 			bool ratio = rt.Setting("OrderBy") == "score ratio";
 			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
@@ -2311,7 +2315,7 @@ namespace Torn.Report
 					scoreCell = new ZCell(0, chartType)
 					{
 						Number = entry.ScoreList.Average(),
-						NumberFormat = ratio ? "P1" : "N0"
+						NumberFormat = ratio ? "P1" : isDecimal ? "N1" : "N0"
 					};
 
 					if (ratio)
@@ -2433,7 +2437,7 @@ namespace Torn.Report
 				if (ratio)
 					row.Add(new ZCell(ladder.Sum(e => e.Score) * 100.0 / ladder.Count(), ChartType.None, "P1", Color.Gray));  // average game score ratio
 				else
-					row.Add(new ZCell(ladder.Sum(e => e.Score) / ladder.Count(), ChartType.None, "N0", Color.Gray));  // average game score
+					row.Add(new ZCell(ladder.Sum(e => e.Score) / ladder.Count(), ChartType.None, isDecimal ? "N1" : "N0", Color.Gray));  // average game score
 
 				row.Add(new ZCell(countList.Average(), ChartType.None, "f1", Color.Gray));  // average games played
 
@@ -3150,15 +3154,15 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return count - scores.Count;
 		}
 
-		static void AddAverageAndDrops(League league, ZRow row, Drops drops, List<double> scoresList, List<double> pointsList, List<double> hitsList)
+		static void AddAverageAndDrops(League league, ZRow row, Drops drops, List<double> scoresList, List<double> pointsList, List<double> hitsList, bool isDecimal)
 		{
 			int count = scoresList.Count;
 			
 			DropScores(scoresList, drops);
 			DropScores(pointsList, drops);
-			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, "N2"));  // average game score
+			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, isDecimal ? "N1" : "N0"));  // average game score
 			if (hitsList != null && hitsList.Count() > 0)
-				row.Add(new ZCell(hitsList.Average(), ChartType.Bar, "N0")); // average hits
+				row.Add(new ZCell(hitsList.Average(), ChartType.Bar, isDecimal ? "N1" : "N0")); // average hits
 			if (league.IsPoints())
 				row.Add(new ZCell(pointsList.Sum(), ChartType.None, "N0"));  // total points
 			if (scoresList.Count < count)
@@ -3167,13 +3171,13 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 				row.Add(new ZCell());  // games dropped
 		}
 
-		static void AddAverageAndDrops(League league, ZRow row, Drops drops, List<double> scoresList, List<double> pointsList)
+		static void AddAverageAndDrops(League league, ZRow row, Drops drops, List<double> scoresList, List<double> pointsList, bool isDecimal)
 		{
 			int count = scoresList.Count;
 
 			DropScores(scoresList, drops);
 			DropScores(pointsList, drops);
-			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, "N0"));  // average game score
+			row.Add(new ZCell(scoresList.Average(), ChartType.Bar, isDecimal ? "N1" : "N0"));  // average game score
 			if (league.IsPoints())
 				row.Add(new ZCell(pointsList.Sum(), ChartType.None, "N0"));  // total points
 			if (scoresList.Count < count)
