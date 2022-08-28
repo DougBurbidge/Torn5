@@ -777,7 +777,7 @@ namespace Torn.Report
 					if (hasHits)
 					{
 						ZCell hitsCell = new ZCell(gameTeam.GetHitsBy(), ChartType.Bar, "N0", gameTeam.Colour.ToColor());
-						row.Add(hitsCell);
+						teamsRow.Add(hitsCell);
 						hitsCell.ChartCell = hitsCell;
 					}
 					if (league.IsPoints())  // there are victory points for this league
@@ -829,7 +829,7 @@ namespace Torn.Report
 							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 							if (hasHits)
-								currentRow.Add((new ZCell("", gameTeam.Colour.ToColor()));
+								playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 						}
 					}
 
