@@ -5,6 +5,8 @@ using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -501,6 +503,62 @@ namespace Torn.UI
 			}
 		}
 
+		private string ColorToTColor(Color color)
+        {
+			var r = color.R.ToString("X");
+			var g = color.G.ToString("X");
+			var b = color.B.ToString("X");
+
+			return "$02" + b + r + g;
+		}
+
+		private void ButtonUpdateScoreboardClick(object sender, EventArgs e)
+        {
+			int TBOARD_SOCKET = 21570;
+
+			UdpClient udp = new UdpClient();
+			IPEndPoint groupEP = new IPEndPoint(IPAddress.Parse("255.255.255.255"), TBOARD_SOCKET);
+
+			string fontColour = "$02000000"; //black
+
+			var item = listViewGames.SelectedItems[0];
+			if (item.Tag is ServerGame serverGame && serverGame.Game != null)
+			{
+
+				League league = serverGame.League;
+				Game game = league.AllGames.Find(g => g.Time == serverGame.Time);
+
+				string message = "00DISPLAYREPORTS";
+
+				foreach (GameTeam team in game.Teams)
+                {
+					LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
+					string teamColour = ColorToTColor(team.Colour.ToColor());
+					string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
+
+					string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score,Rank\",\"left,right,right\"";
+
+					foreach(GamePlayer player in team.Players)
+                    {
+						LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
+						teamString += ",\"" + leaguePlayer.Name + "\",clNone,1," + player.Score + ",clNone,1," + player.Rank + ",clNone,1,EOREOR";
+
+					}
+
+					teamString += ",EOTEOT";
+
+					message += teamString;
+				}
+
+				message += ",EOSEOS\x00";
+
+				byte[] sendBytes = Encoding.ASCII.GetBytes(message);
+				udp.Send(sendBytes, sendBytes.Length, groupEP);
+				byte[] sendBytesEnd = Encoding.ASCII.GetBytes("01\x00");
+				udp.Send(sendBytesEnd, sendBytesEnd.Length, groupEP);
+			}
+		}
+
 		private void ButtonPrintReportsClick(object sender, EventArgs e)
 		{
 			if (listViewLeagues.SelectedItems.Count > 0)
@@ -977,6 +1035,7 @@ namespace Torn.UI
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
 		{
 			ribbonButtonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
+			updateScoreboard.Enabled = listViewGames.SelectedItems.Count == 1;
 			ribbonButtonForget.Enabled = listViewGames.SelectedItems.Count > 0;
 			ribbonButtonCommit.Enabled = EnableCommit();
 
