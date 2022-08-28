@@ -509,7 +509,7 @@ namespace Torn.UI
 			var g = color.G.ToString("X");
 			var b = color.B.ToString("X");
 
-			return "$02" + b + r + g;
+			return "$02" + b + g + r;
 		}
 
 		private void ButtonUpdateScoreboardClick(object sender, EventArgs e)
@@ -533,6 +533,7 @@ namespace Torn.UI
 				foreach (GameTeam team in game.Teams)
                 {
 					LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
+					Console.WriteLine(leagueTeam.Name + " " + team.Colour);
 					string teamColour = ColorToTColor(team.Colour.ToColor());
 					string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
 
