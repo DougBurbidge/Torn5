@@ -537,12 +537,15 @@ namespace Torn.UI
 					string teamColour = ColorToTColor(team.Colour.ToColor());
 					string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
 
-					string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score,Rank\",\"left,right,right\"";
+					bool hasTR = team.Players[0].HitsBy > 0 || team.Players[0].HitsOn > 0;
+
+					string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "" ) + "right\"";
 
 					foreach(GamePlayer player in team.Players)
                     {
 						LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
-						teamString += ",\"" + leaguePlayer.Name + "\",clNone,1," + player.Score + ",clNone,1," + player.Rank + ",clNone,1,EOREOR";
+						decimal tagRatio = hasTR ? (Convert.ToDecimal(player.HitsBy) / Convert.ToDecimal(player.HitsOn)) : 0;
+						teamString += ",\"" + leaguePlayer.Name + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
 
 					}
 
