@@ -521,8 +521,6 @@ namespace Torn.UI
 
 			string fontColour = "$02000000"; //black
 
-			Console.WriteLine("HERE");
-
 			League league = serverGame.League;
 			Game game = league.AllGames.Find(g => g.Time == serverGame.Time);
 
