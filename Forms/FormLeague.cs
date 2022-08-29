@@ -28,6 +28,7 @@ namespace Torn.UI
 		bool loading = false;
 		void FormLeagueShown(object sender, EventArgs e)
 		{
+			League.Load(League.FileName);
 			Text = "Torn -- " + League.Title;
 			treeView1.Nodes.Clear();
 			
