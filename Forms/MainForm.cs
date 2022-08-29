@@ -536,13 +536,6 @@ namespace Torn.UI
 					string teamColour = ColorToTColor(team.Colour.ToColor());
 					string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
 
-					if(team.Colour.ToString() == "Cyan")
-                    {
-						Console.WriteLine(team.Colour);
-						Console.WriteLine(ColorToTColor(team.Colour.ToColor()));
-						Console.WriteLine(ColorToTColor(team.Colour.ToSaturatedColor()));
-					}
-
 					bool hasTR = team.Players[0].HitsBy > 0 || team.Players[0].HitsOn > 0;
 
 					string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "" ) + "right\"";
