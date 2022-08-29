@@ -524,7 +524,7 @@ namespace Torn.UI
 			League league = serverGame.League;
 			Game game = league.AllGames.Find(g => g.Time == serverGame.Time);
 
-			string message = "00DISPLAYREPORTS";
+			string message = "DISPLAYREPORTS";
 
 			foreach (GameTeam team in game.Teams)
 			{
@@ -540,8 +540,9 @@ namespace Torn.UI
 				foreach (GamePlayer player in team.Players)
 				{
 					LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
+					string alias = leaguePlayer?.Name != null ? leaguePlayer.Name : player.Pack;
 					decimal tagRatio = hasTR ? (Convert.ToDecimal(player.HitsBy) / Convert.ToDecimal(player.HitsOn)) : 0;
-					teamString += ",\"" + leaguePlayer.Name + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
+					teamString += ",\"" + alias + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
 
 				}
 
@@ -550,11 +551,20 @@ namespace Torn.UI
 				message += teamString;
 			}
 
-			message += ",EOSEOS\x00";
+			message += ",EOSEOS";
 
-			byte[] sendBytes = Encoding.ASCII.GetBytes(message);
-			udp.Send(sendBytes, sendBytes.Length, groupEP);
-			byte[] sendBytesEnd = Encoding.ASCII.GetBytes("01\x00");
+			List<string> strs = message.Split(510).ToList();
+
+			foreach (string str in strs)
+			{
+				string index = strs.IndexOf(str).ToString().PadLeft(2, '0');
+				string chunk = index + str + "\x00";
+				byte[] sendBytes = Encoding.ASCII.GetBytes(chunk);
+				udp.Send(sendBytes, sendBytes.Length, groupEP);
+			}
+
+			string emptyIndex = strs.Count().ToString().PadLeft(2, '0');
+			byte[] sendBytesEnd = Encoding.ASCII.GetBytes(emptyIndex + "\x00");
 			udp.Send(sendBytesEnd, sendBytesEnd.Length, groupEP);
 		}
 
@@ -1580,4 +1590,27 @@ namespace Torn.UI
 
 		}
     }
+	public static class Extensions
+	{
+		public static IEnumerable<string> Split(this string str, int n)
+		{
+			if (String.IsNullOrEmpty(str) || n < 1)
+			{
+				throw new ArgumentException();
+			}
+
+			for (int i = 0; i < str.Length; i += n)
+			{
+				if (str.Length - i > n)
+				{
+					yield return str.Substring(i, n);
+				}
+				else
+				{
+					yield return str.Substring(i, str.Length - i);
+				}
+
+			}
+		}
+	}
 }
