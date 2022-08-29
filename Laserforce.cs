@@ -48,6 +48,7 @@ namespace Torn
 			try
 			{
 				connection = new SqlConnection("Data Source=" + server + ";Database=Laserforce;User Id=" + sqlUserId + ";Password=" + sqlPassword);
+				Console.WriteLine("Data Source=" + server + ";Database=Laserforce;User Id=" + sqlUserId + ";Password=" + sqlPassword);
 				connection.Open();
 				Connected = true;
 			}
@@ -101,6 +102,8 @@ namespace Torn
 			{
 				reader.Close();
 			}
+			Console.WriteLine(games.Count);
+
 			return games;
 		}
 
@@ -151,50 +154,72 @@ namespace Torn
 
 			if (string.IsNullOrEmpty(LogFolder) || !Directory.Exists(LogFolder))
 				return;
-
-			var files = new DirectoryInfo(LogFolder).GetFiles(game.Time.ToString("HHmm") + " - *.txt");
+			Console.WriteLine(game.Time.ToString("*" + "yyyyMMddHHmm") + " - *.tdf");
+			var files = new DirectoryInfo(LogFolder).GetFiles("*" + game.Time.ToString("yyyyMMddHHmm") + " - *.tdf");
 			if (files.Length > 0)
 			{
+				Console.WriteLine("HERE");
 				var file = files[0].OpenText();
 				game.Events.Clear();
+				List<string> lines = new List<string>();
+
 				while (!file.EndOfStream)
 				{
-					// Line format: number of milliseconds elapsed in game [tab] event code [tab] teamcolour:playeralias [tab] event description [tab] teamcolour:playeralias
+					lines.Add(file.ReadLine());
+				}
 
-					var line = file.ReadLine().Split('\t');
+				foreach(string l in lines)
+                {
+					var scoreEvent = l.Split('\t');
 
-					var oneEvent = new Event
+					if (scoreEvent[0] == "5")
 					{
-						Time = game.Time.AddMilliseconds(int.Parse(line[0]))
-					};
-
-					string eventType = line[1];
-					if (eventType.StartsWith("01")) continue;
-
-					oneEvent.Event_Type = ParseEventType(line[1]);
-					oneEvent.Score = EventToScore(oneEvent.Event_Type);
-
-					(oneEvent.ServerTeamId, oneEvent.ServerPlayerId) = SplitPlayer(line[2]);
-					if (line.Length > 4)
-						(oneEvent.OtherTeam, oneEvent.OtherPlayer) = SplitPlayer(line[4]);
-
-					if (eventType.StartsWith("0B"))
-						oneEvent.ShotsDenied = 1;
-
-					game.Events.Add(oneEvent);
-
-					if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
-						game.Events.Add(new Event
+						var oneEvent = new Event
 						{
-							Time = oneEvent.Time,
-							Event_Type = oneEvent.Event_Type + 14,
-							Score = -40,
+							Time = game.Time.AddMilliseconds(int.Parse(scoreEvent[1]))
+						};
 
-							ServerTeamId = oneEvent.OtherTeam,
-							ServerPlayerId = oneEvent.OtherPlayer,
-							OtherTeam = oneEvent.ServerTeamId,
-							OtherPlayer = oneEvent.ServerPlayerId
-						});
+						int indexOfEvent = lines.IndexOf(l);
+						int indexOfNextEvent = indexOfEvent + 1;
+						int indexOfNextNextEvent = indexOfNextEvent + 1;
+
+						var line1 = lines[indexOfNextEvent].Split('\t');
+						var line2 = lines[indexOfNextNextEvent].Split('\t');
+						var detailEvent = line2;
+
+						if(line1[0] == "4")
+							detailEvent = line1;
+
+						oneEvent.ServerPlayerId = scoreEvent[2];
+
+						/*string eventType = line[1];
+						if (eventType.StartsWith("01")) continue;
+
+						oneEvent.Event_Type = ParseEventType(line[1]);
+						oneEvent.Score = EventToScore(oneEvent.Event_Type);
+
+						(oneEvent.ServerTeamId, oneEvent.ServerPlayerId) = SplitPlayer(line[2]);
+						if (line.Length > 4)
+							(oneEvent.OtherTeam, oneEvent.OtherPlayer) = SplitPlayer(line[4]);
+
+						if (eventType.StartsWith("0B"))
+							oneEvent.ShotsDenied = 1;
+
+						game.Events.Add(oneEvent);*/
+
+						if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
+								game.Events.Add(new Event
+								{
+									Time = oneEvent.Time,
+									Event_Type = oneEvent.Event_Type + 14,
+									Score = -40,
+
+									ServerTeamId = oneEvent.OtherTeam,
+									ServerPlayerId = oneEvent.OtherPlayer,
+									OtherTeam = oneEvent.ServerTeamId,
+									OtherPlayer = oneEvent.ServerPlayerId
+								});
+					}
 				}
 			}
 		}
