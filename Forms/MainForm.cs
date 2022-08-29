@@ -505,9 +505,9 @@ namespace Torn.UI
 
 		private string ColorToTColor(Color color)
         {
-			var r = color.R.ToString("X");
-			var g = color.G.ToString("X");
-			var b = color.B.ToString("X");
+			var r = color.R.ToString("X2");
+			var g = color.G.ToString("X2");
+			var b = color.B.ToString("X2");
 
 			return "$02" + b + g + r;
 		}
@@ -533,9 +533,15 @@ namespace Torn.UI
 				foreach (GameTeam team in game.Teams)
                 {
 					LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
-					Console.WriteLine(leagueTeam.Name + " " + team.Colour);
 					string teamColour = ColorToTColor(team.Colour.ToColor());
 					string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
+
+					if(team.Colour.ToString() == "Cyan")
+                    {
+						Console.WriteLine(team.Colour);
+						Console.WriteLine(ColorToTColor(team.Colour.ToColor()));
+						Console.WriteLine(ColorToTColor(team.Colour.ToSaturatedColor()));
+					}
 
 					bool hasTR = team.Players[0].HitsBy > 0 || team.Players[0].HitsOn > 0;
 
