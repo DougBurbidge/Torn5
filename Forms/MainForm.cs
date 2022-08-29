@@ -405,8 +405,8 @@ namespace Torn.UI
 					RefreshGamesList();
 					RankTeams();
 					listViewGames.Focus();
-//					if (autoUpdateScoreboard)
-//						UpdateScoreboard();
+					if (autoUpdateScoreboard)
+						UpdateScoreboard(serverGame);
 				}
 			}
 
@@ -512,7 +512,7 @@ namespace Torn.UI
 			return "$02" + b + g + r;
 		}
 
-		private void ButtonUpdateScoreboardClick(object sender, EventArgs e)
+		private void UpdateScoreboard(ServerGame serverGame)
         {
 			int TBOARD_SOCKET = 21570;
 
@@ -521,45 +521,55 @@ namespace Torn.UI
 
 			string fontColour = "$02000000"; //black
 
+			Console.WriteLine("HERE");
+
+			League league = serverGame.League;
+			Game game = league.AllGames.Find(g => g.Time == serverGame.Time);
+
+			string message = "00DISPLAYREPORTS";
+
+			foreach (GameTeam team in game.Teams)
+			{
+				LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
+
+				string teamColour = ColorToTColor(team.Colour.ToColor());
+				string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
+
+				bool hasTR = (team.Players.Count > 0 && team.Players[0].HitsBy > 0) || (team.Players?.Count > 0 && team.Players[0].HitsOn > 0);
+
+				string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "") + "right\"";
+
+				foreach (GamePlayer player in team.Players)
+				{
+					LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
+					decimal tagRatio = hasTR ? (Convert.ToDecimal(player.HitsBy) / Convert.ToDecimal(player.HitsOn)) : 0;
+					teamString += ",\"" + leaguePlayer.Name + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
+
+				}
+
+				teamString += ",EOTEOT";
+
+				message += teamString;
+			}
+
+			message += ",EOSEOS\x00";
+
+			byte[] sendBytes = Encoding.ASCII.GetBytes(message);
+			udp.Send(sendBytes, sendBytes.Length, groupEP);
+			byte[] sendBytesEnd = Encoding.ASCII.GetBytes("01\x00");
+			udp.Send(sendBytesEnd, sendBytesEnd.Length, groupEP);
+		}
+
+		private void ButtonUpdateScoreboardClick(object sender, EventArgs e)
+        {
 			var item = listViewGames.SelectedItems[0];
 			if (item.Tag is ServerGame serverGame && serverGame.Game != null)
 			{
-
-				League league = serverGame.League;
-				Game game = league.AllGames.Find(g => g.Time == serverGame.Time);
-
-				string message = "00DISPLAYREPORTS";
-
-				foreach (GameTeam team in game.Teams)
-                {
-					LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
-					string teamColour = ColorToTColor(team.Colour.ToColor());
-					string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
-
-					bool hasTR = team.Players[0].HitsBy > 0 || team.Players[0].HitsOn > 0;
-
-					string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "" ) + "right\"";
-
-					foreach(GamePlayer player in team.Players)
-                    {
-						LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
-						decimal tagRatio = hasTR ? (Convert.ToDecimal(player.HitsBy) / Convert.ToDecimal(player.HitsOn)) : 0;
-						teamString += ",\"" + leaguePlayer.Name + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
-
-					}
-
-					teamString += ",EOTEOT";
-
-					message += teamString;
-				}
-
-				message += ",EOSEOS\x00";
-
-				byte[] sendBytes = Encoding.ASCII.GetBytes(message);
-				udp.Send(sendBytes, sendBytes.Length, groupEP);
-				byte[] sendBytesEnd = Encoding.ASCII.GetBytes("01\x00");
-				udp.Send(sendBytesEnd, sendBytesEnd.Length, groupEP);
-			}
+				UpdateScoreboard(serverGame);
+			} else
+            {
+				MessageBox.Show("Please Commit Game First", "Cannot Display Scoreboard", MessageBoxButtons.OK);
+            }
 		}
 
 		private void ButtonPrintReportsClick(object sender, EventArgs e)
