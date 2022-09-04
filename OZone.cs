@@ -59,8 +59,6 @@ namespace Torn
 			string textToSend = "{\"command\": \"list\"}";
 			string result = QueryServer(textToSend);
 
-			Console.WriteLine(result);
-
 
 			List<ServerGame> games = new List<ServerGame>();
 
