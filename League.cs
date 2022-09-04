@@ -1807,7 +1807,7 @@ namespace Torn
 		[JsonIgnore]
 		public int? GameId { get; set; }
 		public string Description { get; set; }
-		[JsonPropertyName("startTime")]
+		[JsonPropertyName("Time")]
 		public DateTime Time { get; set; }
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public DateTime EndTime { get; set; }
@@ -1820,9 +1820,9 @@ namespace Torn
 		public bool InProgress { get; set; }
 		[JsonIgnore]
 		public bool OnServer { get; set; }
-		[JsonIgnore]
+		[JsonPropertyName("Events")]
 		public List<Event> Events { get; set; }
-		[JsonPropertyName("events")]
+		[JsonIgnore]
 		public virtual IEnumerable<Event> FilteredEvents { get => Events.Where(e => e.Event_Type != 35 && e.Event_Type != 1409); }
 
 		public ServerGame()

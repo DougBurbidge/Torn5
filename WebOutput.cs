@@ -446,7 +446,7 @@ xhr.send();
 		private string RestGame(ServerGame game)
 		{
 			PopulateGame(game);
-			return JsonSerializer.Serialize<ServerGame>(game, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+			return JsonSerializer.Serialize<ServerGame>(game);
 		}
 
 		private string RestGames()
