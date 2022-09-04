@@ -1489,6 +1489,7 @@ namespace Torn.UI
 			sqlPassword = root.GetString("SqlPassword");
 			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
 			exportFolder = root.GetString("ExportFolder", "");
+			logFolder = root.GetString("LogFolder", "");
 			selectedNode = root.GetString("Selected", "");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
@@ -1529,6 +1530,7 @@ namespace Torn.UI
 			doc.AppendNode(bodyNode, "GameServerPort", serverPort);
 			doc.AppendNode(bodyNode, "WebServerPort", webPort.ToString());
 			doc.AppendNode(bodyNode, "ExportFolder", exportFolder);
+			doc.AppendNode(bodyNode, "LogFolder", logFolder);
 			if (listViewLeagues.SelectedItems.Count > 0)
 				doc.AppendNode(bodyNode, "Selected", listViewLeagues.SelectedItems[0].Text);
 			doc.AppendNode(bodyNode, "UploadMethod", uploadMethod);
