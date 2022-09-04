@@ -385,12 +385,6 @@ namespace Torn
 			}
 		}
 
-		(int, string) SplitPlayer(string input)
-		{
-			var arr = input.Split(':');
-			return (int.Parse(arr[0]), arr[1]);
-		}
-
 		int ParseEventType(string s)
 		{
 			switch (s)
