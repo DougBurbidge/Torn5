@@ -363,6 +363,23 @@ namespace Torn
 							game.Events.Add(oneEvent);
 						}
 
+						//reloaded
+						if (detailEvent[2] == "0500")
+                        {
+							oneEvent.ServerPlayerId = detailEvent[5];
+							oneEvent.Event_Name = "Reloaded";
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+
+							oneEvent.ServerTeamId = player.ServerTeamId;
+
+							List<string> reloadEntity = entities.Find(e => e[2] == detailEvent[3]);
+
+							oneEvent.OtherPlayer = reloadEntity[4];
+
+							game.Events.Add(oneEvent);
+						}
+
 					}
 				}
 			}
