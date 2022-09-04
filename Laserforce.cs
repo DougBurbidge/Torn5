@@ -155,11 +155,9 @@ namespace Torn
 
 			if (string.IsNullOrEmpty(LogFolder) || !Directory.Exists(LogFolder))
 				return;
-			Console.WriteLine(game.Time.ToString("*" + "yyyyMMddHHmm") + " - *.tdf");
 			var files = new DirectoryInfo(LogFolder).GetFiles("*" + game.Time.ToString("yyyyMMddHHmm") + " - *.tdf");
 			if (files.Length > 0)
 			{
-				Console.WriteLine("HERE");
 				var file = files[0].OpenText();
 				game.Events.Clear();
 				List<string> lines = new List<string>();
@@ -190,7 +188,19 @@ namespace Torn
 					}
 				}
 
-					foreach (string l in lines)
+				List<List<string>> baseHitEvents = new List<List<string>>();
+
+				foreach (string l in lines)
+				{
+					List<string> splitLine = l.Split('\t').ToList();
+					// shots into a base
+					if (splitLine[0] == "4" && splitLine[2] == "0203")
+					{
+						baseHitEvents.Add(splitLine);
+					}
+				}
+
+				foreach (string l in lines)
                 {
 					List<string> detailEvent = l.Split('\t').ToList();
 
@@ -291,6 +301,68 @@ namespace Torn
 							game.Events.Add(oneEvent);
 						}
 
+						//denies player
+						if(detailEvent[2] == "0B01" || detailEvent[2] == "0B02")
+                        {
+							Event otherEvent = new Event
+							{
+								Time = oneEvent.Time
+							};
+
+							List<string> scoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+							
+							oneEvent.ServerPlayerId = detailEvent[3];
+							oneEvent.OtherPlayer = detailEvent[5];
+							oneEvent.Event_Name = "Denied Foe";
+							otherEvent.Event_Name = "Denied by Foe";
+							otherEvent.Event_Type = 63;
+							otherEvent.ServerPlayerId = detailEvent[5];
+							otherEvent.OtherPlayer = detailEvent[3];
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer);
+							
+							oneEvent.Score = Int32.Parse(scoreEvent[4]);
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.OtherTeam = otherPlayer.ServerTeamId;
+							otherEvent.ServerTeamId = otherPlayer.ServerTeamId;
+							otherEvent.OtherTeam = player.ServerTeamId;
+
+							int time = Int32.Parse(detailEvent[1]);
+							int timeoutTime = time - 5000; // 5 seconds before they got denied
+
+							List<List<string>> otherPlayerBaseHits = baseHitEvents.FindAll(e => Int32.Parse(e[1]) >= timeoutTime && Int32.Parse(e[1]) < time && e[3] == otherEvent.ServerPlayerId);
+
+							int otherPlayerBaseHitsCount = otherPlayerBaseHits.Count();
+
+							player.BaseDenies += otherPlayerBaseHitsCount;
+							otherPlayer.BaseDenied += otherPlayerBaseHitsCount;
+
+							otherEvent.ShotsDenied = otherPlayerBaseHitsCount;
+
+							game.Events.Add(oneEvent);
+							game.Events.Add(otherEvent);
+
+						}
+
+						//termed
+						if(detailEvent[2] == "0600")
+                        {
+							List<string> scoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+
+							oneEvent.Event_Name = "Level 1 Termination";
+							oneEvent.ServerPlayerId = detailEvent[3];
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.Score = Int32.Parse(scoreEvent[4]);
+
+							player.YellowCards++;
+
+							game.Events.Add(oneEvent);
+						}
+
 					}
 				}
 			}
@@ -316,20 +388,6 @@ namespace Torn
 				case "0B01":             // 0B01: player denies player (number of hits worth of deny not specified). 0B01 always immediately follows a 0206 or 0208 with the same players. 
 				case "0B02": return 1404; // 0B02: player denies player (number of hits worth of deny not specified). 0B02 occurs several seconds after the 0206 in which the player tags the shooter.
 				default: return 36;
-			}
-		}
-
-		int EventToScore(int eventType)
-		{
-			switch (eventType)
-			{
-				case 0: return 150;
-				case 14: return -150;
-				case 28: return -1000;
-				case 30: return -500;
-				case 31: return 4001;
-				case 1404: return 375;  // This should be 250 per hits worth of deny. But we don't know how many hits worth of deny we have here.
-				default: return 0;
 			}
 		}
 
