@@ -49,7 +49,6 @@ namespace Torn
 			try
 			{
 				connection = new SqlConnection("Data Source=" + server + ";Database=Laserforce;User Id=" + sqlUserId + ";Password=" + sqlPassword);
-				Console.WriteLine("Data Source=" + server + ";Database=Laserforce;User Id=" + sqlUserId + ";Password=" + sqlPassword);
 				connection.Open();
 				Connected = true;
 			}
@@ -103,7 +102,6 @@ namespace Torn
 			{
 				reader.Close();
 			}
-			Console.WriteLine(games.Count);
 
 			return games;
 		}
