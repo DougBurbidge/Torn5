@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
@@ -143,7 +144,7 @@ namespace Torn
 						player.PlayerId = reader.GetString(3);
 					if (!reader.IsDBNull(4))
 						player.Alias = reader.GetString(4);
-					player.ServerPlayerId = player.Alias;
+					player.ServerPlayerId = player.Pack;
 					game.Players.Add(player);
 				}
 			}
@@ -168,29 +169,103 @@ namespace Torn
 					lines.Add(file.ReadLine());
 				}
 
-				foreach(string l in lines)
-                {
-					var scoreEvent = l.Split('\t');
+				List<List<string>> entities = new List<List<string>>();
 
-					if (scoreEvent[0] == "5")
+				foreach (string l in lines)
+				{
+					List<string> splitLine = l.Split('\t').ToList();
+					// 3 time id type alias team level category pack
+					if (splitLine[0] == "3")
+                    {
+						entities.Add(splitLine);
+
+						if (splitLine[3] == "player") {
+							int indexOfPlayer = game.Players.FindIndex(p => p.Pack == splitLine[8]);
+							if (indexOfPlayer != null && indexOfPlayer >= 0)
+							{
+								game.Players[indexOfPlayer].ServerPlayerId = splitLine[2];
+								game.Players[indexOfPlayer].ServerTeamId = Int32.Parse(splitLine[5]);
+							}
+						}
+					}
+				}
+
+					foreach (string l in lines)
+                {
+					List<string> detailEvent = l.Split('\t').ToList();
+
+					// 4 event time type entity desc otherEntity
+					if (detailEvent[0] == "4")
 					{
-						var oneEvent = new Event
+						Event oneEvent = new Event
 						{
-							Time = game.Time.AddMilliseconds(int.Parse(scoreEvent[1]))
+							Time = game.Time.AddMilliseconds(int.Parse(detailEvent[1]))
 						};
 
 						int indexOfEvent = lines.IndexOf(l);
-						int indexOfNextEvent = indexOfEvent + 1;
-						int indexOfNextNextEvent = indexOfNextEvent + 1;
 
-						var line1 = lines[indexOfNextEvent].Split('\t');
-						var line2 = lines[indexOfNextNextEvent].Split('\t');
-						var detailEvent = line2;
+						oneEvent.Event_Type = ParseEventType(detailEvent[2]);
 
-						if(line1[0] == "4")
-							detailEvent = line1;
+						if ( detailEvent[2] == "0206" || detailEvent[2] == "0208")
+                        {
+							Event otherEvent = new Event
+							{
+								Time = oneEvent.Time
+                            };
 
-						oneEvent.ServerPlayerId = scoreEvent[2];
+							if (detailEvent[2] == "0206")
+                            {
+								oneEvent.Event_Name = "Tag Foe";
+								otherEvent.Event_Type = 14;
+								otherEvent.Event_Name = "Tagged by Foe";
+
+							}
+							else
+                            {
+								oneEvent.Event_Name = "Tag Ally";
+								otherEvent.Event_Type = 21;
+								otherEvent.Event_Name = "Tagged by Ally";
+							}
+
+							oneEvent.ServerPlayerId = detailEvent[3];
+							oneEvent.OtherPlayer = detailEvent[5];
+
+							otherEvent.OtherPlayer = detailEvent[3];
+							otherEvent.ServerPlayerId = detailEvent[5];
+
+							List<string> playerEntity = entities.Find(e => e[2] == oneEvent.ServerPlayerId);
+							List<string> otherPlayerEntity = entities.Find(e => e[2] == oneEvent.OtherPlayer);
+
+							List<string> playerScoreEvent = lines[indexOfEvent - 2].Split('\t').ToList();
+							List<string> otherPlayerScoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+
+							int playerScore = Int32.Parse(playerScoreEvent[4]);
+							int otherPlayerScore = Int32.Parse(otherPlayerScoreEvent[4]);
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer);
+
+							oneEvent.Score = playerScore;
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.OtherTeam = otherPlayer.ServerTeamId;
+
+							otherEvent.Score = otherPlayerScore;
+							otherEvent.ServerTeamId = otherPlayer.ServerTeamId;
+							otherEvent.OtherTeam = player.ServerTeamId;
+
+							game.Events.Add(oneEvent);
+							game.Events.Add(otherEvent);
+
+							player.HitsBy++;
+							otherPlayer.HitsOn++;
+
+						}
+
+
+
+						// 5 time entity old delta new
+
+						// oneEvent.ServerPlayerId = scoreEvent[2];
 
 						/*string eventType = line[1];
 						if (eventType.StartsWith("01")) continue;
@@ -205,7 +280,7 @@ namespace Torn
 						if (eventType.StartsWith("0B"))
 							oneEvent.ShotsDenied = 1;
 
-						game.Events.Add(oneEvent);*/
+						game.Events.Add(oneEvent);
 
 						if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
 								game.Events.Add(new Event
@@ -218,7 +293,7 @@ namespace Torn
 									ServerPlayerId = oneEvent.OtherPlayer,
 									OtherTeam = oneEvent.ServerTeamId,
 									OtherPlayer = oneEvent.ServerPlayerId
-								});
+								});*/
 					}
 				}
 			}
