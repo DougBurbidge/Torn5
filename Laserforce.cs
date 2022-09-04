@@ -181,7 +181,7 @@ namespace Torn
 
 						if (splitLine[3] == "player") {
 							int indexOfPlayer = game.Players.FindIndex(p => p.Pack == splitLine[8]);
-							if (indexOfPlayer != null && indexOfPlayer >= 0)
+							if (indexOfPlayer >= 0)
 							{
 								game.Players[indexOfPlayer].ServerPlayerId = splitLine[2];
 								game.Players[indexOfPlayer].ServerTeamId = Int32.Parse(splitLine[5]);
@@ -206,6 +206,7 @@ namespace Torn
 
 						oneEvent.Event_Type = ParseEventType(detailEvent[2]);
 
+						// tag player
 						if ( detailEvent[2] == "0206" || detailEvent[2] == "0208")
                         {
 							Event otherEvent = new Event
@@ -261,39 +262,35 @@ namespace Torn
 
 						}
 
+						// tags base
+						if(detailEvent[2] == "0203" || detailEvent[2] == "0204")
+                        {
+							List<string> scoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
 
+							oneEvent.ServerPlayerId = detailEvent[3];
 
-						// 5 time entity old delta new
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							List<string> baseEntity = entities.Find(e => e[2] == detailEvent[5]);
 
-						// oneEvent.ServerPlayerId = scoreEvent[2];
+							oneEvent.OtherPlayer = baseEntity[4];
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.OtherTeam = Int32.Parse(baseEntity[5]);
+							oneEvent.Score = Int32.Parse(scoreEvent[4]);
 
-						/*string eventType = line[1];
-						if (eventType.StartsWith("01")) continue;
+							if (detailEvent[2] == "0203")
+							{
+								oneEvent.Event_Name = "Tag Base";
+								player.BaseHits++;
+							}
+							else
+							{
+								oneEvent.Event_Name = "Destroy Base";
+								player.BaseDestroys++;
+							}
 
-						oneEvent.Event_Type = ParseEventType(line[1]);
-						oneEvent.Score = EventToScore(oneEvent.Event_Type);
+							game.Events.Add(oneEvent);
+						}
 
-						(oneEvent.ServerTeamId, oneEvent.ServerPlayerId) = SplitPlayer(line[2]);
-						if (line.Length > 4)
-							(oneEvent.OtherTeam, oneEvent.OtherPlayer) = SplitPlayer(line[4]);
-
-						if (eventType.StartsWith("0B"))
-							oneEvent.ShotsDenied = 1;
-
-						game.Events.Add(oneEvent);
-
-						if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
-								game.Events.Add(new Event
-								{
-									Time = oneEvent.Time,
-									Event_Type = oneEvent.Event_Type + 14,
-									Score = -40,
-
-									ServerTeamId = oneEvent.OtherTeam,
-									ServerPlayerId = oneEvent.OtherPlayer,
-									OtherTeam = oneEvent.ServerTeamId,
-									OtherPlayer = oneEvent.ServerPlayerId
-								});*/
 					}
 				}
 			}
