@@ -188,7 +188,7 @@ namespace Torn.UI
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
 					case SystemType.OZone: laserGameServer = new OZone(serverAddress, serverPort);  break;
 					case SystemType.Torn:
-						laserGameServer = new JsonServer(serverAddress);
+						laserGameServer = new TornTcpServer(serverAddress, serverPort);
 						timeElapsed = laserGameServer.GameTimeElapsed();
 					break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
@@ -198,6 +198,9 @@ namespace Torn.UI
 				webOutput.GetGames = laserGameServer.GetGames;
 				webOutput.PopulateGame = laserGameServer.PopulateGame;
 				webOutput.Players = laserGameServer.GetPlayers;
+				tornTcpListener?.Close();
+				//tornTcpListener = new TornTcpListener(laserGameServer);
+				//tornTcpListener.Connect();
 			}
 			catch (Exception ex)
 			{
@@ -208,9 +211,6 @@ namespace Torn.UI
 			timeToNextCheck = TimeSpan.FromSeconds(0);
 			TimerGameTick(null, null);
 			RefreshGamesList();
-
-			tornTcpListener = new TornTcpListener(laserGameServer);
-			tornTcpListener.Connect();
 		}
 
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
@@ -218,7 +218,7 @@ namespace Torn.UI
 			try
 			{
 				webOutput.Dispose();
-				tornTcpListener.Close();
+				tornTcpListener?.Close();
 				if (laserGameServer != null)
 					laserGameServer.Dispose();
 	

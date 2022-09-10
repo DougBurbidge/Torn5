@@ -117,8 +117,8 @@ namespace Torn5
 
         public void Close()
         {
-            server.Stop();
-            tcpListenerThread.Abort();
+            tcpListenerThread?.Abort();
+            server?.Stop();
         }
     }
 }
