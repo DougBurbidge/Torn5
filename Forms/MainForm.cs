@@ -11,6 +11,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Torn.Report;
+using Torn5;
 using Zoom;
 
 /*
@@ -88,6 +89,7 @@ namespace Torn.UI
 
 		int webPort;
 		WebOutput webOutput;
+		TornTcpListener tornTcpListener;
 		LaserGameServer laserGameServer;
 		List<ServerGame> serverGames;
 		static Holders leagues;
@@ -163,7 +165,7 @@ namespace Torn.UI
 			if (listViewLeagues.Items.Count == 0)
 				ListViewLeaguesItemSelectionChanged(null, null);
 			else if (listViewLeagues.SelectedIndices.Count == 0)
-				listViewLeagues.SelectedIndices.Add(0);
+				listViewLeagues.SelectedIndices.Add(0);			
 		}
 
 		void ConnectLaserGameServer()
@@ -206,6 +208,9 @@ namespace Torn.UI
 			timeToNextCheck = TimeSpan.FromSeconds(0);
 			TimerGameTick(null, null);
 			RefreshGamesList();
+
+			tornTcpListener = new TornTcpListener(laserGameServer);
+			tornTcpListener.Connect();
 		}
 
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
@@ -213,6 +218,7 @@ namespace Torn.UI
 			try
 			{
 				webOutput.Dispose();
+				tornTcpListener.Close();
 				if (laserGameServer != null)
 					laserGameServer.Dispose();
 	
