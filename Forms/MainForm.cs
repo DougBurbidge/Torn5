@@ -103,6 +103,8 @@ namespace Torn.UI
 		string password;
 
 		string logFolder;
+		bool hostRemoteTorn;
+		string remoteTornPort;
 
 		DateTime lastChecked = DateTime.MinValue;
 		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
@@ -199,8 +201,11 @@ namespace Torn.UI
 				webOutput.PopulateGame = laserGameServer.PopulateGame;
 				webOutput.Players = laserGameServer.GetPlayers;
 				tornTcpListener?.Close();
-				//tornTcpListener = new TornTcpListener(laserGameServer);
-				//tornTcpListener.Connect();
+				if (hostRemoteTorn)
+				{
+					tornTcpListener = new TornTcpListener(laserGameServer, remoteTornPort);
+					tornTcpListener.Connect();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -749,7 +754,9 @@ namespace Torn.UI
 				Sqluser = sqlUserId,
 				SqlPassword = sqlPassword,
 				WebPort = webPort,
-				LogFolder = logFolder
+				LogFolder = logFolder,
+				HostRemoteTorn = hostRemoteTorn,
+				RemoteTornPort = remoteTornPort
 			};
 
 			if (form.ShowDialog() == DialogResult.OK)
@@ -770,6 +777,8 @@ namespace Torn.UI
 				sqlUserId = form.Sqluser;
 				sqlPassword = form.SqlPassword;
 				logFolder = form.LogFolder;
+				remoteTornPort = form.RemoteTornPort;
+				hostRemoteTorn = form.HostRemoteTorn;
 				
 				ConnectLaserGameServer();
 				ListViewLeaguesItemSelectionChanged(null, null);
@@ -1497,6 +1506,8 @@ namespace Torn.UI
 			exportFolder = root.GetString("ExportFolder", "");
 			logFolder = root.GetString("LogFolder", "");
 			selectedNode = root.GetString("Selected", "");
+			hostRemoteTorn = int.Parse(root.GetString("HostRemoteTorn", "0")) > 0 ;
+			remoteTornPort = root.GetString("RemoteTornPort", "1300");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
 
@@ -1543,6 +1554,8 @@ namespace Torn.UI
 			doc.AppendNode(bodyNode, "UploadSite", uploadSite);
 			doc.AppendNode(bodyNode, "Username", username);
 			doc.AppendNode(bodyNode, "Password", password);
+			doc.AppendNode(bodyNode, "HostRemoteTorn", hostRemoteTorn ? 1 : 0);
+			doc.AppendNode(bodyNode, "RemoteTornPort", remoteTornPort);
 
 			XmlNode leaguesNode = doc.CreateElement("leagues");
 			bodyNode.AppendChild(leaguesNode);

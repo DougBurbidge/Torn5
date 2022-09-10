@@ -16,17 +16,19 @@ namespace Torn5
         TcpListener server = null;
         Thread tcpListenerThread = null;
         LaserGameServer laserGameServer;
+        List<ServerGame> serverGames = new List<ServerGame>();
+        Int32 port;
 
-        public TornTcpListener(LaserGameServer gameServer)
+        public TornTcpListener(LaserGameServer gameServer, string remoteTornPort)
         {
             laserGameServer = gameServer;
+            port = Int32.Parse(remoteTornPort);
         }
 
         public void Connect()
         {
             try
             {
-                Int32 port = 1300;
                 IPAddress localAddr = IPAddress.Parse("127.0.0.1");
 
                 server = new TcpListener(localAddr, port);
@@ -89,15 +91,14 @@ namespace Torn5
             {
                 if (data == "listGames")
                 {
-                    List<ServerGame> games = laserGameServer.GetGames();
-                    string gamesJson = JsonSerializer.Serialize<List<ServerGame>>(games);
+                    serverGames = laserGameServer.GetGames();
+                    string gamesJson = JsonSerializer.Serialize<List<ServerGame>>(serverGames);
                     return gamesJson;
                 }
                 if (data.StartsWith("getGame"))
                 {
-                    List<ServerGame> games = laserGameServer.GetGames();
                     string gameTime = data.Split('#')[1];
-                    ServerGame serverGame = games.Find((game) => game.Time.ToString("yyyy-MM-ddTHH:mm:ss") == gameTime);
+                    ServerGame serverGame = serverGames.Find((game) => game.Time.ToString("yyyy-MM-ddTHH:mm:ss") == gameTime);
                     if (serverGame != null)
                     {
                         laserGameServer.PopulateGame(serverGame);
