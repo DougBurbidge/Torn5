@@ -123,6 +123,22 @@ namespace Torn5
             return GetPlayers(mask);
         }
 
-        
+        public override TimeSpan GameTimeElapsed()
+        {
+            try
+            {
+                string responseData = FetchFromTorn("gameTimeElapsed");
+
+                return JsonSerializer.Deserialize<TimeSpan>(responseData);
+            }
+            catch (Exception e)
+            {
+                status = e.Message;
+                Console.WriteLine("Exception: {0}", e.Message);
+
+                return new TimeSpan();
+            }
+        }
+
     }
 }

@@ -115,6 +115,11 @@ namespace Torn5
                     string playersJson = JsonSerializer.Serialize<List<LaserGamePlayer>>(serverPlayers);
                     return playersJson;
                 }
+                if(data == "gameTimeElapsed")
+                {
+                    TimeSpan elapsed = laserGameServer.GameTimeElapsed();
+                    return JsonSerializer.Serialize<TimeSpan>(elapsed);
+                }
                 return "Message Recieved";
             } catch(Exception e)
             {
