@@ -67,6 +67,7 @@ namespace Torn5
             {
                 string message = "listGames";
                 string responseData = FetchFromTorn(message);
+                Connected = true;
 
                 return JsonSerializer.Deserialize<List<ServerGame>>(responseData);
 

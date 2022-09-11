@@ -1151,6 +1151,7 @@ namespace Torn.UI
 			if (timeToNextCheck <= TimeSpan.Zero)
 			{
 				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the lasergame server.
+				timeElapsed = timeElapsed.TotalSeconds < 0 ? TimeSpan.Zero : timeElapsed;
 
 				if (timeElapsed > TimeSpan.FromSeconds(1))
 					timeToNextCheck = TimeSpan.FromSeconds(61 - timeElapsed.TotalSeconds % 60);  // Set the next query to be one second after an integer number of minutes of game time elapsed. This way, we will query one second after the game finishes.
