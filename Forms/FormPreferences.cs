@@ -125,6 +125,11 @@ namespace Torn.UI
 		public string LogFolder { get { return textBoxLogFolder.Text; }
 			                      set { textBoxLogFolder.Text = value; } }
 
+		public bool HostRemoteTorn { get { return hostRemoteTorn.Checked; }
+										set { hostRemoteTorn.Checked = value; } }
+		public string RemoteTornPort { get { return remoteTornPort.Text; } 
+										set { remoteTornPort.Text = value; } }
+
 		void CheckBoxWebServerCheckedChanged(object sender, EventArgs e)
 		{
 			labelPort.Enabled = checkBoxWebServer.Checked;
@@ -163,5 +168,10 @@ namespace Torn.UI
 			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
 				textBox.Text = folderBrowserDialog1.SelectedPath;
 		}
+
+        private void hostRemoteTorn_CheckedChanged(object sender, EventArgs e)
+        {
+			remoteTornPort.Enabled = hostRemoteTorn.Checked;
+        }
     }
 }
