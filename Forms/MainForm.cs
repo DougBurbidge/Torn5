@@ -710,6 +710,7 @@ namespace Torn.UI
 		void ButtonLatestGameClick(object sender, EventArgs e)
 		{
 			RefreshGamesList();
+			laserGameServer.GameTimeElapsed();
 			listViewGames.SelectedItems.Clear();
 			if (listViewGames.Items.Count > 0)
 			{
