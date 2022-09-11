@@ -1508,7 +1508,7 @@ namespace Torn.UI
 			logFolder = root.GetString("LogFolder", "");
 			selectedNode = root.GetString("Selected", "");
 			hostRemoteTorn = int.Parse(root.GetString("HostRemoteTorn", "0")) > 0 ;
-			remoteTornPort = root.GetString("RemoteTornPort", "1300");
+			remoteTornPort = root.GetString("RemoteTornPort", "12080");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
 
