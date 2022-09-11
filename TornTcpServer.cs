@@ -104,13 +104,23 @@ namespace Torn5
 
         public override List<LaserGamePlayer> GetPlayers(string mask) 
         {
-            Console.WriteLine("Not Implemented");
-            return new List<LaserGamePlayer>();
+            try
+            {
+                string message = "listPlayers#" + mask;
+                string responseData = FetchFromTorn(message);
+
+                return JsonSerializer.Deserialize<List<LaserGamePlayer>>(responseData);
+            } catch(Exception e)
+            {
+                status = e.Message;
+                Console.WriteLine("Exception: {0}", e.Message);
+
+                return new List<LaserGamePlayer>();
+            }
         }
         public override List<LaserGamePlayer> GetPlayers(string mask, List<LeaguePlayer> players)
         {
-            Console.WriteLine("Not Implemented");
-            return new List<LaserGamePlayer>();
+            return GetPlayers(mask);
         }
 
         

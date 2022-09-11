@@ -108,6 +108,13 @@ namespace Torn5
                         return "{ error: 'No Game Found'}";
                     }
                 }
+                if (data.StartsWith("listPlayers"))
+                {
+                    string mask = data.Split('#')[1];
+                    List<LaserGamePlayer> serverPlayers = laserGameServer.GetPlayers(mask);
+                    string playersJson = JsonSerializer.Serialize<List<LaserGamePlayer>>(serverPlayers);
+                    return playersJson;
+                }
                 return "Message Recieved";
             } catch(Exception e)
             {
