@@ -29,9 +29,8 @@ namespace Torn5
         {
             try
             {
-                IPAddress localAddr = IPAddress.Parse("127.0.0.1");
 
-                server = new TcpListener(localAddr, port);
+                server = new TcpListener(IPAddress.Any, port);
 
                 server.Start();
 
@@ -67,7 +66,7 @@ namespace Torn5
 
                                 // Send back a response.
                                 stream.Write(msg, 0, msg.Length);
-                                Console.WriteLine("Sent: {0}", data);
+                                Console.WriteLine("Sent: {0}", response);
                             }
 
                             client.Close();
