@@ -2424,11 +2424,11 @@ namespace Torn.Report
 						Color dark = Color.FromArgb((c.ToColor().R + Color.Gray.R) / 2, (c.ToColor().G + Color.Gray.G) / 2, (c.ToColor().B + Color.Gray.B) / 2);
 						if (colourTotals[c].Count > rank)
 						{
-							row.Add(BlankZero(colourTotals[c][rank], ChartType.Bar, dark));
+							row.Add(new ZCell(colourTotals[c][rank], ChartType.Bar, null, dark));
 							maxTotal = Math.Max(maxTotal, colourTotals[c][rank]);
 						}
 		 				else
-		 					row.Add(new ZCell("", dark));
+		 					row.Add(new ZCell("0", dark));
 		 			}
 
 				if (league.IsPoints())

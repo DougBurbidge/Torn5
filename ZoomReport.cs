@@ -860,7 +860,7 @@ namespace Zoom
 				{
 					ZCell cell = Rows[i][j];
 					string text = cell.Text;
-					if (string.IsNullOrEmpty(cell.Text))
+					if (string.IsNullOrEmpty(cell.Text) && Columns.Count > j)
 					{
 						// If the cell is otherwise empty, and it contains the start of an arrow that has one From and one To, 
 						var arrows = Columns[j].Arrows.FindAll(a => a.From.Count == 1 && a.To.Count == 1 && a.From[0].Row == i);
