@@ -161,7 +161,7 @@ namespace Torn
 		// A game will be a time or date/time, followed by a separator, followed
 		// by a separated list of numbers, which are the teams in that game. e.g.:
 		// 8:00	1	2	3
-		public void Parse(string s, FixtureTeams teams, char separator = '\t')
+		public void Parse(string s, FixtureTeams teams, char separator = '\t', string colours = "1,2,3,4,5")
 		{
 			string[] lines = s.Split(new string[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
 			foreach (string line in lines)
@@ -187,8 +187,9 @@ namespace Torn
 
 						if (!fg.Teams.ContainsKey(ft))
 						{
+							string[] colors = colours.Split(',');
 							if (fields.Length <= 5)  // If there are five or less teams per game,
-								fg.Teams.Add(ft, (Colour)i);  // assign colours to teams.
+								fg.Teams.Add(ft, (Colour)Int32.Parse(colors[i-1]));  // assign colours to teams.
 							else
 								fg.Teams.Add(ft, Colour.None);
 						}
@@ -197,6 +198,26 @@ namespace Torn
 				Add(fg);
 			}
 		}
+
+		public void Parse(List<List<int>> grid, FixtureTeams teams, DateTime firstGame, TimeSpan duration, string colours = "1,2,4,17")
+        {
+			string str = "";
+
+			foreach(List<int> row in grid)
+            {
+				str += firstGame.ToString("dd/MM/yyyy hh:mm:ss tt");
+				foreach (int team in row)
+                {
+					str += "\t";
+					str += team + 1;
+				}
+				firstGame += duration;
+				str += "\r\n";
+			}
+
+			Parse(str, teams, '\t', colours);
+
+        }
 
 		// Import past games from a league.
 		public void Parse(League league, FixtureTeams teams)

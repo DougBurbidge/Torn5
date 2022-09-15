@@ -289,6 +289,7 @@ namespace Torn.UI
 				Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
 				ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
 
+
 				ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
 
 				int teamIndex = League.Teams.IndexOf(leagueTeam);

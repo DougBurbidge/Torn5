@@ -138,7 +138,7 @@ namespace Torn.UI
 
 		void RadioLaserforceCheckedChanged(object sender, EventArgs e)
 		{
-			if (radioLaserforce.Checked && string.IsNullOrEmpty(textBoxServerAddress.Text))
+			if (radioLaserforce.Checked)
 				textBoxServerAddress.Text = "lf-main\\lf6";
 
 			radioWindowsAuth.Enabled = radioLaserforce.Checked;

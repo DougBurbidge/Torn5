@@ -312,7 +312,7 @@ namespace Torn.Report
 			foreach (Game game in league.Games(false))
 			{
 				var fg = fixture.BestMatch(game, out double score);
-				if (score > 0.5)
+				if (score > 0.5 && !match.ContainsKey(fg))
 					match.Add(fg, game);
 			}
 

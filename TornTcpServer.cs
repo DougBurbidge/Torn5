@@ -15,7 +15,7 @@ namespace Torn5
         string server;
         TcpClient client;
 
-        public TornTcpServer(string _server = "", string _port = "12080")
+        public TornTcpServer(string _server = "", string _port = "12081")
         {
             port = Int32.Parse(_port);
             server = _server;

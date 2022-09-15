@@ -338,8 +338,8 @@ namespace Torn
 		/// <summary>Victory points adjustment</summary>
 		public double PointsAdjustment { get; set; }
 
-		readonly List<GamePlayer> players;
-		public List<GamePlayer> Players { get { return players; } }
+		private List<GamePlayer> players;
+		public List<GamePlayer> Players { get { return players; } set { players = value; } }
 
 		public GameTeam()
 		{
@@ -899,17 +899,6 @@ namespace Torn
 				Teams.Add(leagueTeam);
 			}
 
-			// Update to latest grades
-			foreach(GamePlayer gamePlayer in teamData.Players)
-            {
-				if (gamePlayer.Grade != null)
-				{
-					int index = leagueTeam.Players.FindIndex(p => p.Id == gamePlayer.PlayerId);
-					leagueTeam.Players[index].Grade = gamePlayer.Grade;
-				}
-
-			}
-
 			if(IsAutoHandicap)
             {
 				int cap = CalulateTeamCap(gameTeam);
@@ -980,6 +969,11 @@ namespace Torn
 				}
 
 				debug.Length -= 2; debug.Append(".\n");
+
+				teamData.GameTeam.Players.ForEach((player) => {
+					LeaguePlayer leaguePlayer = Players.Find((p) => p.Id == player.PlayerId);
+					player.Grade = leaguePlayer.Grade;
+				});
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);

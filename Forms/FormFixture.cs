@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -16,6 +17,12 @@ namespace Torn.UI
 	{
 		public Holder Holder { get; set; }
 		public string ExportFolder { get; set; }
+
+		private List<List<int>> previousGrid;
+		private double previousBestScore;
+		private double previousGamesPerTeam;
+		private bool previousHasRef;
+		private List<List<int>> previousExistingPlays;
 
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
@@ -46,15 +53,442 @@ namespace Torn.UI
 			displayReportGrid.Report = null;
 		}
 
+		void LogGrid<T>(List<List<T>> grid)
+		{
+			string str = "**********\n";
+			foreach (List<T> list in grid)
+			{
+				foreach (T item in list)
+				{
+					str += item + ",\t";
+				}
+				str += "\n";
+			}
+			str += "**********";
+			Console.WriteLine(str);
+		}
+
+		List<T> FlattenGrid<T>(List<List<T>> grid)
+		{
+			List<T> flat = new List<T>();
+			foreach (List<T> list in grid)
+			{
+				flat.AddRange(list);
+			}
+			return flat;
+		}
+
+		List<List<T>> TransposeGrid<T>(List<List<T>> grid)
+        {
+			return grid.SelectMany(inner => inner.Select((item, index) => new { item, index }))
+				.GroupBy(i => i.index, i => i.item)
+				.Select(g => g.ToList())
+				.ToList();
+		}
+
+		List<List<int>> GetGrid(double numberOfTeams, double teamsPerGame, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays, int maxMillis)
+		{
+			List<List<int>> bestGrid = SetupGrid(numberOfTeams, teamsPerGame, gamesPerTeam);
+			double bestScore = CalcScore(bestGrid, gamesPerTeam, hasRef, existingPlays);
+
+			return ContinueMixing(bestGrid, gamesPerTeam, hasRef, existingPlays, maxMillis, bestScore);
+
+		}
+
+		List<List<int>> ContinueMixing(List<List<int>> grid, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays, int maxMillis, double startingScore)
+        {
+			List<List<int>> bestGrid = grid;
+			double bestScore = startingScore;
+			bool badFixture = bestScore > 10000;
+
+			Console.WriteLine("initScore: {0}", bestScore);
+			LogGrid(bestGrid);
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			scoreLabel.Visible = false;
+			scoreLabel.Text = "";
+
+			for (int i = 0; i < 20000; i++)
+			{
+				List<List<int>> mixedGrid = MixGrid(bestGrid);
+				double score = CalcScore(mixedGrid, gamesPerTeam, hasRef, existingPlays);
+				if (score <= bestScore)
+				{
+					bestScore = score;
+					bestGrid = mixedGrid;
+					if (bestScore > 10000)
+					{
+						badFixture = true;
+					}
+					else
+					{
+						badFixture = false;
+					}
+				}
+			}
+
+			while (badFixture)
+			{
+				if (sw.ElapsedMilliseconds > maxMillis)
+					break;
+				List<List<int>> mixedGrid = MixGrid(bestGrid);
+				double score = CalcScore(mixedGrid, gamesPerTeam, hasRef, existingPlays);
+				if (score <= bestScore)
+				{
+					bestScore = score;
+					bestGrid = mixedGrid;
+					if (bestScore > 10000)
+					{
+						badFixture = true;
+					}
+					else
+					{
+						badFixture = false;
+					}
+				}
+			}
+			Console.WriteLine(sw.ElapsedMilliseconds);
+
+			Console.WriteLine("bestScore: {0}", bestScore);
+			LogGrid(bestGrid);
+			scoreLabel.Text = bestScore >= 10000 ? "Extend max time and regenerate: " + Math.Round(bestScore).ToString() : "Score: " + Math.Round(bestScore).ToString() + " (Lower is better)";
+			scoreLabel.BackColor = bestScore >= 10000 ? Color.FromName("red") : Color.Transparent;
+			scoreLabel.Visible = true;
+
+			previousGrid = bestGrid;
+			previousBestScore = bestScore;
+			previousGamesPerTeam = gamesPerTeam;
+			previousHasRef = hasRef;
+			previousExistingPlays = existingPlays;
+			continueGenerating.Enabled = true;
+
+
+			return bestGrid;
+		}
+
+		List<List<int>> MixGrid(List<List<int>> grid)
+        {
+			List<List<int>> newGrid = grid.ConvertAll(row => row.ConvertAll(cell => cell));
+			double teamsPerGame = grid[0].Count;
+			double totalTeams = FlattenGrid(grid).Uniq().Count;
+			Random rnd = new Random();
+
+			int game1 = rnd.Next(grid.Count);
+			int game2 = rnd.Next(grid.Count);
+
+			while ((totalTeams / teamsPerGame) > 1 && game1 == game2)
+            {
+				game2 = rnd.Next(grid.Count - 1);
+            }
+
+			int player1 = rnd.Next((int)teamsPerGame);
+			int player2 = rnd.Next((int)teamsPerGame);
+
+			newGrid[game1][player1] = grid[game2][player2];
+			newGrid[game2][player2] = grid[game1][player1];
+
+			return newGrid;
+        }
+
+		List<int> SumRows(List<List<int>> grid )
+        {
+			List<int> totals = new List<int>();
+			foreach(List<int> row in grid)
+            {
+				int total = 0;
+				foreach(int value in row)
+                {
+					total += value;
+                }
+				totals.Add(total);
+            }
+			return totals;
+        }
+
+		int AverageRow(List<int> row)
+		{
+			int total = 0;
+			foreach (int value in row)
+			{
+				total += value;
+			}
+
+			return total / row.Count;
+				
+		}
+
+		double CalcScore(List<List<int>> grid, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays)
+		{
+			int BACK_TO_BACK_PENALTY = 10;
+			int totalTeams = FlattenGrid(grid).Uniq().Count;
+			int teamsPerGame = grid[0].Count;
+			double previousAveragePlays = AverageRow(SumRows(existingPlays)) / totalTeams;
+			List<List<int>> plays = CalcPlays(grid, hasRef, existingPlays);
+			double averagePlays = ((gamesPerTeam + previousAveragePlays) * teamsPerGame) / totalTeams;
+
+			double score = 0;
+
+			for (int player1 = 0; player1 < plays.Count; player1++)
+            {
+				score += plays[player1][player1] * 10000; // penalty for playing themselves
+				for(int player2 = player1 + 1; player2 < plays[player1].Count; player2++)
+                {
+					score += Math.Pow(plays[player1][player2] - averagePlays, 2);
+                }
+            }
+
+			 List<List<int>> transposedGrid = TransposeGrid(grid);
+
+			//penalty for same colour
+			foreach (List<int> colour in transposedGrid)
+            {
+				int numberOfGames = colour.Count;
+				int numberOfColours = transposedGrid.Count;
+				int uniqueTeams = colour.Uniq().Count;
+				double gamesOnEachColour = gamesPerTeam / numberOfColours;
+				int penalties = colour.FindAll(team => colour.FindAll(t => t == team).Count > gamesOnEachColour).Count;
+
+				double penalty = penalties * 10000;
+				score += penalty;
+            }
+
+			foreach(List<int> row in grid)
+            {
+				int uniquePlayers = row.Uniq().Count;
+				score += Math.Abs(uniquePlayers - teamsPerGame) * 100000; // penalty for playing themselves
+			}
+
+			//back to back
+			for (int game = 0; game < grid.Count - 1; game++)
+			{
+				for (int player1 = 0; player1 < teamsPerGame; player1++)
+				{
+					for (int player2 = 0; player2 < teamsPerGame; player2++)
+					{
+						foreach(int player in grid[game])
+                        {
+							List<int> backToBacks = grid[game + 1].FindAll(p => p == player);
+							score += BACK_TO_BACK_PENALTY * backToBacks.Count;
+                        }
+					}
+				}
+			}
+
+
+			return score;
+		}
+
+		List<List<int>> AddGrids(List<List<int>> grid1, List<List<int>> grid2)
+        {
+			
+			if (grid1.Count > 0 && grid1.Count == grid2.Count && grid1[0].Count == grid2[0].Count)
+			{
+				List<List<int>> grid3 = new List<List<int>>();
+				for (int i = 0; i < grid1.Count; i++)
+				{
+					List<int> row = new List<int>();
+					for (int j = 0; j < grid1[i].Count; j++)
+					{
+						if(grid2.Count > i && grid2[i].Count > j)
+                        {
+							row.Add(grid1[i][j] + grid2[i][j]);
+						} else
+                        {
+							row.Add(grid1[i][j]);
+                        }
+						
+					}
+					grid3.Add(row);
+				}
+				return grid3;
+			} else
+            {
+				return grid1;
+            }
+        }
+
+		List<List<int>> CalcPlays(List<List<int>> grid, bool hasRef, List<List<int>> existingPlays)
+        {
+			List<List<int>> newGrid = grid.ConvertAll(row => row.ConvertAll(cell => cell));
+			// ignore ref games
+			if (hasRef)
+            {
+				List<List<int>> transposedGrid = TransposeGrid(newGrid);
+				transposedGrid.RemoveAt(transposedGrid.Count - 1);
+				newGrid = TransposeGrid(transposedGrid);
+            }
+
+			int totalTeams = FlattenGrid(newGrid).Uniq().Count;
+			List<List<int>> plays = new List<List<int>>();
+			for(int team1 = 0; team1 < totalTeams; team1++)
+            {
+				List<int> row = new List<int>();
+				for (int team2 = 0; team2 < totalTeams; team2++)
+				{
+					if (team1 == team2)
+					{
+						row.Add(0);
+					}
+					else
+					{
+						List<List<int>> games = newGrid.FindAll(g => g.Contains(team1) && g.Contains(team2));
+						row.Add(games.Count);
+					}
+				}
+				plays.Add(row);
+			}
+
+			return AddGrids(plays, existingPlays);
+		}
+
+
+		List<List<int>> SetupGrid (double numberOfTeams, double teamsPerGame, double gamesPerTeam)
+        {
+			double numGames = (numberOfTeams / teamsPerGame) * gamesPerTeam;
+
+			// set up grid
+			List<int> arr = Enumerable.Repeat(-1, (int) teamsPerGame * (int)Math.Ceiling(numGames)).ToList();
+			int index = 0;
+			List<int> updatedArr = new List<int>();
+			foreach (int el in arr)
+			{
+				updatedArr.Add((int)(index % numberOfTeams));
+				index++;
+			}
+			List<List<int>> grid = updatedArr.ChunkBy((int)teamsPerGame);
+
+			return grid;
+
+		}
+
+		public List<List<int>> GetLeagueGrid(League league)
+		{
+			List<List<int>> grid = new List<List<int>>();
+			foreach(Game game in league.AllGames)
+            {
+				List<int> row = new List<int>();
+				foreach(GameTeam team in game.Teams)
+                {
+					row.Add(team.TeamId - 1 ?? -1);
+                }
+				grid.Add(row);
+            }
+
+			return grid;
+		}
+
+		public List<List<int>> PadPlaysToTeamNumber(int numberOfTeams, List<List<int>> plays)
+        {
+			Console.WriteLine(numberOfTeams);
+			List<List<int>> newGrid = plays.ConvertAll(row => row.ConvertAll(cell => cell));
+			int teamPlays = newGrid.Count;
+			if (numberOfTeams > teamPlays)
+            {
+				for(int i = 0; i < teamPlays; i++)
+                {
+					for(int j = teamPlays; j < numberOfTeams; j++)
+                    {
+						newGrid[i].Add(0);
+                    }
+				}
+				for(int i = teamPlays; i < numberOfTeams; i++)
+                {
+					List<int> arr = Enumerable.Repeat(0, numberOfTeams).ToList();
+					newGrid.Add(arr);
+				}
+
+				return newGrid;
+			} else
+            {
+				return plays;
+            }
+        }
+
+		double TeamsPerGame()
+        {
+			double teamsPerGame = 0;
+			teamsPerGame += red.Checked ? 1 : 0;
+			teamsPerGame += yellow.Checked ? 1 : 0;
+			teamsPerGame += green.Checked ? 1 : 0;
+			teamsPerGame += blue.Checked ? 1 : 0;
+			teamsPerGame += referee.Checked ? 1 : 0;
+			return teamsPerGame;
+		}
+
+		string TeamColours()
+		{
+			string colours = "";
+			colours += red.Checked ? "1," : "";
+			colours += blue.Checked ? "2," : "";
+			colours += yellow.Checked ? "4," : "";
+			colours += green.Checked ? "3," : "";
+			colours += referee.Checked ? "17," : "";
+			return colours;
+		}
+
 		void ButtonImportTeamsClick(object sender, EventArgs e)
+		{
+			buttonImportTeams.Text = "Generating...";
+			buttonImportTeams.Enabled = false;
+			continueGenerating.Enabled = false;
+			Holder.Fixture.Teams.Clear();
+			Holder.Fixture.Teams.Parse(textBoxTeams.Text, Holder.League);
+			Holder.Fixture.Games.Clear();
+			double numberOfTeams = Holder.Fixture.Teams.Count;
+			bool hasRef = referee.Checked;
+			double teamsPerGame = TeamsPerGame();
+			double gamesPerTeam = (double) gamesPerTeamInput.Value + (hasRef ? (double) gamesPerTeamInput.Value / (teamsPerGame - 1) : 0);
+			int maxMillis = (int)maxTime.Value * 1000;
+
+			List<List<int>> existingGrid = GetLeagueGrid(Holder.League);
+			List<List<int>> existingPlays = CalcPlays(existingGrid, false, new List<List<int>>());
+			List<List<int>> existingPlaysPadded = PadPlaysToTeamNumber((int)numberOfTeams, existingPlays);
+
+			LogGrid(existingPlaysPadded);
+
+
+			List<List<int>> grid = GetGrid(numberOfTeams, teamsPerGame, gamesPerTeam, hasRef, existingPlaysPadded, maxMillis);
+
+
+			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, timePicker.Value, TimeSpan.FromMinutes((double)numericMinutes.Value), TeamColours());
+
+
+			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
+			textBoxGames.Text = Holder.Fixture.Games.ToString();
+			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
+			reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+			reportTeamsGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+			buttonImportTeams.Text = "Generate";
+			buttonImportTeams.Enabled = true;
+		}
+
+		private void ContinueGenerateClick(object sender, EventArgs e)
 		{
 			Holder.Fixture.Teams.Clear();
 			Holder.Fixture.Teams.Parse(textBoxTeams.Text, Holder.League);
+			Holder.Fixture.Games.Clear();
+			buttonImportTeams.Text = "Generating...";
+			buttonImportTeams.Enabled = false;
+			continueGenerating.Enabled = false;
+			int maxMillis = (int)maxTime.Value * 1000;
+			List<List<int>> grid = ContinueMixing(previousGrid, previousGamesPerTeam, previousHasRef, previousExistingPlays, maxMillis, previousBestScore);
+
+			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, timePicker.Value, TimeSpan.FromMinutes((double)numericMinutes.Value), TeamColours());
+
 			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
+			textBoxGames.Text = Holder.Fixture.Games.ToString();
+			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
+			reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+			reportTeamsGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+			buttonImportTeams.Text = "Generate";
+			buttonImportTeams.Enabled = true;
 		}
 
 		void ButtonImportGamesClick(object sender, EventArgs e)
 		{
+			Holder.Fixture.Games.Clear();
+
 			bool fromLeague = (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift)) ||
 				(ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Alt)) ||
 				(ModifierKeys.HasFlag(Keys.Shift) && ModifierKeys.HasFlag(Keys.Alt));
@@ -560,7 +994,7 @@ namespace Torn.UI
 			var _ = ((NumericUpDown)sender).Value;  // This piece of black magic forces the control's ValueChanged to fire after the user edits the text in the control.
 		}
 
-		private void ButtonEditPyramidGamesClick(object sender, EventArgs e)
+        private void ButtonEditPyramidGamesClick(object sender, EventArgs e)
 		{
 			if (listViewGames.SelectedItems.Count == 0)
 				return;
@@ -661,4 +1095,29 @@ class TeamComparer : IComparer<FixtureTeam>
 		if (iy == -1) iy = 999999;
 		return ix - iy;
 	}
+}
+
+public static class ListExtensions
+{
+	public static List<List<T>> ChunkBy<T>(this List<T> source, int chunkSize)
+	{
+		return source
+			.Select((x, i) => new { Index = i, Value = x })
+			.GroupBy(x => x.Index / chunkSize)
+			.Select(x => x.Select(v => v.Value).ToList())
+			.ToList();
+	}
+	public static List<T> Uniq<T>(this List<T> source)
+    {
+		List<T> result = new List<T>();
+
+		foreach(T el in source)
+        {
+			bool exists = result.Contains(el);
+			if (!exists)
+				result.Add(el);
+        }
+		return result;
+
+    }
 }
