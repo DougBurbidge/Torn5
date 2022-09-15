@@ -286,15 +286,18 @@ namespace Torn.UI
 			LeagueTeam leagueTeam = GetLeagueTeamFromFile();
 			if (leagueTeam != null)
 			{
-				Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
-				ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
-
-
 				ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
-
 				int teamIndex = League.Teams.IndexOf(leagueTeam);
 
 				int playerIndex = leagueTeam.Players.FindIndex(p => p.Id == player.PlayerId);
+				if (playerIndex < 0)
+				{
+					MessageBoxButtons buttons = MessageBoxButtons.OK;
+					MessageBox.Show("Please Commit Team with new player before grading player", "Cannot Apply Grade", buttons);
+					return;
+				}
+				Grade grade = (Grade)((ToolStripMenuItem)sender).Tag;
+				ListView.SelectedItems[0].SubItems[3].Text = grade.Name;
 
 				League.Teams[teamIndex].Players[playerIndex].Grade = grade.Name;
 				League.Save();
