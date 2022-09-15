@@ -2070,7 +2070,7 @@ namespace Torn.Report
 				var player = pt.Key;
 				var games = Games(league, includeSecret, rt).Where(x => x.Players().Exists(y => y.PlayerId == player.Id));
 
-				if (games.Count() >= atLeastN)
+				if (games.Count() >= atLeastN && player.Name != null)
 				{
 					ZRow row = report.AddRow(new ZRow());
 					row.Add(new ZCell(0, ChartType.None, "N0"));  // Temporary rank

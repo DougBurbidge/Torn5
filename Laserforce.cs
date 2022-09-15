@@ -140,6 +140,8 @@ namespace Torn
 					};
 					if (!reader.IsDBNull(3))
 						player.PlayerId = reader.GetString(3);
+					else
+						player.PlayerId = player.Pack;
 					if (!reader.IsDBNull(4))
 						player.Alias = reader.GetString(4);
 					player.ServerPlayerId = player.Pack;
