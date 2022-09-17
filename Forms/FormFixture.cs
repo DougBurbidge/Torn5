@@ -458,8 +458,17 @@ namespace Torn.UI
 			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
-			reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
-			reportTeamsGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+			if(outputGrid.Checked && outputList.Checked)
+            {
+				reportTeamsList.Report = Reports.FixtureCombined(Holder.Fixture, Holder.League);
+			} else if(outputList.Checked)
+            {
+				reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+			}
+			else if (outputGrid.Checked)
+			{
+				reportTeamsList.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+			}
 			buttonImportTeams.Text = "Generate";
 			buttonImportTeams.Enabled = true;
 		}
@@ -480,8 +489,18 @@ namespace Torn.UI
 			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
-			reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
-			reportTeamsGrid.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+			if (outputGrid.Checked && outputList.Checked)
+			{
+				reportTeamsList.Report = Reports.FixtureCombined(Holder.Fixture, Holder.League);
+			}
+			else if (outputList.Checked)
+			{
+				reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
+			}
+			else if (outputGrid.Checked)
+			{
+				reportTeamsList.Report = Reports.FixtureGrid(Holder.Fixture, Holder.League);
+			}
 			buttonImportTeams.Text = "Generate";
 			buttonImportTeams.Enabled = true;
 		}
