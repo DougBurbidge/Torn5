@@ -125,7 +125,7 @@ namespace Torn.UI
 					{
 						badFixture = false;
 					}
-				}
+				} 
 			}
 
 			while (badFixture)
@@ -148,10 +148,11 @@ namespace Torn.UI
 					}
 				}
 			}
-			Console.WriteLine(sw.ElapsedMilliseconds);
+			Console.WriteLine("Time Elapsed (ms): {0}", sw.ElapsedMilliseconds);
 
 			Console.WriteLine("bestScore: {0}", bestScore);
 			LogGrid(bestGrid);
+			LogGrid(CalcPlays(bestGrid, hasRef, existingPlays));
 			scoreLabel.Text = bestScore >= 10000 ? "Extend max time and regenerate: " + Math.Round(bestScore).ToString() : "Score: " + Math.Round(bestScore).ToString() + " (Lower is better)";
 			scoreLabel.BackColor = bestScore >= 10000 ? Color.FromName("red") : Color.Transparent;
 			scoreLabel.Visible = true;
@@ -177,13 +178,13 @@ namespace Torn.UI
 			int game1 = rnd.Next(grid.Count);
 			int game2 = rnd.Next(grid.Count);
 
-			while ((totalTeams / teamsPerGame) > 1 && game1 == game2)
-            {
-				game2 = rnd.Next(grid.Count - 1);
-            }
-
 			int player1 = rnd.Next((int)teamsPerGame);
 			int player2 = rnd.Next((int)teamsPerGame);
+
+			while ((totalTeams / teamsPerGame) > 1 && game1 == game2)
+			{
+				game2 = rnd.Next(grid.Count - 1);
+			}
 
 			newGrid[game1][player1] = grid[game2][player2];
 			newGrid[game2][player2] = grid[game1][player1];
@@ -225,7 +226,7 @@ namespace Torn.UI
 			int teamsPerGame = grid[0].Count;
 			double previousAveragePlays = AverageRow(SumRows(existingPlays)) / totalTeams;
 			List<List<int>> plays = CalcPlays(grid, hasRef, existingPlays);
-			double averagePlays = ((gamesPerTeam + previousAveragePlays) * teamsPerGame) / totalTeams;
+			double averagePlays = (((gamesPerTeam - (hasRef ? 1 : 0)) * (teamsPerGame  - (hasRef ? 1 : 0)) * (totalTeams - 1)) / (totalTeams * totalTeams)) + previousAveragePlays;
 
 			double score = 0;
 
@@ -234,7 +235,7 @@ namespace Torn.UI
 				score += plays[player1][player1] * 10000; // penalty for playing themselves
 				for(int player2 = player1 + 1; player2 < plays[player1].Count; player2++)
                 {
-					score += Math.Pow(plays[player1][player2] - averagePlays, 2);
+					score += Math.Pow(plays[player1][player2] - averagePlays, 4);
                 }
             }
 
@@ -274,7 +275,6 @@ namespace Torn.UI
 					}
 				}
 			}
-
 
 			return score;
 		}
@@ -328,7 +328,8 @@ namespace Torn.UI
 				{
 					if (team1 == team2)
 					{
-						row.Add(0);
+						List<List<int>> games = newGrid.FindAll(g => g.FindAll(t => t == team1).Count > 1);
+						row.Add(games.Count);
 					}
 					else
 					{

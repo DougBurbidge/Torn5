@@ -350,6 +350,121 @@ namespace Torn.Report
 			return report;
 		}
 
+		public static ZoomReport FixtureCombined(Fixture fixture, League league)
+        {
+			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Time", "left")
+			{
+				CssClass = "fixturelist",
+				MultiColumnOK = true
+			};
+
+			//list
+
+			var match = new Dictionary<FixtureGame, Game>();
+			foreach (Game game in league.Games(false))
+			{
+				var fg = fixture.BestMatch(game, out double score);
+				if (score > 0.5 && !match.ContainsKey(fg))
+					match.Add(fg, game);
+			}
+
+			int maxTeams = fixture.Games.Count == 0 ? 0 : fixture.Games.Max(x => x.Teams.Count());
+
+			for (int i = 0; i < maxTeams; i++)
+				report.AddColumn(new ZColumn("Team", ZAlignment.Left));
+
+			FixtureTeams sortedTeams = new FixtureTeams();
+
+			foreach (var fg in fixture.Games)
+			{
+				ZRow row = new ZRow();
+
+				ZCell timeCell = new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm"))
+				{
+					CssClass = "time"
+				};
+				if (match.ContainsKey(fg))
+					timeCell.Hyper = GameHyper(match[fg]);
+				row.Add(timeCell);
+
+				int index = 0;
+
+				foreach (var kv in fg.Teams.OrderBy(t => t.Value).ThenBy(t => t.Key.Name))
+				{
+					ZCell teamCell = new ZCell(kv.Key.Name, kv.Value.ToColor())
+					{
+						Hyper = "fixture.html?team=" + kv.Key.Id().ToString(CultureInfo.InvariantCulture)
+					};
+					row.Add(teamCell);
+					if (index == fg.Teams.Count - 1)
+					{
+						sortedTeams.Add(kv.Key);
+					}
+
+					index++;
+				}
+
+				row.CssClass = String.Concat(fg.Teams.Keys.Select(k => " t" + k.Id().ToString(CultureInfo.InvariantCulture)));
+
+				report.Rows.Add(row);
+			}
+
+			// grid
+
+			/*foreach (var ft in fixture.Teams)
+			{
+				var row = new ZRow();
+				var teamCell = new ZCell(ft.Name)
+				{
+					Hyper = "fixture.html?team=" + ft.Id().ToString(CultureInfo.InvariantCulture)
+				};
+				row.Add(teamCell);
+				report.Rows.Add(row);
+			}*/
+
+			bool multiDay = fixture.Games.Count > 1 && fixture.Games.First().Time.Date < fixture.Games.Last().Time.Date;
+
+			foreach (var fg in fixture.Games)
+			{
+				// Create a column for each game.
+				var column = report.AddColumn(new ZColumn(fg.Time.ToShortTimeString(), ZAlignment.Center));
+				if (multiDay)
+					column.GroupHeading = fg.Time.ToLongDateString();
+
+				// Add cells for this game, to this column.
+				for (int i = 0; i < sortedTeams.Count; i++)
+				{
+					var ft = sortedTeams[i];
+					ZCell cell;
+
+					if (fg.Teams.ContainsKey(ft))
+						cell = new ZCell(fg.Teams[ft].ToString()[0].ToString(), fg.Teams[sortedTeams[i]].ToColor());
+					else
+						cell = new ZCell();
+
+					cell.CssClass = "t" + ft.Id().ToString(CultureInfo.InvariantCulture) +
+						String.Concat(fg.Teams.Keys.Select(k => k.Id() == ft.Id() ? "" : " t" + k.Id().ToString(CultureInfo.InvariantCulture)));
+
+					report.Rows[i].Add(cell);
+				}
+			}
+
+			// Add one final column for the team name again.
+			/*report.AddColumn(new ZColumn("Team", ZAlignment.Left));
+			for (int i = 0; i < fixture.Teams.Count; i++)
+			{
+				var ft = fixture.Teams[i];
+				var teamCell = new ZCell(ft.Name)
+				{
+					Hyper = "fixture.html?team=" + ft.Id().ToString(CultureInfo.InvariantCulture)
+				};
+				report.Rows[i].Add(teamCell);
+			}*/
+
+			return report;
+
+		}
+
 		/// <summary> Build a grid of games. One team per row; one game per column.
 		public static ZoomReport GamesGrid(League league, bool includeSecret, ReportTemplate rt)
 		{

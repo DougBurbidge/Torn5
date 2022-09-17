@@ -132,8 +132,9 @@ namespace Torn.UI
             this.columnPriority = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnSecret = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.splitContainerReports = new System.Windows.Forms.SplitContainer();
-            this.reportTeamsGrid = new Torn5.Controls.DisplayReport();
+            this.printReport1 = new Torn5.Controls.PrintReport();
             this.reportTeamsList = new Torn5.Controls.DisplayReport();
+            this.reportTeamsGrid = new Torn5.Controls.DisplayReport();
             this.displayReportGames = new Torn5.Controls.DisplayReport();
             this.displayReportGrid = new Torn5.Controls.DisplayReport();
             this.printReportFinals = new Torn5.Controls.PrintReport();
@@ -334,6 +335,7 @@ namespace Torn.UI
             // 
             // tabTeams
             // 
+            this.tabTeams.Controls.Add(this.printReport1);
             this.tabTeams.Controls.Add(this.continueGenerating);
             this.tabTeams.Controls.Add(this.scoreLabel);
             this.tabTeams.Controls.Add(this.label23);
@@ -1512,16 +1514,15 @@ namespace Torn.UI
             this.splitContainerReports.SplitterDistance = 385;
             this.splitContainerReports.TabIndex = 14;
             // 
-            // reportTeamsGrid
+            // printReport1
             // 
-            this.reportTeamsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.reportTeamsGrid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.reportTeamsGrid.Location = new System.Drawing.Point(600, 433);
-            this.reportTeamsGrid.Name = "reportTeamsGrid";
-            this.reportTeamsGrid.Report = null;
-            this.reportTeamsGrid.Size = new System.Drawing.Size(618, 262);
-            this.reportTeamsGrid.TabIndex = 13;
+            this.printReport1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.printReport1.DisplayReport = this.reportTeamsList;
+            this.printReport1.DisplayReport2 = this.reportTeamsGrid;
+            this.printReport1.Location = new System.Drawing.Point(1154, 6);
+            this.printReport1.Name = "printReport1";
+            this.printReport1.Size = new System.Drawing.Size(64, 513);
+            this.printReport1.TabIndex = 25;
             // 
             // reportTeamsList
             // 
@@ -1532,8 +1533,19 @@ namespace Torn.UI
             this.reportTeamsList.Location = new System.Drawing.Point(600, 26);
             this.reportTeamsList.Name = "reportTeamsList";
             this.reportTeamsList.Report = null;
-            this.reportTeamsList.Size = new System.Drawing.Size(618, 401);
+            this.reportTeamsList.Size = new System.Drawing.Size(548, 401);
             this.reportTeamsList.TabIndex = 12;
+            // 
+            // reportTeamsGrid
+            // 
+            this.reportTeamsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.reportTeamsGrid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.reportTeamsGrid.Location = new System.Drawing.Point(600, 433);
+            this.reportTeamsGrid.Name = "reportTeamsGrid";
+            this.reportTeamsGrid.Report = null;
+            this.reportTeamsGrid.Size = new System.Drawing.Size(548, 262);
+            this.reportTeamsGrid.TabIndex = 13;
             // 
             // displayReportGames
             // 
@@ -1559,9 +1571,10 @@ namespace Torn.UI
             // 
             this.printReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.printReportFinals.DisplayReport = this.displayReportFinals;
+            this.printReportFinals.DisplayReport2 = null;
             this.printReportFinals.Location = new System.Drawing.Point(1154, 5);
             this.printReportFinals.Name = "printReportFinals";
-            this.printReportFinals.Size = new System.Drawing.Size(64, 480);
+            this.printReportFinals.Size = new System.Drawing.Size(64, 475);
             this.printReportFinals.TabIndex = 15;
             // 
             // displayReportFinals
@@ -1580,9 +1593,10 @@ namespace Torn.UI
             // 
             this.printReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.printReportPyramid.DisplayReport = this.displayReportPyramid;
-            this.printReportPyramid.Location = new System.Drawing.Point(1160, 333);
+            this.printReportPyramid.DisplayReport2 = null;
+            this.printReportPyramid.Location = new System.Drawing.Point(1157, 327);
             this.printReportPyramid.Name = "printReportPyramid";
-            this.printReportPyramid.Size = new System.Drawing.Size(64, 480);
+            this.printReportPyramid.Size = new System.Drawing.Size(64, 473);
             this.printReportPyramid.TabIndex = 10;
             // 
             // displayReportPyramid
@@ -1668,6 +1682,7 @@ namespace Torn.UI
             // printReportDraw
             // 
             this.printReportDraw.DisplayReport = this.displayReportDraw;
+            this.printReportDraw.DisplayReport2 = null;
             this.printReportDraw.Dock = System.Windows.Forms.DockStyle.Right;
             this.printReportDraw.Location = new System.Drawing.Point(1160, 0);
             this.printReportDraw.Name = "printReportDraw";
@@ -1858,5 +1873,6 @@ namespace Torn.UI
         private System.Windows.Forms.NumericUpDown maxTime;
         private System.Windows.Forms.Label scoreLabel;
         private System.Windows.Forms.Button continueGenerating;
+        private Torn5.Controls.PrintReport printReport1;
     }
 }

@@ -20,6 +20,8 @@ namespace Torn5.Controls
 	{
 		[Browsable(true)]
 		public DisplayReport DisplayReport { get; set; }
+		[Browsable(true)]
+		public DisplayReport DisplayReport2 { get; set; }
 
 		readonly SaveFileDialog saveFileDialog = new SaveFileDialog();
 		readonly PrintDialog printDialog = new PrintDialog();
@@ -95,6 +97,15 @@ namespace Torn5.Controls
 			IPEndPoint groupEP = new IPEndPoint(IPAddress.Parse("255.255.255.255"), TBOARD_SOCKET);
 
 			string result = DisplayReport.Report.ToTBoard();
+			Console.WriteLine(result);
+
+			if(DisplayReport2 != null)
+            {
+				string cleanedStr = result.Replace("EOSEOS", "");
+				string result2 = DisplayReport2.Report.ToTBoard();
+				string cleanedStr2 = result2.Replace("DISPLAYREPORTS,", "");
+				result = cleanedStr + cleanedStr2;
+			}
 
 			List<string> strs = result.Split(510).ToList();
 
