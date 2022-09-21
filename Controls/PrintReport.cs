@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Windows.Forms;
 using Zoom;
 
@@ -11,6 +15,7 @@ namespace Torn5.Controls
 	/// <summary>
 	/// UI to print and/or save a report template.
 	/// </summary>
+	/// 
 	public partial class PrintReport : UserControl
 	{
 		[Browsable(true)]
@@ -80,6 +85,53 @@ namespace Torn5.Controls
 		{
 			checkBoxScale.Enabled = radioPng.Checked;
 			numericScale.Enabled = radioPng.Checked && checkBoxScale.Checked;
+		}
+
+		private void ShowOnTBoardClicked(object sender, EventArgs e)
+        {
+			int TBOARD_SOCKET = 21570;
+
+			UdpClient udp = new UdpClient();
+			IPEndPoint groupEP = new IPEndPoint(IPAddress.Parse("255.255.255.255"), TBOARD_SOCKET);
+
+			string result = DisplayReport.Report.ToTBoard();
+
+			List<string> strs = result.Split(510).ToList();
+
+			foreach(string str in strs)
+            {
+				string index = strs.IndexOf(str).ToString().PadLeft(2, '0');
+				string chunk = index + str + "\x00";
+				byte[] sendBytes = Encoding.ASCII.GetBytes(chunk);
+				udp.Send(sendBytes, sendBytes.Length, groupEP);
+			}
+
+			string emptyIndex = strs.Count().ToString().PadLeft(2, '0');
+			byte[] sendBytesEnd = Encoding.ASCII.GetBytes(emptyIndex + "\x00");
+			udp.Send(sendBytesEnd, sendBytesEnd.Length, groupEP);
+		}
+    }
+	public static class Extensions
+	{
+		public static IEnumerable<string> Split(this string str, int n)
+		{
+			if (String.IsNullOrEmpty(str) || n < 1)
+			{
+				throw new ArgumentException();
+			}
+
+			for (int i = 0; i < str.Length; i += n)
+			{
+				if (str.Length - i > n)
+				{
+					yield return str.Substring(i, n);
+				}
+				else
+				{
+					yield return str.Substring(i, str.Length - i);
+				}
+
+			}
 		}
 	}
 }

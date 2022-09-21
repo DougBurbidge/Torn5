@@ -5,10 +5,13 @@ using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Torn.Report;
+using Torn5;
 using Zoom;
 
 /*
@@ -86,6 +89,7 @@ namespace Torn.UI
 
 		int webPort;
 		WebOutput webOutput;
+		TornTcpListener tornTcpListener;
 		LaserGameServer laserGameServer;
 		List<ServerGame> serverGames;
 		static Holders leagues;
@@ -99,6 +103,8 @@ namespace Torn.UI
 		string password;
 
 		string logFolder;
+		bool hostRemoteTorn;
+		string remoteTornPort;
 
 		DateTime lastChecked = DateTime.MinValue;
 		TimeSpan timeToNextCheck = TimeSpan.FromSeconds(5);
@@ -119,6 +125,8 @@ namespace Torn.UI
 
 		void MainFormShown(object sender, EventArgs e)
 		{
+			// Tries to export entire server could be 500 games and crashes everything
+			ribbonButtonExportJson.Enabled = false;
 			leagues = new Holders();
 			webPort = 8080;
 			systemType = SystemType.Demo;
@@ -159,7 +167,7 @@ namespace Torn.UI
 			if (listViewLeagues.Items.Count == 0)
 				ListViewLeaguesItemSelectionChanged(null, null);
 			else if (listViewLeagues.SelectedIndices.Count == 0)
-				listViewLeagues.SelectedIndices.Add(0);
+				listViewLeagues.SelectedIndices.Add(0);			
 		}
 
 		void ConnectLaserGameServer()
@@ -182,7 +190,7 @@ namespace Torn.UI
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
 					case SystemType.OZone: laserGameServer = new OZone(serverAddress, serverPort);  break;
 					case SystemType.Torn:
-						laserGameServer = new JsonServer(serverAddress);
+						laserGameServer = new TornTcpServer(serverAddress, serverPort);
 						timeElapsed = laserGameServer.GameTimeElapsed();
 					break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;
@@ -192,6 +200,12 @@ namespace Torn.UI
 				webOutput.GetGames = laserGameServer.GetGames;
 				webOutput.PopulateGame = laserGameServer.PopulateGame;
 				webOutput.Players = laserGameServer.GetPlayers;
+				tornTcpListener?.Close();
+				if (hostRemoteTorn)
+				{
+					tornTcpListener = new TornTcpListener(laserGameServer, remoteTornPort);
+					tornTcpListener.Connect();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -209,6 +223,7 @@ namespace Torn.UI
 			try
 			{
 				webOutput.Dispose();
+				tornTcpListener?.Close();
 				if (laserGameServer != null)
 					laserGameServer.Dispose();
 	
@@ -359,9 +374,10 @@ namespace Torn.UI
 
 		void ButtonCommitClick(object sender, EventArgs e)
 		{
+			List<ServerGame> serverGames = new List<ServerGame>();
+
 			foreach (ListViewItem item in listViewGames.SelectedItems)
 			{
-
 				var teamDatas = new List<GameTeamData>();
 				var teamBoxes = TeamBoxes();
 				// Build a list, one TeamData per TeamBox, connecting each GameTeam to its ServerPlayers.
@@ -376,6 +392,9 @@ namespace Torn.UI
 				if (teamDatas.Any())
 				{
 					ServerGame serverGame = item.Tag as ServerGame;
+
+					laserGameServer.PopulateGame(serverGame);
+					serverGames.Add(serverGame);
 
 					activeHolder.League.CommitGame(serverGame, teamDatas, groupPlayersBy);
 
@@ -397,8 +416,22 @@ namespace Torn.UI
 					RefreshGamesList();
 					RankTeams();
 					listViewGames.Focus();
-//					if (autoUpdateScoreboard)
-//						UpdateScoreboard();
+					if (autoUpdateScoreboard)
+						UpdateScoreboard(serverGame);
+				}
+			}
+
+			if (GetExportFolder())
+			{
+				Cursor.Current = Cursors.WaitCursor;
+				progressBar1.Value = 0;
+				try
+				{
+					webOutput.ExportGamesToJSON(exportFolder, serverGames, ProgressBar);
+				}
+				finally
+				{
+					FinishProgress();
 				}
 			}
 		}
@@ -479,6 +512,83 @@ namespace Torn.UI
 					FinishProgress();
 				}
 			}
+		}
+
+		private string ColorToTColor(Color color)
+        {
+			var r = color.R.ToString("X2");
+			var g = color.G.ToString("X2");
+			var b = color.B.ToString("X2");
+
+			return "$02" + b + g + r;
+		}
+
+		private void UpdateScoreboard(ServerGame serverGame)
+        {
+			int TBOARD_SOCKET = 21570;
+
+			UdpClient udp = new UdpClient();
+			IPEndPoint groupEP = new IPEndPoint(IPAddress.Parse("255.255.255.255"), TBOARD_SOCKET);
+
+			string fontColour = "$02000000"; //black
+
+			League league = serverGame.League;
+			Game game = league.AllGames.Find(g => g.Time == serverGame.Time);
+
+			string message = "DISPLAYREPORTS";
+
+			foreach (GameTeam team in game.Teams)
+			{
+				LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
+
+				string teamColour = ColorToTColor(team.Colour.ToColor());
+				string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
+
+				bool hasTR = (team.Players.Count > 0 && team.Players[0].HitsBy > 0) || (team.Players?.Count > 0 && team.Players[0].HitsOn > 0);
+
+				string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "") + "right\"";
+
+				foreach (GamePlayer player in team.Players)
+				{
+					LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
+					string alias = leaguePlayer?.Name != null ? leaguePlayer.Name : player.Pack;
+					decimal tagRatio = hasTR ? (Convert.ToDecimal(player.HitsBy) / Convert.ToDecimal(player.HitsOn)) : 0;
+					teamString += ",\"" + alias + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
+
+				}
+
+				teamString += ",EOTEOT";
+
+				message += teamString;
+			}
+
+			message += ",EOSEOS";
+
+			List<string> strs = message.Split(510).ToList();
+
+			foreach (string str in strs)
+			{
+				string index = strs.IndexOf(str).ToString().PadLeft(2, '0');
+				string chunk = index + str + "\x00";
+				byte[] sendBytes = Encoding.ASCII.GetBytes(chunk);
+				udp.Send(sendBytes, sendBytes.Length, groupEP);
+			}
+
+			string emptyIndex = strs.Count().ToString().PadLeft(2, '0');
+			byte[] sendBytesEnd = Encoding.ASCII.GetBytes(emptyIndex + "\x00");
+			udp.Send(sendBytesEnd, sendBytesEnd.Length, groupEP);
+		}
+
+		private void ButtonUpdateScoreboardClick(object sender, EventArgs e)
+        {
+			var item = listViewGames.SelectedItems[0];
+			if (item.Tag is ServerGame serverGame && serverGame.Game != null)
+			{
+				UpdateScoreboard(serverGame);
+			} else
+            {
+				MessageBox.Show("Please Commit Game First", "Cannot Display Scoreboard", MessageBoxButtons.OK);
+            }
 		}
 
 		private void ButtonPrintReportsClick(object sender, EventArgs e)
@@ -644,7 +754,9 @@ namespace Torn.UI
 				Sqluser = sqlUserId,
 				SqlPassword = sqlPassword,
 				WebPort = webPort,
-				LogFolder = logFolder
+				LogFolder = logFolder,
+				HostRemoteTorn = hostRemoteTorn,
+				RemoteTornPort = remoteTornPort
 			};
 
 			if (form.ShowDialog() == DialogResult.OK)
@@ -665,6 +777,8 @@ namespace Torn.UI
 				sqlUserId = form.Sqluser;
 				sqlPassword = form.SqlPassword;
 				logFolder = form.LogFolder;
+				remoteTornPort = form.RemoteTornPort;
+				hostRemoteTorn = form.HostRemoteTorn;
 				
 				ConnectLaserGameServer();
 				ListViewLeaguesItemSelectionChanged(null, null);
@@ -734,7 +848,6 @@ namespace Torn.UI
 				Console.WriteLine("Time: " + time);
 				if (timeNode.InnerText == gameTime)
                 {
-					Console.WriteLine("AAAA");
 					if (gameNode.SelectSingleNode("title") == null)
                     {
 						doc.AppendNode(gameNode, "title", description);
@@ -882,6 +995,8 @@ namespace Torn.UI
 
 			int box = 0;
 
+			Console.WriteLine(serverGame.Game);
+
 
 			if (serverGame.Game == null)  // This game is not yet committed. Match players to league teams.
 			{
@@ -925,7 +1040,11 @@ namespace Torn.UI
 							serverPlayers.Add(serverPlayer);
 
 							serverPlayer.PlayerId = gp.PlayerId;
-							serverPlayer.Item.SubItems[1].Text = league.Alias(gp);
+
+							int yCard = gp.YellowCards;
+							int rCard = gp.RedCards;
+
+							serverPlayer.Item.SubItems[1].Text = (rCard > 0 ? (rCard + "R ") : "") + (yCard > 0 ? (yCard + "Y ") : "") + league.Alias(gp);
 						}
 					}
 
@@ -953,6 +1072,7 @@ namespace Torn.UI
 		void ListViewGamesSelectedIndexChanged(object sender, EventArgs e)
 		{
 			ribbonButtonSetDescription.Enabled = listViewGames.SelectedItems.Count > 0;
+			updateScoreboard.Enabled = listViewGames.SelectedItems.Count == 1;
 			ribbonButtonForget.Enabled = listViewGames.SelectedItems.Count > 0;
 			ribbonButtonCommit.Enabled = EnableCommit();
 
@@ -1032,6 +1152,7 @@ namespace Torn.UI
 			if (timeToNextCheck <= TimeSpan.Zero)
 			{
 				timeElapsed = laserGameServer == null ? TimeSpan.Zero : laserGameServer.GameTimeElapsed();  // This queries the lasergame server.
+				timeElapsed = timeElapsed.TotalSeconds < 0 ? TimeSpan.Zero : timeElapsed;
 
 				if (timeElapsed > TimeSpan.FromSeconds(1))
 					timeToNextCheck = TimeSpan.FromSeconds(61 - timeElapsed.TotalSeconds % 60);  // Set the next query to be one second after an integer number of minutes of game time elapsed. This way, we will query one second after the game finishes.
@@ -1385,7 +1506,10 @@ namespace Torn.UI
 			sqlPassword = root.GetString("SqlPassword");
 			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
 			exportFolder = root.GetString("ExportFolder", "");
+			logFolder = root.GetString("LogFolder", "");
 			selectedNode = root.GetString("Selected", "");
+			hostRemoteTorn = int.Parse(root.GetString("HostRemoteTorn", "0")) > 0 ;
+			remoteTornPort = root.GetString("RemoteTornPort", "12081");
 
 			XmlNodeList xleagues = root.SelectSingleNode("leagues").SelectNodes("holder");
 
@@ -1425,12 +1549,15 @@ namespace Torn.UI
 			doc.AppendNode(bodyNode, "GameServerPort", serverPort);
 			doc.AppendNode(bodyNode, "WebServerPort", webPort.ToString());
 			doc.AppendNode(bodyNode, "ExportFolder", exportFolder);
+			doc.AppendNode(bodyNode, "LogFolder", logFolder);
 			if (listViewLeagues.SelectedItems.Count > 0)
 				doc.AppendNode(bodyNode, "Selected", listViewLeagues.SelectedItems[0].Text);
 			doc.AppendNode(bodyNode, "UploadMethod", uploadMethod);
 			doc.AppendNode(bodyNode, "UploadSite", uploadSite);
 			doc.AppendNode(bodyNode, "Username", username);
 			doc.AppendNode(bodyNode, "Password", password);
+			doc.AppendNode(bodyNode, "HostRemoteTorn", hostRemoteTorn ? 1 : 0);
+			doc.AppendNode(bodyNode, "RemoteTornPort", remoteTornPort);
 
 			XmlNode leaguesNode = doc.CreateElement("leagues");
 			bodyNode.AppendChild(leaguesNode);
@@ -1453,6 +1580,60 @@ namespace Torn.UI
 			string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Torn");
 			Directory.CreateDirectory(path);
 			doc.Save(Path.Combine(path, "Torn5.Settings"));
+		}
+
+		private void exportJSONToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			League league = activeHolder?.League;
+
+			List<ServerGame> serverGames = new List<ServerGame>();
+
+			foreach(ListViewItem item in listViewGames.SelectedItems)
+            {
+				if (item.Tag is ServerGame serverGame)
+				{
+					laserGameServer.PopulateGame(serverGame);
+					serverGames.Add(serverGame);
+				}
+			}
+
+			if (GetExportFolder())
+			{
+				Cursor.Current = Cursors.WaitCursor;
+				progressBar1.Value = 0;
+				try
+				{
+					webOutput.ExportGamesToJSON(exportFolder, serverGames, ProgressBar);
+				}
+				finally
+				{
+					FinishProgress();
+				}
+			}
+
+		}
+    }
+	public static class Extensions
+	{
+		public static IEnumerable<string> Split(this string str, int n)
+		{
+			if (String.IsNullOrEmpty(str) || n < 1)
+			{
+				throw new ArgumentException();
+			}
+
+			for (int i = 0; i < str.Length; i += n)
+			{
+				if (str.Length - i > n)
+				{
+					yield return str.Substring(i, n);
+				}
+				else
+				{
+					yield return str.Substring(i, str.Length - i);
+				}
+
+			}
 		}
 	}
 }

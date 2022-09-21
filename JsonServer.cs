@@ -81,7 +81,7 @@ namespace Torn
 
 			try
 			{
-				string s = DownloadString(ref getGamesReentrant, "/games");
+				string s = DownloadString(ref getGamesReentrant, "/games.json");
 				return JsonSerializer.Deserialize<List<ServerGame>>(s);
 			}
 			catch (Exception e)
@@ -103,8 +103,9 @@ namespace Torn
 
 			try
 			{
-				string s = DownloadString(ref populateGameReentrant, "/game" + game.Time.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture));
+				string s = DownloadString(ref populateGameReentrant, "/game" + game.Time.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture));
 				ServerGame game2 = JsonSerializer.Deserialize<ServerGame>(s);
+				Console.WriteLine(s);
 				game.Description = s.IndexOf("{\"error\":") == 0 ? s.Substring(9) : game2.Description;
 				game.EndTime = game2.EndTime;
 				game.InProgress = game2.InProgress;
@@ -112,6 +113,10 @@ namespace Torn
 				game.GameId = game2.GameId;
 				game.Events = game2.Events;
 				game.Players = game2.Players;
+
+				Console.WriteLine("EVENT " + game.Events.Count);
+
+
 			}
 			catch (Exception e)
 			{

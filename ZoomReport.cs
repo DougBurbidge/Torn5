@@ -605,10 +605,16 @@ namespace Zoom
 							hasNumber = true;
 							min = Math.Min(min, cell.Data.Min());
 							max = Math.Max(max, cell.Data.Max());
+
+							if(Math.Abs(min) > max)
+                            {
+								max = min;
+                            }
 							maxPoints = Math.Max(maxPoints, cell.Data.Count);
 						}
 						else if (cell.Tag is List<ChartPoint> points && points.Any())
 						{
+
 							if (min == 0.0)
 								min = double.MaxValue; // For most data types we want an all-positive data series to have a  min of 0, not its actual series minimum. But for chart points, where X is a date/time, that starts the chart at 1900, which is bad. So one-off setting the min to MaxValue means we'll end with a min of the earliest time in the series. 
 							hasNumber = true;
@@ -631,7 +637,9 @@ namespace Zoom
 						}
 
 						if (hasNumber && !string.IsNullOrEmpty(cell.NumberFormat))
+						{
 							numberFormat = cell.NumberFormat;
+						}
 					}
 				}
 
@@ -759,6 +767,123 @@ namespace Zoom
 				}
 				s.Append('\n');
 			}
+
+			return s.ToString();
+		}
+
+		private string ColorToTColor(Color color)
+		{
+			if(color.IsEmpty)
+            {
+				return "clNone";
+            }
+			var r = color.R.ToString("X2");
+			var g = color.G.ToString("X2");
+			var b = color.B.ToString("X2");
+
+			return "$02" + b + g + r;
+		}
+
+		public string ToTBoard()
+		{
+			string separator = ",";
+			StringBuilder s = new StringBuilder();
+
+			s.Append("DISPLAYREPORTS");
+			s.Append(separator);
+			s.Append(ColorToTColor(Colors.TitleFontColor));
+			s.Append(separator);
+			s.Append(ColorToTColor(Colors.TitleBackColor));
+			s.Append(separator);
+			s.Append(ColorToTColor(Colors.BackgroundColor));
+			s.Append(separator);
+			s.Append(ColorToTColor(Colors.OddColor));
+			s.Append(separator);
+			s.Append("\"" + (Title ?? "") + "\"" );
+
+			s.Append(separator);
+			s.Append("\"");
+
+			foreach (ZColumn header in Columns)
+			{
+				s.Append("\"\"");
+				string heading = header.GroupHeading ?? "";
+				s.Append(heading);
+				s.Append(heading == "" ? "" : " ");
+				s.Append(header.Text);
+				s.Append("\"\"");
+				if (Columns.IndexOf(header) != Columns.Count() - 1)
+				{ 
+					s.Append(separator);
+				}
+			}
+			s.Append("\"");
+			s.Append(separator);
+			s.Append("\"");
+
+			List<string> groupHeadings = new List<string>();
+
+			foreach (ZColumn header in Columns)
+			{
+				string heading = header.GroupHeading ?? "";
+				if(heading != "")
+                {
+					if(!groupHeadings.Contains(heading))
+                    {
+						groupHeadings.Add(heading);
+                    }
+                }
+			}
+
+
+			foreach (ZColumn header in Columns)
+			{
+				string align = header.Alignment.ToString().ToLower();
+
+				if(align != "left" && align != "right" && align != "center")
+                {
+					align = "right";
+                }
+
+				s.Append(align);
+				if (Columns.IndexOf(header) != Columns.Count() - 1)
+				{
+					s.Append(separator);
+				}
+			}
+
+			s.Append("\"");
+
+			for (int i = 0; i < Rows.Count; i++)
+			{
+				for (int j = 0; j < Rows[i].Count; j++)
+				{
+					ZCell cell = Rows[i][j];
+					string text = cell.Text;
+					if (string.IsNullOrEmpty(cell.Text) && Columns.Count > j)
+					{
+						// If the cell is otherwise empty, and it contains the start of an arrow that has one From and one To, 
+						var arrows = Columns[j].Arrows.FindAll(a => a.From.Count == 1 && a.To.Count == 1 && a.From[0].Row == i);
+						if (arrows.Count == 1)
+							text = (arrows[0].To[0].Row - arrows[0].From[0].Row).ToString();  // output a number that shows how many rows the arrow goes up/down.
+					}
+					s.Append(separator);
+					s.Append("\"");
+					s.Append(cell.Number != null && text.Contains(",") ? cell.Number.ToString() : text);
+					s.Append("\"");
+					s.Append(separator);
+					s.Append(ColorToTColor(cell.Color));
+					s.Append(separator);
+					s.Append(j);
+				}
+				s.Append(separator);
+				s.Append("EOREOR");
+			}
+
+			s.Append(separator);
+			s.Append("EOTEOT");
+			s.Append(separator);
+			s.Append("EOSEOS");
 
 			return s.ToString();
 		}

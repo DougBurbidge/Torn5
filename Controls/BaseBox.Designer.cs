@@ -49,6 +49,7 @@ namespace Torn.UI
             this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(0, 0);
             this.listView1.Name = "listView1";
+            this.listView1.ShowItemToolTips = true;
             this.listView1.Size = new System.Drawing.Size(327, 162);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
@@ -78,6 +79,7 @@ namespace Torn.UI
             // 
             // colGrade
             // 
+            this.colGrade.DisplayIndex = 3;
             this.colGrade.Text = "Grade";
             this.colGrade.Width = 45;
             // 

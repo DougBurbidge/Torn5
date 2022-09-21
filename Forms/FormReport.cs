@@ -180,6 +180,8 @@ namespace Torn.UI
 			withDescription.Enabled = r != ReportType.MultiLadder;
 			description.Enabled = true;
 			longitudinal.Enabled = isTeamOrSolo || r == ReportType.Packs;
+			showHits.Enabled = r == ReportType.DetailedGames || r == ReportType.GameByGame || r == ReportType.GameGrid;
+			isDecimal.Enabled = r == ReportType.GameGrid || r == ReportType.TeamLadder || r == ReportType.SoloLadder || r == ReportType.GameGridCondensed;
 			if (r == ReportType.Packs && ReportTemplate?.ReportType == ReportType.Packs)
 				longitudinal.Checked = true;
 

@@ -71,6 +71,7 @@ namespace Torn.UI
             this.ribbonButtonConfigure = new System.Windows.Forms.RibbonButton();
             this.ribbonButtonAdHoc = new System.Windows.Forms.RibbonButton();
             this.ribbonButtonExportJson = new System.Windows.Forms.RibbonButton();
+            this.updateScoreboard = new System.Windows.Forms.RibbonButton();
             this.ribbonPanelHelp = new System.Windows.Forms.RibbonPanel();
             this.ribbonButtonHelp = new System.Windows.Forms.RibbonButton();
             this.ribbonButtonAbout = new System.Windows.Forms.RibbonButton();
@@ -84,6 +85,7 @@ namespace Torn.UI
             this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setDescriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forgetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportJSONToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.listViewLeagues = new System.Windows.Forms.ListView();
             this.colTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -350,6 +352,7 @@ namespace Torn.UI
             this.ribbonPanelReports.Items.Add(this.ribbonButtonConfigure);
             this.ribbonPanelReports.Items.Add(this.ribbonButtonAdHoc);
             this.ribbonPanelReports.Items.Add(this.ribbonButtonExportJson);
+            this.ribbonPanelReports.Items.Add(this.updateScoreboard);
             this.ribbonPanelReports.Name = "ribbonPanelReports";
             this.ribbonPanelReports.Text = "Reports";
             // 
@@ -425,6 +428,16 @@ namespace Torn.UI
             this.ribbonButtonExportJson.SmallImage = ((System.Drawing.Image)(resources.GetObject("ribbonButtonExportJson.SmallImage")));
             this.ribbonButtonExportJson.Text = "Export Json";
             this.ribbonButtonExportJson.Click += new System.EventHandler(this.ButtonExportJsonClick);
+            // 
+            // updateScoreboard
+            // 
+            this.updateScoreboard.Enabled = false;
+            this.updateScoreboard.Image = ((System.Drawing.Image)(resources.GetObject("updateScoreboard.Image")));
+            this.updateScoreboard.LargeImage = ((System.Drawing.Image)(resources.GetObject("updateScoreboard.LargeImage")));
+            this.updateScoreboard.Name = "updateScoreboard";
+            this.updateScoreboard.SmallImage = ((System.Drawing.Image)(resources.GetObject("updateScoreboard.SmallImage")));
+            this.updateScoreboard.Text = "Update Scoreboard";
+            this.updateScoreboard.Click += new System.EventHandler(this.ButtonUpdateScoreboardClick);
             // 
             // ribbonPanelHelp
             // 
@@ -525,9 +538,10 @@ namespace Torn.UI
             this.contextMenuStripGames.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.commitToolStripMenuItem,
             this.setDescriptionToolStripMenuItem,
-            this.forgetToolStripMenuItem});
+            this.forgetToolStripMenuItem,
+            this.exportJSONToolStripMenuItem});
             this.contextMenuStripGames.Name = "contextMenuStripGames";
-            this.contextMenuStripGames.Size = new System.Drawing.Size(154, 70);
+            this.contextMenuStripGames.Size = new System.Drawing.Size(154, 92);
             // 
             // commitToolStripMenuItem
             // 
@@ -549,6 +563,13 @@ namespace Torn.UI
             this.forgetToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.forgetToolStripMenuItem.Text = "Forget";
             this.forgetToolStripMenuItem.Click += new System.EventHandler(this.ButtonForgetClick);
+            // 
+            // exportJSONToolStripMenuItem
+            // 
+            this.exportJSONToolStripMenuItem.Name = "exportJSONToolStripMenuItem";
+            this.exportJSONToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.exportJSONToolStripMenuItem.Text = "Export JSON";
+            this.exportJSONToolStripMenuItem.Click += new System.EventHandler(this.exportJSONToolStripMenuItem_Click);
             // 
             // splitContainer1
             // 
@@ -799,5 +820,7 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem setDescriptionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem forgetToolStripMenuItem;
 		private System.Windows.Forms.RibbonButton ribbonButtonExportJson;
-	}
+        private System.Windows.Forms.ToolStripMenuItem exportJSONToolStripMenuItem;
+        private System.Windows.Forms.RibbonButton updateScoreboard;
+    }
 }

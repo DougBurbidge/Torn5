@@ -59,8 +59,6 @@ namespace Torn
 			string textToSend = "{\"command\": \"list\"}";
 			string result = QueryServer(textToSend);
 
-			Console.WriteLine(result);
-
 
 			List<ServerGame> games = new List<ServerGame>();
 
@@ -187,6 +185,61 @@ namespace Torn
 
 			JObject root = JObject.Parse(cleanedResult);
 
+			IDictionary<int, string> eventNames = new Dictionary<int, string>();
+			eventNames.Add(0, "Tag Foe - Phasor");
+			eventNames.Add(1, "Tag Foe - Chest");
+			eventNames.Add(2, "Tag Foe - Left Front Shoulder");
+			eventNames.Add(3, "Tag Foe - Right Front Shoulder");
+			eventNames.Add(4, "Tag Foe - Left Back Shoulder");
+			eventNames.Add(5, "Tag Foe - Right Back Shoulder");
+			eventNames.Add(6, "Tag Foe - Back");
+
+			eventNames.Add(7, "Tag Ally - Phasor");
+			eventNames.Add(8, "Tag Ally - Chest");
+			eventNames.Add(9, "Tag Ally - Left Front Shoulder");
+			eventNames.Add(10, "Tag Ally - Right Front Shoulder");
+			eventNames.Add(11, "Tag Ally - Left Back Shoulder");
+			eventNames.Add(12, "Tag Ally - Right Back Shoulder");
+			eventNames.Add(13, "Tag Ally - Back");
+
+			eventNames.Add(14, "Tagged by Foe - Phasor");
+			eventNames.Add(15, "Tagged by Foe - Chest");
+			eventNames.Add(16, "Tagged by Foe - Left Front Shoulder");
+			eventNames.Add(17, "Tagged by Foe - Right Front Shoulder");
+			eventNames.Add(18, "Tagged by Foe - Left Back Shoulder");
+			eventNames.Add(19, "Tagged by Foe - Right Back Shoulder");
+			eventNames.Add(20, "Tagged by Foe - Back");
+
+			eventNames.Add(21, "Tagged by Ally - Phasor");
+			eventNames.Add(22, "Tagged by Ally - Chest");
+			eventNames.Add(23, "Tagged by Ally - Left Front Shoulder");
+			eventNames.Add(24, "Tagged by Ally - Right Front Shoulder");
+			eventNames.Add(25, "Tagged by Ally - Left Back Shoulder");
+			eventNames.Add(26, "Tagged by Ally - Right Back Shoulder");
+			eventNames.Add(27, "Tagged by Ally - Back");
+
+			eventNames.Add(28, "Level 1 Termination");
+			eventNames.Add(29, "Level 2 Termination");
+
+			eventNames.Add(30, "Tag Base");
+			eventNames.Add(31, "Destroy Base");
+
+			eventNames.Add(32, "Eliminated");
+
+			eventNames.Add(33, "Tagged by Base");
+			eventNames.Add(34, "Tagged by Mine");
+
+			eventNames.Add(55, "Locked on");
+			eventNames.Add(56, "Launch Missile");
+			eventNames.Add(57, "Missile Tag");
+
+			eventNames.Add(60, "Denied Ally");
+			eventNames.Add(61, "Denied Foe");
+			eventNames.Add(62, "Denied by Ally");
+			eventNames.Add(63, "Denied by Foe");
+			eventNames.Add(64, "Denied by Timeout");
+			eventNames.Add(65, "Assist Denied Foe");
+
 			if (root["events"] != null)
 			{
 				string eventsStr = root["events"].ToString();
@@ -221,6 +274,7 @@ namespace Torn
 						Score = score,
 						OtherPlayer = eventOtherPlayerId,
 						OtherTeam = eventOtherPlayerTeamId,
+						Event_Name = eventNames.ContainsKey(eventType) ? eventNames[eventType] : "Unknown",
 					};
 					game.Events.Add(gameEvent);
 				}
@@ -242,6 +296,9 @@ namespace Torn
 					ServerPlayer serverPlayer = new ServerPlayer();
 					if (playerRoot["alias"] != null) serverPlayer.Alias = playerRoot["alias"].ToString();
 					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
+					if (playerRoot["wterm"] != null) serverPlayer.YellowCards = Int32.Parse(playerRoot["wterm"].ToString());
+					if (playerRoot["term"] != null) serverPlayer.RedCards = Int32.Parse(playerRoot["term"].ToString());
+					if (playerRoot["rank"] != null) serverPlayer.Rank = UInt32.Parse(playerRoot["rank"].ToString());
 					if (playerRoot["omid"] != null) 
 					{
 						string omid = playerRoot["omid"].ToString();
@@ -267,6 +324,8 @@ namespace Torn
 					if (playerRoot["qrcode"] != null) serverPlayer.QRCode = playerRoot["qrcode"].ToString();
 
 					if (!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
+
+					serverPlayer.Pack = "Pack " + id;
 
 					game.Players.Add(serverPlayer);
 

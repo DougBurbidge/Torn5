@@ -69,6 +69,8 @@ namespace Torn.UI
             this.title = new System.Windows.Forms.TextBox();
             this.longitudinal = new System.Windows.Forms.CheckBox();
             this.showGrades = new System.Windows.Forms.CheckBox();
+            this.showHits = new System.Windows.Forms.CheckBox();
+            this.isDecimal = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
             this.groupBoxDateRange.SuspendLayout();
@@ -128,7 +130,7 @@ namespace Torn.UI
             // 
             // showComments
             // 
-            this.showComments.Location = new System.Drawing.Point(288, 470);
+            this.showComments.Location = new System.Drawing.Point(238, 470);
             this.showComments.Name = "showComments";
             this.showComments.Size = new System.Drawing.Size(250, 24);
             this.showComments.TabIndex = 10;
@@ -469,7 +471,7 @@ namespace Torn.UI
             // 
             this.description.Checked = true;
             this.description.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.description.Location = new System.Drawing.Point(288, 500);
+            this.description.Location = new System.Drawing.Point(238, 500);
             this.description.Name = "description";
             this.description.Size = new System.Drawing.Size(250, 24);
             this.description.TabIndex = 11;
@@ -526,7 +528,7 @@ namespace Torn.UI
             // 
             this.longitudinal.Checked = true;
             this.longitudinal.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.longitudinal.Location = new System.Drawing.Point(288, 533);
+            this.longitudinal.Location = new System.Drawing.Point(238, 533);
             this.longitudinal.Name = "longitudinal";
             this.longitudinal.Size = new System.Drawing.Size(250, 24);
             this.longitudinal.TabIndex = 12;
@@ -536,13 +538,33 @@ namespace Torn.UI
             // 
             // showGrades
             // 
-            this.showGrades.Location = new System.Drawing.Point(288, 562);
+            this.showGrades.Location = new System.Drawing.Point(238, 563);
             this.showGrades.Name = "showGrades";
             this.showGrades.Size = new System.Drawing.Size(250, 24);
             this.showGrades.TabIndex = 23;
             this.showGrades.Tag = "ShowGrades";
             this.showGrades.Text = "show grades column";
             this.showGrades.UseVisualStyleBackColor = true;
+            // 
+            // showHits
+            // 
+            this.showHits.Location = new System.Drawing.Point(12, 560);
+            this.showHits.Name = "showHits";
+            this.showHits.Size = new System.Drawing.Size(186, 24);
+            this.showHits.TabIndex = 24;
+            this.showHits.Tag = "ShowHits";
+            this.showHits.Text = "show hits";
+            this.showHits.UseVisualStyleBackColor = true;
+            // 
+            // isDecimal
+            // 
+            this.isDecimal.Location = new System.Drawing.Point(410, 470);
+            this.isDecimal.Name = "isDecimal";
+            this.isDecimal.Size = new System.Drawing.Size(123, 24);
+            this.isDecimal.TabIndex = 25;
+            this.isDecimal.Tag = "isDecimal";
+            this.isDecimal.Text = "show decimals";
+            this.isDecimal.UseVisualStyleBackColor = true;
             // 
             // FormReport
             // 
@@ -551,6 +573,8 @@ namespace Torn.UI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(564, 661);
+            this.Controls.Add(this.isDecimal);
+            this.Controls.Add(this.showHits);
             this.Controls.Add(this.showGrades);
             this.Controls.Add(this.longitudinal);
             this.Controls.Add(this.title);
@@ -628,5 +652,7 @@ namespace Torn.UI
 		private System.Windows.Forms.ComboBox descriptionGroup;
 		private System.Windows.Forms.CheckBox withDescription;
         private System.Windows.Forms.CheckBox showGrades;
+        private System.Windows.Forms.CheckBox showHits;
+        private System.Windows.Forms.CheckBox isDecimal;
     }
 }

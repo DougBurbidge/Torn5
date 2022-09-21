@@ -939,5 +939,35 @@ namespace Torn5.Forms {
                 return ((System.Drawing.Point)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap updateScoreboard_Image {
+            get {
+                object obj = ResourceManager.GetObject("updateScoreboard.Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap updateScoreboard_LargeImage {
+            get {
+                object obj = ResourceManager.GetObject("updateScoreboard.LargeImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap updateScoreboard_SmallImage {
+            get {
+                object obj = ResourceManager.GetObject("updateScoreboard.SmallImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

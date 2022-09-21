@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
@@ -101,12 +102,13 @@ namespace Torn
 			{
 				reader.Close();
 			}
+
 			return games;
 		}
 
 		public override void PopulateGame(ServerGame game)
 		{
-			if (!Connected)
+			if (!Connected || game.GameId == null)
 				return;
 
 			game.Players = new List<ServerPlayer>();
@@ -138,9 +140,11 @@ namespace Torn
 					};
 					if (!reader.IsDBNull(3))
 						player.PlayerId = reader.GetString(3);
+					else
+						player.PlayerId = player.Pack;
 					if (!reader.IsDBNull(4))
 						player.Alias = reader.GetString(4);
-					player.ServerPlayerId = player.Alias;
+					player.ServerPlayerId = player.Pack;
 					game.Players.Add(player);
 				}
 			}
@@ -151,58 +155,234 @@ namespace Torn
 
 			if (string.IsNullOrEmpty(LogFolder) || !Directory.Exists(LogFolder))
 				return;
-
-			var files = new DirectoryInfo(LogFolder).GetFiles(game.Time.ToString("HHmm") + " - *.txt");
+			var files = new DirectoryInfo(LogFolder).GetFiles("*" + game.Time.ToString("yyyyMMddHHmmss") + " - *.tdf");
 			if (files.Length > 0)
 			{
 				var file = files[0].OpenText();
 				game.Events.Clear();
+				List<string> lines = new List<string>();
+
 				while (!file.EndOfStream)
 				{
-					// Line format: number of milliseconds elapsed in game [tab] event code [tab] teamcolour:playeralias [tab] event description [tab] teamcolour:playeralias
+					lines.Add(file.ReadLine());
+				}
 
-					var line = file.ReadLine().Split('\t');
+				List<List<string>> entities = new List<List<string>>();
 
-					var oneEvent = new Event
+				foreach (string l in lines)
+				{
+					List<string> splitLine = l.Split('\t').ToList();
+					// 3 time id type alias team level category pack
+					if (splitLine[0] == "3")
+                    {
+						entities.Add(splitLine);
+
+						if (splitLine[3] == "player") {
+							int indexOfPlayer = game.Players.FindIndex(p => p.Pack == splitLine[8]);
+							if (indexOfPlayer >= 0)
+							{
+								game.Players[indexOfPlayer].ServerPlayerId = splitLine[2];
+								game.Players[indexOfPlayer].ServerTeamId = Int32.Parse(splitLine[5]);
+							}
+						}
+					}
+				}
+
+				List<List<string>> baseHitEvents = new List<List<string>>();
+
+				foreach (string l in lines)
+				{
+					List<string> splitLine = l.Split('\t').ToList();
+					// shots into a base
+					if (splitLine[0] == "4" && splitLine[2] == "0203")
 					{
-						Time = game.Time.AddMilliseconds(int.Parse(line[0]))
-					};
+						baseHitEvents.Add(splitLine);
+					}
+				}
 
-					string eventType = line[1];
-					if (eventType.StartsWith("01")) continue;
+				foreach (string l in lines)
+                {
+					List<string> detailEvent = l.Split('\t').ToList();
 
-					oneEvent.Event_Type = ParseEventType(line[1]);
-					oneEvent.Score = EventToScore(oneEvent.Event_Type);
-
-					(oneEvent.ServerTeamId, oneEvent.ServerPlayerId) = SplitPlayer(line[2]);
-					if (line.Length > 4)
-						(oneEvent.OtherTeam, oneEvent.OtherPlayer) = SplitPlayer(line[4]);
-
-					if (eventType.StartsWith("0B"))
-						oneEvent.ShotsDenied = 1;
-
-					game.Events.Add(oneEvent);
-
-					if (eventType.StartsWith("02"))  // The event is a player hitting another player. Let's create a complementary event to record that same hit from the other player's perspective.
-						game.Events.Add(new Event
+					// 4 event time type entity desc otherEntity
+					if (detailEvent[0] == "4")
+					{
+						Event oneEvent = new Event
 						{
-							Time = oneEvent.Time,
-							Event_Type = oneEvent.Event_Type + 14,
-							Score = -40,
+							Time = game.Time.AddMilliseconds(int.Parse(detailEvent[1]))
+						};
 
-							ServerTeamId = oneEvent.OtherTeam,
-							ServerPlayerId = oneEvent.OtherPlayer,
-							OtherTeam = oneEvent.ServerTeamId,
-							OtherPlayer = oneEvent.ServerPlayerId
-						});
+						int indexOfEvent = lines.IndexOf(l);
+
+						oneEvent.Event_Type = ParseEventType(detailEvent[2]);
+
+						// tag player
+						if ( detailEvent[2] == "0206" || detailEvent[2] == "0208")
+                        {
+							Event otherEvent = new Event
+							{
+								Time = oneEvent.Time
+                            };
+
+							if (detailEvent[2] == "0206")
+                            {
+								oneEvent.Event_Name = "Tag Foe";
+								otherEvent.Event_Type = 14;
+								otherEvent.Event_Name = "Tagged by Foe";
+
+							}
+							else
+                            {
+								oneEvent.Event_Name = "Tag Ally";
+								otherEvent.Event_Type = 21;
+								otherEvent.Event_Name = "Tagged by Ally";
+							}
+
+							oneEvent.ServerPlayerId = detailEvent[3];
+							oneEvent.OtherPlayer = detailEvent[5];
+
+							otherEvent.OtherPlayer = detailEvent[3];
+							otherEvent.ServerPlayerId = detailEvent[5];
+
+							List<string> playerEntity = entities.Find(e => e[2] == oneEvent.ServerPlayerId);
+							List<string> otherPlayerEntity = entities.Find(e => e[2] == oneEvent.OtherPlayer);
+
+							List<string> playerScoreEvent = lines[indexOfEvent - 2].Split('\t').ToList();
+							List<string> otherPlayerScoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+
+							int playerScore = Int32.Parse(playerScoreEvent[4]);
+							int otherPlayerScore = Int32.Parse(otherPlayerScoreEvent[4]);
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer);
+
+							oneEvent.Score = playerScore;
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.OtherTeam = otherPlayer.ServerTeamId;
+
+							otherEvent.Score = otherPlayerScore;
+							otherEvent.ServerTeamId = otherPlayer.ServerTeamId;
+							otherEvent.OtherTeam = player.ServerTeamId;
+
+							game.Events.Add(oneEvent);
+							game.Events.Add(otherEvent);
+
+							player.HitsBy++;
+							otherPlayer.HitsOn++;
+
+						}
+
+						// tags base
+						if(detailEvent[2] == "0203" || detailEvent[2] == "0204")
+                        {
+							List<string> scoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+
+							oneEvent.ServerPlayerId = detailEvent[3];
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							List<string> baseEntity = entities.Find(e => e[2] == detailEvent[5]);
+
+							oneEvent.OtherPlayer = baseEntity[4];
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.OtherTeam = Int32.Parse(baseEntity[5]);
+							oneEvent.Score = Int32.Parse(scoreEvent[4]);
+
+							if (detailEvent[2] == "0203")
+							{
+								oneEvent.Event_Name = "Tag Base";
+								player.BaseHits++;
+							}
+							else
+							{
+								oneEvent.Event_Name = "Destroy Base";
+								player.BaseDestroys++;
+							}
+
+							game.Events.Add(oneEvent);
+						}
+
+						//denies player
+						if(detailEvent[2] == "0B01" || detailEvent[2] == "0B02")
+                        {
+							Event otherEvent = new Event
+							{
+								Time = oneEvent.Time
+							};
+
+							List<string> scoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+							
+							oneEvent.ServerPlayerId = detailEvent[3];
+							oneEvent.OtherPlayer = detailEvent[5];
+							oneEvent.Event_Name = "Denied Foe";
+							otherEvent.Event_Name = "Denied by Foe";
+							otherEvent.Event_Type = 63;
+							otherEvent.ServerPlayerId = detailEvent[5];
+							otherEvent.OtherPlayer = detailEvent[3];
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer);
+							
+							oneEvent.Score = Int32.Parse(scoreEvent[4]);
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.OtherTeam = otherPlayer.ServerTeamId;
+							otherEvent.ServerTeamId = otherPlayer.ServerTeamId;
+							otherEvent.OtherTeam = player.ServerTeamId;
+
+							int time = Int32.Parse(detailEvent[1]);
+							int timeoutTime = time - 5000; // 5 seconds before they got denied
+
+							List<List<string>> otherPlayerBaseHits = baseHitEvents.FindAll(e => Int32.Parse(e[1]) >= timeoutTime && Int32.Parse(e[1]) < time && e[3] == otherEvent.ServerPlayerId);
+
+							int otherPlayerBaseHitsCount = otherPlayerBaseHits.Count();
+
+							player.BaseDenies += otherPlayerBaseHitsCount;
+							otherPlayer.BaseDenied += otherPlayerBaseHitsCount;
+
+							otherEvent.ShotsDenied = otherPlayerBaseHitsCount;
+
+							game.Events.Add(oneEvent);
+							game.Events.Add(otherEvent);
+
+						}
+
+						//termed
+						if(detailEvent[2] == "0600")
+                        {
+							List<string> scoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
+
+							oneEvent.Event_Name = "Level 1 Termination";
+							oneEvent.ServerPlayerId = detailEvent[3];
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+
+							oneEvent.ServerTeamId = player.ServerTeamId;
+							oneEvent.Score = Int32.Parse(scoreEvent[4]);
+
+							player.YellowCards++;
+
+							game.Events.Add(oneEvent);
+						}
+
+						//reloaded
+						if (detailEvent[2] == "0500")
+                        {
+							oneEvent.ServerPlayerId = detailEvent[5];
+							oneEvent.Event_Name = "Reloaded";
+
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+
+							oneEvent.ServerTeamId = player.ServerTeamId;
+
+							List<string> reloadEntity = entities.Find(e => e[2] == detailEvent[3]);
+
+							oneEvent.OtherPlayer = reloadEntity[4];
+
+							game.Events.Add(oneEvent);
+						}
+
+					}
 				}
 			}
-		}
-
-		(int, string) SplitPlayer(string input)
-		{
-			var arr = input.Split(':');
-			return (int.Parse(arr[0]), arr[1]);
 		}
 
 		int ParseEventType(string s)
@@ -219,20 +399,6 @@ namespace Torn
 				case "0B01":             // 0B01: player denies player (number of hits worth of deny not specified). 0B01 always immediately follows a 0206 or 0208 with the same players. 
 				case "0B02": return 1404; // 0B02: player denies player (number of hits worth of deny not specified). 0B02 occurs several seconds after the 0206 in which the player tags the shooter.
 				default: return 36;
-			}
-		}
-
-		int EventToScore(int eventType)
-		{
-			switch (eventType)
-			{
-				case 0: return 150;
-				case 14: return -150;
-				case 28: return -1000;
-				case 30: return -500;
-				case 31: return 4001;
-				case 1404: return 375;  // This should be 250 per hits worth of deny. But we don't know how many hits worth of deny we have here.
-				default: return 0;
 			}
 		}
 

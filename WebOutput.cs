@@ -10,9 +10,11 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using Zoom;
+using Newtonsoft.Json.Linq;
 
 namespace Torn.Report
 {
+
 	public delegate void ShowProgress (double progress, string status = "");
 
 	public class Progress
@@ -444,7 +446,7 @@ xhr.send();
 		private string RestGame(ServerGame game)
 		{
 			PopulateGame(game);
-			return JsonSerializer.Serialize<ServerGame>(game, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+			return JsonSerializer.Serialize<ServerGame>(game);
 		}
 
 		private string RestGames()
@@ -583,6 +585,57 @@ xhr.send();
 				using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\players.json")))
 					sw.Write(RestPlayers(""));
 				myProgress.Increment("Players list exported.");
+			}
+		}
+
+		public void ExportGamesToJSON(string path, List<ServerGame> games, ShowProgress progress = null)
+        {
+			if (path != null)
+			{
+				Progress myProgress = new Progress() { Denominator = games.Count + 2, ShowProgress = progress };
+
+				Directory.CreateDirectory(Path.Combine(path, "json"));
+
+				Console.WriteLine("Here");
+
+				foreach (var game in games)
+				{
+
+					JObject gameJSON = new JObject();
+
+					JArray eventsJSON = new JArray();
+					JArray playersJSON = new JArray();
+
+					List<Event> sortedEvents = game.Events.OrderBy(e => e.Time).ToList();
+					List<ServerPlayer> sortedPlayers = game.Players.OrderBy(p => p.Colour).ThenBy(p => p.Rank).ToList();
+
+					foreach (Event ev in sortedEvents)
+					{
+						JObject obj = JObject.FromObject(ev);
+
+                        string playerAlias = game.Players.Find(p => p.ServerPlayerId == ev.ServerPlayerId)?.Alias;
+                        string otherPlayerAlias = game.Players.Find(p => p.ServerPlayerId == ev.OtherPlayer)?.Alias;
+
+						obj.Add(new JProperty("alias", playerAlias));
+						obj.Add(new JProperty("otherPlayerAlias", otherPlayerAlias));
+
+						eventsJSON.Add(obj);
+					}
+					foreach (ServerPlayer player in sortedPlayers)
+                    {
+						JObject obj = JObject.FromObject(player);
+						playersJSON.Add(obj);
+					}
+
+					gameJSON.Add(new JProperty("Title", game.Description));
+					gameJSON.Add(new JProperty("Time", game.Time));
+					gameJSON.Add(new JProperty("Players", playersJSON));
+					gameJSON.Add(new JProperty("Events", eventsJSON));
+
+					using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\game" + game.Time.ToString("yyyy-MM-ddTHH_mm_ss") + ".json")))
+						sw.Write(gameJSON.ToString());
+					myProgress.Increment("Game" + game.Time.ToString("yyyy-MM-ddTHH-mm-ss") + " exported.");
+				}
 			}
 		}
 	}

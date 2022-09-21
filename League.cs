@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Newtonsoft.Json.Linq;
 
 namespace Torn
 {
@@ -337,8 +338,8 @@ namespace Torn
 		/// <summary>Victory points adjustment</summary>
 		public double PointsAdjustment { get; set; }
 
-		readonly List<GamePlayer> players;
-		public List<GamePlayer> Players { get { return players; } }
+		private List<GamePlayer> players;
+		public List<GamePlayer> Players { get { return players; } set { players = value; } }
 
 		public GameTeam()
 		{
@@ -370,6 +371,17 @@ namespace Torn
 		}
 
 		public static Comparison<GameTeam> CompareTime = (gameTeam1, gameTeam2) => gameTeam1.Time.CompareTo(gameTeam2.Time);
+
+		public int GetHitsBy()
+        {
+			int hitsBy = 0;
+			foreach(GamePlayer player in players)
+            {
+				hitsBy += player.HitsBy;
+				hitsBy -= player.BaseDestroys;
+            }
+			return hitsBy;
+        }
 
 		public override string ToString()
 		{
@@ -688,6 +700,8 @@ namespace Torn
 
 		Collection<double> victoryPoints;
 		public Collection<double> VictoryPoints { get { return victoryPoints; } }
+
+		public bool hitsTieBreak { get; set; }
 		
 		public double VictoryPointsHighScore { get; set; }
 		public double VictoryPointsProportional { get; set; }
@@ -885,17 +899,6 @@ namespace Torn
 				Teams.Add(leagueTeam);
 			}
 
-			// Update to latest grades
-			foreach(GamePlayer gamePlayer in teamData.Players)
-            {
-				if (gamePlayer.Grade != null)
-				{
-					int index = leagueTeam.Players.FindIndex(p => p.Id == gamePlayer.PlayerId);
-					leagueTeam.Players[index].Grade = gamePlayer.Grade;
-				}
-
-			}
-
 			if(IsAutoHandicap)
             {
 				int cap = CalulateTeamCap(gameTeam);
@@ -966,6 +969,11 @@ namespace Torn
 				}
 
 				debug.Length -= 2; debug.Append(".\n");
+
+				teamData.GameTeam.Players.ForEach((player) => {
+					LeaguePlayer leaguePlayer = Players.Find((p) => p.Id == player.PlayerId);
+					player.Grade = leaguePlayer.Grade;
+				});
 
 				teamData.GameTeam.Players.Sort();
 				teamData.GameTeam.Score = (int)CalculateScore(teamData.GameTeam);
@@ -1097,6 +1105,7 @@ namespace Torn
 			ExtraAPenalty = root.GetDecimal("ExtraAPenalty");
 			ExtraGBonus = root.GetDecimal("ExtraGBonus");
 			IsAutoHandicap = root.GetInt("AutoHandicap") > 0;
+			hitsTieBreak = root.GetInt("HitsTieBreak") > 0;
 
 			ExpectedTeamSize = teamSize == 0 ? 5 : teamSize;
 
@@ -1301,6 +1310,7 @@ namespace Torn
 			doc.AppendNode(bodyNode, "MissingPlayerPenalty", MissingPlayerPenalty.ToString());
 			doc.AppendNode(bodyNode, "ExtraAPenalty", ExtraAPenalty.ToString());
 			doc.AppendNode(bodyNode, "ExtraGBonus", ExtraGBonus.ToString());
+			doc.AppendNode(bodyNode, "HitsTieBreak", hitsTieBreak ? 1 : 0);
 
 			XmlNode gradesNode = doc.CreateElement("grades");
 			bodyNode.AppendChild(gradesNode);
@@ -1645,7 +1655,6 @@ namespace Torn
             } else
             {
 				double score = 0;
-
 				foreach (var player in gameTeam.Players)
 					score += player.Score;
 
@@ -1708,13 +1717,18 @@ namespace Torn
 
 		public double CalculatePoints(GameTeam gameTeam, GroupPlayersBy groupPlayersBy)
 		{
-			var game = Game(gameTeam);
+			Game game = Game(gameTeam);
 			if (game != null)
 			{
 				var relevantTeams = (groupPlayersBy == GroupPlayersBy.Lotr ?  // For Lord of the Ring we want just "teams" of this colour. For other modes, we want all teams. 
 				                     game.Teams.Where(t => t.Colour == gameTeam.Colour) : game.Teams).OrderBy(x => -x.Score).ToList();
 
-				var ties = relevantTeams.Where(t => t.Score == gameTeam.Score);  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
+				if(hitsTieBreak)
+                {
+					relevantTeams = relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetHitsBy()).ToList();
+				}
+				
+				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((hitsTieBreak && t.GetHitsBy() == gameTeam.GetHitsBy()) || !hitsTieBreak));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
 
 				double totalPoints = 0;
 				foreach (var team in ties)
@@ -1738,6 +1752,7 @@ namespace Torn
 		public string QRCode { get; set; }  // QR code from O-Zone of player that this record is about
 		[JsonPropertyName("eventType")]
 		public int Event_Type { get; set; }  // see below
+		public string Event_Name { get; set; }
 
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public int Score { get; set; }  // points gained by shooter
@@ -1786,7 +1801,7 @@ namespace Torn
 		[JsonIgnore]
 		public int? GameId { get; set; }
 		public string Description { get; set; }
-		[JsonPropertyName("startTime")]
+		[JsonPropertyName("Time")]
 		public DateTime Time { get; set; }
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public DateTime EndTime { get; set; }
@@ -1799,9 +1814,9 @@ namespace Torn
 		public bool InProgress { get; set; }
 		[JsonIgnore]
 		public bool OnServer { get; set; }
-		[JsonIgnore]
+		[JsonPropertyName("Events")]
 		public List<Event> Events { get; set; }
-		[JsonPropertyName("events")]
+		[JsonIgnore]
 		public virtual IEnumerable<Event> FilteredEvents { get => Events.Where(e => e.Event_Type != 35 && e.Event_Type != 1409); }
 
 		public ServerGame()
