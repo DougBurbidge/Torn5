@@ -156,7 +156,7 @@ namespace Torn.Report
 			foreach (Colour c in coloursUsed)
 				report.AddColumn(new ZColumn(c.ToString(), ZAlignment.Integer));
 
-			int maxRank = games.Max(g => g.Teams.Count);
+			int maxRank = games.Any() ? games.Max(g => g.Teams.Count) : 0;
 
 			for (int rank = 0; rank < maxRank; rank++)
 			{
@@ -1121,6 +1121,7 @@ namespace Torn.Report
 
 			List<TeamLadderEntry> previousLadder = null;
 			string previousGroupName = "";
+			ZColumn teamColumn = null;
 			for (int group = 0; group < groups.Count(); group++)  // for each group of games
 			{
 				string groupName = groups[group]?.ToLower() ?? "";
@@ -1132,7 +1133,7 @@ namespace Torn.Report
 				var thisGroupGames = games.Where(g => g.Title == groups[group]).ToList();
 				groupGames.AddRange(thisGroupGames);
 
-				report.AddColumn(new ZColumn("Team", ZAlignment.Left, groups[group]));
+				teamColumn = report.AddColumn(new ZColumn("Team", ZAlignment.Left, groups[group]));
 				if (league.IsPoints())
 					report.AddColumn(new ZColumn("Points", ZAlignment.Right, groups[group]));
 
@@ -1200,7 +1201,7 @@ namespace Torn.Report
 					for (int team = 0; team < offset; team++)
 						AddBlankCells(report.Rows[team], columnsPerGroup);
 
-					for (int t = 0; t < ladder.Count - offset; t++)
+					for (int t = 0; t < ladder.Count; t++)
 					{
 						var entry = ladder[t];
 						var team = entry.Team;
@@ -1259,9 +1260,13 @@ namespace Torn.Report
 			}
 
 			if (rt.Settings.Contains("Description"))
-				report.Description = "This report shows each team's progress through the tournament. Between each of the " + groups.Count() + 
-					" rounds, follow a team's rise or fall by following their arrow(s). To see a team's final placing, look for the right-most mention of their name; e.g. " + 
-					report.Rows[0][report.Rows[0].Count - (league.IsPoints() ? 4 : 3)].Text + " placed 1st.";
+			{
+				report.Description = "This report shows each team's progress through the tournament. Between each of the " + groups.Count() +
+					" rounds, follow a team's rise or fall by following their arrow(s). To see a team's final placing, look for the right-most mention of their name";
+				int teamIndex = report.Columns.IndexOf(teamColumn);
+				if (report.Rows[0].Valid(teamIndex))
+					report.Description += "; e.g. " + report.Rows[0][teamIndex].Text + " placed 1st.";
+			}
 
 			return report;
 		}
@@ -2162,8 +2167,9 @@ namespace Torn.Report
 				MultiColumnOK = true
 			};
 
-			if (rt.Drops != null && rt.Drops.HasDrops())
-				report.AddColumn(new ZColumn("Dropped", ZAlignment.Integer));
+			report.Columns.First().Rotate = true;
+			report.Columns.First(c => c.Text == "Games").Rotate = true;
+			report.Columns.First(c => c.Text == "Dropped").Rotate = true;
 
 			double bestScoreRatio = 0;
 			string bestScoreRatioText = "";
@@ -2172,12 +2178,6 @@ namespace Torn.Report
 			int atLeastN = rt.SettingInt("AtLeastN") ?? 1;
 			bool showGrades = rt.FindSetting("ShowGrades") >= 0;
 			bool showComments = rt.FindSetting("ShowComments") >= 0;
-
-			if(showGrades)
-				report.AddColumn(new ZColumn("Grade"));
-
-			if (showComments)
-				report.AddColumn(new ZColumn("Comment"));
 
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
@@ -2244,11 +2244,11 @@ namespace Torn.Report
 					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P0"));  // Score ratio
 					row.Add(DataCell(srxTrs, rt.Drops, chartType, "N2"));  // SR x TR
 
-					row.Add(DataCell(played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "n1"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "n1"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "n1"));
+					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "n2"));
+					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "n2"));
 
 					row.Add(new ZCell(played.Count(), ChartType.None, "N0"));  // Games
 

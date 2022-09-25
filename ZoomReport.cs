@@ -1158,7 +1158,7 @@ namespace Zoom
 
 		/// <summary>This overload formats the value of a cell then calls the other overload.
 		/// If you specify a format starting with 'E' or 'G', it changes values like 0.0000123 to a style like 1.23x10^-5, but with Unicode superscript digits.
-		/// Special format lowercase 'f' will trim trailing 0's after a deciaml, so "1.00" becomes "1"; "1.20" becomes "1.2".</summary>
+		/// Special format lowercase 'f' or 'n' will trim trailing 0's after a decimal where the value is a whole number, so "1.00" becomes "1"; "1.20" remains "1.20".</summary>
 		void SvgText(StringBuilder s, int indent, int x, int y, int width, int height, ZColumn column, ZCell cell, bool pure)
 		{
 			if (cell.Empty())
@@ -1171,11 +1171,20 @@ namespace Zoom
 			if (cell.NumberFormat?.Length >= 2 && (numberFormat == 'E' || numberFormat == 'G'))
 				decimals = int.Parse(cell.NumberFormat.Substring(1));
 
-			if (numberFormat == 'f')
-				while (text?.Length >= 1 && (text.Last() == '0' || text.Last() == CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0]))
-					text = text.Substring(0, text.Length - 1);
-
-			if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
+			if ((numberFormat == 'f' || numberFormat == 'n') && cell.Number == (int)cell.Number)
+			{
+				int pos = text.IndexOf(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0]);
+				if (pos > -1)
+				{
+					s2.Append(text.Substring(0, pos));
+					decimals = int.Parse(cell.NumberFormat.Substring(1));
+					s2.Append('\u2008');  // punctutation space (width of a .)
+					s2.Append('\u2002', decimals);  // en space (nut)
+				}
+				else
+					s2.Append(text);
+			}
+			else if (cell.Number == 0 || cell.Number == null || double.IsNaN((double)cell.Number) || double.IsInfinity((double)cell.Number) ||
 			    Math.Abs((double)cell.Number) > 0.0001)
 			{
 				s2.Append(text);
@@ -1195,6 +1204,7 @@ namespace Zoom
 			}
 			else
 			{
+				// Convert into scientific notation: 1.23 x 10(superscript digits)
 				int magnitude = (int)Math.Floor(Math.Log10(Math.Abs((double)cell.Number)));
 				string digits = "\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";  // superscript 0123456789
 				s2.AppendFormat("{0:F" + (decimals - 1).ToString() + "}", (double)cell.Number * Math.Pow(10, -magnitude));
