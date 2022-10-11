@@ -77,6 +77,8 @@ namespace Torn.UI
             this.ribbonButtonAbout = new System.Windows.Forms.RibbonButton();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panelGames = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.gameFilter = new System.Windows.Forms.TextBox();
             this.listViewGames = new System.Windows.Forms.ListView();
             this.colGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colLeague = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -488,6 +490,8 @@ namespace Torn.UI
             // 
             // panelGames
             // 
+            this.panelGames.Controls.Add(this.label1);
+            this.panelGames.Controls.Add(this.gameFilter);
             this.panelGames.Controls.Add(this.listViewGames);
             this.panelGames.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelGames.Location = new System.Drawing.Point(318, 0);
@@ -496,6 +500,25 @@ namespace Torn.UI
             this.tableLayoutPanel1.SetRowSpan(this.panelGames, 2);
             this.panelGames.Size = new System.Drawing.Size(318, 574);
             this.panelGames.TabIndex = 15;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 3);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(29, 13);
+            this.label1.TabIndex = 14;
+            this.label1.Text = "Filter";
+            // 
+            // gameFilter
+            // 
+            this.gameFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.gameFilter.Location = new System.Drawing.Point(38, 0);
+            this.gameFilter.Name = "gameFilter";
+            this.gameFilter.Size = new System.Drawing.Size(203, 20);
+            this.gameFilter.TabIndex = 13;
+            this.gameFilter.TextChanged += new System.EventHandler(this.gameFilter_TextChanged);
             // 
             // listViewGames
             // 
@@ -509,9 +532,9 @@ namespace Torn.UI
             this.listViewGames.ContextMenuStrip = this.contextMenuStripGames;
             this.listViewGames.FullRowSelect = true;
             this.listViewGames.HideSelection = false;
-            this.listViewGames.Location = new System.Drawing.Point(3, 3);
+            this.listViewGames.Location = new System.Drawing.Point(3, 20);
             this.listViewGames.Name = "listViewGames";
-            this.listViewGames.Size = new System.Drawing.Size(315, 568);
+            this.listViewGames.Size = new System.Drawing.Size(315, 551);
             this.listViewGames.TabIndex = 12;
             this.listViewGames.UseCompatibleStateImageBehavior = false;
             this.listViewGames.View = System.Windows.Forms.View.Details;
@@ -750,6 +773,7 @@ namespace Torn.UI
             this.Shown += new System.EventHandler(this.MainFormShown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panelGames.ResumeLayout(false);
+            this.panelGames.PerformLayout();
             this.contextMenuStripGames.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -822,5 +846,7 @@ namespace Torn.UI
 		private System.Windows.Forms.RibbonButton ribbonButtonExportJson;
         private System.Windows.Forms.ToolStripMenuItem exportJSONToolStripMenuItem;
         private System.Windows.Forms.RibbonButton updateScoreboard;
+        private System.Windows.Forms.TextBox gameFilter;
+        private System.Windows.Forms.Label label1;
     }
 }

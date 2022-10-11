@@ -1289,18 +1289,22 @@ namespace Torn.UI
 			return null;
 		}
 
-		void RefreshGamesList()
+		void RefreshGamesList(string filter = "")
 		{
+			RerenderGamesList(serverGames, laserGameServer == null ? new List<ServerGame>() : laserGameServer.GetGames(), filter);					
+		}
+
+		void RerenderGamesList (List<ServerGame> oldGames, List<ServerGame> serverGames, string filter = "")
+        {
 			var topItem = listViewGames.TopItem;
 			var focused = listViewGames.FocusedItem ?? (listViewGames.SelectedItems.Count > 0 ? listViewGames.SelectedItems[0] : null);
-			var oldGames = serverGames;
-			serverGames = laserGameServer == null ? new List<ServerGame>() : laserGameServer.GetGames();
+
 
 			if (serverGames.Any())
 				serverGames.Last().InProgress = timeElapsed > TimeSpan.Zero;
 
 			Cursor.Current = Cursors.WaitCursor;
-			progressBar1.Value  = 0;
+			progressBar1.Value = 0;
 			try
 			{
 				// Link server games to league games, where a matching league game exists.
@@ -1338,13 +1342,23 @@ namespace Torn.UI
 			serverGames.Sort();
 			serverGames.Reverse();
 
+			List<ServerGame> filteredGames = new List<ServerGame>();
+
+			if (filter != "")
+            {
+				filteredGames.AddRange(serverGames.Where(game => game.Description == null || game.Description.Contains(filter)));
+			} else
+            {
+				filteredGames.AddRange(serverGames);
+            }
+
 			listViewGames.BeginUpdate();
 			try
 			{
 				listViewGames.Items.Clear();
 
 				// Create items in the list view, one for each server game.
-				foreach (var serverGame in serverGames)
+				foreach (var serverGame in filteredGames)
 				{
 					ListViewItem item = new ListViewItem
 					{
@@ -1352,7 +1366,7 @@ namespace Torn.UI
 						Tag = serverGame
 					};
 					item.SubItems.AddRange(new string[] { serverGame.League == null ? "" : serverGame.League.Title,
-					                       	serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
+											   serverGame.Game == null || string.IsNullOrEmpty(serverGame.Game.Title) ? serverGame.Description : serverGame.Game.Title });
 					if (!serverGame.OnServer)
 						item.BackColor = SystemColors.ControlLight;
 					listViewGames.Items.Add(item);
@@ -1379,7 +1393,7 @@ namespace Torn.UI
 						if (!listViewGames.Items[item.Index].Bounds.IntersectsWith(listViewGames.ClientRectangle))  // if item is not visible
 							listViewGames.EnsureVisible(item.Index);
 					}
-			}			
+			}
 		}
 
 		void PopulateTeamPlayersFromServerGame(League league, ServerGame serverGame, List<GamePlayer> players)
@@ -1615,8 +1629,18 @@ namespace Torn.UI
 			}
 
 		}
+
+		private void gameFilter_TextChanged(object sender, EventArgs e)
+		{
+			if (serverGames == null)
+			{
+				RefreshGamesList(gameFilter.Text);
+			} else {
+				RerenderGamesList(serverGames, serverGames, gameFilter.Text);
+			}
+        }
     }
-	public static class Extensions
+    public static class Extensions
 	{
 		public static IEnumerable<string> Split(this string str, int n)
 		{
