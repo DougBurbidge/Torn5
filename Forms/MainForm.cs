@@ -712,12 +712,12 @@ namespace Torn.UI
 		void ButtonLatestGameClick(object sender, EventArgs e)
 		{
 			RefreshGamesList();
-			listViewGames.SelectedItems.Clear();
+			listViewGames.SelectedItems.Clear(); 
 			if (listViewGames.Items.Count > 0)
 			{
-				var index = listViewGames.Items.Count - 1;
-				while (index > 0 && !((ServerGame)listViewGames.Items[index].Tag).OnServer)
-					index--;
+				var index = 0;
+				while (index < listViewGames.Items.Count - 1 && !((ServerGame)listViewGames.Items[index].Tag).OnServer)
+					index++;
 				listViewGames.SelectedIndices.Add(index);
 				listViewGames.FocusedItem = listViewGames.Items[index];
 				listViewGames.TopItem = listViewGames.Items[index];
@@ -1336,6 +1336,7 @@ namespace Torn.UI
 						});
 
 			serverGames.Sort();
+			serverGames.Reverse();
 
 			listViewGames.BeginUpdate();
 			try
@@ -1378,7 +1379,7 @@ namespace Torn.UI
 						if (!listViewGames.Items[item.Index].Bounds.IntersectsWith(listViewGames.ClientRectangle))  // if item is not visible
 							listViewGames.EnsureVisible(item.Index);
 					}
-			}
+			}			
 		}
 
 		void PopulateTeamPlayersFromServerGame(League league, ServerGame serverGame, List<GamePlayer> players)
