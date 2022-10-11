@@ -1679,7 +1679,7 @@ namespace Torn
 				decimal bonus = GetGradeBonus(player.Grade);
 				decimal penalty = GetGradePenalty(player.Grade);
 
-				if (bonus > 0)
+				if (bonus < 0)
 				{
 					bonusCount++;
 					if (bonusCount > 1)
