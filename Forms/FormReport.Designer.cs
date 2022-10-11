@@ -223,8 +223,10 @@ namespace Torn.UI
             this.orderBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.orderBy.FormattingEnabled = true;
             this.orderBy.Items.AddRange(new object[] {
-            "victory points then score",
-            "victory points then score ratio"});
+            "TR×SR",
+            "tag ratio",
+            "score ratio",
+            "score"});
             this.orderBy.Location = new System.Drawing.Point(344, 590);
             this.orderBy.Name = "orderBy";
             this.orderBy.Size = new System.Drawing.Size(189, 21);
@@ -469,8 +471,6 @@ namespace Torn.UI
             // 
             // description
             // 
-            this.description.Checked = true;
-            this.description.CheckState = System.Windows.Forms.CheckState.Checked;
             this.description.Location = new System.Drawing.Point(238, 500);
             this.description.Name = "description";
             this.description.Size = new System.Drawing.Size(250, 24);
@@ -526,8 +526,6 @@ namespace Torn.UI
             // 
             // longitudinal
             // 
-            this.longitudinal.Checked = true;
-            this.longitudinal.CheckState = System.Windows.Forms.CheckState.Checked;
             this.longitudinal.Location = new System.Drawing.Point(238, 533);
             this.longitudinal.Name = "longitudinal";
             this.longitudinal.Size = new System.Drawing.Size(250, 24);

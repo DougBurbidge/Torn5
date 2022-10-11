@@ -84,7 +84,7 @@ namespace Torn.UI
 				numericUpDownAtLeastN.Value = i ?? 0;
 
 				chartType.Text = ReportTemplate.Setting("ChartType") ?? "bar";
-				orderBy.Text = ReportTemplate.Setting("OrderBy") ?? "score";
+				orderBy.Text = ReportTemplate.Setting("OrderBy") ?? "TR×SR";
 			}
 
 //			ListBoxReportTypeSelectedIndexChanged(null, null);
@@ -146,10 +146,10 @@ namespace Torn.UI
 		string OrderByText()
 		{
 			switch (orderBy.SelectedIndex) {
-				case 0: return "score";
-				case 1: return "score ratio";
-				case 2: return "scaled score";
-				case 3: return "scaled score ratio";
+				case 0: return "TRxSR";
+				case 1: return "tag ratio";
+				case 2: return "score ratio";
+				case 3: return "score";
 				default: return "";
 			}
 		}
@@ -175,15 +175,14 @@ namespace Torn.UI
 			atLeastN.Enabled = isTeamOrSolo;
 			numericUpDownAtLeastN.Enabled = isTeamOrSolo;
 			labelAtLeastGames.Enabled = isTeamOrSolo;
-			orderBy.Enabled = isTeamOrSolo;
-			labelOrderBy.Enabled = isTeamOrSolo;
+			orderBy.Enabled = r == ReportType.SoloLadder;
+			labelOrderBy.Enabled = r == ReportType.SoloLadder;
 			withDescription.Enabled = r != ReportType.MultiLadder;
 			description.Enabled = true;
 			longitudinal.Enabled = isTeamOrSolo || r == ReportType.Packs;
 			showHits.Enabled = r == ReportType.DetailedGames || r == ReportType.GameByGame || r == ReportType.GameGrid;
 			isDecimal.Enabled = r == ReportType.GameGrid || r == ReportType.TeamLadder || r == ReportType.SoloLadder || r == ReportType.GameGridCondensed;
-			if (r == ReportType.Packs && ReportTemplate?.ReportType == ReportType.Packs)
-				longitudinal.Checked = true;
+			longitudinal.Checked = false;
 
 			labelTopWhat.Text = r == ReportType.SoloLadder ? "players" : "teams";
 			atLeastN.Text = r == ReportType.SoloLadder ? "show only players with at least" : "show only teams with at least";

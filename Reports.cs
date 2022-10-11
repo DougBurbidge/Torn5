@@ -2279,9 +2279,16 @@ namespace Torn.Report
 				}
 			}
 
+			Console.WriteLine(report.Columns[9]);
+
 			report.Rows.Sort(delegate (ZRow x, ZRow y)
 			{
-				double? result = y[3].Number - x[3].Number;
+				int index = 0;
+				if(rt.Setting("OrderBy") == "score") index = report.Columns.FindIndex((c) => c.ToString() == "Average Score");
+				if(rt.Setting("OrderBy") == "tag ratio") index = report.Columns.FindIndex((c) => c.ToString() == "Tag Ratio");
+				if (rt.Setting("OrderBy") == "score ratio") index = report.Columns.FindIndex((c) => c.ToString() == "Score Ratio");
+				if (rt.Setting("OrderBy") == "TRxSR") index = report.Columns.FindIndex((c) => c.ToString() == "TR×SR");
+				double? result = y[index].Number - x[index].Number;
 				return Math.Sign((double)result);
 			}
 							);
@@ -2317,7 +2324,7 @@ namespace Torn.Report
 		{
 			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
-			bool ratio = rt.Setting("OrderBy") == "score ratio";
+			bool ratio = false;
 			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
 			bool showColours = rt.Settings.Contains("ShowColours");
 
