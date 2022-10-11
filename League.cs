@@ -337,6 +337,7 @@ namespace Torn
 		public double Points { get; set; }
 		/// <summary>Victory points adjustment</summary>
 		public double PointsAdjustment { get; set; }
+		public Handicap Handicap { get; set; }
 
 		private List<GamePlayer> players;
 		public List<GamePlayer> Players { get { return players; } set { players = value; } }
@@ -898,17 +899,17 @@ namespace Torn
 				};
 				Teams.Add(leagueTeam);
 			}
-
-			if(IsAutoHandicap)
-            {
-				int cap = CalulateTeamCap(gameTeam);
-				leagueTeam.Handicap = new Handicap(cap, HandicapStyle.Percent);
-            }
 			
 			gameTeam.TeamId = leagueTeam.TeamId;
 
 			gameTeam.Players.Clear();
 			gameTeam.Players.AddRange(teamData.Players);
+
+			if (IsAutoHandicap)
+			{
+				int cap = CalulateTeamCap(gameTeam);
+				leagueTeam.Handicap = new Handicap(cap, HandicapStyle.Percent);
+			}
 
 			return leagueTeam.Name;
 		}

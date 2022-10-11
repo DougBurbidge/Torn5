@@ -540,13 +540,15 @@ namespace Torn.UI
 			foreach (GameTeam team in game.Teams)
 			{
 				LeagueTeam leagueTeam = league.Teams.Find(t => t.TeamId == team.TeamId);
+				Console.WriteLine(leagueTeam?.Handicap);
+				Handicap cap = league.IsAutoHandicap ? new Handicap(league.CalulateTeamCap(team), HandicapStyle.Percent) : leagueTeam?.Handicap;
 
 				string teamColour = ColorToTColor(team.Colour.ToColor());
 				string teamColourLight = ColorToTColor(team.Colour.ToSaturatedColor());
 
 				bool hasTR = (team.Players.Count > 0 && team.Players[0].HitsBy > 0) || (team.Players?.Count > 0 && team.Players[0].HitsOn > 0);
 
-				string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + leagueTeam?.Handicap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "") + "right\"";
+				string teamString = "," + fontColour + "," + teamColourLight + "," + teamColour + "," + teamColour + ",\"" + leagueTeam?.Name + " " + cap + " " + team.Score + "\",\"Player,Score," + (hasTR ? "TR," : "") + "Rank\",\"left,right," + (hasTR ? "right," : "") + "right\"";
 
 				foreach (GamePlayer player in team.Players)
 				{
