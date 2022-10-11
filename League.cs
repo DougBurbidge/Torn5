@@ -337,7 +337,6 @@ namespace Torn
 		public double Points { get; set; }
 		/// <summary>Victory points adjustment</summary>
 		public double PointsAdjustment { get; set; }
-		public Handicap Handicap { get; set; }
 
 		private List<GamePlayer> players;
 		public List<GamePlayer> Players { get { return players; } set { players = value; } }
