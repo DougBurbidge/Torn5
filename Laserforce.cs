@@ -253,8 +253,8 @@ namespace Torn
 							int playerScore = Int32.Parse(playerScoreEvent[4]);
 							int otherPlayerScore = Int32.Parse(otherPlayerScoreEvent[4]);
 
-							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
-							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer);
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId) ?? new ServerPlayer();
+							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer) ?? new ServerPlayer();
 
 							oneEvent.Score = playerScore;
 							oneEvent.ServerTeamId = player.ServerTeamId;
@@ -279,7 +279,7 @@ namespace Torn
 
 							oneEvent.ServerPlayerId = detailEvent[3];
 
-							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId) ?? new ServerPlayer();
 							List<string> baseEntity = entities.Find(e => e[2] == detailEvent[5]);
 
 							oneEvent.OtherPlayer = baseEntity[4];
@@ -319,8 +319,8 @@ namespace Torn
 							otherEvent.ServerPlayerId = detailEvent[5];
 							otherEvent.OtherPlayer = detailEvent[3];
 
-							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
-							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer);
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId) ?? new ServerPlayer();
+							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer) ?? new ServerPlayer();
 							
 							oneEvent.Score = Int32.Parse(scoreEvent[4]);
 							oneEvent.ServerTeamId = player.ServerTeamId;
@@ -353,7 +353,7 @@ namespace Torn
 							oneEvent.Event_Name = "Level 1 Termination";
 							oneEvent.ServerPlayerId = detailEvent[3];
 
-							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId) ?? new ServerPlayer();
 
 							oneEvent.ServerTeamId = player.ServerTeamId;
 							oneEvent.Score = Int32.Parse(scoreEvent[4]);
@@ -369,7 +369,7 @@ namespace Torn
 							oneEvent.ServerPlayerId = detailEvent[5];
 							oneEvent.Event_Name = "Reloaded";
 
-							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId);
+							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId) ?? new ServerPlayer();
 
 							oneEvent.ServerTeamId = player.ServerTeamId;
 
