@@ -406,11 +406,12 @@ namespace Torn
 		{
 			string sql = "SELECT TOP " + PlayersLimit.ToString() +
 						"M.codename AS [Alias], M.givenNames + ' ' + M.surname AS [Name], " +
-						"cast(C.region as varchar) + ''-'' + cast(C.site as varchar) + ''-'' + cast(M.id as varchar) as [ID] " +
+						"cast(C.region as varchar) + '-' + cast(C.site as varchar) + '-' + cast(M.id as varchar) as [ID] " +
 						"FROM Member M " +
 						"LEFT JOIN Centre C ON C.ref = M.centre " +
 						"WHERE M.surname LIKE @mask OR M.givenNames LIKE @mask OR M.codename LIKE '%' + @mask " +
 						"ORDER BY M.codename, [ID]";
+
 			using (SqlCommand cmd = new SqlCommand(sql, connection))
 			{
 				cmd.Parameters.AddWithValue("@mask", mask + "%");

@@ -46,7 +46,7 @@ namespace Torn
 					players.Add(new LaserGamePlayer
 					            {
 					            	Alias = reader.GetString(0),
-					            	Name = (name = reader.GetString(1)) == "" ? null : name,
+					            	Name = !reader.IsDBNull(1) ? (name = reader.GetString(1)) == "" ? null : name : null,
 					            	Id = reader.GetString(2)
 					            }
 					           );
