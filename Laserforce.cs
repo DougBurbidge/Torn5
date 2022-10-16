@@ -108,49 +108,51 @@ namespace Torn
 
 		public override void PopulateGame(ServerGame game)
 		{
-			if (!Connected || game.GameId == null)
-				return;
 
-			game.Players = new List<ServerPlayer>();
-
-			string sql = "SELECT MAT.colourTeam AS [Colour], MP.score, U.[desc] AS [Pack_Name], " +
-						 "cast(C.region as varchar) + '-' + cast(C.site as varchar) + '-' + cast(Member.id as varchar) as [Player_ID], " +
-						 "Member.codename AS [Alias], MAT.[desc] AS [Team] " +
-						 "FROM MissionPlayer MP " +
-						 "LEFT JOIN Unit U ON U.ref = MP.unit " +
-						 "LEFT JOIN Member ON Member.ref = MP.member " +
-						 "LEFT JOIN Centre C ON C.ref = Member.centre " +
-						 "LEFT JOIN Mission ON Mission.ref = MP.mission " +
-						 "LEFT JOIN MissionType MT ON MT.ref = Mission.type " +
-						 "LEFT JOIN MissionAlignmentTeam MAT ON MAT.alignment = MT.alignment AND MAT.seq = MP.team " +
-						 "WHERE Mission.ref = " + game.GameId.ToString() + " AND unitType = 0 " +
-						 "ORDER BY score DESC";
-			var cmd = new SqlCommand(sql, connection);
-			SqlDataReader reader = cmd.ExecuteReader();
-
-			try
+			if (game.GameId != null)
 			{
-				while (reader.Read())
+
+				game.Players = new List<ServerPlayer>();
+
+				string sql = "SELECT MAT.colourTeam AS [Colour], MP.score, U.[desc] AS [Pack_Name], " +
+							 "cast(C.region as varchar) + '-' + cast(C.site as varchar) + '-' + cast(Member.id as varchar) as [Player_ID], " +
+							 "Member.codename AS [Alias], MAT.[desc] AS [Team] " +
+							 "FROM MissionPlayer MP " +
+							 "LEFT JOIN Unit U ON U.ref = MP.unit " +
+							 "LEFT JOIN Member ON Member.ref = MP.member " +
+							 "LEFT JOIN Centre C ON C.ref = Member.centre " +
+							 "LEFT JOIN Mission ON Mission.ref = MP.mission " +
+							 "LEFT JOIN MissionType MT ON MT.ref = Mission.type " +
+							 "LEFT JOIN MissionAlignmentTeam MAT ON MAT.alignment = MT.alignment AND MAT.seq = MP.team " +
+							 "WHERE Mission.ref = " + game.GameId.ToString() + " AND unitType = 0 " +
+							 "ORDER BY score DESC";
+				var cmd = new SqlCommand(sql, connection);
+				SqlDataReader reader = cmd.ExecuteReader();
+
+				try
 				{
-					ServerPlayer player = new ServerPlayer
+					while (reader.Read())
 					{
-						Colour = ColourExtensions.ToColour(reader.GetInt32(0)),
-						Score = reader.GetInt32(1),
-						Pack = reader.GetString(2)
-					};
-					if (!reader.IsDBNull(3))
-						player.PlayerId = reader.GetString(3);
-					else
-						player.PlayerId = player.Pack;
-					if (!reader.IsDBNull(4))
-						player.Alias = reader.GetString(4);
-					player.ServerPlayerId = player.Pack;
-					game.Players.Add(player);
+						ServerPlayer player = new ServerPlayer
+						{
+							Colour = ColourExtensions.ToColour(reader.GetInt32(0)),
+							Score = reader.GetInt32(1),
+							Pack = reader.GetString(2)
+						};
+						if (!reader.IsDBNull(3))
+							player.PlayerId = reader.GetString(3);
+						else
+							player.PlayerId = player.Pack;
+						if (!reader.IsDBNull(4))
+							player.Alias = reader.GetString(4);
+						player.ServerPlayerId = player.Pack;
+						game.Players.Add(player);
+					}
 				}
-			}
-			finally
-			{
-				reader.Close();
+				finally
+				{
+					reader.Close();
+				}
 			}
 
 			if (string.IsNullOrEmpty(LogFolder) || !Directory.Exists(LogFolder))
@@ -250,8 +252,16 @@ namespace Torn
 							List<string> playerScoreEvent = lines[indexOfEvent - 2].Split('\t').ToList();
 							List<string> otherPlayerScoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
 
+							Console.WriteLine(playerScoreEvent[1]);
+							Console.WriteLine(playerScoreEvent[4]);
+							Console.WriteLine(otherPlayerScoreEvent[1]);
+							Console.WriteLine(otherPlayerScoreEvent[4]);
+
+
 							int playerScore = Int32.Parse(playerScoreEvent[4]);
-							int otherPlayerScore = Int32.Parse(otherPlayerScoreEvent[4]);
+							int otherPlayerScore = 0;
+
+							Int32.TryParse(otherPlayerScoreEvent[4], out otherPlayerScore);
 
 							ServerPlayer player = game.Players.Find(p => p.ServerPlayerId == oneEvent.ServerPlayerId) ?? new ServerPlayer();
 							ServerPlayer otherPlayer = game.Players.Find(p => p.ServerPlayerId == oneEvent.OtherPlayer) ?? new ServerPlayer();
