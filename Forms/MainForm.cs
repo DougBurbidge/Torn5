@@ -554,6 +554,7 @@ namespace Torn.UI
 				{
 					LeaguePlayer leaguePlayer = league.Players.Find(p => p.Id == player.PlayerId);
 					string alias = leaguePlayer?.Name != null ? leaguePlayer.Name : player.Pack;
+					alias = alias.Replace("\"", "''");
 					decimal tagRatio = hasTR ? (Convert.ToDecimal(player.HitsBy) / Convert.ToDecimal(player.HitsOn)) : 0;
 					teamString += ",\"" + alias + "\",clNone,1," + player.Score + ",clNone,1," + (hasTR ? tagRatio.ToString("0.00") + ",clNone,1," : "") + player.Rank + ",clNone,1,EOREOR";
 

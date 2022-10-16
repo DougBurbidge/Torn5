@@ -252,12 +252,6 @@ namespace Torn
 							List<string> playerScoreEvent = lines[indexOfEvent - 2].Split('\t').ToList();
 							List<string> otherPlayerScoreEvent = lines[indexOfEvent - 1].Split('\t').ToList();
 
-							Console.WriteLine(playerScoreEvent[1]);
-							Console.WriteLine(playerScoreEvent[4]);
-							Console.WriteLine(otherPlayerScoreEvent[1]);
-							Console.WriteLine(otherPlayerScoreEvent[4]);
-
-
 							int playerScore = Int32.Parse(playerScoreEvent[4]);
 							int otherPlayerScore = 0;
 
