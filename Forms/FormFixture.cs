@@ -152,6 +152,9 @@ namespace Torn.UI
 
 			Console.WriteLine("bestScore: {0}", bestScore);
 			LogGrid(bestGrid);
+			Console.WriteLine("Existing Plays");
+			LogGrid(existingPlays);
+			Console.WriteLine("Plays");
 			LogGrid(CalcPlays(bestGrid, hasRef, existingPlays));
 			scoreLabel.Text = bestScore >= 10000 ? "Extend max time and regenerate: " + Math.Round(bestScore).ToString() : "Score: " + Math.Round(bestScore).ToString() + " (Lower is better)";
 			scoreLabel.BackColor = bestScore >= 10000 ? Color.FromName("red") : Color.Transparent;
@@ -180,11 +183,6 @@ namespace Torn.UI
 
 			int player1 = rnd.Next((int)teamsPerGame);
 			int player2 = rnd.Next((int)teamsPerGame);
-
-			while ((totalTeams / teamsPerGame) > 1 && game1 == game2)
-			{
-				game2 = rnd.Next(grid.Count - 1);
-			}
 
 			newGrid[game1][player1] = grid[game2][player2];
 			newGrid[game2][player2] = grid[game1][player1];
@@ -236,8 +234,9 @@ namespace Torn.UI
 				for(int player2 = player1 + 1; player2 < plays[player1].Count; player2++)
                 {
 					score += Math.Pow(plays[player1][player2] - averagePlays, 4);
-                }
-            }
+
+				}
+			}
 
 			 List<List<int>> transposedGrid = TransposeGrid(grid);
 
@@ -261,7 +260,7 @@ namespace Torn.UI
 			}
 
 			//back to back
-			for (int game = 0; game < grid.Count - 1; game++)
+			for (int game = 0; game < grid.Count - (hasRef ? 2 : 1); game++)
 			{
 				for (int player1 = 0; player1 < teamsPerGame; player1++)
 				{
@@ -272,6 +271,21 @@ namespace Torn.UI
 							List<int> backToBacks = grid[game + 1].FindAll(p => p == player);
 							score += BACK_TO_BACK_PENALTY * backToBacks.Count;
                         }
+					}
+				}
+			}
+
+			if(hasRef) // half penalty for ref back to back with games
+            {
+				for (int player1 = 0; player1 < teamsPerGame; player1++)
+				{
+					for (int player2 = 0; player2 < teamsPerGame; player2++)
+					{
+						foreach (int player in grid[grid.Count - 2])
+						{
+							List<int> backToBacks = grid[grid.Count - 1].FindAll(p => p == player);
+							score += (BACK_TO_BACK_PENALTY / 2) * backToBacks.Count;
+						}
 					}
 				}
 			}
@@ -343,6 +357,38 @@ namespace Torn.UI
 			return AddGrids(plays, existingPlays);
 		}
 
+		List<T> Shuffle<T>(List<T> list)
+		{
+			Random random = new Random();
+			int n = list.Count;
+			while (n > 1)
+			{
+				n--;
+				int k = random.Next(n + 1);
+				T value = list[k];
+				list[k] = list[n];
+				list[n] = value;
+			}
+			return list;
+		}
+
+		List<List<int>> RandomiseGrid (List<List<int>> grid)
+        {
+			for(int i = 0; i < grid.Count; i++)
+            {
+				Random random = new Random();
+				grid[i] = Shuffle(grid[i]);
+			}
+			List<List<int>> transposed = TransposeGrid(grid);
+			for (int i = 0; i < grid.Count; i++)
+			{
+				Random random = new Random();
+				grid[i] = Shuffle(grid[i]);
+			}
+			return TransposeGrid(grid);
+
+		}
+
 
 		List<List<int>> SetupGrid (double numberOfTeams, double teamsPerGame, double gamesPerTeam)
         {
@@ -358,6 +404,11 @@ namespace Torn.UI
 				index++;
 			}
 			List<List<int>> grid = updatedArr.ChunkBy((int)teamsPerGame);
+			for (int i = 0; i < 5000; i++)
+			{
+				RandomiseGrid(grid);
+			}
+
 
 			return grid;
 
@@ -445,9 +496,6 @@ namespace Torn.UI
 			List<List<int>> existingGrid = GetLeagueGrid(Holder.League);
 			List<List<int>> existingPlays = CalcPlays(existingGrid, false, new List<List<int>>());
 			List<List<int>> existingPlaysPadded = PadPlaysToTeamNumber((int)numberOfTeams, existingPlays);
-
-			LogGrid(existingPlaysPadded);
-
 
 			List<List<int>> grid = GetGrid(numberOfTeams, teamsPerGame, gamesPerTeam, hasRef, existingPlaysPadded, maxMillis);
 
