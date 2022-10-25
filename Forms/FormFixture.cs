@@ -108,9 +108,11 @@ namespace Torn.UI
 			sw.Start();
 			scoreLabel.Visible = false;
 			scoreLabel.Text = "";
+			int count = 0;
 
 			for (int i = 0; i < 20000; i++)
 			{
+				count++;
 				List<List<int>> mixedGrid = MixGrid(bestGrid);
 				double score = CalcScore(mixedGrid, gamesPerTeam, hasRef, existingPlays);
 				if (score <= bestScore)
@@ -130,6 +132,7 @@ namespace Torn.UI
 
 			while (badFixture)
 			{
+				count++;
 				if (sw.ElapsedMilliseconds > maxMillis)
 					break;
 				List<List<int>> mixedGrid = MixGrid(bestGrid);
@@ -149,6 +152,7 @@ namespace Torn.UI
 				}
 			}
 			Console.WriteLine("Time Elapsed (ms): {0}", sw.ElapsedMilliseconds);
+			Console.WriteLine("Iterations: {0}", count);
 
 			Console.WriteLine("bestScore: {0}", bestScore);
 			LogGrid(bestGrid);
@@ -219,8 +223,8 @@ namespace Torn.UI
 
 		double CalcScore(List<List<int>> grid, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays)
 		{
-			int BACK_TO_BACK_PENALTY = 10;
 			int totalTeams = FlattenGrid(grid).Uniq().Count;
+			int BACK_TO_BACK_PENALTY = totalTeams * 3;
 			int teamsPerGame = grid[0].Count;
 			double previousAveragePlays = AverageRow(SumRows(existingPlays)) / totalTeams;
 			List<List<int>> plays = CalcPlays(grid, hasRef, existingPlays);
@@ -233,7 +237,7 @@ namespace Torn.UI
 				score += plays[player1][player1] * 10000; // penalty for playing themselves
 				for(int player2 = player1 + 1; player2 < plays[player1].Count; player2++)
                 {
-					score += Math.Pow(plays[player1][player2] - averagePlays, 4);
+					score += Math.Pow(plays[player1][player2] - averagePlays, 6);
 
 				}
 			}
