@@ -73,24 +73,15 @@ namespace Torn
 			}
 		}
 
-		public override List<ServerGame> GetGames()
-		{
+		private List<ServerGame> FetchGames(string sql)
+        {
 			List<ServerGame> games = new List<ServerGame>();
+
+			Console.WriteLine(Connected);
 
 			if (!Connected)
 				return games;
 
-			string sql = "SELECT TOP " + GamesLimit.ToString() +
-						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
-						 "FROM Mission M " +
-						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
-						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " + 
-						 (hasGameFiter ?
-						 ("WHERE MT.desc0 LIKE '%" + gameFiter + "%' " +
-						 "OR MT.desc1 LIKE '%" + gameFiter + "%' " +
-						 "OR MG.[desc] LIKE '%" + gameFiter + "%' ") : 
-						 "") +
-						 "ORDER BY M.start DESC";
 			var cmd = new SqlCommand(sql, connection);
 			SqlDataReader reader = cmd.ExecuteReader();
 
@@ -107,6 +98,7 @@ namespace Torn
 						OnServer = true
 					});
 				}
+				Console.WriteLine(games.Count());
 			}
 			finally
 			{
@@ -114,6 +106,76 @@ namespace Torn
 			}
 
 			return games;
+		}
+
+		public override List<ServerGame> GetGames()
+		{
+			Console.WriteLine("No Params");
+
+			string sql = "SELECT TOP " + GamesLimit.ToString() +
+						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
+						 "FROM Mission M " +
+						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
+						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " + 
+						 (hasGameFiter ?
+						 ("WHERE MT.desc0 LIKE '%" + gameFiter + "%' " +
+						 "OR MT.desc1 LIKE '%" + gameFiter + "%' " +
+						 "OR MG.[desc] LIKE '%" + gameFiter + "%' ") : 
+						 "") +
+						 "ORDER BY M.start DESC";
+			return FetchGames(sql);
+		}
+
+		public override List<ServerGame> GetGames(string filter, int limit)
+		{
+			Console.WriteLine("2 Params");
+			Console.WriteLine(filter);
+			Console.WriteLine(limit);
+
+			string sql = "SELECT TOP " + limit.ToString() +
+						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
+						 "FROM Mission M " +
+						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
+						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " +
+						 ("WHERE MT.desc0 LIKE '%" + filter + "%' " +
+						 "OR MT.desc1 LIKE '%" + filter + "%' " +
+						 "OR MG.[desc] LIKE '%" + filter + "%' ") +
+						 "ORDER BY M.start DESC";
+			return FetchGames(sql);
+		}
+
+		public override List<ServerGame> GetGames(string filter)
+		{
+			Console.WriteLine("filter Params");
+			Console.WriteLine(filter);
+			string sql = "SELECT TOP " + GamesLimit.ToString() +
+						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
+						 "FROM Mission M " +
+						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
+						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " +
+						 ("WHERE MT.desc0 LIKE '%" + filter + "%' " +
+						 "OR MT.desc1 LIKE '%" + filter + "%' " +
+						 "OR MG.[desc] LIKE '%" + filter + "%' ") + 
+						 "ORDER BY M.start DESC";
+			return FetchGames(sql);
+		}
+
+		public override List<ServerGame> GetGames(int limit)
+		{
+			Console.WriteLine("limit Params");
+			Console.WriteLine(limit);
+			string sql = "SELECT TOP " + limit.ToString() +
+						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
+						 "FROM Mission M " +
+						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
+						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " +
+						 (hasGameFiter ?
+						 ("WHERE MT.desc0 LIKE '%" + gameFiter + "%' " +
+						 "OR MT.desc1 LIKE '%" + gameFiter + "%' " +
+						 "OR MG.[desc] LIKE '%" + gameFiter + "%' ") :
+						 "") +
+						 "ORDER BY M.start DESC";
+			return FetchGames(sql);
 		}
 
 		public override void PopulateGame(ServerGame game)

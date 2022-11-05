@@ -194,7 +194,7 @@ namespace Torn.UI
 					case SystemType.Zeon: laserGameServer = new PAndC(serverAddress);  break;
 					case SystemType.OZone: laserGameServer = new OZone(serverAddress, serverPort);  break;
 					case SystemType.Torn:
-						laserGameServer = new TornTcpServer(serverAddress, serverPort);
+						laserGameServer = new TornTcpServer(laserforceGameLimit, laserforceGameFilter, hasLaserforceGameFilter, serverAddress, serverPort);
 						timeElapsed = laserGameServer.GameTimeElapsed();
 					break;
 					case SystemType.Demo: laserGameServer = new DemoServer();  break;

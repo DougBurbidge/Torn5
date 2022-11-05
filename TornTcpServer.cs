@@ -14,11 +14,16 @@ namespace Torn5
         Int32 port;
         string server;
         TcpClient client;
+        int gameLimit;
+        string gameFilter;
+        bool hasGameFilter;
 
-        public TornTcpServer(string _server = "", string _port = "12081")
+        public TornTcpServer(int limit, string filter, bool hasFilter, string _server = "", string _port = "12081")
         {
             port = Int32.Parse(_port);
             server = _server;
+            gameLimit = limit;
+            gameFilter = hasFilter ? filter : "";
         }
 
         string FetchFromTorn(string message)
@@ -65,13 +70,15 @@ namespace Torn5
         {
             try
             {
-                string message = "listGames";
+                string message = "listGames#" + gameLimit + "#" + gameFilter;
+                Console.WriteLine(message);
                 string responseData = FetchFromTorn(message);
                 Connected = true;
 
                 return JsonSerializer.Deserialize<List<ServerGame>>(responseData);
 
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 status = e.Message;
                 Console.WriteLine("Exception: {0}", e.Message);

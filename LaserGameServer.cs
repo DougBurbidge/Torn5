@@ -28,7 +28,10 @@ namespace Torn
 		public virtual TimeSpan GameTimeElapsed() { return TimeSpan.MinValue; }
 
 		public abstract List<ServerGame> GetGames();
-		
+		public virtual List<ServerGame> GetGames(int limit) { return GetGames(); }
+		public virtual List<ServerGame> GetGames(string filter) { return GetGames(); }
+		public virtual List<ServerGame> GetGames(string filter, int limit) { return GetGames(); }
+
 		public virtual void GetMoreGames(List<ServerGame> games) {}
 
 		public abstract void PopulateGame(ServerGame game);
@@ -117,6 +120,19 @@ namespace Torn
 			};
 
 			return games;
+		}
+
+		public override List<ServerGame> GetGames(string filter, int limit)
+		{ 
+			return GetGames();
+		}
+		public override List<ServerGame> GetGames(int limit)
+		{
+			return GetGames();
+		}
+		public override List<ServerGame> GetGames(string filter)
+		{
+			return GetGames();
 		}
 
 		public override void PopulateGame(ServerGame game)

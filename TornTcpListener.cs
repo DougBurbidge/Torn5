@@ -94,6 +94,22 @@ namespace Torn5
                     string gamesJson = JsonSerializer.Serialize<List<ServerGame>>(serverGames);
                     return gamesJson;
                 }
+                if (data.StartsWith("listGames"))
+                {
+                    string limit = data.Split('#')[1];
+                    string filter = data.Split('#')[2];
+                    bool hasFilter = filter != "";
+                    bool hasLimit = limit != "-1";
+                    serverGames = hasFilter && hasLimit ? 
+                        laserGameServer.GetGames(filter, Int32.Parse(limit)) 
+                        : hasFilter 
+                        ? laserGameServer.GetGames(filter) 
+                        : hasLimit 
+                        ? laserGameServer.GetGames(Int32.Parse(limit)) 
+                        : laserGameServer.GetGames();
+                    string gamesJson = JsonSerializer.Serialize<List<ServerGame>>(serverGames);
+                    return gamesJson;
+                }
                 if (data.StartsWith("getGame"))
                 {
                     string gameTime = data.Split('#')[1];
