@@ -203,7 +203,8 @@ namespace Torn
 				}
 
 				foreach (string l in lines)
-                {
+				{
+					Console.WriteLine(l);
 					List<string> detailEvent = l.Split('\t').ToList();
 
 					// 4 event time type entity desc otherEntity
@@ -219,7 +220,7 @@ namespace Torn
 						oneEvent.Event_Type = ParseEventType(detailEvent[2]);
 
 						// tag player
-						if ( detailEvent[2] == "0206" || detailEvent[2] == "0208")
+						if ( detailEvent[2] == "0206" || (detailEvent[2] == "0208" && !detailEvent[3].StartsWith("@")))
                         {
 							Event otherEvent = new Event
 							{
