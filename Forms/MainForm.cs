@@ -717,8 +717,6 @@ namespace Torn.UI
 			if (listViewGames.Items.Count > 0)
 			{
 				var index = 0;
-				while (index < listViewGames.Items.Count - 1 && !((ServerGame)listViewGames.Items[index].Tag).OnServer)
-					index++;
 				listViewGames.SelectedIndices.Add(index);
 				listViewGames.FocusedItem = listViewGames.Items[index];
 				listViewGames.TopItem = listViewGames.Items[index];
