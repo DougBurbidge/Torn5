@@ -42,6 +42,12 @@ namespace Torn.UI
             this.textBoxGames = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabTeams = new System.Windows.Forms.TabPage();
+            this.label25 = new System.Windows.Forms.Label();
+            this.minBetween = new System.Windows.Forms.NumericUpDown();
+            this.gameDateTime = new System.Windows.Forms.DateTimePicker();
+            this.label24 = new System.Windows.Forms.Label();
+            this.outputList = new System.Windows.Forms.CheckBox();
+            this.outputGrid = new System.Windows.Forms.CheckBox();
             this.printReport1 = new Torn5.Controls.PrintReport();
             this.reportTeamsList = new Torn5.Controls.DisplayReport();
             this.continueGenerating = new System.Windows.Forms.Button();
@@ -146,10 +152,9 @@ namespace Torn.UI
             this.displayReportTaken = new Torn5.Controls.DisplayReport();
             this.displayReportDraw = new Torn5.Controls.DisplayReport();
             this.printReportDraw = new Torn5.Controls.PrintReport();
-            this.outputGrid = new System.Windows.Forms.CheckBox();
-            this.outputList = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabTeams.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minBetween)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.maxTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gamesPerTeamInput)).BeginInit();
             this.tabGamesList.SuspendLayout();
@@ -202,7 +207,7 @@ namespace Torn.UI
             this.textBoxTeams.Multiline = true;
             this.textBoxTeams.Name = "textBoxTeams";
             this.textBoxTeams.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxTeams.Size = new System.Drawing.Size(588, 612);
+            this.textBoxTeams.Size = new System.Drawing.Size(461, 577);
             this.textBoxTeams.TabIndex = 11;
             this.textBoxTeams.Text = "Team 1\r\nTeam 2\r\nTeam 3\r\netc.";
             this.textBoxTeams.WordWrap = false;
@@ -211,7 +216,7 @@ namespace Torn.UI
             // buttonImportTeams
             // 
             this.buttonImportTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonImportTeams.Location = new System.Drawing.Point(519, 673);
+            this.buttonImportTeams.Location = new System.Drawing.Point(392, 673);
             this.buttonImportTeams.Name = "buttonImportTeams";
             this.buttonImportTeams.Size = new System.Drawing.Size(75, 23);
             this.buttonImportTeams.TabIndex = 10;
@@ -336,6 +341,10 @@ namespace Torn.UI
             // 
             // tabTeams
             // 
+            this.tabTeams.Controls.Add(this.label25);
+            this.tabTeams.Controls.Add(this.minBetween);
+            this.tabTeams.Controls.Add(this.gameDateTime);
+            this.tabTeams.Controls.Add(this.label24);
             this.tabTeams.Controls.Add(this.outputList);
             this.tabTeams.Controls.Add(this.outputGrid);
             this.tabTeams.Controls.Add(this.printReport1);
@@ -362,6 +371,85 @@ namespace Torn.UI
             this.tabTeams.Text = "Teams";
             this.tabTeams.UseVisualStyleBackColor = true;
             // 
+            // label25
+            // 
+            this.label25.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(140, 611);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(88, 13);
+            this.label25.TabIndex = 32;
+            this.label25.Text = "Minutes between";
+            // 
+            // minBetween
+            // 
+            this.minBetween.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.minBetween.Location = new System.Drawing.Point(143, 627);
+            this.minBetween.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.minBetween.Minimum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.minBetween.Name = "minBetween";
+            this.minBetween.Size = new System.Drawing.Size(89, 20);
+            this.minBetween.TabIndex = 31;
+            this.minBetween.Value = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
+            // 
+            // gameDateTime
+            // 
+            this.gameDateTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.gameDateTime.CustomFormat = "ddd dd/MM/yyyy hh:mm tt";
+            this.gameDateTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.gameDateTime.Location = new System.Drawing.Point(280, 627);
+            this.gameDateTime.Name = "gameDateTime";
+            this.gameDateTime.Size = new System.Drawing.Size(187, 20);
+            this.gameDateTime.TabIndex = 30;
+            // 
+            // label24
+            // 
+            this.label24.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(277, 611);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(83, 13);
+            this.label24.TabIndex = 29;
+            this.label24.Text = "First Game Time";
+            // 
+            // outputList
+            // 
+            this.outputList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.outputList.AutoSize = true;
+            this.outputList.Checked = true;
+            this.outputList.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.outputList.Location = new System.Drawing.Point(123, 653);
+            this.outputList.Name = "outputList";
+            this.outputList.Size = new System.Drawing.Size(105, 17);
+            this.outputList.TabIndex = 27;
+            this.outputList.Text = "Ouput Game List";
+            this.outputList.UseVisualStyleBackColor = true;
+            // 
+            // outputGrid
+            // 
+            this.outputGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.outputGrid.AutoSize = true;
+            this.outputGrid.Checked = true;
+            this.outputGrid.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.outputGrid.Location = new System.Drawing.Point(9, 653);
+            this.outputGrid.Name = "outputGrid";
+            this.outputGrid.Size = new System.Drawing.Size(108, 17);
+            this.outputGrid.TabIndex = 26;
+            this.outputGrid.Text = "Ouput Game Grid";
+            this.outputGrid.UseVisualStyleBackColor = true;
+            // 
             // printReport1
             // 
             this.printReport1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -377,17 +465,17 @@ namespace Torn.UI
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.reportTeamsList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.reportTeamsList.Location = new System.Drawing.Point(600, 26);
+            this.reportTeamsList.Location = new System.Drawing.Point(473, 26);
             this.reportTeamsList.Name = "reportTeamsList";
             this.reportTeamsList.Report = null;
-            this.reportTeamsList.Size = new System.Drawing.Size(548, 669);
+            this.reportTeamsList.Size = new System.Drawing.Size(675, 669);
             this.reportTeamsList.TabIndex = 12;
             // 
             // continueGenerating
             // 
             this.continueGenerating.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.continueGenerating.Enabled = false;
-            this.continueGenerating.Location = new System.Drawing.Point(519, 644);
+            this.continueGenerating.Location = new System.Drawing.Point(392, 649);
             this.continueGenerating.Name = "continueGenerating";
             this.continueGenerating.Size = new System.Drawing.Size(75, 23);
             this.continueGenerating.TabIndex = 24;
@@ -409,7 +497,7 @@ namespace Torn.UI
             // 
             this.label23.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(421, 660);
+            this.label23.Location = new System.Drawing.Point(294, 658);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(81, 13);
             this.label23.TabIndex = 22;
@@ -418,7 +506,7 @@ namespace Torn.UI
             // maxTime
             // 
             this.maxTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.maxTime.Location = new System.Drawing.Point(424, 675);
+            this.maxTime.Location = new System.Drawing.Point(297, 673);
             this.maxTime.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -444,7 +532,7 @@ namespace Torn.UI
             this.referee.AutoSize = true;
             this.referee.Checked = true;
             this.referee.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.referee.Location = new System.Drawing.Point(122, 673);
+            this.referee.Location = new System.Drawing.Point(238, 676);
             this.referee.Name = "referee";
             this.referee.Size = new System.Drawing.Size(43, 17);
             this.referee.TabIndex = 20;
@@ -455,7 +543,7 @@ namespace Torn.UI
             // 
             this.green.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.green.AutoSize = true;
-            this.green.Location = new System.Drawing.Point(59, 648);
+            this.green.Location = new System.Drawing.Point(177, 677);
             this.green.Name = "green";
             this.green.Size = new System.Drawing.Size(55, 17);
             this.green.TabIndex = 19;
@@ -468,7 +556,7 @@ namespace Torn.UI
             this.yellow.AutoSize = true;
             this.yellow.Checked = true;
             this.yellow.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.yellow.Location = new System.Drawing.Point(59, 673);
+            this.yellow.Location = new System.Drawing.Point(114, 677);
             this.yellow.Name = "yellow";
             this.yellow.Size = new System.Drawing.Size(57, 17);
             this.yellow.TabIndex = 18;
@@ -481,7 +569,7 @@ namespace Torn.UI
             this.blue.AutoSize = true;
             this.blue.Checked = true;
             this.blue.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.blue.Location = new System.Drawing.Point(6, 648);
+            this.blue.Location = new System.Drawing.Point(61, 677);
             this.blue.Name = "blue";
             this.blue.Size = new System.Drawing.Size(47, 17);
             this.blue.TabIndex = 17;
@@ -494,7 +582,7 @@ namespace Torn.UI
             this.red.AutoSize = true;
             this.red.Checked = true;
             this.red.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.red.Location = new System.Drawing.Point(6, 673);
+            this.red.Location = new System.Drawing.Point(9, 676);
             this.red.Name = "red";
             this.red.Size = new System.Drawing.Size(46, 17);
             this.red.TabIndex = 16;
@@ -505,7 +593,7 @@ namespace Torn.UI
             // 
             this.label22.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(323, 660);
+            this.label22.Location = new System.Drawing.Point(6, 611);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(89, 13);
             this.label22.TabIndex = 15;
@@ -514,7 +602,7 @@ namespace Torn.UI
             // gamesPerTeamInput
             // 
             this.gamesPerTeamInput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.gamesPerTeamInput.Location = new System.Drawing.Point(326, 676);
+            this.gamesPerTeamInput.Location = new System.Drawing.Point(9, 627);
             this.gamesPerTeamInput.Minimum = new decimal(new int[] {
             1,
             0,
@@ -1676,32 +1764,6 @@ namespace Torn.UI
             this.printReportDraw.Size = new System.Drawing.Size(64, 440);
             this.printReportDraw.TabIndex = 15;
             // 
-            // outputGrid
-            // 
-            this.outputGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.outputGrid.AutoSize = true;
-            this.outputGrid.Checked = true;
-            this.outputGrid.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.outputGrid.Location = new System.Drawing.Point(171, 673);
-            this.outputGrid.Name = "outputGrid";
-            this.outputGrid.Size = new System.Drawing.Size(108, 17);
-            this.outputGrid.TabIndex = 26;
-            this.outputGrid.Text = "Ouput Game Grid";
-            this.outputGrid.UseVisualStyleBackColor = true;
-            // 
-            // outputList
-            // 
-            this.outputList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.outputList.AutoSize = true;
-            this.outputList.Checked = true;
-            this.outputList.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.outputList.Location = new System.Drawing.Point(171, 648);
-            this.outputList.Name = "outputList";
-            this.outputList.Size = new System.Drawing.Size(105, 17);
-            this.outputList.TabIndex = 27;
-            this.outputList.Text = "Ouput Game List";
-            this.outputList.UseVisualStyleBackColor = true;
-            // 
             // FormFixture
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1716,6 +1778,7 @@ namespace Torn.UI
             this.tabControl1.ResumeLayout(false);
             this.tabTeams.ResumeLayout(false);
             this.tabTeams.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minBetween)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.maxTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gamesPerTeamInput)).EndInit();
             this.tabGamesList.ResumeLayout(false);
@@ -1888,5 +1951,9 @@ namespace Torn.UI
         private Torn5.Controls.PrintReport printReport1;
         private System.Windows.Forms.CheckBox outputList;
         private System.Windows.Forms.CheckBox outputGrid;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.DateTimePicker gameDateTime;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.NumericUpDown minBetween;
     }
 }

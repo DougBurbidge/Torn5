@@ -504,7 +504,7 @@ namespace Torn.UI
 			List<List<int>> grid = GetGrid(numberOfTeams, teamsPerGame, gamesPerTeam, hasRef, existingPlaysPadded, maxMillis);
 
 
-			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, timePicker.Value, TimeSpan.FromMinutes((double)numericMinutes.Value), TeamColours());
+			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, gameDateTime.Value, TimeSpan.FromMinutes((double)minBetween.Value), TeamColours());
 
 
 			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
@@ -536,7 +536,7 @@ namespace Torn.UI
 			int maxMillis = (int)maxTime.Value * 1000;
 			List<List<int>> grid = ContinueMixing(previousGrid, previousGamesPerTeam, previousHasRef, previousExistingPlays, maxMillis, previousBestScore);
 
-			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, timePicker.Value, TimeSpan.FromMinutes((double)numericMinutes.Value), TeamColours());
+			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, gameDateTime.Value, TimeSpan.FromMinutes((double)minBetween.Value), TeamColours());
 
 			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
 			textBoxGames.Text = Holder.Fixture.Games.ToString();

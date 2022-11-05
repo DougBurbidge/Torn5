@@ -240,7 +240,23 @@ namespace Torn.Report
 		/// <summary>Fixtures. Each row is a team. Each column is a game.</summary>
 		public static ZoomReport FixtureGrid(Fixture fixture, League league)
 		{
-			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Team", "left")
+			string prevDate = "";
+			bool hasMultipleDates = false;
+
+			foreach (var fg in fixture.Games)
+			{
+				string date = fg.Time.ToString("dd/MM/yyyy");
+				if (prevDate != "")
+				{
+					if (prevDate != date)
+					{
+						hasMultipleDates = true;
+					}
+				}
+				prevDate = date;
+
+			}
+			ZoomReport report = new ZoomReport("Fixtures for " + league.Title + (hasMultipleDates ? "" : " " + prevDate), "Team", "left")
 			{
 				CssClass = "fixturegrid"
 			};
@@ -302,7 +318,23 @@ namespace Torn.Report
 		/// <summary>Fixtures. Each row is a game. CSS stuff is consumed by Javascript added in WebOutput.cs' ReportPages.FixturePage.</summary>
 		public static ZoomReport FixtureList(Fixture fixture, League league)
 		{
-			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Time", "left")
+			string prevDate = "";
+			bool hasMultipleDates = false;
+
+			foreach (var fg in fixture.Games)
+			{
+				string date = fg.Time.ToString("dd/MM/yyyy");
+				if (prevDate != "")
+				{
+					if (prevDate != date)
+					{
+						hasMultipleDates = true;
+					}
+				}
+				prevDate = date;
+
+			}
+			ZoomReport report = new ZoomReport("Fixtures for " + league.Title + (hasMultipleDates ? "" : " " + prevDate), "Time", "left")
 			{
 				CssClass = "fixturelist",
 				MultiColumnOK = true
@@ -325,7 +357,7 @@ namespace Torn.Report
 			{
 				ZRow row = new ZRow();
 
-				ZCell timeCell = new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm"))
+				ZCell timeCell = new ZCell(fg.Time.ToString(hasMultipleDates ? "dd/MM/yyyy hh:mm tt" : "hh:mm tt"))
 				{
 					CssClass = "time"
 				};
@@ -352,7 +384,24 @@ namespace Torn.Report
 
 		public static ZoomReport FixtureCombined(Fixture fixture, League league)
         {
-			ZoomReport report = new ZoomReport("Fixtures for " + league.Title, "Time", "left")
+			string prevDate = "";
+			bool hasMultipleDates = false;
+
+			foreach (var fg in fixture.Games)
+			{
+				string date = fg.Time.ToString("dd/MM/yyyy");
+				if (prevDate != "")
+				{
+					if (prevDate != date)
+					{
+						hasMultipleDates = true;
+					}
+				}
+				prevDate = date;
+
+			}
+
+			ZoomReport report = new ZoomReport("Fixtures for " + league.Title + (hasMultipleDates ? "" : " " + prevDate), "Time", "left")
 			{
 				CssClass = "fixturelist",
 				MultiColumnOK = true
@@ -375,11 +424,11 @@ namespace Torn.Report
 
 			FixtureTeams sortedTeams = new FixtureTeams();
 
-			foreach (var fg in fixture.Games)
+				foreach (var fg in fixture.Games)
 			{
 				ZRow row = new ZRow();
 
-				ZCell timeCell = new ZCell(fg.Time.ToString("yyyy/MM/dd HH:mm"))
+				ZCell timeCell = new ZCell(fg.Time.ToString(hasMultipleDates ? "dd/MM/yyyy hh:mm tt" : "hh:mm tt"))
 				{
 					CssClass = "time"
 				};
