@@ -21,9 +21,14 @@ namespace Torn
 		public int PlayersLimit { get; set; }
 		public string LogFolder { get; set; }
 
-		public Laserforce()
+		bool hasGameFiter;
+		string gameFiter;
+
+		public Laserforce(int gameLimit, bool hasFilter, string filter)
 		{
-			GamesLimit = 1000;
+			GamesLimit = gameLimit;
+			hasGameFiter = hasFilter;
+			gameFiter = filter;
 			PlayersLimit = 1000;
 		}
 
@@ -79,7 +84,12 @@ namespace Torn
 						 " M.ref AS [Game_ID], M.start AS [Start_Time], M.[end] AS [Finish_Time], COALESCE(MT.desc1, MT.desc0, MG.[desc]) AS [Description] " +
 						 "FROM Mission M " +
 						 "LEFT JOIN MissionGroup MG ON MG.ref = M.[group] " +
-						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " +
+						 "LEFT JOIN MissionType MT ON MT.ref = M.[type] " + 
+						 (hasGameFiter ?
+						 ("WHERE MT.desc0 LIKE '%" + gameFiter + "%' " +
+						 "OR MT.desc1 LIKE '%" + gameFiter + "%' " +
+						 "OR MG.[desc] LIKE '%" + gameFiter + "%' ") : 
+						 "") +
 						 "ORDER BY M.start DESC";
 			var cmd = new SqlCommand(sql, connection);
 			SqlDataReader reader = cmd.ExecuteReader();

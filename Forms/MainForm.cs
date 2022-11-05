@@ -86,6 +86,10 @@ namespace Torn.UI
 
 		string serverPort = "12123";
 
+		int laserforceGameLimit = 500;
+		string laserforceGameFilter = "";
+		bool hasLaserforceGameFilter = false;
+
 
 		int webPort;
 		WebOutput webOutput;
@@ -179,7 +183,7 @@ namespace Torn.UI
 			{
 				switch (systemType) {
 					case SystemType.Laserforce:
-						laserGameServer = new Laserforce();
+						laserGameServer = new Laserforce(laserforceGameLimit, hasLaserforceGameFilter, laserforceGameFilter);
 						if (windowsAuth)
 							((Laserforce)laserGameServer).Connect(serverAddress);
 						else
@@ -757,7 +761,10 @@ namespace Torn.UI
 				WebPort = webPort,
 				LogFolder = logFolder,
 				HostRemoteTorn = hostRemoteTorn,
-				RemoteTornPort = remoteTornPort
+				RemoteTornPort = remoteTornPort,
+				LaserforceGameLimit = laserforceGameLimit,
+				GameFilter = laserforceGameFilter,
+				HasGameFilter = hasLaserforceGameFilter
 			};
 
 			if (form.ShowDialog() == DialogResult.OK)
@@ -780,7 +787,11 @@ namespace Torn.UI
 				logFolder = form.LogFolder;
 				remoteTornPort = form.RemoteTornPort;
 				hostRemoteTorn = form.HostRemoteTorn;
-				
+				laserforceGameLimit = form.LaserforceGameLimit;
+				laserforceGameFilter = form.GameFilter;
+				hasLaserforceGameFilter = form.HasGameFilter;
+
+
 				ConnectLaserGameServer();
 				ListViewLeaguesItemSelectionChanged(null, null);
 				timeToNextCheck = TimeSpan.FromSeconds(1);

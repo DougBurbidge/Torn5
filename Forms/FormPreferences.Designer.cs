@@ -82,6 +82,14 @@ namespace Torn.UI
             this.numericPort = new System.Windows.Forms.NumericUpDown();
             this.checkBoxWebServer = new System.Windows.Forms.CheckBox();
             this.tabPageLaserforce = new System.Windows.Forms.TabPage();
+            this.label8 = new System.Windows.Forms.Label();
+            this.gameFilter = new System.Windows.Forms.TextBox();
+            this.hasGameFilter = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.laserforceGameLimit = new System.Windows.Forms.NumericUpDown();
+            this.tornServerPort = new System.Windows.Forms.Label();
+            this.remoteTornPort = new System.Windows.Forms.TextBox();
+            this.hostRemoteTorn = new System.Windows.Forms.CheckBox();
             this.buttonLogFolder = new System.Windows.Forms.Button();
             this.textBoxLogFolder = new System.Windows.Forms.TextBox();
             this.labelLogFolder = new System.Windows.Forms.Label();
@@ -89,9 +97,6 @@ namespace Torn.UI
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.hostRemoteTorn = new System.Windows.Forms.CheckBox();
-            this.remoteTornPort = new System.Windows.Forms.TextBox();
-            this.tornServerPort = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -105,6 +110,7 @@ namespace Torn.UI
             this.tabPageWebServer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericPort)).BeginInit();
             this.tabPageLaserforce.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.laserforceGameLimit)).BeginInit();
             this.panelBottom.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -678,6 +684,11 @@ namespace Torn.UI
             // 
             // tabPageLaserforce
             // 
+            this.tabPageLaserforce.Controls.Add(this.label8);
+            this.tabPageLaserforce.Controls.Add(this.gameFilter);
+            this.tabPageLaserforce.Controls.Add(this.hasGameFilter);
+            this.tabPageLaserforce.Controls.Add(this.label7);
+            this.tabPageLaserforce.Controls.Add(this.laserforceGameLimit);
             this.tabPageLaserforce.Controls.Add(this.tornServerPort);
             this.tabPageLaserforce.Controls.Add(this.remoteTornPort);
             this.tabPageLaserforce.Controls.Add(this.hostRemoteTorn);
@@ -691,6 +702,98 @@ namespace Torn.UI
             this.tabPageLaserforce.TabIndex = 4;
             this.tabPageLaserforce.Text = "Laserforce";
             this.tabPageLaserforce.UseVisualStyleBackColor = true;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(258, 133);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(60, 13);
+            this.label8.TabIndex = 10;
+            this.label8.Text = "Game Filter";
+            // 
+            // gameFilter
+            // 
+            this.gameFilter.Enabled = false;
+            this.gameFilter.Location = new System.Drawing.Point(118, 126);
+            this.gameFilter.Name = "gameFilter";
+            this.gameFilter.Size = new System.Drawing.Size(134, 20);
+            this.gameFilter.TabIndex = 9;
+            // 
+            // hasGameFilter
+            // 
+            this.hasGameFilter.AutoSize = true;
+            this.hasGameFilter.Location = new System.Drawing.Point(11, 128);
+            this.hasGameFilter.Name = "hasGameFilter";
+            this.hasGameFilter.Size = new System.Drawing.Size(101, 17);
+            this.hasGameFilter.TabIndex = 8;
+            this.hasGameFilter.Text = "Has Game Filter";
+            this.hasGameFilter.UseVisualStyleBackColor = true;
+            this.hasGameFilter.CheckedChanged += new System.EventHandler(this.hasGameFilter_CheckedChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(258, 107);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(59, 13);
+            this.label7.TabIndex = 7;
+            this.label7.Text = "Game Limit";
+            // 
+            // laserforceGameLimit
+            // 
+            this.laserforceGameLimit.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.laserforceGameLimit.Location = new System.Drawing.Point(188, 100);
+            this.laserforceGameLimit.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.laserforceGameLimit.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.laserforceGameLimit.Name = "laserforceGameLimit";
+            this.laserforceGameLimit.Size = new System.Drawing.Size(64, 20);
+            this.laserforceGameLimit.TabIndex = 6;
+            this.laserforceGameLimit.Value = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            // 
+            // tornServerPort
+            // 
+            this.tornServerPort.AutoSize = true;
+            this.tornServerPort.Location = new System.Drawing.Point(258, 78);
+            this.tornServerPort.Name = "tornServerPort";
+            this.tornServerPort.Size = new System.Drawing.Size(60, 13);
+            this.tornServerPort.TabIndex = 5;
+            this.tornServerPort.Text = "Server Port";
+            // 
+            // remoteTornPort
+            // 
+            this.remoteTornPort.Enabled = false;
+            this.remoteTornPort.Location = new System.Drawing.Point(188, 74);
+            this.remoteTornPort.Name = "remoteTornPort";
+            this.remoteTornPort.Size = new System.Drawing.Size(64, 20);
+            this.remoteTornPort.TabIndex = 4;
+            // 
+            // hostRemoteTorn
+            // 
+            this.hostRemoteTorn.AutoSize = true;
+            this.hostRemoteTorn.Location = new System.Drawing.Point(11, 74);
+            this.hostRemoteTorn.Name = "hostRemoteTorn";
+            this.hostRemoteTorn.Size = new System.Drawing.Size(147, 17);
+            this.hostRemoteTorn.TabIndex = 3;
+            this.hostRemoteTorn.Text = "Host Remote Torn Server";
+            this.hostRemoteTorn.UseVisualStyleBackColor = true;
+            this.hostRemoteTorn.CheckedChanged += new System.EventHandler(this.hostRemoteTorn_CheckedChanged);
             // 
             // buttonLogFolder
             // 
@@ -752,34 +855,6 @@ namespace Torn.UI
             this.buttonOK.Text = "&OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             // 
-            // hostRemoteTorn
-            // 
-            this.hostRemoteTorn.AutoSize = true;
-            this.hostRemoteTorn.Location = new System.Drawing.Point(11, 74);
-            this.hostRemoteTorn.Name = "hostRemoteTorn";
-            this.hostRemoteTorn.Size = new System.Drawing.Size(147, 17);
-            this.hostRemoteTorn.TabIndex = 3;
-            this.hostRemoteTorn.Text = "Host Remote Torn Server";
-            this.hostRemoteTorn.UseVisualStyleBackColor = true;
-            this.hostRemoteTorn.CheckedChanged += new System.EventHandler(this.hostRemoteTorn_CheckedChanged);
-            // 
-            // remoteTornPort
-            // 
-            this.remoteTornPort.Enabled = false;
-            this.remoteTornPort.Location = new System.Drawing.Point(164, 74);
-            this.remoteTornPort.Name = "remoteTornPort";
-            this.remoteTornPort.Size = new System.Drawing.Size(64, 20);
-            this.remoteTornPort.TabIndex = 4;
-            // 
-            // tornServerPort
-            // 
-            this.tornServerPort.AutoSize = true;
-            this.tornServerPort.Location = new System.Drawing.Point(234, 78);
-            this.tornServerPort.Name = "tornServerPort";
-            this.tornServerPort.Size = new System.Drawing.Size(60, 13);
-            this.tornServerPort.TabIndex = 5;
-            this.tornServerPort.Text = "Server Port";
-            // 
             // FormPreferences
             // 
             this.AcceptButton = this.buttonOK;
@@ -813,6 +888,7 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.numericPort)).EndInit();
             this.tabPageLaserforce.ResumeLayout(false);
             this.tabPageLaserforce.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.laserforceGameLimit)).EndInit();
             this.panelBottom.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -880,5 +956,10 @@ namespace Torn.UI
         private System.Windows.Forms.Label tornServerPort;
         private System.Windows.Forms.TextBox remoteTornPort;
         private System.Windows.Forms.CheckBox hostRemoteTorn;
+        private System.Windows.Forms.NumericUpDown laserforceGameLimit;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox gameFilter;
+        private System.Windows.Forms.CheckBox hasGameFilter;
     }
 }

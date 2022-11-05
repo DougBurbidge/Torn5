@@ -130,6 +130,14 @@ namespace Torn.UI
 		public string RemoteTornPort { get { return remoteTornPort.Text; } 
 										set { remoteTornPort.Text = value; } }
 
+		public string GameFilter { get { return gameFilter.Text; } 
+										set { gameFilter.Text = value; } }
+
+		public bool HasGameFilter { get { return hasGameFilter.Checked; } 
+										set { hasGameFilter.Checked = value; } }
+
+		public int LaserforceGameLimit {  get { return (int)laserforceGameLimit.Value; } set { laserforceGameLimit.Value = value; } }
+
 		void CheckBoxWebServerCheckedChanged(object sender, EventArgs e)
 		{
 			labelPort.Enabled = checkBoxWebServer.Checked;
@@ -172,6 +180,11 @@ namespace Torn.UI
         private void hostRemoteTorn_CheckedChanged(object sender, EventArgs e)
         {
 			remoteTornPort.Enabled = hostRemoteTorn.Checked;
+        }
+
+        private void hasGameFilter_CheckedChanged(object sender, EventArgs e)
+        {
+			gameFilter.Enabled = hasGameFilter.Checked;
         }
     }
 }
