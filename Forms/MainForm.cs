@@ -1528,6 +1528,9 @@ namespace Torn.UI
 			Enum.TryParse(root.GetString("GroupPlayersBy", "Colour"), out groupPlayersBy);
 			serverAddress = root.GetString("GameServerAddress", "localhost");
 			serverPort = root.GetString("GameServerPort", "12123");
+			laserforceGameLimit = int.Parse(root.GetString("LaserforceGameLimit", "500"));
+			hasLaserforceGameFilter = int.Parse(root.GetString("HasLaserforceGameFilter", "0")) > 0;
+			laserforceGameFilter = root.GetString("LaserforceGameFilter", "");
 			windowsAuth = root.GetString("Auth", "") == "windows";
 			sqlUserId = root.GetString("SqlUserId");
 			sqlPassword = root.GetString("SqlPassword");
@@ -1585,6 +1588,9 @@ namespace Torn.UI
 			doc.AppendNode(bodyNode, "Password", password);
 			doc.AppendNode(bodyNode, "HostRemoteTorn", hostRemoteTorn ? 1 : 0);
 			doc.AppendNode(bodyNode, "RemoteTornPort", remoteTornPort);
+			doc.AppendNode(bodyNode, "LaserforceGameLimit", laserforceGameLimit);
+			doc.AppendNode(bodyNode, "HasLaserforceGameFilter", hasLaserforceGameFilter ? 1 : 0);
+			doc.AppendNode(bodyNode, "LaserforceGameFilter", laserforceGameFilter);
 
 			XmlNode leaguesNode = doc.CreateElement("leagues");
 			bodyNode.AppendChild(leaguesNode);
