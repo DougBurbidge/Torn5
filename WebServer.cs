@@ -23,9 +23,9 @@ namespace Torn
 	public class WebServer
 	{
 		private readonly HttpListener _listener = new HttpListener();
-		private readonly Func<HttpListenerRequest, string> _responderMethod;
+		private readonly Action<HttpListenerContext> _responderMethod;
 
-		public WebServer(string[] prefixes, Func<HttpListenerRequest, string> method)
+		public WebServer(Action<HttpListenerContext> method, params string[] prefixes)
 		{
 			if (!HttpListener.IsSupported)
 				throw new NotSupportedException(
@@ -47,8 +47,7 @@ namespace Torn
 			_listener.Start();
 		}
 
-		public WebServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
-		    : this(prefixes, method) { }
+//		public WebServer(Action<HttpListenerContext> method, params string[] prefixes) : this(prefixes, method) { }
 
 		public void Run()
 		{
@@ -64,10 +63,7 @@ namespace Torn
 							var ctx = c as HttpListenerContext;
 							try
 							{
-								string rstr = _responderMethod(ctx.Request);
-								byte[] buf = Encoding.UTF8.GetBytes(rstr);
-								ctx.Response.ContentLength64 = buf.Length;
-								ctx.Response.OutputStream.Write(buf, 0, buf.Length);
+								_responderMethod(ctx);
 							}
 							catch { } // suppress any exceptions
 							finally

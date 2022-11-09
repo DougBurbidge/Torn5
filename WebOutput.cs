@@ -248,11 +248,7 @@ namespace Torn.Report
 
 		public WebOutput(int port = 8080)
 		{
-			if (port != 0)
-			{
-				ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
-				ws.Run();
-			}
+			Start(port);
 		}
 
 		public void Dispose()
@@ -261,17 +257,22 @@ namespace Torn.Report
 				ws.Stop();
 		}
 
+		public void Start(int port)
+		{
+			if (port != 0)
+			{
+				ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
+				ws.Run();
+			}
+		}
+
 		/// <summary>Restart the web server, listening on a new port number.</summary>
 		public void Restart(int port)
 		{
 			if (ws != null)
 			{
 				ws.Stop();
-				if (port != 0)
-				{
-					ws = new WebServer(SendResponse, "http://localhost:" + port.ToString(CultureInfo.InvariantCulture) + "/");
-					ws.Run();
-				}
+				Start(port);
 			}
 		}
 
@@ -310,26 +311,32 @@ namespace Torn.Report
 			return sb.ToString();
 		}
 
-		string ScoreboardPage(League league, OutputFormat outputFormat = OutputFormat.Svg)
+		/// <summary>Set up a page with an XMLHttpRequest object, which will then request the actual scoreboard report into the 'scoreboard' div.</summary>
+		string ScoreboardPage(OutputFormat outputFormat = OutputFormat.Svg)
 		{
 			ZoomReports reports = new ZoomReports();
 			reports.Colors.BackgroundColor = Color.Empty;
 			reports.Colors.OddColor = Color.Empty;
-			reports.Add(new ZoomHtmlInclusion("<div id='scoreboard'>SCOREBOARD</div>"));
+			reports.Add(new ZoomHtmlInclusion("<div id='scoreboard'>" + XmlHttpRequestScoreBoard() + "</div>"));
 			reports.Add(new ZoomSeparator());
 			reports.Add(new ZoomHtmlInclusion(@"</div>
 <br/><a href=\'index.html\'>Index</a><div>
 <script>
 var xhr = new XMLHttpRequest();
 xhr.onreadystatechange = function () {
-	if (this.readyState == 4 && (this.status == 200 || this.status != 200))
+	if (this.readyState == 4)
 	{
-		document.getElementById('scoreboard').innerHTML = xhr.responseText;
-		window.onload();
+		if (this.status == 200)
+		{
+			document.getElementById('scoreboard').innerHTML = xhr.responseText;
+			window.onload();
 
-		for (const svg of  document.querySelectorAll('svg'))
-			if (svg.getAttribute('width') > document.documentElement.clientWidth)
-				svg.setAttribute('width', document.documentElement.clientWidth - 2);
+			for (const svg of  document.querySelectorAll('svg'))
+				if (svg.getAttribute('width') > document.documentElement.clientWidth)
+					svg.setAttribute('width', document.documentElement.clientWidth - 2);
+		}
+		else
+			document.getElementById('scoreboard').innerHTML = '<p>' + this.status + ': ' + this.statusText + '</p>';
 	}
 };
 xhr.open('GET', 'scoreboard', true);
@@ -339,8 +346,9 @@ xhr.send();
 			return reports.ToOutput(outputFormat);
 		}
 
-		string SendResponse(HttpListenerRequest request)
+		void SendResponse(HttpListenerContext context)
 		{
+			var request = context.Request;
 			try
 			{
 				string[] urlParts = request.RawUrl.Split('/');
@@ -355,22 +363,32 @@ xhr.send();
 				if (request.RawUrl == "/")
 				{
 					if (Leagues.Count == 1)
-						return ReportPages.OverviewPage(holder, false, OutputFormat.Svg);
+						Respond(context, ReportPages.OverviewPage(holder, false, OutputFormat.Svg));
 					else
-						return ReportPages.RootPage(Leagues);
+						Respond(context, ReportPages.RootPage(Leagues));
 				}
 				else if (lastPart.EndsWith(".html"))
-					return HtmlResponse(request.RawUrl, lastPart, holder);
+					Respond(context, HtmlResponse(request.RawUrl, lastPart, holder));
 				else if (lastPart.EndsWith(".png"))
-					return ImageResponse(request.RawUrl, lastPart, holder);
+					ImageResponse(context, lastPart, holder);
 				else
-					return RestResponse(request);
+					Respond(context, RestResponse(request));
 			}
 			catch (Exception ex)
 			{
-				return "<html><body>\n" + ex.Message + "\n<br/><br/>\n" + ex.StackTrace + "</body></html>";
+				Respond(context, "<html><body>\n" + ex.Message + "\n<br/><br/>\n" + ex.StackTrace + "</body></html>");
+				context.Response.StatusCode = 500;
+				context.Response.StatusDescription = ex.Message + "\n<br/><br/>\n" + ex.StackTrace;
 				throw;
 			}
+		}
+
+		/// <summary>Take a string response and stuff it into an HttpListenerContext.Response.</summary>
+		void Respond(HttpListenerContext context, string s)
+		{
+			byte[] buf = Encoding.UTF8.GetBytes(s);
+			context.Response.ContentLength64 = buf.Length;
+			context.Response.OutputStream.Write(buf, 0, buf.Length);
 		}
 
 		string HtmlResponse(string rawUrl, string lastPart, Holder holder)
@@ -378,12 +396,12 @@ xhr.send();
 			if (lastPart == "now.html")
 				return NowPage();
 			else if (lastPart == "scoreboard.html")
-				return ScoreboardPage(holder?.League);
+				return ScoreboardPage();
 			else if (holder == null)
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Couldn't find a league key in \"<br>{0}\". Try <a href=\"now.html\">Now Playing</a> instead.</body></html>", rawUrl);
 			else if (lastPart == "index.html")
 				return ReportPages.OverviewPage(holder, false, OutputFormat.Svg);
-			else if (lastPart.StartsWith("game", StringComparison.OrdinalIgnoreCase))
+			else if (lastPart.StartsWith("game2", StringComparison.OrdinalIgnoreCase))
 			{
 				DateTime dt = DateTime.ParseExact(lastPart.Substring(4, 12), "yyyyMMddHHmm", CultureInfo.InvariantCulture);
 				Game game = holder.League.AllGames.Find(x => x.Time.Subtract(dt).TotalSeconds < 60);
@@ -413,17 +431,29 @@ xhr.send();
 				return string.Format(CultureInfo.InvariantCulture, "<html><body>Invalid path: <br>{0}</body></html>", rawUrl);
 		}
 
-		string ImageResponse(string rawUrl, string lastPart, Holder holder)
+		/// <summary>Put the specified image into an HttpListenerContext.Response.</summary>
+		void ImageResponse(HttpListenerContext context, string lastPart, Holder holder)
 		{
-			var sb = new StringBuilder();
+			if (holder == null)
+			{
+				context.Response.StatusCode = 404;
+				context.Response.StatusDescription = "That league is not currently open in Torn.";
+				return;
+			}
+
 			string imagePath = Path.Combine(ExportFolder, holder.Key, lastPart);
 			if (File.Exists(imagePath))
 			{
-				byte[] fileBytes = File.ReadAllBytes(imagePath);
-				foreach (byte b in fileBytes)
-					sb.Append(b);
+				context.Response.Headers.Set("Content-Type", "image/png");
+				byte[] buf = File.ReadAllBytes(imagePath);
+				context.Response.ContentLength64 = buf.Length;
+				context.Response.OutputStream.Write(buf, 0, buf.Length);
 			}
-			return sb.ToString();
+			else
+			{
+				context.Response.StatusCode = 404;
+				context.Response.StatusDescription = "Image '" + lastPart + "' not found in league '" + holder.Key + "'.";
+			}
 		}
 
 		private string RestGame(string gameTime)
@@ -469,6 +499,7 @@ xhr.send();
 			return JsonSerializer.Serialize<List<LaserGamePlayer>>(Players(mask));
 		}
 
+		/// <summary>Return a chunk of HTML to be displayed within the 'scoreboard' div on scoreboard.html.</summary>
 		string XmlHttpRequestScoreBoard()
 		{
 			if (MostRecentGame == null)
