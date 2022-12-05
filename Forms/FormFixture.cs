@@ -839,7 +839,7 @@ namespace Torn.UI
 		{
 			labelTeamsToSendUp.Text = "Teams to send up from each game: " + (numericTeamsPerGame.Value - numericTeamsToCut.Value).ToString();
 
-			displayReportFinals.Report = Finals.Ascension(Holder.Fixture, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
+			displayReportFinals.Report = Finals.Ascension(Holder.League, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
 		}
 
 		private void NumericTeamsPerGameValueChanged(object sender, EventArgs e)
@@ -878,6 +878,7 @@ namespace Torn.UI
 
 		void PanelGraphicMouseClick(object sender, MouseEventArgs e)
 		{
+
 			int size = (int)numericSize.Value;
 			point = panelGraphic.PointToClient(Cursor.Position);
 			point = new Point(point.X / size, point.Y / size);

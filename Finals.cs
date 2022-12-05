@@ -9,7 +9,6 @@ namespace Torn
 	public class Finals
 	{
 		public ZoomReport Report { get; set; }
-		public Fixture Fixture { get; set; }
 		public int NumTeams { get; set; }
 		public int TeamsPerGame { get; set; }
 		/// <summary>Number of losing teams from each game that get sent down to the next lower track, or from the bottom track get eliminated.</summary>
@@ -254,12 +253,13 @@ namespace Torn
 			Report.Description = "You may wish to rearrange games to avoid back-to-backs where teams play twice in a row.";
 		}
 
-		public static ZoomReport Ascension(Fixture fixture, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
+		public static ZoomReport Ascension(League league, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
 		{
+			List<LeagueTeam> teams = league.GetTeamLadder();
+
 			var f = new Finals
 			{
-				Fixture = fixture,
-				NumTeams = fixture.Teams.Count,
+				NumTeams = teams.Count,
 				TeamsPerGame = teamsPerGame,
 				TeamsSentDown = teamsToCut,
 				Tracks = tracks,
@@ -273,15 +273,15 @@ namespace Torn
 			report.Columns.Add(new ZColumn("Teams", ZAlignment.Left));
 
 			// Add rows to the report.
-			for (int row = 0; row < fixture.Teams.Count; row++)
+			for (int row = 0; row < teams.Count; row++)
 			{
 				report.Rows.Add(new ZRow());
-				report.Rows[row].AddCell(new ZCell(fixture.Teams[row].Name));
+				report.Rows[row].AddCell(new ZCell(teams[row].Name));
 			}
 
-			if (tracks == 2 && fixture.Teams.Count > 4)
+			if (tracks == 2 && teams.Count > 4)
 				f.TwoTrack();
-			else if (tracks == 3 && fixture.Teams.Count > 5)
+			else if (tracks == 3 && teams.Count > 5)
 				f.ThreeTrack();
 			else
 				f.GeneralAscension();

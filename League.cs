@@ -1647,6 +1647,22 @@ namespace Torn
 			return p.Any() ? p.Average(x => x.Points) : 0;
 		}
 
+		public double TotalPoints(LeagueTeam leagueTeam, bool includeSecret)
+		{
+			var p = Played(leagueTeam, includeSecret);
+			return p.Any() ? p.Sum(x => x.Points) : 0;
+		}
+
+		public List<LeagueTeam> GetTeamLadder()
+        {
+			return teams.OrderByDescending(x => TotalPoints(x, false)).ThenByDescending(x => AverageScore(x,false)).ToList();
+        }
+
+		public List<LeagueTeam> GetTeamLadderScaled()
+		{
+			return teams.OrderByDescending(x => AveragePoints(x, false)).ThenByDescending(x => AverageScore(x, false)).ToList();
+		}
+
 		public double CalculateScore(GameTeam gameTeam)
 		{
 			if(IsAutoHandicap)
