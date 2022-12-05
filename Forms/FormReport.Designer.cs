@@ -71,6 +71,7 @@ namespace Torn.UI
             this.showGrades = new System.Windows.Forms.CheckBox();
             this.showHits = new System.Windows.Forms.CheckBox();
             this.isDecimal = new System.Windows.Forms.CheckBox();
+            this.ignorePoints = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
             this.groupBoxDateRange.SuspendLayout();
@@ -564,6 +565,16 @@ namespace Torn.UI
             this.isDecimal.Text = "show decimals";
             this.isDecimal.UseVisualStyleBackColor = true;
             // 
+            // ignorePoints
+            // 
+            this.ignorePoints.Location = new System.Drawing.Point(410, 503);
+            this.ignorePoints.Name = "ignorePoints";
+            this.ignorePoints.Size = new System.Drawing.Size(123, 24);
+            this.ignorePoints.TabIndex = 26;
+            this.ignorePoints.Tag = "ignorePoints";
+            this.ignorePoints.Text = "ignore points";
+            this.ignorePoints.UseVisualStyleBackColor = true;
+            // 
             // FormReport
             // 
             this.AcceptButton = this.buttonOK;
@@ -571,6 +582,7 @@ namespace Torn.UI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(564, 661);
+            this.Controls.Add(this.ignorePoints);
             this.Controls.Add(this.isDecimal);
             this.Controls.Add(this.showHits);
             this.Controls.Add(this.showGrades);
@@ -652,5 +664,6 @@ namespace Torn.UI
         private System.Windows.Forms.CheckBox showGrades;
         private System.Windows.Forms.CheckBox showHits;
         private System.Windows.Forms.CheckBox isDecimal;
+        private System.Windows.Forms.CheckBox ignorePoints;
     }
 }

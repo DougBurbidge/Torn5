@@ -168,6 +168,7 @@ namespace Torn.UI
 			showPoints.Enabled = r == ReportType.TeamsVsTeams;
 			showComments.Enabled = r == ReportType.SoloLadder;
 			showGrades.Enabled = r == ReportType.SoloLadder;
+			ignorePoints.Enabled = r == ReportType.GameGrid;
 			chartType.Enabled = true;
 			showTopN.Enabled = isTeamOrSolo || r == ReportType.MultiLadder;
 			numericUpDownTopN.Enabled = showTopN.Enabled;
