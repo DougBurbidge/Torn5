@@ -205,7 +205,7 @@ namespace Torn
 			}
 
 			// Add the "golden games" just before finals.
-			games.Add(FillColumn(GameName(game), FreeRides, teamsSentUp, TeamsPerGame, teamsSentUp, true));
+			games.Add(FillColumn(GameName(game), FreeRides, teamsSentUp, TeamsPerGame, teamsSentUp, !first));
 			games.Add(FillColumn(GameName(game + 1), FreeRides, 2 * teamsSentUp, TeamsPerGame, 0));
 
 			for (int row = TeamsPerGame; row < NumTeams; row++)
@@ -281,7 +281,7 @@ namespace Torn
 
 			if (tracks == 2 && teams.Count > 4)
 				f.TwoTrack();
-			else if (tracks == 3 && teams.Count > 5)
+			else if (tracks == 3 && teams.Count > 4)
 				f.ThreeTrack();
 			else
 				f.GeneralAscension();
