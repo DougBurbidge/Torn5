@@ -18,6 +18,8 @@ namespace Torn
 		/// <summary>Number of teams that go straight to grand finals without having to play any games.</summary>
 		public int FreeRides { get; set; }
 
+		private static bool IsWAColours;
+
 		/// <summary>Add a cell to a row with a simple arrow running from left to right in the cell.</summary>
 		void AddCell(int row, ZColumn col)
 		{
@@ -124,7 +126,25 @@ namespace Torn
 					games.Add(finalCol);
 
 				for (int j = 0; j < TeamsPerGame; j++)
-					Report.Rows[i].Add(new ZCell(" ", ((Colour)((j + TeamsPerGame - i) % TeamsPerGame + 1)).ToColor()) { Border = Color.Black });
+				{
+					int colourNum = (j + TeamsPerGame - i) % TeamsPerGame + 1;
+					if (IsWAColours)
+					{
+						if (colourNum == 3)
+						{
+							colourNum = 2;
+						}
+						else if (colourNum == 4)
+						{
+							colourNum = 3;
+						}
+						else if (colourNum == 2)
+						{
+							colourNum = 4;
+						}
+					}
+					Report.Rows[i].Add(new ZCell(" ", ((Colour)(colourNum)).ToColor()) { Border = Color.Black });
+				}
 			}
 		}
 
@@ -253,7 +273,7 @@ namespace Torn
 			Report.Description = "You may wish to rearrange games to avoid back-to-backs where teams play twice in a row.";
 		}
 
-		public static ZoomReport Ascension(List<LeagueTeam> teams, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
+		public static ZoomReport Ascension(List<LeagueTeam> teams, int teamsPerGame, int teamsToCut, int tracks, int freeRides, bool isWAColours = false)
 		{
 			var f = new Finals
 			{
@@ -263,6 +283,8 @@ namespace Torn
 				Tracks = tracks,
 				FreeRides = freeRides
 			};
+
+			IsWAColours = isWAColours;
 
 			var report = new ZoomReport("Finals");
 			f.Report = report;

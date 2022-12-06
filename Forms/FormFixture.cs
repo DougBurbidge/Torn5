@@ -898,7 +898,7 @@ namespace Torn.UI
         {
 			labelTeamsToSendUp.Text = "Teams to send up from each game: " + (numericTeamsPerGame.Value - numericTeamsToCut.Value).ToString();
 
-			displayReportFinals.Report = Finals.Ascension(teams, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
+			displayReportFinals.Report = Finals.Ascension(teams, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value, isWAColours.Checked);
 		}
 
 		private void NumericTeamsPerGameValueChanged(object sender, EventArgs e)
@@ -1124,6 +1124,11 @@ namespace Torn.UI
 		private void PyramidSpinKeyUp(object sender, KeyEventArgs e)
 		{
 			var _ = ((NumericUpDown)sender).Value;  // This piece of black magic forces the control's ValueChanged to fire after the user edits the text in the control.
+		}
+
+        private void isWAColours_CheckedChanged(object sender, EventArgs e)
+        {
+			RefreshFinals(sender, e);
 		}
 
         private void ButtonEditPyramidGamesClick(object sender, EventArgs e)

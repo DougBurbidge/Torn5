@@ -81,6 +81,7 @@ namespace Torn.UI
             this.numericSize = new System.Windows.Forms.NumericUpDown();
             this.panelGraphic = new System.Windows.Forms.Panel();
             this.tabFinals = new System.Windows.Forms.TabPage();
+            this.isWAColours = new System.Windows.Forms.CheckBox();
             this.teamsList = new System.Windows.Forms.GroupBox();
             this.printReportFinals = new Torn5.Controls.PrintReport();
             this.displayReportFinals = new Torn5.Controls.DisplayReport();
@@ -872,6 +873,7 @@ namespace Torn.UI
             // 
             // tabFinals
             // 
+            this.tabFinals.Controls.Add(this.isWAColours);
             this.tabFinals.Controls.Add(this.teamsList);
             this.tabFinals.Controls.Add(this.printReportFinals);
             this.tabFinals.Controls.Add(this.displayReportFinals);
@@ -894,6 +896,17 @@ namespace Torn.UI
             this.tabFinals.Text = "Finals";
             this.tabFinals.UseVisualStyleBackColor = true;
             this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
+            // 
+            // isWAColours
+            // 
+            this.isWAColours.AutoSize = true;
+            this.isWAColours.Location = new System.Drawing.Point(531, 32);
+            this.isWAColours.Name = "isWAColours";
+            this.isWAColours.Size = new System.Drawing.Size(82, 17);
+            this.isWAColours.TabIndex = 17;
+            this.isWAColours.Text = "WA Colours";
+            this.isWAColours.UseVisualStyleBackColor = true;
+            this.isWAColours.CheckedChanged += new System.EventHandler(this.isWAColours_CheckedChanged);
             // 
             // teamsList
             // 
@@ -1968,5 +1981,6 @@ namespace Torn.UI
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.NumericUpDown minBetween;
         private System.Windows.Forms.GroupBox teamsList;
+        private System.Windows.Forms.CheckBox isWAColours;
     }
 }
