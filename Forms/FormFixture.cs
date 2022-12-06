@@ -23,10 +23,13 @@ namespace Torn.UI
 		private double previousGamesPerTeam;
 		private bool previousHasRef;
 		private List<List<int>> previousExistingPlays;
+		readonly List<CheckBox> teamSelectors = new List<CheckBox>();
+		private List<LeagueTeam> selectedTeams = new List<LeagueTeam>();
 
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
 		bool resizing;
+		bool loading;
 
 		public FormFixture()
 		{
@@ -43,7 +46,8 @@ namespace Torn.UI
 			xButton1 = Colour.Yellow;
 			xButton2 = Colour.Purple;
 			point = new Point(-1, -1);
-			resizing = false;
+			resizing = false;		
+
 		}
 
 		void ButtonClearClick(object sender, EventArgs e)
@@ -657,7 +661,54 @@ namespace Torn.UI
 
 				if (Holder.League.AllGames.Any())
 					numericTeamsPerGame.Value = (decimal)Math.Round(Holder.League.AllGames.Average(g => g.Teams.Count));
+
+
+				loading = true;
+				List<LeagueTeam> leagueTeams = Holder.League.GetTeamLadder();
+				SetTeamsBox(teams.Count);
+				for (int i = 0; i < teams?.Count; i++)
+				{
+					teamSelectors[i].Text = teams[i].Name;
+					teamSelectors[i].Checked = true;
+				}
+				loading = false;
 			}
+		}
+
+		void SetTeamsBox(int i)
+		{
+			while (teamSelectors.Count < i)
+			{
+				var teamBox = new CheckBox
+				{
+					Left = 9,
+					Top = 10 + teamSelectors.Count * 26,
+					Parent = teamsList
+				};
+
+				teamBox.CheckedChanged += TeamCheckedChanged;
+				teamSelectors.Add(teamBox);
+			}
+		}
+
+		private void TeamCheckedChanged(object sender, EventArgs e)
+		{
+			if (loading)
+			{
+				UpdateFinalsFixture(Holder.League.GetTeamLadder());
+				return;
+			}
+
+			selectedTeams = Holder.League.GetTeamLadder().FindAll(t =>
+			{
+				return teamSelectors.Find(teamSelector =>
+				{
+					return teamSelector.Checked && teamSelector.Text == t.Name;
+
+				}) != null;
+			});
+
+			UpdateFinalsFixture(selectedTeams);
 		}
 
 		void TextBoxKeyDown(object sender, KeyEventArgs e)
@@ -837,9 +888,17 @@ namespace Torn.UI
 
 		private void RefreshFinals(object sender, EventArgs e)
 		{
+			if (selectedTeams.Count <= 0)
+				UpdateFinalsFixture(Holder.League.GetTeamLadder());
+			else
+				UpdateFinalsFixture(selectedTeams);
+		}
+
+		private void UpdateFinalsFixture(List<LeagueTeam> teams)
+        {
 			labelTeamsToSendUp.Text = "Teams to send up from each game: " + (numericTeamsPerGame.Value - numericTeamsToCut.Value).ToString();
 
-			displayReportFinals.Report = Finals.Ascension(Holder.League, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
+			displayReportFinals.Report = Finals.Ascension(teams, (int)numericTeamsPerGame.Value, (int)numericTeamsToCut.Value, (int)numericTracks.Value, (int)numericFreeRides.Value);
 		}
 
 		private void NumericTeamsPerGameValueChanged(object sender, EventArgs e)

@@ -253,10 +253,8 @@ namespace Torn
 			Report.Description = "You may wish to rearrange games to avoid back-to-backs where teams play twice in a row.";
 		}
 
-		public static ZoomReport Ascension(League league, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
+		public static ZoomReport Ascension(List<LeagueTeam> teams, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
 		{
-			List<LeagueTeam> teams = league.GetTeamLadder();
-
 			var f = new Finals
 			{
 				NumTeams = teams.Count,

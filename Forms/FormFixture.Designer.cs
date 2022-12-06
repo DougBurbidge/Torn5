@@ -48,6 +48,8 @@ namespace Torn.UI
             this.label24 = new System.Windows.Forms.Label();
             this.outputList = new System.Windows.Forms.CheckBox();
             this.outputGrid = new System.Windows.Forms.CheckBox();
+            this.printReport1 = new Torn5.Controls.PrintReport();
+            this.reportTeamsList = new Torn5.Controls.DisplayReport();
             this.continueGenerating = new System.Windows.Forms.Button();
             this.scoreLabel = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
@@ -63,6 +65,7 @@ namespace Torn.UI
             this.splitContainerGamesList = new System.Windows.Forms.SplitContainer();
             this.buttonExportGames = new System.Windows.Forms.Button();
             this.buttonClearGames = new System.Windows.Forms.Button();
+            this.displayReportGames = new Torn5.Controls.DisplayReport();
             this.tabGamesGrid = new System.Windows.Forms.TabPage();
             this.splitContainerGamesGrid = new System.Windows.Forms.SplitContainer();
             this.datePicker = new System.Windows.Forms.DateTimePicker();
@@ -73,10 +76,14 @@ namespace Torn.UI
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.displayReportGrid = new Torn5.Controls.DisplayReport();
             this.tabGraphic = new System.Windows.Forms.TabPage();
             this.numericSize = new System.Windows.Forms.NumericUpDown();
             this.panelGraphic = new System.Windows.Forms.Panel();
             this.tabFinals = new System.Windows.Forms.TabPage();
+            this.teamsList = new System.Windows.Forms.GroupBox();
+            this.printReportFinals = new Torn5.Controls.PrintReport();
+            this.displayReportFinals = new Torn5.Controls.DisplayReport();
             this.labelTeamsToSendUp = new System.Windows.Forms.Label();
             this.numericFreeRides = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
@@ -105,6 +112,11 @@ namespace Torn.UI
             this.label17 = new System.Windows.Forms.Label();
             this.numericPyramidRounds = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
+            this.printReportPyramid = new Torn5.Controls.PrintReport();
+            this.displayReportPyramid = new Torn5.Controls.DisplayReport();
+            this.pyramidRound3 = new Torn5.Controls.PyramidFixture();
+            this.pyramidRound2 = new Torn5.Controls.PyramidFixture();
+            this.pyramidRound1 = new Torn5.Controls.PyramidFixture();
             this.tabPyramidRound = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.buttonRepechage = new System.Windows.Forms.Button();
@@ -138,17 +150,6 @@ namespace Torn.UI
             this.columnPriority = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnSecret = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.splitContainerReports = new System.Windows.Forms.SplitContainer();
-            this.printReport1 = new Torn5.Controls.PrintReport();
-            this.reportTeamsList = new Torn5.Controls.DisplayReport();
-            this.displayReportGames = new Torn5.Controls.DisplayReport();
-            this.displayReportGrid = new Torn5.Controls.DisplayReport();
-            this.printReportFinals = new Torn5.Controls.PrintReport();
-            this.displayReportFinals = new Torn5.Controls.DisplayReport();
-            this.printReportPyramid = new Torn5.Controls.PrintReport();
-            this.displayReportPyramid = new Torn5.Controls.DisplayReport();
-            this.pyramidRound3 = new Torn5.Controls.PyramidFixture();
-            this.pyramidRound2 = new Torn5.Controls.PyramidFixture();
-            this.pyramidRound1 = new Torn5.Controls.PyramidFixture();
             this.displayReportTaken = new Torn5.Controls.DisplayReport();
             this.displayReportDraw = new Torn5.Controls.DisplayReport();
             this.printReportDraw = new Torn5.Controls.PrintReport();
@@ -450,6 +451,27 @@ namespace Torn.UI
             this.outputGrid.Text = "Ouput Game Grid";
             this.outputGrid.UseVisualStyleBackColor = true;
             // 
+            // printReport1
+            // 
+            this.printReport1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.printReport1.DisplayReport = this.reportTeamsList;
+            this.printReport1.Location = new System.Drawing.Point(1154, 6);
+            this.printReport1.Name = "printReport1";
+            this.printReport1.Size = new System.Drawing.Size(64, 513);
+            this.printReport1.TabIndex = 25;
+            // 
+            // reportTeamsList
+            // 
+            this.reportTeamsList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.reportTeamsList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.reportTeamsList.Location = new System.Drawing.Point(473, 26);
+            this.reportTeamsList.Name = "reportTeamsList";
+            this.reportTeamsList.Report = null;
+            this.reportTeamsList.Size = new System.Drawing.Size(675, 669);
+            this.reportTeamsList.TabIndex = 12;
+            // 
             // continueGenerating
             // 
             this.continueGenerating.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -654,6 +676,16 @@ namespace Torn.UI
             this.buttonClearGames.UseVisualStyleBackColor = true;
             this.buttonClearGames.Click += new System.EventHandler(this.ButtonClearClick);
             // 
+            // displayReportGames
+            // 
+            this.displayReportGames.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.displayReportGames.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.displayReportGames.Location = new System.Drawing.Point(0, 0);
+            this.displayReportGames.Name = "displayReportGames";
+            this.displayReportGames.Report = null;
+            this.displayReportGames.Size = new System.Drawing.Size(605, 695);
+            this.displayReportGames.TabIndex = 26;
+            // 
             // tabGamesGrid
             // 
             this.tabGamesGrid.Controls.Add(this.splitContainerGamesGrid);
@@ -785,6 +817,16 @@ namespace Torn.UI
             this.label6.TabIndex = 27;
             this.label6.Text = "Minutes between games:";
             // 
+            // displayReportGrid
+            // 
+            this.displayReportGrid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.displayReportGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.displayReportGrid.Location = new System.Drawing.Point(0, 0);
+            this.displayReportGrid.Name = "displayReportGrid";
+            this.displayReportGrid.Report = null;
+            this.displayReportGrid.Size = new System.Drawing.Size(460, 695);
+            this.displayReportGrid.TabIndex = 32;
+            // 
             // tabGraphic
             // 
             this.tabGraphic.Controls.Add(this.numericSize);
@@ -830,6 +872,7 @@ namespace Torn.UI
             // 
             // tabFinals
             // 
+            this.tabFinals.Controls.Add(this.teamsList);
             this.tabFinals.Controls.Add(this.printReportFinals);
             this.tabFinals.Controls.Add(this.displayReportFinals);
             this.tabFinals.Controls.Add(this.labelTeamsToSendUp);
@@ -851,6 +894,37 @@ namespace Torn.UI
             this.tabFinals.Text = "Finals";
             this.tabFinals.UseVisualStyleBackColor = true;
             this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
+            // 
+            // teamsList
+            // 
+            this.teamsList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.teamsList.Location = new System.Drawing.Point(13, 58);
+            this.teamsList.Name = "teamsList";
+            this.teamsList.Size = new System.Drawing.Size(156, 640);
+            this.teamsList.TabIndex = 16;
+            this.teamsList.TabStop = false;
+            // 
+            // printReportFinals
+            // 
+            this.printReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.printReportFinals.DisplayReport = this.displayReportFinals;
+            this.printReportFinals.Location = new System.Drawing.Point(1154, 5);
+            this.printReportFinals.Name = "printReportFinals";
+            this.printReportFinals.Size = new System.Drawing.Size(64, 475);
+            this.printReportFinals.TabIndex = 15;
+            // 
+            // displayReportFinals
+            // 
+            this.displayReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.displayReportFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.displayReportFinals.Location = new System.Drawing.Point(175, 70);
+            this.displayReportFinals.Name = "displayReportFinals";
+            this.displayReportFinals.Report = null;
+            this.displayReportFinals.Size = new System.Drawing.Size(973, 628);
+            this.displayReportFinals.TabIndex = 14;
             // 
             // labelTeamsToSendUp
             // 
@@ -1245,6 +1319,75 @@ namespace Torn.UI
             this.label11.TabIndex = 2;
             this.label11.Text = "Rounds";
             // 
+            // printReportPyramid
+            // 
+            this.printReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.printReportPyramid.DisplayReport = this.displayReportPyramid;
+            this.printReportPyramid.Location = new System.Drawing.Point(1157, 327);
+            this.printReportPyramid.Name = "printReportPyramid";
+            this.printReportPyramid.Size = new System.Drawing.Size(64, 473);
+            this.printReportPyramid.TabIndex = 10;
+            // 
+            // displayReportPyramid
+            // 
+            this.displayReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.displayReportPyramid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.displayReportPyramid.Location = new System.Drawing.Point(3, 356);
+            this.displayReportPyramid.Name = "displayReportPyramid";
+            this.displayReportPyramid.Report = null;
+            this.displayReportPyramid.Size = new System.Drawing.Size(1151, 273);
+            this.displayReportPyramid.TabIndex = 9;
+            // 
+            // pyramidRound3
+            // 
+            this.pyramidRound3.HasRepechage = true;
+            this.pyramidRound3.Location = new System.Drawing.Point(3, 234);
+            this.pyramidRound3.Name = "pyramidRound3";
+            this.pyramidRound3.RepechageAdvance = 4;
+            this.pyramidRound3.RepechageGames = 2;
+            this.pyramidRound3.Round = 3;
+            this.pyramidRound3.RoundAdvance = 4;
+            this.pyramidRound3.RoundGames = 2;
+            this.pyramidRound3.RoundGamesPerTeam = 1;
+            this.pyramidRound3.Size = new System.Drawing.Size(914, 66);
+            this.pyramidRound3.TabIndex = 3;
+            this.pyramidRound3.TeamsIn = 16;
+            this.pyramidRound3.ValueChanged += new System.EventHandler(this.PyramidRound3ValueChanged);
+            // 
+            // pyramidRound2
+            // 
+            this.pyramidRound2.HasRepechage = true;
+            this.pyramidRound2.Location = new System.Drawing.Point(3, 168);
+            this.pyramidRound2.Name = "pyramidRound2";
+            this.pyramidRound2.RepechageAdvance = 8;
+            this.pyramidRound2.RepechageGames = 3;
+            this.pyramidRound2.Round = 2;
+            this.pyramidRound2.RoundAdvance = 8;
+            this.pyramidRound2.RoundGames = 4;
+            this.pyramidRound2.RoundGamesPerTeam = 1;
+            this.pyramidRound2.Size = new System.Drawing.Size(914, 66);
+            this.pyramidRound2.TabIndex = 2;
+            this.pyramidRound2.TeamsIn = 32;
+            this.pyramidRound2.ValueChanged += new System.EventHandler(this.PyramidRound2ValueChanged);
+            // 
+            // pyramidRound1
+            // 
+            this.pyramidRound1.HasRepechage = true;
+            this.pyramidRound1.Location = new System.Drawing.Point(3, 102);
+            this.pyramidRound1.Name = "pyramidRound1";
+            this.pyramidRound1.RepechageAdvance = 8;
+            this.pyramidRound1.RepechageGames = 4;
+            this.pyramidRound1.Round = 1;
+            this.pyramidRound1.RoundAdvance = 24;
+            this.pyramidRound1.RoundGames = 14;
+            this.pyramidRound1.RoundGamesPerTeam = 2;
+            this.pyramidRound1.Size = new System.Drawing.Size(914, 66);
+            this.pyramidRound1.TabIndex = 1;
+            this.pyramidRound1.TeamsIn = 56;
+            this.pyramidRound1.ValueChanged += new System.EventHandler(this.PyramidRound1ValueChanged);
+            // 
             // tabPyramidRound
             // 
             this.tabPyramidRound.Controls.Add(this.splitContainer1);
@@ -1604,137 +1747,6 @@ namespace Torn.UI
             this.splitContainerReports.SplitterDistance = 385;
             this.splitContainerReports.TabIndex = 14;
             // 
-            // printReport1
-            // 
-            this.printReport1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.printReport1.DisplayReport = this.reportTeamsList;
-            this.printReport1.Location = new System.Drawing.Point(1154, 6);
-            this.printReport1.Name = "printReport1";
-            this.printReport1.Size = new System.Drawing.Size(64, 513);
-            this.printReport1.TabIndex = 25;
-            // 
-            // reportTeamsList
-            // 
-            this.reportTeamsList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.reportTeamsList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.reportTeamsList.Location = new System.Drawing.Point(473, 26);
-            this.reportTeamsList.Name = "reportTeamsList";
-            this.reportTeamsList.Report = null;
-            this.reportTeamsList.Size = new System.Drawing.Size(675, 669);
-            this.reportTeamsList.TabIndex = 12;
-            // 
-            // displayReportGames
-            // 
-            this.displayReportGames.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.displayReportGames.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.displayReportGames.Location = new System.Drawing.Point(0, 0);
-            this.displayReportGames.Name = "displayReportGames";
-            this.displayReportGames.Report = null;
-            this.displayReportGames.Size = new System.Drawing.Size(605, 695);
-            this.displayReportGames.TabIndex = 26;
-            // 
-            // displayReportGrid
-            // 
-            this.displayReportGrid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.displayReportGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.displayReportGrid.Location = new System.Drawing.Point(0, 0);
-            this.displayReportGrid.Name = "displayReportGrid";
-            this.displayReportGrid.Report = null;
-            this.displayReportGrid.Size = new System.Drawing.Size(460, 695);
-            this.displayReportGrid.TabIndex = 32;
-            // 
-            // printReportFinals
-            // 
-            this.printReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.printReportFinals.DisplayReport = this.displayReportFinals;
-            this.printReportFinals.Location = new System.Drawing.Point(1154, 5);
-            this.printReportFinals.Name = "printReportFinals";
-            this.printReportFinals.Size = new System.Drawing.Size(64, 475);
-            this.printReportFinals.TabIndex = 15;
-            // 
-            // displayReportFinals
-            // 
-            this.displayReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.displayReportFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.displayReportFinals.Location = new System.Drawing.Point(3, 70);
-            this.displayReportFinals.Name = "displayReportFinals";
-            this.displayReportFinals.Report = null;
-            this.displayReportFinals.Size = new System.Drawing.Size(1145, 559);
-            this.displayReportFinals.TabIndex = 14;
-            // 
-            // printReportPyramid
-            // 
-            this.printReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.printReportPyramid.DisplayReport = this.displayReportPyramid;
-            this.printReportPyramid.Location = new System.Drawing.Point(1157, 327);
-            this.printReportPyramid.Name = "printReportPyramid";
-            this.printReportPyramid.Size = new System.Drawing.Size(64, 473);
-            this.printReportPyramid.TabIndex = 10;
-            // 
-            // displayReportPyramid
-            // 
-            this.displayReportPyramid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.displayReportPyramid.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.displayReportPyramid.Location = new System.Drawing.Point(3, 356);
-            this.displayReportPyramid.Name = "displayReportPyramid";
-            this.displayReportPyramid.Report = null;
-            this.displayReportPyramid.Size = new System.Drawing.Size(1151, 273);
-            this.displayReportPyramid.TabIndex = 9;
-            // 
-            // pyramidRound3
-            // 
-            this.pyramidRound3.HasRepechage = true;
-            this.pyramidRound3.Location = new System.Drawing.Point(3, 234);
-            this.pyramidRound3.Name = "pyramidRound3";
-            this.pyramidRound3.RepechageAdvance = 4;
-            this.pyramidRound3.RepechageGames = 2;
-            this.pyramidRound3.Round = 3;
-            this.pyramidRound3.RoundAdvance = 4;
-            this.pyramidRound3.RoundGames = 2;
-            this.pyramidRound3.RoundGamesPerTeam = 1;
-            this.pyramidRound3.Size = new System.Drawing.Size(914, 66);
-            this.pyramidRound3.TabIndex = 3;
-            this.pyramidRound3.TeamsIn = 16;
-            this.pyramidRound3.ValueChanged += new System.EventHandler(this.PyramidRound3ValueChanged);
-            // 
-            // pyramidRound2
-            // 
-            this.pyramidRound2.HasRepechage = true;
-            this.pyramidRound2.Location = new System.Drawing.Point(3, 168);
-            this.pyramidRound2.Name = "pyramidRound2";
-            this.pyramidRound2.RepechageAdvance = 8;
-            this.pyramidRound2.RepechageGames = 3;
-            this.pyramidRound2.Round = 2;
-            this.pyramidRound2.RoundAdvance = 8;
-            this.pyramidRound2.RoundGames = 4;
-            this.pyramidRound2.RoundGamesPerTeam = 1;
-            this.pyramidRound2.Size = new System.Drawing.Size(914, 66);
-            this.pyramidRound2.TabIndex = 2;
-            this.pyramidRound2.TeamsIn = 32;
-            this.pyramidRound2.ValueChanged += new System.EventHandler(this.PyramidRound2ValueChanged);
-            // 
-            // pyramidRound1
-            // 
-            this.pyramidRound1.HasRepechage = true;
-            this.pyramidRound1.Location = new System.Drawing.Point(3, 102);
-            this.pyramidRound1.Name = "pyramidRound1";
-            this.pyramidRound1.RepechageAdvance = 8;
-            this.pyramidRound1.RepechageGames = 4;
-            this.pyramidRound1.Round = 1;
-            this.pyramidRound1.RoundAdvance = 24;
-            this.pyramidRound1.RoundGames = 14;
-            this.pyramidRound1.RoundGamesPerTeam = 2;
-            this.pyramidRound1.Size = new System.Drawing.Size(914, 66);
-            this.pyramidRound1.TabIndex = 1;
-            this.pyramidRound1.TeamsIn = 56;
-            this.pyramidRound1.ValueChanged += new System.EventHandler(this.PyramidRound1ValueChanged);
-            // 
             // displayReportTaken
             // 
             this.displayReportTaken.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
@@ -1955,5 +1967,6 @@ namespace Torn.UI
         private System.Windows.Forms.DateTimePicker gameDateTime;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.NumericUpDown minBetween;
+        private System.Windows.Forms.GroupBox teamsList;
     }
 }
