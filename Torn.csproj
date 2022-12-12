@@ -177,6 +177,12 @@
     <Compile Include="Controls\Grade.Designer.cs">
       <DependentUpon>Grade.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PointPercent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PointPercent.Designer.cs">
+      <DependentUpon>PointPercent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PrintReport.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -324,6 +330,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\Grade.resx">
       <DependentUpon>Grade.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PointPercent.resx">
+      <DependentUpon>PointPercent.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PrintReport.resx">
       <DependentUpon>PrintReport.cs</DependentUpon>

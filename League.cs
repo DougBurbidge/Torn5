@@ -663,6 +663,18 @@ namespace Torn
 		}
 	}
 
+	public class PointPercent
+    {
+		public decimal Points { get; set; }
+		public decimal Percent { get; set; }
+
+		public PointPercent(decimal points, decimal percent)
+        {
+			Points = points;
+			Percent = percent;
+        }
+	}
+
 	/// <summary>Load and manage a .Torn league file, containing league teams and games.</summary>
 	public class League
 	{
@@ -710,6 +722,8 @@ namespace Torn
 
 		public List<Grade> Grades { get; set; }
 
+		public List<PointPercent> PointPercents { get; set; }
+
 		public int ExpectedTeamSize { get; set; }
 		public decimal MissingPlayerPenalty { get; set; }
 		public decimal ExtraAPenalty { get; set; }
@@ -728,28 +742,122 @@ namespace Torn
 			new Grade("G", 0, false, true)
 		};
 
-		// CAP USED IN WA LEAGUES
-		// TODO MAKE THIS CONFIGURABLE
-		private readonly List<int> PositiveCap = new List<int> { 180, 170, 160, 155, 150, 145, 140, 135, 130, 127, 125, 123, 120, 117, 115, 113, 110, 107, 105, 103, 100, 100, 97, 95, 92, 90, 87, 85, 82, 80, 77, 75, 72, 70, 65 };
+		public readonly List<PointPercent> WA_LEAGUE_POINTS = new List<PointPercent>
+		{
+			new PointPercent(-4,260),
+			new PointPercent(-3,240),
+			new PointPercent(-2,220),
+			new PointPercent(-1,200),
+			new PointPercent(0,180),
+			new PointPercent(1,170),
+			new PointPercent(2,160),
+			new PointPercent(3,155),
+			new PointPercent(4,150),
+			new PointPercent(5,145),
+			new PointPercent(6,140),
+			new PointPercent(7,135),
+			new PointPercent(8,130),
+			new PointPercent(9,127),
+			new PointPercent(10,125),
+			new PointPercent(11,123),
+			new PointPercent(12,120),
+			new PointPercent(13,117),
+			new PointPercent(14,115),
+			new PointPercent(15,113),
+			new PointPercent(16,110),
+			new PointPercent(17,107),
+			new PointPercent(18,105),
+			new PointPercent(19,103),
+			new PointPercent(20,100),
+			new PointPercent(21,100),
+			new PointPercent(22,97),
+			new PointPercent(23,95),
+			new PointPercent(24,92),
+			new PointPercent(25,90),
+			new PointPercent(26,87),
+			new PointPercent(27,85),
+			new PointPercent(28,82),
+			new PointPercent(29,80),
+			new PointPercent(30,77),
+			new PointPercent(31,75),
+			new PointPercent(32,72),
+			new PointPercent(33,70),
+			new PointPercent(34,65),
+		};
+
+		public readonly List<PointPercent> WA_DOUBLES_POINTS = new List<PointPercent>
+		{
+			new PointPercent(-1,145),
+			new PointPercent(0,140),
+			new PointPercent(1,135),
+			new PointPercent(2,130),
+			new PointPercent(3,125),
+			new PointPercent(4,120),
+			new PointPercent(5,115),
+			new PointPercent(6,110),
+			new PointPercent(7,105),
+			new PointPercent(8,100),
+			new PointPercent(9,95),
+			new PointPercent(10,90),
+			new PointPercent(11,85),
+			new PointPercent(12,80),
+			new PointPercent(13,75),
+		};
+
+		public readonly List<PointPercent> WA_TRIPLES_POINTS = new List<PointPercent>
+		{
+			new PointPercent(-2,185),
+			new PointPercent(-1,170),
+			new PointPercent(0,160),
+			new PointPercent(1,155),
+			new PointPercent(2,150),
+			new PointPercent(3,145),
+			new PointPercent(4,140),
+			new PointPercent(5,135),
+			new PointPercent(6,130),
+			new PointPercent(7,125),
+			new PointPercent(8,120),
+			new PointPercent(9,115),
+			new PointPercent(10,110),
+			new PointPercent(11,105),
+			new PointPercent(12,100),
+			new PointPercent(13,94),
+			new PointPercent(14,87),
+			new PointPercent(15,79),
+			new PointPercent(16,70),
+			new PointPercent(17,60),
+			new PointPercent(18,49),
+			new PointPercent(19,37),
+			new PointPercent(20,24),
+		};
 
 		public int GetAutoHandicap(int points)
         {
-			if(points >= 0)
+			PointPercent pointPercent = PointPercents.Find((pp) => pp.Points == points);
+			if (pointPercent == null && PointPercents.Count() > 1)
             {
-				if(points < PositiveCap.Count())
-                {
-					return PositiveCap[points];
-                }
+				List<PointPercent> sortedPointPercents = PointPercents.OrderBy(p => p.Points).ToList();
+				PointPercent minPointPercent = sortedPointPercents[0];
+				PointPercent maxPointPercent = sortedPointPercents[sortedPointPercents.Count - 1];
 
-				int outOfRangeBy = points - PositiveCap.Count() - 1;
-				int lastValue = PositiveCap[PositiveCap.Count() - 1];
-				int multiplier = 5;
-				int result = lastValue - (multiplier * outOfRangeBy);
-				// cannot return a negative value to limit cap to 1%
-				return Math.Max(1, result);
+				if (points < minPointPercent.Points)
+                {
+					PointPercent secondSmallestPointPercent = sortedPointPercents[1];
+					decimal diffPoints = Math.Abs(points - minPointPercent.Points);
+					decimal diff = Math.Abs(secondSmallestPointPercent.Percent - minPointPercent.Percent) * diffPoints;
+					int result = Convert.ToInt32(minPointPercent.Percent + diff);
+					return result;
+				}
+				if (points > maxPointPercent.Points)
+				{
+					PointPercent secondLargestPointPercent = sortedPointPercents[sortedPointPercents.Count - 2];
+					decimal diffPoints = Math.Abs(points - maxPointPercent.Points);
+					decimal diff = Math.Abs(secondLargestPointPercent.Percent - maxPointPercent.Percent) * diffPoints;
+					int result = Math.Max(Convert.ToInt32(maxPointPercent.Percent - diff), 1);
+					return result;
+				}
 			}
-			int capToAdd = points * -20;
-			return PositiveCap[0] + capToAdd;
+			return Convert.ToInt32(pointPercent.Percent);
         }
 
 		public decimal GetGradePoints(string playerGrade)
@@ -794,6 +902,7 @@ namespace Torn
 			GridPlayers = 6;
 			HandicapStyle = HandicapStyle.Percent;
 			Grades = DEFAULT_GRADES;
+			PointPercents = WA_LEAGUE_POINTS;
 			ExpectedTeamSize = 5;
 			MissingPlayerPenalty = 2;
 			ExtraAPenalty = 1;
@@ -1137,6 +1246,26 @@ namespace Torn
 				Grades = DEFAULT_GRADES;
             }
 
+			XmlNode capsNode = root.SelectSingleNode("caps");
+
+			if(capsNode != null)
+            {
+				XmlNodeList xcaps = capsNode.SelectNodes("cap");
+
+				List<PointPercent> pointPercents = new List<PointPercent>();
+
+				foreach (XmlNode xcap in xcaps)
+				{
+					PointPercent pointPercent = new PointPercent(xcap.GetDecimal("points"), xcap.GetDecimal("percent"));
+					pointPercents.Add(pointPercent);
+				}
+				PointPercents = pointPercents;
+			} else
+            {
+				PointPercents = WA_LEAGUE_POINTS;
+
+			}
+
 			XmlNodeList xteams = root.SelectSingleNode("leaguelist").SelectNodes("team");
 
 			foreach (XmlNode xteam in xteams)
@@ -1326,6 +1455,18 @@ namespace Torn
 					doc.AppendNode(gradeNode, "hasPenalty", 1);
 				if (grade.HasBonus)
 				doc.AppendNode(gradeNode, "hasBonus", 1);
+			}
+
+			XmlNode capsNode = doc.CreateElement("caps");
+			bodyNode.AppendChild(capsNode);
+
+			foreach (PointPercent pointPercent in PointPercents)
+			{
+				XmlNode capNode = doc.CreateElement("cap");
+				capsNode.AppendChild(capNode);
+
+				doc.AppendNode(capNode, "percent", pointPercent.Percent.ToString());
+				doc.AppendNode(capNode, "points", pointPercent.Points.ToString());
 			}
 
 			foreach (double point in victoryPoints)

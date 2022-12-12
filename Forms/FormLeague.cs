@@ -18,6 +18,7 @@ namespace Torn.UI
 
 		readonly List<NumericUpDown> victory = new List<NumericUpDown>();  // A list of victory points boxes.
 		readonly List<GradeEditor> Grades = new List<GradeEditor>();
+		List<PointPercentEditor> PointPercents = new List<PointPercentEditor>();
 
 		public FormLeague()
 		{
@@ -69,11 +70,16 @@ namespace Torn.UI
 
 			RankCheckedChanged(null, null);
 
-			// Load Grades.
+			
 			loading = true;
+			// Load Grades.
 			SetGradeBox(League.Grades.Count);
 			for (int grade = 0; grade < League.Grades.Count; grade++)
 				Grades[grade].Grade = League.Grades[grade];
+			// Load Point Percent
+			SetPointPercentBox(League.PointPercents.Count);
+			for (int i = 0; i < League.PointPercents.Count; i++)
+				PointPercents[i].pointPercent = League.PointPercents[i];
 			loading = false;
 
 			teamSize.Value = League.ExpectedTeamSize;
@@ -488,5 +494,60 @@ namespace Torn.UI
         {
 			League.hitsTieBreak = hitsTieBreak.Checked;
         }
-    }
+
+		void SetPointPercentBox(int i)
+		{
+			while (PointPercents.Count <= i)
+			{
+				var pointPercent = new PointPercentEditor
+				{
+					Left = 20,
+					Top = 60 + PointPercents.Count * 26,
+					Parent = pointPercentBox
+				};
+
+				pointPercent.ValueChanged += PointPercentChanged;
+				PointPercents.Add(pointPercent);
+			}
+		}
+
+		private void PointPercentChanged(object sender, EventArgs e)
+		{
+			if(loading)
+				return;
+
+			League.PointPercents.Clear();
+			foreach (var cap in PointPercents)
+				if (cap.HasValue())
+					League.PointPercents.Add(cap.pointPercent);
+
+			if (PointPercents.Any() && PointPercents.Last().HasValue())
+				SetPointPercentBox(PointPercents.Count);
+		}
+
+		private void loadPresetPoints(List<PointPercent> presetPoints)
+        {
+			SetPointPercentBox(presetPoints.Count);
+			for (int i = 0; i < presetPoints.Count; i++)
+				PointPercents[i].pointPercent = presetPoints[i];
+			for (int i = presetPoints.Count; i < PointPercents.Count; i++)
+				PointPercents[i].pointPercent = new PointPercent(0, 0);
+		}
+
+        private void waLeaguePoints_Click(object sender, EventArgs e)
+		{
+			loadPresetPoints(League.WA_LEAGUE_POINTS);
+		}
+
+        private void waDoubles_Click(object sender, EventArgs e)
+        {
+			loadPresetPoints(League.WA_DOUBLES_POINTS);
+
+		}
+
+        private void waTriples_Click(object sender, EventArgs e)
+        {
+			loadPresetPoints(League.WA_TRIPLES_POINTS);
+		}
+	}
 }
