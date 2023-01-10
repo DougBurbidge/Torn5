@@ -629,6 +629,7 @@ namespace Torn.UI
 			tabControl1.TabPages.Remove(tabGraphic);
 			if (Holder.Fixture != null)
 			{
+				Holder.League.Load(Holder.League.FileName);
 				List<LeagueTeam> leagueTeams = Holder.League.GetTeamLadder();
 				if (Holder.Fixture.Teams.Count == 0)
 				{
@@ -679,6 +680,16 @@ namespace Torn.UI
 					fixtureTeamSelectors[i].Text = leagueTeams[i].Name;
 					fixtureTeamSelectors[i].Checked = true;
 					fixtureTeamSelectors[i].Width = 250;
+					teamSelectors[i].Visible = true;
+					fixtureTeamSelectors[i].Visible = true;
+
+				}
+				for (int i = leagueTeams?.Count ?? 0; i < teamSelectors?.Count; i++)
+				{
+					teamSelectors[i].Checked = false;
+					teamSelectors[i].Visible = false;
+					fixtureTeamSelectors[i].Checked = false;
+					fixtureTeamSelectors[i].Visible = false;
 				}
 				loading = false;
 			}

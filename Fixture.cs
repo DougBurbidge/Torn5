@@ -166,8 +166,6 @@ namespace Torn
 						FixtureTeam ft;
 						if (int.TryParse(fields[i], out int teamnum) && teams.Count >= teamnum)
 						{
-							Console.WriteLine(teamnum);
-							Console.WriteLine(teams.Count);
 							ft = teams[teamnum - 1];
 						}
 						else
