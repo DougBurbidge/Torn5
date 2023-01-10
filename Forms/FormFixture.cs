@@ -23,8 +23,10 @@ namespace Torn.UI
 		private double previousGamesPerTeam;
 		private bool previousHasRef;
 		private List<List<int>> previousExistingPlays;
-		readonly List<CheckBox> teamSelectors = new List<CheckBox>();
+		private List<CheckBox> teamSelectors = new List<CheckBox>();
+		private List<CheckBox> fixtureTeamSelectors = new List<CheckBox>();
 		private List<LeagueTeam> selectedTeams = new List<LeagueTeam>();
+		private List<LeagueTeam> fixtureSelectedTeams = new List<LeagueTeam>();
 
 		Colour leftButton, middleButton, rightButton, xButton1, xButton2;
 		Point point;  // This is the point in the grid last clicked on. It's counted in grid squares, not in pixels: 9,9 is ninth column, ninth row.
@@ -493,7 +495,7 @@ namespace Torn.UI
 			buttonImportTeams.Enabled = false;
 			continueGenerating.Enabled = false;
 			Holder.Fixture.Teams.Clear();
-			Holder.Fixture.Teams.Parse(textBoxTeams.Text, Holder.League);
+			Holder.Fixture.Teams.Parse(fixtureSelectedTeams, Holder.League);
 			Holder.Fixture.Games.Clear();
 			double numberOfTeams = Holder.Fixture.Teams.Count;
 			bool hasRef = referee.Checked;
@@ -507,11 +509,15 @@ namespace Torn.UI
 
 			List<List<int>> grid = GetGrid(numberOfTeams, teamsPerGame, gamesPerTeam, hasRef, existingPlaysPadded, maxMillis);
 
+			foreach(FixtureTeam team in Holder.Fixture.Teams)
+            {
+				Console.WriteLine(team.Name);
+				Console.WriteLine(team.Id());
+            }
+
 
 			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, gameDateTime.Value, TimeSpan.FromMinutes((double)minBetween.Value), TeamColours());
 
-
-			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
 			if(outputGrid.Checked && outputList.Checked)
@@ -532,7 +538,7 @@ namespace Torn.UI
 		private void ContinueGenerateClick(object sender, EventArgs e)
 		{
 			Holder.Fixture.Teams.Clear();
-			Holder.Fixture.Teams.Parse(textBoxTeams.Text, Holder.League);
+			Holder.Fixture.Teams.Parse(fixtureSelectedTeams, Holder.League);
 			Holder.Fixture.Games.Clear();
 			buttonImportTeams.Text = "Generating...";
 			buttonImportTeams.Enabled = false;
@@ -542,7 +548,6 @@ namespace Torn.UI
 
 			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, gameDateTime.Value, TimeSpan.FromMinutes((double)minBetween.Value), TeamColours());
 
-			textBoxTeams.Text = Holder.Fixture.Teams.ToString();
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
 			if (outputGrid.Checked && outputList.Checked)
@@ -618,14 +623,16 @@ namespace Torn.UI
 
 		void FormFixtureShown(object sender, EventArgs e)
 		{
+			// Hide tabs for now as they serve no purpose
+			tabControl1.TabPages.Remove(tabGamesList);
+			tabControl1.TabPages.Remove(tabGamesGrid);
+			tabControl1.TabPages.Remove(tabGraphic);
 			if (Holder.Fixture != null)
 			{
-				var ladder = Ladder();
-				var teams = ladder != null && ladder.Any() ? ladder : Holder.League.Teams;
-
+				List<LeagueTeam> leagueTeams = Holder.League.GetTeamLadder();
 				if (Holder.Fixture.Teams.Count == 0)
 				{
-					foreach (var lt in teams)
+					foreach (var lt in leagueTeams)
 					{
 						Holder.Fixture.Teams.Add(new FixtureTeam
 						{
@@ -637,11 +644,10 @@ namespace Torn.UI
 				}
 				else
 				{
-					var comparer = new TeamComparer() { LeagueTeams = ladder };
+					var comparer = new TeamComparer() { LeagueTeams = leagueTeams };
 					Holder.Fixture.Teams.Sort(comparer);
 				}
 
-				textBoxTeams.Text = Holder.Fixture.Teams.ToString();
 				if (Holder.Fixture.Games.Any())
 				{
 					displayReportGames.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
@@ -664,12 +670,15 @@ namespace Torn.UI
 
 
 				loading = true;
-				List<LeagueTeam> leagueTeams = Holder.League.GetTeamLadder();
-				SetTeamsBox(teams.Count);
-				for (int i = 0; i < teams?.Count; i++)
+				Console.WriteLine(leagueTeams.Count);
+				SetTeamsBox(leagueTeams.Count);
+				for (int i = 0; i < leagueTeams?.Count; i++)
 				{
-					teamSelectors[i].Text = teams[i].Name;
+					teamSelectors[i].Text = leagueTeams[i].Name;
 					teamSelectors[i].Checked = true;
+					fixtureTeamSelectors[i].Text = leagueTeams[i].Name;
+					fixtureTeamSelectors[i].Checked = true;
+					fixtureTeamSelectors[i].Width = 250;
 				}
 				loading = false;
 			}
@@ -688,6 +697,18 @@ namespace Torn.UI
 
 				teamBox.CheckedChanged += TeamCheckedChanged;
 				teamSelectors.Add(teamBox);
+			}
+			while (fixtureTeamSelectors.Count < i)
+			{
+				var teamBox = new CheckBox 
+				{
+					Left = 9,
+					Top = 10 + fixtureTeamSelectors.Count * 26,
+					Parent = fixtureTeamsList
+				};
+
+				teamBox.CheckedChanged += FixtureTeamCheckedChanged;
+				fixtureTeamSelectors.Add(teamBox);
 			}
 		}
 
@@ -709,6 +730,18 @@ namespace Torn.UI
 			});
 
 			UpdateFinalsFixture(selectedTeams);
+		}
+
+		private void FixtureTeamCheckedChanged(object sender, EventArgs e)
+		{
+			fixtureSelectedTeams = Holder.League.GetTeamLadder().FindAll(t =>
+			{
+				return fixtureTeamSelectors.Find(fixtureTeamSelector =>
+				{
+					return fixtureTeamSelector.Checked && fixtureTeamSelector.Text == t.Name;
+
+				}) != null;
+			});
 		}
 
 		void TextBoxKeyDown(object sender, KeyEventArgs e)
@@ -1130,6 +1163,11 @@ namespace Torn.UI
         {
 			RefreshFinals(sender, e);
 		}
+
+        private void outputList_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
 
         private void ButtonEditPyramidGamesClick(object sender, EventArgs e)
 		{

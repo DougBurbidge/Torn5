@@ -85,27 +85,17 @@ namespace Torn
 	public class FixtureTeams: List<FixtureTeam>
 	{
 		/// <summary>This Parse is used to read team names from an input form.</summary>
-		public void Parse(string s, League league)
+		public void Parse(List<LeagueTeam> teams, League league)
 		{
-			string[] lines = s.Split(new string[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-			for (int i = 0; i < lines.Length; i++)
+			for (int i = 0; i < teams.Count; i++)
 			{
 				FixtureTeam ft = new FixtureTeam
 				{
-					Name = lines[i]
+					Name = teams[i].Name
 				};
 				if (league != null)
 				{
-					ft.LeagueTeam = league.Teams.Find(x => x.Name == ft.Name);
-					if (ft.LeagueTeam == null)
-					{
-						var team = new LeagueTeam
-						{
-							Name = ft.Name
-						};
-						league.AddTeam(team);
-						ft.LeagueTeam = team;
-					}
+					ft.LeagueTeam = teams[i];
 				}
 
 				Add(ft);
@@ -174,8 +164,12 @@ namespace Torn
 					if (!string.IsNullOrEmpty(fields[i]))
 					{
 						FixtureTeam ft;
-						if (int.TryParse(fields[i], out int teamnum))
-							ft = teams.Find(x => x.Id() == teamnum);
+						if (int.TryParse(fields[i], out int teamnum) && teams.Count >= teamnum)
+						{
+							Console.WriteLine(teamnum);
+							Console.WriteLine(teams.Count);
+							ft = teams[teamnum - 1];
+						}
 						else
 							ft = teams.Find(x => x.LeagueTeam != null && x.LeagueTeam.Name == fields[i]);
 

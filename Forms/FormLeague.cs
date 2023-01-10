@@ -112,7 +112,7 @@ namespace Torn.UI
 				if (treeView1.SelectedNode.Tag is LeagueTeam team)
 				{
 					tabControl1.SelectedTab = scoresPage;
-					manualTeamCap.Value = Convert.ToDecimal(team.Handicap.Value ?? 100);
+					manualTeamCap.Value = Convert.ToDecimal(team?.Handicap?.Value ?? 100);
 					listViewScores.Items.Clear();
 					foreach (var gameTeam in League.Played(team))
 					{

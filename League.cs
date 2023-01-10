@@ -1797,7 +1797,7 @@ namespace Torn
 		public List<LeagueTeam> GetTeamLadder()
         {
 			return teams.OrderByDescending(x => TotalPoints(x, false)).ThenByDescending(x => AverageScore(x,false)).ToList();
-        }
+		}
 
 		public List<LeagueTeam> GetTeamLadderScaled()
 		{
