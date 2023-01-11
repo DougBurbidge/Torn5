@@ -240,7 +240,7 @@ namespace Torn.UI
 			}
 		}
 
-		Holder AddLeague(string fileName, string key = "", bool neww = false)
+		Holder AddLeague(string fileName, bool neww = false)
 		{
 			League league = new League(fileName);
 			ListViewItem item = new ListViewItem();
@@ -250,7 +250,7 @@ namespace Torn.UI
 			{
 				if (!neww)
 					league.Load(fileName);
-				item.Text = key;
+				item.Text = league.Key;
 			}
 			catch (Exception ex)
 			{
@@ -258,10 +258,10 @@ namespace Torn.UI
 				item.Text = ex.Message + " -- " + ex.StackTrace;
 			}
 
-			if (string.IsNullOrEmpty(key))
-				key = "league" + leagues.Count.ToString("D2", CultureInfo.InvariantCulture);
+			if (string.IsNullOrEmpty(league.Key))
+				league.Key = "league" + leagues.Count.ToString("D2", CultureInfo.InvariantCulture);
 
-			Holder holder = new Holder(key, fileName, league);
+			Holder holder = new Holder(league.Key, fileName, league);
 			leagues.Add(holder);
 
 			item.Tag = holder;
@@ -808,7 +808,7 @@ namespace Torn.UI
 			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
 			{
 				foreach (string fileName in saveFileDialog1.FileNames)
-					AddLeague(fileName, "", true);
+					AddLeague(fileName, true);
 
 				RefreshGamesList();
 			}			
@@ -1116,6 +1116,8 @@ namespace Torn.UI
 		    {
 				//listViewLeagues.Items[e.Item].Tag = newKey;
 				holder.Key = newKey;
+				holder.League.Key = newKey;
+				holder.League.Save();
 		    }
 		}
 
@@ -1137,7 +1139,7 @@ namespace Torn.UI
 			else if (listViewLeagues.SelectedItems.Count == 1 && e != null)
 			{
 				activeHolder = (Holder)e.Item.Tag;
-				labelLeagueDetails.Text = "Title: " + activeHolder.League.Title + "\nKey: " + activeHolder.Key + 
+				labelLeagueDetails.Text = "Title: " + activeHolder.League.Title + "\nKey: " + activeHolder.League.Key + 
 					"\nFile name: " + activeHolder.FileName +
 					"\nGames: " + activeHolder.League.AllGames.Count.ToString(CultureInfo.CurrentCulture) + 
 					"\nTeams: " + activeHolder.League.Teams.Count.ToString(CultureInfo.CurrentCulture);
@@ -1549,7 +1551,7 @@ namespace Torn.UI
 
 			foreach (XmlNode xleague in xleagues)
 			{
-				Holder holder = AddLeague(xleague.GetString("filename"), xleague.GetString("key"));
+				Holder holder = AddLeague(xleague.GetString("filename"));
 
 				var xtemplates = xleague.SelectSingleNode("reporttemplates");
 				if (xtemplates != null)
@@ -1605,7 +1607,7 @@ namespace Torn.UI
 				XmlNode holderNode = doc.CreateElement("holder");
 				leaguesNode.AppendChild(holderNode);
 
-				doc.AppendNode(holderNode, "key", holder.Key);
+				doc.AppendNode(holderNode, "key", holder.League.Key);
 				doc.AppendNode(holderNode, "filename", holder.FileName);
 
 				if (holder.ReportTemplates.Any() || holder.Fixture.Games.Count() > 0)

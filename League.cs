@@ -678,6 +678,7 @@ namespace Torn
 	/// <summary>Load and manage a .Torn league file, containing league teams and games.</summary>
 	public class League
 	{
+		public string Key { get; set; }
 		public string Title { get; set; }
 
 		/// <summary>Watch our .Torn file. If another process writes it, reload.</summary>
@@ -1196,6 +1197,7 @@ namespace Torn
 			var root = doc.DocumentElement;
 
 			Title = root.GetString("Title");
+			Key = root.GetString("Key");
 			if (string.IsNullOrEmpty(Title))
 				Title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ');
 
@@ -1440,6 +1442,7 @@ namespace Torn
 			doc.AppendNode(bodyNode, "ExtraAPenalty", ExtraAPenalty.ToString());
 			doc.AppendNode(bodyNode, "ExtraGBonus", ExtraGBonus.ToString());
 			doc.AppendNode(bodyNode, "HitsTieBreak", hitsTieBreak ? 1 : 0);
+			doc.AppendNode(bodyNode, "Key", Key);
 
 			XmlNode gradesNode = doc.CreateElement("grades");
 			bodyNode.AppendChild(gradesNode);
