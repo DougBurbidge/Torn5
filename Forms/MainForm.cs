@@ -1007,8 +1007,6 @@ namespace Torn.UI
 
 			int box = 0;
 
-			Console.WriteLine(serverGame.Game);
-
 
 			if (serverGame.Game == null)  // This game is not yet committed. Match players to league teams.
 			{
@@ -1093,10 +1091,17 @@ namespace Torn.UI
 
 			if (listViewGames.SelectedItems.Count == 1)
 			{
+				Console.WriteLine("AAAAAAAAAAAA");
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
-				if (laserGameServer != null)
+				Game leagueGame = activeHolder?.League.AllGames.Find(g => g.Time == game.Time);
+
+				if (laserGameServer != null && leagueGame == null)
 					laserGameServer.PopulateGame(game);
+				else
+                {
+					game.Players.Clear();
+                }
 
 				playersBox.LoadGame(activeHolder?.League, game);
 				formPlayer.CurrentLeague = activeHolder?.League;
