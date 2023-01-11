@@ -534,6 +534,7 @@ namespace Torn.UI
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxPassword.Location = new System.Drawing.Point(80, 176);
             this.textBoxPassword.Name = "textBoxPassword";
+            this.textBoxPassword.PasswordChar = '*';
             this.textBoxPassword.Size = new System.Drawing.Size(268, 20);
             this.textBoxPassword.TabIndex = 5;
             // 

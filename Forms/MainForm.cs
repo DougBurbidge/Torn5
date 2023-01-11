@@ -1534,6 +1534,10 @@ namespace Torn.UI
 			windowsAuth = root.GetString("Auth", "") == "windows";
 			sqlUserId = root.GetString("SqlUserId");
 			sqlPassword = root.GetString("SqlPassword");
+			uploadMethod = root.GetString("UploadMethod");
+			uploadSite = root.GetString("UploadSite");
+			username = root.GetString("Username");
+			password = root.GetString("Password");
 			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
 			exportFolder = root.GetString("ExportFolder", "");
 			logFolder = root.GetString("LogFolder", "");
@@ -1560,6 +1564,7 @@ namespace Torn.UI
 
 		public void SaveSettings()
 		{
+			Console.WriteLine("Save " + uploadMethod + " " + uploadSite + " " + username + " " + password);
 			XmlDocument doc = new XmlDocument();
 			XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
 			doc.AppendChild(docNode);

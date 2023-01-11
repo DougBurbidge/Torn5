@@ -82,7 +82,7 @@ namespace Torn.Report
 			foreach (ReportTemplate rt in reportTemplates)
 				reports.Add(Report(holder.League, includeSecret, rt));
 
-			reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"../index.html\">Index</a><div>"));
+			//reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"../index.html\">Index</a><div>"));
 
 			return reports;
 		}
@@ -809,7 +809,7 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 				{
 					client.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
 
-					UploadFile(client, url, localPath, "index.html");
+					// UploadFile(client, url, localPath, "index.html");
 
 					for (int h = 0; h < selected.Count; h++)
 					{
@@ -817,19 +817,45 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 
 						DirectoryInfo di = new DirectoryInfo(Path.Combine(localPath, key));
 
-						// Create a directory on FTP site:
-//					    WebRequest wr = WebRequest.Create(url + key);
-//						wr.Method = WebRequestMethods.Ftp.MakeDirectory;
-//						wr.Credentials = client.Credentials;
-//						wr.GetResponse();
+						if (key.Last() != '/')
+							key += '/';
+
+						string[] directories = key.Split('/');
+						string[] filteredDirectories = directories.ToList().FindAll((d) => d != "").ToArray();
+
+						for (int i = 0; i < filteredDirectories.Length; i++)
+                        {
+							string fullDir = "/";
+							for(int j = 0; j <= i; j++)
+                            {
+								fullDir = fullDir + filteredDirectories[j] + "/";
+							}
+							Console.WriteLine("fullDir " + fullDir);
+							try
+							{
+								// Create a directory on FTP site:
+								WebRequest wr = WebRequest.Create(url + fullDir);
+								wr.Method = WebRequestMethods.Ftp.MakeDirectory;
+								wr.Credentials = client.Credentials;
+								wr.GetResponse();
+							}
+							catch (System.Exception e)
+							{
+								Console.WriteLine(e.Message);
+								Console.WriteLine(url + fullDir);
+								Console.WriteLine("Folder already exists");
+							}
+						}
 
 						FileInfo[] files = di.GetFiles("*.html");
+						
 						for (int i = 0; i < files.Count(); i++)
 						{
-							UploadFile(client, url, Path.Combine(localPath, key), files[i].Name);
+							UploadFile(client, url + key, Path.Combine(localPath, key), files[i].Name);
 							progress?.Invoke((1.0 * i / files.Count() + h) / selected.Count, "Uploaded " + files[i].Name);
 						}
 					}
+
 				}
 			}
 			catch (WebException we)
