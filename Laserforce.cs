@@ -276,7 +276,6 @@ namespace Torn
 
 				foreach (string l in lines)
 				{
-					Console.WriteLine(l);
 					List<string> detailEvent = l.Split('\t').ToList();
 
 					// 4 event time type entity desc otherEntity
@@ -435,7 +434,11 @@ namespace Torn
 							oneEvent.ServerTeamId = player.ServerTeamId;
 							oneEvent.Score = Int32.Parse(scoreEvent[4]);
 
+
+							TermRecord termRecord = new TermRecord(TermType.Yellow, oneEvent.Time, oneEvent.Score);
+
 							player.YellowCards++;
+							player.AddTermRecord(termRecord);
 
 							game.Events.Add(oneEvent);
 						}

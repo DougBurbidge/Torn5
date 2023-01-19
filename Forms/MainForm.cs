@@ -1091,7 +1091,6 @@ namespace Torn.UI
 
 			if (listViewGames.SelectedItems.Count == 1)
 			{
-				Console.WriteLine("AAAAAAAAAAAA");
 				ServerGame game = ((ServerGame)listViewGames.SelectedItems[0].Tag);
 
 				Game leagueGame = activeHolder?.League.AllGames.Find(g => g.Time == game.Time);

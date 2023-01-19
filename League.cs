@@ -389,6 +389,43 @@ namespace Torn
 		}
 	}
 
+	public enum TermType
+	{
+		Yellow,
+		Red,
+		Verbal,
+		Other
+	}
+
+	public class TermRecord
+    {
+		public TermType Type { get; set; }
+		public DateTime? Time { get; set; }
+		public int Value { get; set; }
+		public string Reason { get; set; }
+
+		public TermRecord(TermType type, DateTime? time, int value, string reason = "")
+        {
+			Type = type;
+			Time = time;
+			Value = value;
+			Reason = reason;
+        }
+
+		public TermRecord(TermType type, int value, string reason = "")
+		{
+			Type = type;
+			Value = value;
+			Reason = reason;
+			Time = null;
+		}
+
+		public override string ToString()
+		{
+			return "Term Type: " + Type + " Time: " + (Time == null  ? "N/A" : Time.ToString()) + " Value: " + Value + " Reason: " + Reason;
+		}
+	}
+
 	/// <summary>Stores data about a player in a single game. (This is different from LeaguePlayer.)</summary>
 	public class GamePlayer: IComparable
 	{
@@ -409,6 +446,16 @@ namespace Torn
 		public int BaseDenied { get; set; }
 		public int YellowCards { get; set; }
 		public int RedCards { get; set; }
+		public List<TermRecord> TermRecords { get; set; }
+
+		public void AddTermRecord(TermRecord termRecord)
+        {
+			if(TermRecords == null)
+            {
+				TermRecords = new List<TermRecord>();
+            }
+			TermRecords.Add(termRecord);
+        }
 
 		/// <summary>Used for accumulating data to be used for a team total, a game average, etc.</summary>
 		public void Add(GamePlayer source)
@@ -448,6 +495,7 @@ namespace Torn
 			target.BaseDenied = BaseDenied;
 			target.YellowCards = YellowCards;
 			target.RedCards = RedCards;
+			target.TermRecords = TermRecords;
 
 			return target;
 		}
@@ -730,6 +778,14 @@ namespace Torn
 		public decimal ExtraAPenalty { get; set; }
 		public decimal ExtraGBonus { get; set; }
 
+		public decimal VerbalTermValue { get; set; }
+		public decimal YellowTermValue { get; set; }
+		public decimal RedTermValue { get; set; }
+
+		private readonly int DEFAULT_VERBAL_TERM = 0;
+		private readonly int DEFAULT_YELLOW_TERM = -1000;
+		private readonly int DEFAULT_RED_TERM = -2000;
+
 		private readonly List<Grade> DEFAULT_GRADES = new List<Grade>
 		{
 			new Grade("AAA", 6, true, false),
@@ -908,6 +964,9 @@ namespace Torn
 			MissingPlayerPenalty = 2;
 			ExtraAPenalty = 1;
 			ExtraGBonus = -1;
+			VerbalTermValue = DEFAULT_VERBAL_TERM;
+			YellowTermValue = DEFAULT_YELLOW_TERM;
+			RedTermValue = DEFAULT_RED_TERM;
 		}
 
 		public League(string fileName): this()
@@ -1215,6 +1274,9 @@ namespace Torn
 			MissingPlayerPenalty = root.GetDecimal("MissingPlayerPenalty");
 			ExtraAPenalty = root.GetDecimal("ExtraAPenalty");
 			ExtraGBonus = root.GetDecimal("ExtraGBonus");
+			VerbalTermValue = root.GetString("VerbalTermValue") == null ? DEFAULT_VERBAL_TERM : root.GetDecimal("VerbalTermValue");
+			YellowTermValue = root.GetString("YellowTermValue") == null ? DEFAULT_YELLOW_TERM : root.GetDecimal("YellowTermValue");
+			RedTermValue = root.GetString("RedTermValue") == null ? DEFAULT_RED_TERM : root.GetDecimal("RedTermValue");
 			IsAutoHandicap = root.GetInt("AutoHandicap") > 0;
 			hitsTieBreak = root.GetInt("HitsTieBreak") > 0;
 
@@ -1374,6 +1436,24 @@ namespace Torn
 					if (xplayer.SelectSingleNode("colour") != null)
 						gamePlayer.Colour = (Colour)(xplayer.GetInt("colour") + 1);
 
+					if (xplayer.SelectSingleNode("terms") != null)
+					{
+						XmlNodeList xterms = xplayer.SelectSingleNode("terms").SelectNodes("term");
+
+						foreach (XmlNode xterm in xterms)
+						{
+							TermType termType;
+							TermType.TryParse(xterm.GetString("type"), out termType);
+							string reason = xterm.SelectSingleNode("reason") != null ? xterm.GetString("reason") : "";
+							string time = xterm.SelectSingleNode("time") != null ? xterm.GetString("time") : "";
+							TermRecord termRecord = time == "" ?
+								termRecord = new TermRecord(termType, xterm.GetInt("value"), reason) :
+								termRecord = new TermRecord(termType, DateTime.Parse(time), xterm.GetInt("value"), reason);
+
+							gamePlayer.AddTermRecord(termRecord);
+						}
+					}
+
 					game.UnallocatedPlayers.Add(gamePlayer);
 				}
 				
@@ -1443,6 +1523,9 @@ namespace Torn
 			doc.AppendNode(bodyNode, "ExtraGBonus", ExtraGBonus.ToString());
 			doc.AppendNode(bodyNode, "HitsTieBreak", hitsTieBreak ? 1 : 0);
 			doc.AppendNode(bodyNode, "Key", Key);
+			doc.AppendNode(bodyNode, "VerbalTermValue", VerbalTermValue.ToString());
+			doc.AppendNode(bodyNode, "YellowTermValue", YellowTermValue.ToString());
+			doc.AppendNode(bodyNode, "RedTermValue", RedTermValue.ToString());
 
 			XmlNode gradesNode = doc.CreateElement("grades");
 			bodyNode.AppendChild(gradesNode);
@@ -1567,6 +1650,23 @@ namespace Torn
 					doc.AppendNonZero(playerNode, "redcards", player.RedCards);
 
 					doc.AppendNode(playerNode, "colour", ((int)player.Colour) - 1);
+
+					if (player.TermRecords != null)
+					{
+						XmlNode termsNode = doc.CreateElement("terms");
+						playerNode.AppendChild(termsNode);
+
+						foreach (TermRecord termRecord in player.TermRecords)
+						{
+							XmlNode termNode = doc.CreateElement("term");
+							termsNode.AppendChild(termNode);
+
+							doc.AppendNode(termNode, "type", termRecord.Type.ToString());
+							doc.AppendNode(termNode, "time", termRecord.Time.ToString());
+							doc.AppendNode(termNode, "value", termRecord.Value);
+							doc.AppendNode(termNode, "reason", termRecord.Reason);
+						}
+					}
 				}
 			}
 
@@ -2039,8 +2139,33 @@ namespace Torn
 			BaseDestroys = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 31);
 			BaseDenies = events.FindAll(x => x.ServerPlayerId == ServerPlayerId && (x.Event_Type == 1401 || x.Event_Type == 1402)).Sum(x => x.ShotsDenied);
 			BaseDenied = events.FindAll(x => x.ServerPlayerId == ServerPlayerId && (x.Event_Type == 1404 || x.Event_Type == 1404)).Sum(x => x.ShotsDenied);
-			YellowCards = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 28);
-			RedCards = events.Count(x => x.ServerPlayerId == ServerPlayerId && x.Event_Type == 29);
+			PopulateTerms(events);
+		}
+
+		public void PopulateTerms(List<Event> events)
+        {
+			YellowCards = 0;
+			RedCards = 0;
+			TermRecords = null;
+
+			foreach (Event e in events)
+			{
+				if (e.ServerPlayerId == ServerPlayerId)
+				{
+					if (e.Event_Type == 28)
+					{
+						YellowCards++;
+						TermRecord termRecord = new TermRecord(TermType.Yellow, e.Time, e.Score);
+						AddTermRecord(termRecord);
+					}
+					if (e.Event_Type == 29)
+					{
+						RedCards++;
+						TermRecord termRecord = new TermRecord(TermType.Red, e.Time, e.Score);
+						AddTermRecord(termRecord);
+					}
+				}
+			}
 		}
 
 		public override string ToString()

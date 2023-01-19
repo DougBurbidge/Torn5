@@ -48,6 +48,7 @@ namespace Torn.UI
             this.menuAdjustPlayerScore = new System.Windows.Forms.ToolStripMenuItem();
             this.menuGradePlayer = new System.Windows.Forms.ToolStripMenuItem();
             this.changeAliasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.manageTermsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,9 +71,10 @@ namespace Torn.UI
             this.menuMergePlayer,
             this.menuAdjustPlayerScore,
             this.menuGradePlayer,
-            this.changeAliasToolStripMenuItem});
+            this.changeAliasToolStripMenuItem,
+            this.manageTermsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 352);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 374);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip1Opening);
             // 
             // menuSortTeams
@@ -185,6 +187,13 @@ namespace Torn.UI
             this.changeAliasToolStripMenuItem.Text = "Change Alias";
             this.changeAliasToolStripMenuItem.Click += new System.EventHandler(this.changeAliasToolStripMenuItem_Click);
             // 
+            // manageTermsToolStripMenuItem
+            // 
+            this.manageTermsToolStripMenuItem.Name = "manageTermsToolStripMenuItem";
+            this.manageTermsToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.manageTermsToolStripMenuItem.Text = "Manage Terms";
+            this.manageTermsToolStripMenuItem.Click += new System.EventHandler(this.manageTermsToolStripMenuItem_Click);
+            // 
             // TeamBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 14F);
@@ -212,5 +221,6 @@ namespace Torn.UI
         private System.Windows.Forms.ToolStripMenuItem menuAdjustPlayerScore;
         private System.Windows.Forms.ToolStripMenuItem menuGradePlayer;
         private System.Windows.Forms.ToolStripMenuItem changeAliasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem manageTermsToolStripMenuItem;
     }
 }

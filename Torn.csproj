@@ -202,6 +202,12 @@
       <DependentUpon>PyramidHalfFixture.cs</DependentUpon>
     </Compile>
     <Compile Include="Finals.cs" />
+    <Compile Include="Forms\FormEditTerm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormEditTerm.Designer.cs">
+      <DependentUpon>FormEditTerm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FormAdhoc.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -213,6 +219,12 @@
     </Compile>
     <Compile Include="Forms\FormPyramidGame.Designer.cs">
       <DependentUpon>FormPyramidGame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormManageTerms.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormManageTerms.Designer.cs">
+      <DependentUpon>FormManageTerms.cs</DependentUpon>
     </Compile>
     <Compile Include="JsonServer.cs" />
     <Compile Include="Forms\MainForm1.Designer.cs">
@@ -343,6 +355,9 @@
     <EmbeddedResource Include="Controls\PyramidHalfFixture.resx">
       <DependentUpon>PyramidHalfFixture.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormEditTerm.resx">
+      <DependentUpon>FormEditTerm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormAdhoc.resx">
       <DependentUpon>FormAdhoc.cs</DependentUpon>
     </EmbeddedResource>
@@ -377,6 +392,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TeamBox.resx">
       <DependentUpon>TeamBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormManageTerms.resx">
+      <DependentUpon>FormManageTerms.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

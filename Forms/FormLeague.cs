@@ -87,6 +87,9 @@ namespace Torn.UI
 			extraAPenalty.Value = League.ExtraAPenalty;
 			extraGBonus.Value = League.ExtraGBonus;
 			automaticHandicapEnabled.Checked = League.IsAutoHandicap;
+			verbalTermValue.Value = League.VerbalTermValue;
+			yellowTermValue.Value = League.YellowTermValue;
+			redTermValue.Value = League.RedTermValue;
 		}
 
 		private void SetupGradeSelector(string alias, string grade)
@@ -104,14 +107,14 @@ namespace Torn.UI
 		{
 			if (treeView1.SelectedNode.Tag is string grade && treeView1.SelectedNode.Parent.Tag is LeaguePlayer leaguePlayer)
 			{
-				tabControl1.SelectedTab = HandicapPage;
+				temTab.SelectedTab = HandicapPage;
 				SetupGradeSelector(leaguePlayer.Name, grade);
 			}
 			else
 			{
 				if (treeView1.SelectedNode.Tag is LeagueTeam team)
 				{
-					tabControl1.SelectedTab = scoresPage;
+					temTab.SelectedTab = scoresPage;
 					manualTeamCap.Value = Convert.ToDecimal(team?.Handicap?.Value ?? 100);
 					listViewScores.Items.Clear();
 					foreach (var gameTeam in League.Played(team))
@@ -549,5 +552,21 @@ namespace Torn.UI
         {
 			loadPresetPoints(League.WA_TRIPLES_POINTS);
 		}
-	}
+
+        private void verbalTermValue_ValueChanged(object sender, EventArgs e)
+        {
+			League.VerbalTermValue = verbalTermValue.Value;
+        }
+
+        private void yellowTermValue_ValueChanged(object sender, EventArgs e)
+        {
+			League.YellowTermValue = yellowTermValue.Value;
+
+		}
+
+		private void redTermValue_ValueChanged(object sender, EventArgs e)
+        {
+			League.RedTermValue = redTermValue.Value;
+        }
+    }
 }

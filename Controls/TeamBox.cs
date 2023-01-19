@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using Torn5.Forms;
 
 namespace Torn.UI
 {
@@ -171,7 +172,7 @@ namespace Torn.UI
 			menuIdentifyTeam.Enabled   = League != null;
 			menuIdentifyPlayer.Enabled = ListView.SelectedItems.Count == 1;
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
-			menuAdjustPlayerScore.Enabled = ListView.SelectedItems.Count == 1;
+			menuAdjustPlayerScore.Enabled = false; // TODO REMOVE ONCE TERM MANAGEMENT TESTED ON OZONE :: ListView.SelectedItems.Count == 1
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
 			changeAliasToolStripMenuItem.Enabled = League != null;
 			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.IsAutoHandicap && LeagueTeam != null;
@@ -420,7 +421,6 @@ namespace Torn.UI
 			double penalty = -1000;
 			InputDialog.GetDouble("Adjustment", "Set player score adjustment", ref penalty);
 			var player1 = (ServerPlayer)ListView.SelectedItems[0].Tag;
-
 			player1.Score = player1.Score + penalty;
 
 			ListView.SelectedItems[0].SubItems[2].Text = player1.Score.ToString();
@@ -448,6 +448,23 @@ namespace Torn.UI
             {
 				MessageBox.Show("Could not find player in league");
             }
+		}
+
+        private void manageTermsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+			using (var form = new FormManageTerms { Player = player, League = League })
+            {
+				var result = form.ShowDialog();
+				if(result == DialogResult.OK)
+                {
+					ListView.SelectedItems[0].Tag = form.Player;
+					ListView.SelectedItems[0].SubItems[2].Text = form.Player.Score.ToString();
+					ListView.SelectedItems[0].SubItems[1].Text = (form.Player.RedCards > 0 ? (form.Player.RedCards + "R ") : "") + (form.Player.YellowCards > 0 ? (form.Player.YellowCards + "Y ") : "") + form.Player.Alias;
+					Recalculate(false);
+				}
+            }
+
 		}
     }
 

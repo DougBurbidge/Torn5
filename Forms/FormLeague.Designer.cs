@@ -48,7 +48,7 @@ namespace Torn.UI
             this.buttonDeletePlayer = new System.Windows.Forms.Button();
             this.buttonAddPlayer = new System.Windows.Forms.Button();
             this.panelRight = new System.Windows.Forms.Panel();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.temTab = new System.Windows.Forms.TabControl();
             this.leaguePage = new System.Windows.Forms.TabPage();
             this.hitsTieBreak = new System.Windows.Forms.CheckBox();
             this.numericHighScore = new System.Windows.Forms.NumericUpDown();
@@ -86,19 +86,26 @@ namespace Torn.UI
             this.labelPenalty = new System.Windows.Forms.Label();
             this.labelBonus = new System.Windows.Forms.Label();
             this.pointPercentBox = new System.Windows.Forms.TabPage();
+            this.waTriples = new System.Windows.Forms.Button();
+            this.waDoubles = new System.Windows.Forms.Button();
             this.waLeaguePoints = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.terms = new System.Windows.Forms.TabPage();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.yellowTermValue = new System.Windows.Forms.NumericUpDown();
+            this.verbalTermValue = new System.Windows.Forms.NumericUpDown();
+            this.redTermValue = new System.Windows.Forms.NumericUpDown();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
-            this.waDoubles = new System.Windows.Forms.Button();
-            this.waTriples = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.panelRight.SuspendLayout();
-            this.tabControl1.SuspendLayout();
+            this.temTab.SuspendLayout();
             this.leaguePage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).BeginInit();
             this.groupBoxHandicapStyle.SuspendLayout();
@@ -111,19 +118,22 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.teamSize)).BeginInit();
             this.GradesPage.SuspendLayout();
             this.pointPercentBox.SuspendLayout();
+            this.terms.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.yellowTermValue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.verbalTermValue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.redTermValue)).BeginInit();
             this.SuspendLayout();
             // 
             // treeView1
             // 
-            this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.treeView1.ContextMenuStrip = this.contextMenuStrip1;
             this.treeView1.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.treeView1.HideSelection = false;
             this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(312, 463);
+            this.treeView1.Size = new System.Drawing.Size(292, 463);
             this.treeView1.TabIndex = 0;
             this.treeView1.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.TreeView1DrawNode);
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView1AfterSelect);
@@ -173,7 +183,7 @@ namespace Torn.UI
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.buttonCopyFromLeague);
             this.groupBox1.Controls.Add(this.buttonRenameLeague);
-            this.groupBox1.Location = new System.Drawing.Point(330, 12);
+            this.groupBox1.Location = new System.Drawing.Point(310, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(87, 106);
             this.groupBox1.TabIndex = 1;
@@ -207,7 +217,7 @@ namespace Torn.UI
             this.groupBox2.Controls.Add(this.buttonRenameTeam);
             this.groupBox2.Controls.Add(this.buttonDeleteTeam);
             this.groupBox2.Controls.Add(this.buttonAddTeam);
-            this.groupBox2.Location = new System.Drawing.Point(423, 12);
+            this.groupBox2.Location = new System.Drawing.Point(433, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(87, 106);
             this.groupBox2.TabIndex = 2;
@@ -250,7 +260,7 @@ namespace Torn.UI
             this.groupBox3.Controls.Add(this.buttonReIdPlayer);
             this.groupBox3.Controls.Add(this.buttonDeletePlayer);
             this.groupBox3.Controls.Add(this.buttonAddPlayer);
-            this.groupBox3.Location = new System.Drawing.Point(516, 12);
+            this.groupBox3.Location = new System.Drawing.Point(556, 12);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(87, 106);
             this.groupBox3.TabIndex = 3;
@@ -291,25 +301,26 @@ namespace Torn.UI
             // 
             this.panelRight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelRight.Controls.Add(this.tabControl1);
-            this.panelRight.Location = new System.Drawing.Point(330, 124);
+            this.panelRight.Controls.Add(this.temTab);
+            this.panelRight.Location = new System.Drawing.Point(306, 124);
             this.panelRight.Name = "panelRight";
-            this.panelRight.Size = new System.Drawing.Size(273, 354);
+            this.panelRight.Size = new System.Drawing.Size(337, 354);
             this.panelRight.TabIndex = 4;
             // 
-            // tabControl1
+            // temTab
             // 
-            this.tabControl1.Controls.Add(this.leaguePage);
-            this.tabControl1.Controls.Add(this.scoresPage);
-            this.tabControl1.Controls.Add(this.HandicapPage);
-            this.tabControl1.Controls.Add(this.GradesPage);
-            this.tabControl1.Controls.Add(this.pointPercentBox);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(273, 354);
-            this.tabControl1.TabIndex = 1;
+            this.temTab.Controls.Add(this.leaguePage);
+            this.temTab.Controls.Add(this.scoresPage);
+            this.temTab.Controls.Add(this.HandicapPage);
+            this.temTab.Controls.Add(this.GradesPage);
+            this.temTab.Controls.Add(this.pointPercentBox);
+            this.temTab.Controls.Add(this.terms);
+            this.temTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.temTab.Location = new System.Drawing.Point(0, 0);
+            this.temTab.Name = "temTab";
+            this.temTab.SelectedIndex = 0;
+            this.temTab.Size = new System.Drawing.Size(337, 354);
+            this.temTab.TabIndex = 1;
             // 
             // leaguePage
             // 
@@ -323,7 +334,7 @@ namespace Torn.UI
             this.leaguePage.Location = new System.Drawing.Point(4, 22);
             this.leaguePage.Name = "leaguePage";
             this.leaguePage.Padding = new System.Windows.Forms.Padding(3);
-            this.leaguePage.Size = new System.Drawing.Size(265, 328);
+            this.leaguePage.Size = new System.Drawing.Size(329, 328);
             this.leaguePage.TabIndex = 0;
             this.leaguePage.Text = "League";
             this.leaguePage.UseVisualStyleBackColor = true;
@@ -343,7 +354,7 @@ namespace Torn.UI
             // numericHighScore
             // 
             this.numericHighScore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.numericHighScore.Location = new System.Drawing.Point(110, 246);
+            this.numericHighScore.Location = new System.Drawing.Point(110, 248);
             this.numericHighScore.Name = "numericHighScore";
             this.numericHighScore.Size = new System.Drawing.Size(60, 20);
             this.numericHighScore.TabIndex = 5;
@@ -353,7 +364,7 @@ namespace Torn.UI
             // 
             this.labelHighScore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelHighScore.AutoSize = true;
-            this.labelHighScore.Location = new System.Drawing.Point(32, 248);
+            this.labelHighScore.Location = new System.Drawing.Point(32, 250);
             this.labelHighScore.Name = "labelHighScore";
             this.labelHighScore.Size = new System.Drawing.Size(74, 13);
             this.labelHighScore.TabIndex = 4;
@@ -367,9 +378,9 @@ namespace Torn.UI
             this.groupBoxHandicapStyle.Controls.Add(this.radioButtonPlus);
             this.groupBoxHandicapStyle.Controls.Add(this.radioButtonNone);
             this.groupBoxHandicapStyle.Controls.Add(this.radioButtonPercent);
-            this.groupBoxHandicapStyle.Location = new System.Drawing.Point(6, 272);
+            this.groupBoxHandicapStyle.Location = new System.Drawing.Point(6, 274);
             this.groupBoxHandicapStyle.Name = "groupBoxHandicapStyle";
-            this.groupBoxHandicapStyle.Size = new System.Drawing.Size(253, 50);
+            this.groupBoxHandicapStyle.Size = new System.Drawing.Size(317, 50);
             this.groupBoxHandicapStyle.TabIndex = 3;
             this.groupBoxHandicapStyle.TabStop = false;
             this.groupBoxHandicapStyle.Text = "Handicap Style";
@@ -455,7 +466,7 @@ namespace Torn.UI
             this.scoresPage.Location = new System.Drawing.Point(4, 22);
             this.scoresPage.Name = "scoresPage";
             this.scoresPage.Padding = new System.Windows.Forms.Padding(3);
-            this.scoresPage.Size = new System.Drawing.Size(265, 328);
+            this.scoresPage.Size = new System.Drawing.Size(329, 328);
             this.scoresPage.TabIndex = 1;
             this.scoresPage.Text = "Scores";
             this.scoresPage.UseVisualStyleBackColor = true;
@@ -471,7 +482,7 @@ namespace Torn.UI
             this.listViewScores.HideSelection = false;
             this.listViewScores.Location = new System.Drawing.Point(3, 3);
             this.listViewScores.Name = "listViewScores";
-            this.listViewScores.Size = new System.Drawing.Size(259, 322);
+            this.listViewScores.Size = new System.Drawing.Size(323, 322);
             this.listViewScores.TabIndex = 0;
             this.listViewScores.UseCompatibleStateImageBehavior = false;
             this.listViewScores.View = System.Windows.Forms.View.Details;
@@ -510,7 +521,7 @@ namespace Torn.UI
             this.HandicapPage.Location = new System.Drawing.Point(4, 22);
             this.HandicapPage.Name = "HandicapPage";
             this.HandicapPage.Padding = new System.Windows.Forms.Padding(3);
-            this.HandicapPage.Size = new System.Drawing.Size(265, 328);
+            this.HandicapPage.Size = new System.Drawing.Size(329, 328);
             this.HandicapPage.TabIndex = 3;
             this.HandicapPage.Text = "Handicap";
             this.HandicapPage.UseVisualStyleBackColor = true;
@@ -693,7 +704,7 @@ namespace Torn.UI
             this.GradesPage.Location = new System.Drawing.Point(4, 22);
             this.GradesPage.Name = "GradesPage";
             this.GradesPage.Padding = new System.Windows.Forms.Padding(3);
-            this.GradesPage.Size = new System.Drawing.Size(265, 328);
+            this.GradesPage.Size = new System.Drawing.Size(329, 328);
             this.GradesPage.TabIndex = 2;
             this.GradesPage.Text = "Grades";
             this.GradesPage.UseVisualStyleBackColor = true;
@@ -745,10 +756,30 @@ namespace Torn.UI
             this.pointPercentBox.Location = new System.Drawing.Point(4, 22);
             this.pointPercentBox.Name = "pointPercentBox";
             this.pointPercentBox.Padding = new System.Windows.Forms.Padding(3);
-            this.pointPercentBox.Size = new System.Drawing.Size(265, 328);
+            this.pointPercentBox.Size = new System.Drawing.Size(329, 328);
             this.pointPercentBox.TabIndex = 4;
             this.pointPercentBox.Text = "Points to %";
             this.pointPercentBox.UseVisualStyleBackColor = true;
+            // 
+            // waTriples
+            // 
+            this.waTriples.Location = new System.Drawing.Point(170, 6);
+            this.waTriples.Name = "waTriples";
+            this.waTriples.Size = new System.Drawing.Size(75, 23);
+            this.waTriples.TabIndex = 4;
+            this.waTriples.Text = "WA Triples";
+            this.waTriples.UseVisualStyleBackColor = true;
+            this.waTriples.Click += new System.EventHandler(this.waTriples_Click);
+            // 
+            // waDoubles
+            // 
+            this.waDoubles.Location = new System.Drawing.Point(89, 6);
+            this.waDoubles.Name = "waDoubles";
+            this.waDoubles.Size = new System.Drawing.Size(75, 23);
+            this.waDoubles.TabIndex = 3;
+            this.waDoubles.Text = "WA Doubles";
+            this.waDoubles.UseVisualStyleBackColor = true;
+            this.waDoubles.Click += new System.EventHandler(this.waDoubles_Click);
             // 
             // waLeaguePoints
             // 
@@ -778,11 +809,118 @@ namespace Torn.UI
             this.label2.TabIndex = 0;
             this.label2.Text = "Points";
             // 
+            // terms
+            // 
+            this.terms.Controls.Add(this.label9);
+            this.terms.Controls.Add(this.label5);
+            this.terms.Controls.Add(this.label4);
+            this.terms.Controls.Add(this.yellowTermValue);
+            this.terms.Controls.Add(this.verbalTermValue);
+            this.terms.Controls.Add(this.redTermValue);
+            this.terms.Location = new System.Drawing.Point(4, 22);
+            this.terms.Name = "terms";
+            this.terms.Padding = new System.Windows.Forms.Padding(3);
+            this.terms.Size = new System.Drawing.Size(329, 328);
+            this.terms.TabIndex = 5;
+            this.terms.Text = "Terminations";
+            this.terms.UseVisualStyleBackColor = true;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(231, 12);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(54, 13);
+            this.label9.TabIndex = 14;
+            this.label9.Text = "Red Term";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(120, 12);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(65, 13);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Yellow Term";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 12);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(61, 13);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "Verbal Tem";
+            // 
+            // yellowTermValue
+            // 
+            this.yellowTermValue.Location = new System.Drawing.Point(123, 28);
+            this.yellowTermValue.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.yellowTermValue.Minimum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            -2147483648});
+            this.yellowTermValue.Name = "yellowTermValue";
+            this.yellowTermValue.Size = new System.Drawing.Size(72, 20);
+            this.yellowTermValue.TabIndex = 11;
+            this.yellowTermValue.Value = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.yellowTermValue.ValueChanged += new System.EventHandler(this.yellowTermValue_ValueChanged);
+            // 
+            // verbalTermValue
+            // 
+            this.verbalTermValue.Location = new System.Drawing.Point(15, 28);
+            this.verbalTermValue.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.verbalTermValue.Minimum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            -2147483648});
+            this.verbalTermValue.Name = "verbalTermValue";
+            this.verbalTermValue.Size = new System.Drawing.Size(72, 20);
+            this.verbalTermValue.TabIndex = 10;
+            this.verbalTermValue.ValueChanged += new System.EventHandler(this.verbalTermValue_ValueChanged);
+            // 
+            // redTermValue
+            // 
+            this.redTermValue.Location = new System.Drawing.Point(234, 28);
+            this.redTermValue.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.redTermValue.Minimum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            -2147483648});
+            this.redTermValue.Name = "redTermValue";
+            this.redTermValue.Size = new System.Drawing.Size(72, 20);
+            this.redTermValue.TabIndex = 9;
+            this.redTermValue.Value = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            -2147483648});
+            this.redTermValue.ValueChanged += new System.EventHandler(this.redTermValue_ValueChanged);
+            // 
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(444, 484);
+            this.buttonOK.Location = new System.Drawing.Point(484, 484);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 5;
@@ -793,32 +931,12 @@ namespace Torn.UI
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(525, 484);
+            this.buttonCancel.Location = new System.Drawing.Point(565, 484);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 6;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
-            // 
-            // waDoubles
-            // 
-            this.waDoubles.Location = new System.Drawing.Point(89, 6);
-            this.waDoubles.Name = "waDoubles";
-            this.waDoubles.Size = new System.Drawing.Size(75, 23);
-            this.waDoubles.TabIndex = 3;
-            this.waDoubles.Text = "WA Doubles";
-            this.waDoubles.UseVisualStyleBackColor = true;
-            this.waDoubles.Click += new System.EventHandler(this.waDoubles_Click);
-            // 
-            // waTriples
-            // 
-            this.waTriples.Location = new System.Drawing.Point(170, 6);
-            this.waTriples.Name = "waTriples";
-            this.waTriples.Size = new System.Drawing.Size(75, 23);
-            this.waTriples.TabIndex = 4;
-            this.waTriples.Text = "WA Triples";
-            this.waTriples.UseVisualStyleBackColor = true;
-            this.waTriples.Click += new System.EventHandler(this.waTriples_Click);
             // 
             // FormLeague
             // 
@@ -826,7 +944,7 @@ namespace Torn.UI
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(615, 519);
+            this.ClientSize = new System.Drawing.Size(655, 519);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.panelRight);
@@ -843,7 +961,7 @@ namespace Torn.UI
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.panelRight.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
+            this.temTab.ResumeLayout(false);
             this.leaguePage.ResumeLayout(false);
             this.leaguePage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).EndInit();
@@ -860,26 +978,16 @@ namespace Torn.UI
             this.GradesPage.PerformLayout();
             this.pointPercentBox.ResumeLayout(false);
             this.pointPercentBox.PerformLayout();
+            this.terms.ResumeLayout(false);
+            this.terms.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.yellowTermValue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.verbalTermValue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.redTermValue)).EndInit();
             this.ResumeLayout(false);
 
 		}
-		private System.Windows.Forms.RadioButton radioButtonNone;
-		private System.Windows.Forms.RadioButton radioButtonPlus;
-		private System.Windows.Forms.RadioButton radioButtonMinus;
-		private System.Windows.Forms.RadioButton radioButtonPercent;
-		private System.Windows.Forms.GroupBox groupBoxHandicapStyle;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.RadioButton totalScore;
-		private System.Windows.Forms.RadioButton victoryPoints;
-		private System.Windows.Forms.TabPage scoresPage;
-		private System.Windows.Forms.TabPage leaguePage;
-		private System.Windows.Forms.TabControl tabControl1;
-		private System.Windows.Forms.ColumnHeader colRankorPoints;
 		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.Button buttonOK;
-		private System.Windows.Forms.ColumnHeader colScore;
-		private System.Windows.Forms.ColumnHeader colGame;
-		private System.Windows.Forms.ListView listViewScores;
 		private System.Windows.Forms.Panel panelRight;
 		private System.Windows.Forms.Button buttonAddPlayer;
 		private System.Windows.Forms.Button buttonDeletePlayer;
@@ -898,33 +1006,55 @@ namespace Torn.UI
 		private System.Windows.Forms.ToolStripMenuItem renameTeamMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem deletePlayerMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem reIDPlayerMenuItem;
-        private System.Windows.Forms.TabPage GradesPage;
-        private System.Windows.Forms.Label labelPoints;
-        private System.Windows.Forms.Label labelGrade;
-        private System.Windows.Forms.Label labelBonus;
-        private System.Windows.Forms.Label labelPenalty;
+        private System.Windows.Forms.TabControl temTab;
+        private System.Windows.Forms.TabPage leaguePage;
+        private System.Windows.Forms.CheckBox hitsTieBreak;
+        private System.Windows.Forms.NumericUpDown numericHighScore;
+        private System.Windows.Forms.Label labelHighScore;
+        private System.Windows.Forms.GroupBox groupBoxHandicapStyle;
+        private System.Windows.Forms.RadioButton radioButtonMinus;
+        private System.Windows.Forms.RadioButton radioButtonPlus;
+        private System.Windows.Forms.RadioButton radioButtonNone;
+        private System.Windows.Forms.RadioButton radioButtonPercent;
+        private System.Windows.Forms.RadioButton victoryPoints;
+        private System.Windows.Forms.RadioButton totalScore;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TabPage scoresPage;
+        private System.Windows.Forms.ListView listViewScores;
+        private System.Windows.Forms.ColumnHeader colGame;
+        private System.Windows.Forms.ColumnHeader colScore;
+        private System.Windows.Forms.ColumnHeader colRankorPoints;
         private System.Windows.Forms.TabPage HandicapPage;
-        private System.Windows.Forms.CheckBox automaticHandicapEnabled;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.NumericUpDown teamSize;
+        private System.Windows.Forms.NumericUpDown manualTeamCap;
+        private System.Windows.Forms.Label manualTeamCapLabel;
+        private System.Windows.Forms.Label playerGradeAlias;
+        private System.Windows.Forms.ComboBox playerGradeBox;
         private System.Windows.Forms.NumericUpDown extraGBonus;
         private System.Windows.Forms.Label extraGBonusLabel;
         private System.Windows.Forms.NumericUpDown extraAPenalty;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown missingPlayerPenalty;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label playerGradeAlias;
-        private System.Windows.Forms.ComboBox playerGradeBox;
-        private System.Windows.Forms.NumericUpDown manualTeamCap;
-        private System.Windows.Forms.Label manualTeamCapLabel;
-        private System.Windows.Forms.CheckBox hitsTieBreak;
-		private System.Windows.Forms.NumericUpDown numericHighScore;
-		private System.Windows.Forms.Label labelHighScore;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.NumericUpDown teamSize;
+        private System.Windows.Forms.CheckBox automaticHandicapEnabled;
+        private System.Windows.Forms.TabPage GradesPage;
+        private System.Windows.Forms.Label labelGrade;
+        private System.Windows.Forms.Label labelPoints;
+        private System.Windows.Forms.Label labelPenalty;
+        private System.Windows.Forms.Label labelBonus;
         private System.Windows.Forms.TabPage pointPercentBox;
+        private System.Windows.Forms.Button waTriples;
+        private System.Windows.Forms.Button waDoubles;
+        private System.Windows.Forms.Button waLeaguePoints;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button waLeaguePoints;
-        private System.Windows.Forms.Button waDoubles;
-        private System.Windows.Forms.Button waTriples;
+        private System.Windows.Forms.TabPage terms;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown yellowTermValue;
+        private System.Windows.Forms.NumericUpDown verbalTermValue;
+        private System.Windows.Forms.NumericUpDown redTermValue;
     }
 }
