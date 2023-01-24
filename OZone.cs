@@ -299,6 +299,7 @@ namespace Torn
 					if (playerRoot["wterm"] != null) serverPlayer.YellowCards = Int32.Parse(playerRoot["wterm"].ToString());
 					if (playerRoot["term"] != null) serverPlayer.RedCards = Int32.Parse(playerRoot["term"].ToString());
 					if (playerRoot["rank"] != null) serverPlayer.Rank = UInt32.Parse(playerRoot["rank"].ToString());
+					if (playerRoot["elim"] != null) serverPlayer.IsEliminated = Int32.Parse(playerRoot["elim"].ToString()) > 0;
 					if (playerRoot["omid"] != null) 
 					{
 						string omid = playerRoot["omid"].ToString();

@@ -172,6 +172,7 @@ namespace Torn.UI
 			menuIdentifyTeam.Enabled   = League != null;
 			menuIdentifyPlayer.Enabled = ListView.SelectedItems.Count == 1;
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
+			manageTermsToolStripMenuItem.Enabled = ListView.SelectedItems.Count == 1;
 			menuAdjustPlayerScore.Enabled = false; // TODO REMOVE ONCE TERM MANAGEMENT TESTED ON OZONE :: ListView.SelectedItems.Count == 1
 			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
 			changeAliasToolStripMenuItem.Enabled = League != null;
@@ -459,12 +460,22 @@ namespace Torn.UI
 				if(result == DialogResult.OK)
                 {
 					ListView.SelectedItems[0].Tag = form.Player;
-					ListView.SelectedItems[0].SubItems[2].Text = form.Player.Score.ToString();
-					ListView.SelectedItems[0].SubItems[1].Text = (form.Player.RedCards > 0 ? (form.Player.RedCards + "R ") : "") + (form.Player.YellowCards > 0 ? (form.Player.YellowCards + "Y ") : "") + form.Player.Alias;
+					ListView.SelectedItems[0].SubItems[2].Text = League.ZeroElimed && form.Player.IsEliminated && form.Player.Score > 0 ? "0" : form.Player.Score.ToString();
+					ListView.SelectedItems[0].SubItems[1].Text = form.Player.GetFormattedAlias();
 					Recalculate(false);
 				}
             }
 
+		}
+
+        private void eliminatePlayerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
+			player.IsEliminated = true;
+			player.Score = League.ZeroElimed && player.Score > 0 ? 0 : player.Score;
+			ListView.SelectedItems[0].SubItems[2].Text = player.Score.ToString();
+			ListView.SelectedItems[0].SubItems[1].Text = player.GetFormattedAlias();
+			Recalculate(false);
 		}
     }
 

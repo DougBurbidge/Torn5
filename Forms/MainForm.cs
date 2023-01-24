@@ -1054,7 +1054,7 @@ namespace Torn.UI
 							int yCard = gp.YellowCards;
 							int rCard = gp.RedCards;
 
-							serverPlayer.Item.SubItems[1].Text = (rCard > 0 ? (rCard + "R ") : "") + (yCard > 0 ? (yCard + "Y ") : "") + league.Alias(gp);
+							serverPlayer.Item.SubItems[1].Text = gp.GetFormattedAlias(league.Alias(gp));
 						}
 					}
 

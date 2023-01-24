@@ -54,7 +54,7 @@ namespace Torn.UI
 					int yCard = player.YellowCards;
 					int rCard = player.RedCards;
 
-					string alias = (rCard > 0 ? (rCard + "R ") : "") + (yCard > 0 ? (yCard + "Y ") : "") + (isRichoCard ? "**** " + player.Alias + " ****" : player.Alias);
+					string alias = isRichoCard ? "**** " + player.GetFormattedAlias() + " ****" : player.GetFormattedAlias();
 
 					bool isNewPlayer = league != null && leaguePlayer == null;
 
@@ -81,8 +81,10 @@ namespace Torn.UI
 
 					item.ToolTipText = tooltip;
 
+					var score = player.Score > 0 && player.IsEliminated && league.ZeroElimed ? "0" : player.Score.ToString(CultureInfo.CurrentCulture);
+
 					item.SubItems.Add(alias);
-					item.SubItems.Add(player.Score.ToString(CultureInfo.CurrentCulture));
+					item.SubItems.Add(score);
 					item.SubItems.Add(player.Grade);
 					item.Tag = player;
 						player.Item = item;

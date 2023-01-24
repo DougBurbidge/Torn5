@@ -53,8 +53,11 @@ namespace Torn.UI
 
 			totalScore.Checked = League.VictoryPoints.Count == 0;
 			victoryPoints.Checked = League.VictoryPoints.Any();
-			hitsTieBreak.Checked = League.hitsTieBreak;
+			hitsTieBreak.Checked = League.HitsTieBreak;
 			hitsTieBreak.Enabled = victoryPoints.Checked;
+			zeroVps.Checked = League.ZeroVps;
+			zeroVps.Enabled = victoryPoints.Checked;
+			zeroElimed.Checked = League.ZeroElimed;
 
 			for (int i = 0; i < League.VictoryPoints.Count; i++)
 				SetVictoryBox(i, League.VictoryPoints[i]);
@@ -62,6 +65,9 @@ namespace Torn.UI
 			labelHighScore.Enabled = victoryPoints.Checked;
 			numericHighScore.Enabled = victoryPoints.Checked;
 			numericHighScore.Value = (decimal)League.VictoryPointsHighScore;
+
+			sweepBonus.Enabled = victoryPoints.Checked;
+			sweepBonus.Value = (decimal)League.SweepBonus;
 
 			radioButtonPercent.Checked = League.HandicapStyle == HandicapStyle.Percent;
 			radioButtonPlus.Checked = League.HandicapStyle == HandicapStyle.Plus;
@@ -317,6 +323,8 @@ namespace Torn.UI
 				SetVictoryBox(0);
 			}
 			hitsTieBreak.Enabled = victoryPoints.Checked;
+			zeroVps.Enabled = victoryPoints.Checked;
+			sweepBonus.Enabled = victoryPoints.Checked;
 		}
 
 		/// <summary>Ensure that there is an i'th victory points box, and set its value.</summary>
@@ -495,7 +503,7 @@ namespace Torn.UI
 
         private void hitsTieBreak_CheckedChanged(object sender, EventArgs e)
         {
-			League.hitsTieBreak = hitsTieBreak.Checked;
+			League.HitsTieBreak = hitsTieBreak.Checked;
         }
 
 		void SetPointPercentBox(int i)
@@ -568,5 +576,20 @@ namespace Torn.UI
         {
 			League.RedTermValue = redTermValue.Value;
         }
-    }
+
+        private void zeroElimed_CheckedChanged(object sender, EventArgs e)
+        {
+			League.ZeroElimed = zeroElimed.Checked;
+		}
+
+        private void zeroVps_CheckedChanged(object sender, EventArgs e)
+        {
+			League.ZeroVps = zeroVps.Checked;
+		}
+
+        private void sweepBonus_ValueChanged(object sender, EventArgs e)
+        {
+			League.SweepBonus = (int)sweepBonus.Value;
+		}
+	}
 }

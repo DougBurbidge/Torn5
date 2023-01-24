@@ -49,6 +49,7 @@ namespace Torn.UI
             this.menuGradePlayer = new System.Windows.Forms.ToolStripMenuItem();
             this.changeAliasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageTermsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.eliminatePlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -72,9 +73,10 @@ namespace Torn.UI
             this.menuAdjustPlayerScore,
             this.menuGradePlayer,
             this.changeAliasToolStripMenuItem,
-            this.manageTermsToolStripMenuItem});
+            this.manageTermsToolStripMenuItem,
+            this.eliminatePlayerToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 374);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 396);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip1Opening);
             // 
             // menuSortTeams
@@ -194,6 +196,13 @@ namespace Torn.UI
             this.manageTermsToolStripMenuItem.Text = "Manage Terms";
             this.manageTermsToolStripMenuItem.Click += new System.EventHandler(this.manageTermsToolStripMenuItem_Click);
             // 
+            // eliminatePlayerToolStripMenuItem
+            // 
+            this.eliminatePlayerToolStripMenuItem.Name = "eliminatePlayerToolStripMenuItem";
+            this.eliminatePlayerToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.eliminatePlayerToolStripMenuItem.Text = "Eliminate Player";
+            this.eliminatePlayerToolStripMenuItem.Click += new System.EventHandler(this.eliminatePlayerToolStripMenuItem_Click);
+            // 
             // TeamBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 14F);
@@ -222,5 +231,6 @@ namespace Torn.UI
         private System.Windows.Forms.ToolStripMenuItem menuGradePlayer;
         private System.Windows.Forms.ToolStripMenuItem changeAliasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manageTermsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem eliminatePlayerToolStripMenuItem;
     }
 }

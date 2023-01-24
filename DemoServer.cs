@@ -61,14 +61,16 @@ namespace Torn
 			{
 				var x = r.Next(0, adjectives.Length);
 				var y = r.Next(0, nouns.Length);
-                ServerPlayer player = new ServerPlayer
-                {
-                    Colour = (Colour)r.Next(1, 9),
-                    Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001,
-                    Pack = "Pack" + r.Next(1, 30).ToString("D2"),
-                    PlayerId = string.Format("demo{0:D2}{1:D2}", x, y),
-                    Alias = adjectives[x] + nouns[y]
-                };
+				var isElim = r.Next(0, 2) > 0 ? true : false;
+				ServerPlayer player = new ServerPlayer
+				{
+					Colour = (Colour)r.Next(1, 9),
+					Score = r.Next(-100, 1000) * 10 + r.Next(0, 3) * 2001,
+					Pack = "Pack" + r.Next(1, 30).ToString("D2"),
+					PlayerId = string.Format("demo{0:D2}{1:D2}", x, y),
+					Alias = adjectives[x] + nouns[y],
+					IsEliminated = isElim
+				};
                 game.Players.Add(player);
 			}
 		}
