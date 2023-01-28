@@ -1445,7 +1445,8 @@ namespace Torn.UI
 			}
 			else if (timeElapsed == TimeSpan.Zero && serverGame.Events.Count == 0 && laserGameServer != null) // timeElapsed == 0 means system is idle -- if a game is in progress, we don't want to query/populate 99 games when the user starts the app or opens a league file.
 			{
-				laserGameServer.PopulateGame(serverGame);
+				// Don't populate while idle as it can be very slow
+				//laserGameServer.PopulateGame(serverGame);
 
 				// Attempt to replace each GamePlayer with a ServerPlayer. This gives us under-the-hood data used by e.g. GameHeatMap.
 				foreach (var gameTeam in leagueGame.Teams)
