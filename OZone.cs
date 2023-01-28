@@ -293,6 +293,8 @@ namespace Torn
 					string playerContent = player.Value.ToString();
 					JObject playerRoot = JObject.Parse(playerContent);
 
+					Console.WriteLine(playerContent);
+
 					ServerPlayer serverPlayer = new ServerPlayer();
 					if (playerRoot["alias"] != null) serverPlayer.Alias = playerRoot["alias"].ToString();
 					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
@@ -300,6 +302,8 @@ namespace Torn
 					if (playerRoot["term"] != null) serverPlayer.RedCards = Int32.Parse(playerRoot["term"].ToString());
 					if (playerRoot["rank"] != null) serverPlayer.Rank = UInt32.Parse(playerRoot["rank"].ToString());
 					if (playerRoot["elim"] != null) serverPlayer.IsEliminated = Int32.Parse(playerRoot["elim"].ToString()) > 0;
+					if (playerRoot["bdenialsh"] != null) serverPlayer.BaseDenies = Int32.Parse(playerRoot["bdenialsh"].ToString());
+					if (playerRoot["bdeniedsh"] != null) serverPlayer.BaseDenied = Int32.Parse(playerRoot["bdeniedsh"].ToString());
 					if (playerRoot["omid"] != null) 
 					{
 						string omid = playerRoot["omid"].ToString();
