@@ -302,6 +302,11 @@ namespace Torn
 					if (playerRoot["term"] != null) serverPlayer.RedCards = Int32.Parse(playerRoot["term"].ToString());
 					if (playerRoot["rank"] != null) serverPlayer.Rank = UInt32.Parse(playerRoot["rank"].ToString());
 					if (playerRoot["elim"] != null) serverPlayer.IsEliminated = Int32.Parse(playerRoot["elim"].ToString()) > 0;
+					// This is correct Ozone has the names backwards for tagson and tagsby
+					if (playerRoot["tagsby"] != null) serverPlayer.HitsOn = Int32.Parse(playerRoot["tagsby"].ToString());
+					if (playerRoot["tagson"] != null) serverPlayer.HitsBy = Int32.Parse(playerRoot["tagson"].ToString());
+					if (playerRoot["bhits"] != null) serverPlayer.BaseHits = Int32.Parse(playerRoot["bhits"].ToString());
+					if (playerRoot["bdest"] != null) serverPlayer.BaseDestroys = Int32.Parse(playerRoot["bdest"].ToString());
 					if (playerRoot["bdenialsh"] != null) serverPlayer.BaseDenies = Int32.Parse(playerRoot["bdenialsh"].ToString());
 					if (playerRoot["bdeniedsh"] != null) serverPlayer.BaseDenied = Int32.Parse(playerRoot["bdeniedsh"].ToString());
 					if (playerRoot["omid"] != null) 
@@ -328,7 +333,7 @@ namespace Torn
 
 					if (playerRoot["qrcode"] != null) serverPlayer.QRCode = playerRoot["qrcode"].ToString();
 
-					if (!serverPlayer.IsPopulated()) serverPlayer.Populate(game.Events);
+					serverPlayer.PopulateTerms(game.Events);
 
 					serverPlayer.Pack = "Pack " + id;
 
