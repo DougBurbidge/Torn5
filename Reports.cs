@@ -1620,6 +1620,8 @@ namespace Torn.Report
 			var totals = new GamePlayer();
 			double totalScore = 0;
 			int totalCount = 0;
+			int totalGames = 0;
+			double totalTagRatio = 0;
 
 			foreach (GamePlayer gamePlayer in league.Played(player))
 			{
@@ -1657,6 +1659,8 @@ namespace Torn.Report
 				totals.RedCards += gamePlayer.RedCards;
 				totalScore += game == null ? 0 : game.TotalScore();
 				totalCount += game == null ? 1 : game.Players().Count;
+				totalTagRatio += game == null ? 0 : (((double)gamePlayer.HitsBy / (double)gamePlayer.HitsOn));
+				totalGames += 1;
 
 				report.Rows.Add(row);
 			}
@@ -1681,7 +1685,9 @@ namespace Torn.Report
 				totals.Score = 0;
 			}
 
-			FillDetails(totalRow, totals, default, (double)totalScore / totalCount);
+			Console.WriteLine(totalTagRatio + " " + totalCount);
+
+			FillDetails(totalRow, totals, default, (double)totalScore / totalCount, (double)totalTagRatio / totalGames);
 
 			report.Rows.Add(totalRow);
 
@@ -2205,9 +2211,9 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
-											   "Rank,Player,Team,Average Score,Average Rank,Tags +,Tags-,Tag Ratio,Score Ratio,TR\u00D7SR,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Grade,Comments,Longitudinal",
-											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,float",
-											   ",,,,,Tags,Tags,Ratios,Ratios,Ratios,Base,Base,Base,Penalties,Penalties,,,")
+											   "Rank,Player,Team,Average Score,TR\u00D7SR,Tag Ratio,Score Ratio,Tags +,Tags-,Average Rank,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Grade,Comments,Longitudinal",
+											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,integer",
+											   ",,,,Ratios,Ratios,Ratios,Tags,Tags,,Base,Base,Base,Penalties,Penalties,,,")
 			{
 				MaxChartByColumn = true,
 				MultiColumnOK = true
@@ -2250,13 +2256,6 @@ namespace Torn.Report
 					var played = League.Played(games, player, includeSecret);
 
 					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0"));  // Av score
-					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
-					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
-					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
-					if (played.Max(x => x.HitsOn) == 0 && played.Max(x => x.HitsBy) == 0)
-						row.Add(new ZCell(double.NaN));  // Tag ratio
-					else
-						row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P0"));  // Tag ratio
 
 					List<double> scoreRatios = new List<double>();
 					List<double> srxTrs = new List<double>();
@@ -2292,9 +2291,17 @@ namespace Torn.Report
 						}
 					}
 
-					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P0"));  // Score ratio
-					row.Add(DataCell(srxTrs, rt.Drops, chartType, "N2"));  // SR x TR
+					row.Add(DataCell(srxTrs, rt.Drops, chartType, "P0"));  // SR x TR
+					if (played.Max(x => x.HitsOn) == 0 && played.Max(x => x.HitsBy) == 0)
+						row.Add(new ZCell(double.NaN));  // Tag ratio
+					else
+						row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P0"));  // Tag ratio
 
+					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P0"));  // Score ratio
+
+					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
+					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
+					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
 					row.Add(DataCell(played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
@@ -2828,7 +2835,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return report;
 		}
 
-		static void FillDetails(ZRow row, GamePlayer gamePlayer, Color color, double averageScore)
+		static void FillDetails(ZRow row, GamePlayer gamePlayer, Color color, double averageScore, double? averageTagRatio = null)
 		{
 			row.Add(new ZCell(gamePlayer.Score, ChartType.Bar, "N0", color));
 			row.Add(BlankZero(gamePlayer.HitsBy, ChartType.Bar, color));
@@ -2839,7 +2846,7 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			else if (gamePlayer.HitsOn == 0)
 				row.Add(new ZCell("\u221e", color));
 			else
-				row.Add(new ZCell((double)gamePlayer.HitsBy / gamePlayer.HitsOn, ChartType.Bar, "P0", color));
+				row.Add(new ZCell(averageTagRatio == null ? (double)gamePlayer.HitsBy / gamePlayer.HitsOn : averageTagRatio, ChartType.Bar, "P0", color));
 
 			if (averageScore == 0)  // Score ratio
 				row.Add(new ZCell("", color));
