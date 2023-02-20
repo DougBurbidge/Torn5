@@ -795,12 +795,17 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 		}
 
 		/// <summary>Upload files from the named path via FTP to the internet.</summary>
-		public static void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, List<Holder> selected, ShowProgress progress = null)
+		public static void UploadFiles(string uploadMethod, string uploadSite, string username, string password, string localPath, List<Holder> selected, ShowProgress progress = null, string uploadDir = "")
 		{
 
 			string url = uploadMethod + "://" + uploadSite;
 			if (url.Last() != '/')
 				url += '/';
+
+			if(uploadDir == null)
+            {
+				uploadDir = "";
+            }
 
 			Cursor.Current = Cursors.WaitCursor;
 			try
@@ -817,33 +822,36 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 
 						DirectoryInfo di = new DirectoryInfo(Path.Combine(localPath, key));
 
-						if (key.Last() != '/')
-							key += '/';
+						if (uploadDir != "") {
 
-						string[] directories = key.Split('/');
-						string[] filteredDirectories = directories.ToList().FindAll((d) => d != "").ToArray();
+							if (uploadDir.Last() != '/')
+								uploadDir += '/';
 
-						for (int i = 0; i < filteredDirectories.Length; i++)
-                        {
-							string fullDir = "/";
-							for(int j = 0; j <= i; j++)
-                            {
-								fullDir = fullDir + filteredDirectories[j] + "/";
-							}
-							Console.WriteLine("fullDir " + fullDir);
-							try
+							string[] directories = uploadDir.Split('/');
+							string[] filteredDirectories = directories.ToList().FindAll((d) => d != "").ToArray();
+
+							for (int i = 0; i < filteredDirectories.Length; i++)
 							{
-								// Create a directory on FTP site:
-								WebRequest wr = WebRequest.Create(url + fullDir);
-								wr.Method = WebRequestMethods.Ftp.MakeDirectory;
-								wr.Credentials = client.Credentials;
-								wr.GetResponse();
-							}
-							catch (System.Exception e)
-							{
-								Console.WriteLine(e.Message);
-								Console.WriteLine(url + fullDir);
-								Console.WriteLine("Folder already exists");
+								string fullDir = "/";
+								for (int j = 0; j <= i; j++)
+								{
+									fullDir = fullDir + filteredDirectories[j] + "/";
+								}
+								Console.WriteLine("fullDir " + fullDir);
+								try
+								{
+									// Create a directory on FTP site:
+									WebRequest wr = WebRequest.Create(url + fullDir);
+									wr.Method = WebRequestMethods.Ftp.MakeDirectory;
+									wr.Credentials = client.Credentials;
+									wr.GetResponse();
+								}
+								catch (System.Exception e)
+								{
+									Console.WriteLine(e.Message);
+									Console.WriteLine(url + fullDir);
+									Console.WriteLine("Folder already exists");
+								}
 							}
 						}
 
@@ -851,10 +859,12 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 						
 						for (int i = 0; i < files.Count(); i++)
 						{
-							UploadFile(client, url + key, Path.Combine(localPath, key), files[i].Name);
+							UploadFile(client, url + uploadDir, Path.Combine(localPath, key), files[i].Name);
 							progress?.Invoke((1.0 * i / files.Count() + h) / selected.Count, "Uploaded " + files[i].Name);
 						}
 					}
+
+					Console.WriteLine("Uploaded");
 
 				}
 			}

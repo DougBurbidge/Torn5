@@ -103,6 +103,7 @@ namespace Torn.UI
 
 		string uploadMethod;
 		string uploadSite;
+		string uploadDir;
 		string username;
 		string password;
 
@@ -749,6 +750,7 @@ namespace Torn.UI
 				ReportsFolder = exportFolder,
 				UploadMethod = uploadMethod,
 				UploadSite = uploadSite,
+				UploadDir = uploadDir,
 				Username = username,
 				Password = password,
 
@@ -775,6 +777,7 @@ namespace Torn.UI
 				exportFolder = form.ReportsFolder;
 				uploadMethod = form.UploadMethod;
 				uploadSite = form.UploadSite;
+				uploadDir = form.UploadDir;
 				username = form.Username;
 				password = form.Password;
 
@@ -886,7 +889,7 @@ namespace Torn.UI
 				progressBar1.Value = 0;
 				try
 				{
-					ExportPages.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, SelectedLeagues(), ProgressBar);
+					ExportPages.UploadFiles(uploadMethod, uploadSite, username, password, exportFolder, SelectedLeagues(), ProgressBar, uploadDir);
 				}
 				finally {
 					FinishProgress();
@@ -1543,6 +1546,7 @@ namespace Torn.UI
 			sqlPassword = root.GetString("SqlPassword");
 			uploadMethod = root.GetString("UploadMethod");
 			uploadSite = root.GetString("UploadSite");
+			uploadDir = root.GetString("UploadDir");
 			username = root.GetString("Username");
 			password = root.GetString("Password");
 			webPort = int.Parse(root.GetString("WebServerPort", "8080"));
@@ -1596,6 +1600,7 @@ namespace Torn.UI
 				doc.AppendNode(bodyNode, "Selected", listViewLeagues.SelectedItems[0].Text);
 			doc.AppendNode(bodyNode, "UploadMethod", uploadMethod);
 			doc.AppendNode(bodyNode, "UploadSite", uploadSite);
+			doc.AppendNode(bodyNode, "UploadDir", uploadDir);
 			doc.AppendNode(bodyNode, "Username", username);
 			doc.AppendNode(bodyNode, "Password", password);
 			doc.AppendNode(bodyNode, "HostRemoteTorn", hostRemoteTorn ? 1 : 0);

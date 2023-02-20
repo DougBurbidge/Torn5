@@ -97,6 +97,8 @@ namespace Torn.UI
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.label9 = new System.Windows.Forms.Label();
+            this.uploadDir = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -496,6 +498,8 @@ namespace Torn.UI
             // 
             // tabPageUpload
             // 
+            this.tabPageUpload.Controls.Add(this.uploadDir);
+            this.tabPageUpload.Controls.Add(this.label9);
             this.tabPageUpload.Controls.Add(this.textBoxSite);
             this.tabPageUpload.Controls.Add(this.labelSite);
             this.tabPageUpload.Controls.Add(this.textBoxPassword);
@@ -856,6 +860,23 @@ namespace Torn.UI
             this.buttonOK.Text = "&OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             // 
+            // label9
+            // 
+            this.label9.Location = new System.Drawing.Point(8, 202);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(68, 23);
+            this.label9.TabIndex = 6;
+            this.label9.Text = "Upload Dir";
+            // 
+            // uploadDir
+            // 
+            this.uploadDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.uploadDir.Location = new System.Drawing.Point(80, 202);
+            this.uploadDir.Name = "uploadDir";
+            this.uploadDir.Size = new System.Drawing.Size(268, 20);
+            this.uploadDir.TabIndex = 7;
+            // 
             // FormPreferences
             // 
             this.AcceptButton = this.buttonOK;
@@ -962,5 +983,7 @@ namespace Torn.UI
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox gameFilter;
         private System.Windows.Forms.CheckBox hasGameFilter;
+        private System.Windows.Forms.TextBox uploadDir;
+        private System.Windows.Forms.Label label9;
     }
 }

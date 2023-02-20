@@ -104,6 +104,12 @@ namespace Torn.UI
 		public string Password { get { return textBoxPassword.Text; }
 		                         set { textBoxPassword.Text = value; } }
 
+		public string UploadDir
+		{
+			get { return uploadDir.Text; }
+			set { uploadDir.Text = value; }
+		}
+
 		public int WebPort {
 			get { return checkBoxWebServer.Checked ? (int)numericPort.Value : 0; }
 			set {
