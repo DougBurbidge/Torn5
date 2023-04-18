@@ -471,7 +471,7 @@ namespace Torn.UI
         private void eliminatePlayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
 			ServerPlayer player = (ServerPlayer)ListView.SelectedItems[0].Tag;
-			player.IsEliminated = true;
+			player.SetIsEliminated(true);
 			player.Score = League.ZeroElimed && player.Score > 0 ? 0 : player.Score;
 			ListView.SelectedItems[0].SubItems[2].Text = player.Score.ToString();
 			ListView.SelectedItems[0].SubItems[1].Text = player.GetFormattedAlias();

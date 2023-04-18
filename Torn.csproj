@@ -62,10 +62,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>DA32AB07BBABE0BF4FA1269FDA110F235A3CA1BF</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>D0AC47DCE503EECE478C52CD48F24B4B5C616053</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Torn_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>Torn_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -408,6 +408,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>TornWeb.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Torn_1_TemporaryKey.pfx" />
     <None Include="Torn_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

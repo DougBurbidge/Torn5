@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Torn
 {
@@ -40,17 +41,11 @@ namespace Torn
 			client = new TcpClient(server, Int32.Parse(port));
 			nwStream = client.GetStream();
 			connected = true;
-			nwStream.ReadTimeout = 500;
+			// nwStream.ReadTimeout = 500;
 
-			while (true)
-			{
 
-				string data = ReadFromOzone(client, nwStream);
-				if (data == "")
-				{
-					break;
-				}
-			}
+			ReadFromOzone(client, nwStream);
+			ReadFromOzone(client, nwStream);
 			return connected;
 		}
 
@@ -63,6 +58,9 @@ namespace Torn
 			List<ServerGame> games = new List<ServerGame>();
 
 			string cleanedResult = result.Remove(0, 5);
+
+			Console.WriteLine(result);
+			Console.WriteLine(cleanedResult);
 
 			JObject root = JObject.Parse(cleanedResult);
 
@@ -116,7 +114,7 @@ namespace Torn
 			{
 				string str = "";
 				bool reading = true;
-				int BYTE_LIMIT = 1024;
+				int BYTE_LIMIT = 128;
 
 
 				while (reading)
@@ -126,8 +124,14 @@ namespace Torn
 					string current = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
 
 					str += current;
+					if(current.EndsWith("}"))
+                    {
+						Thread.Sleep(1);
+						var result = nwStream.DataAvailable;
 
-					if (bytesRead < BYTE_LIMIT) reading = false;
+						if (!result) break;
+					}
+					
 				}
 
 				return str;
@@ -143,7 +147,7 @@ namespace Torn
 			//---create a TCPClient object at the IP and port no.---
 			byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes("(" + query);
 
-			nwStream.ReadTimeout = 2000;
+			// nwStream.ReadTimeout = 3000;
 
 			int[] header = new int[] { query.Length, 0, 0, 0 };
 
@@ -155,17 +159,7 @@ namespace Torn
 			nwStream.Write(bytesToSend, 0, bytesToSend.Length);
 
 			//---read back the text---
-			string result = "";
-			while (true)
-			{
-
-				string data = ReadFromOzone(client, nwStream);
-				result += data;
-				if (data == "")
-				{
-					break;
-				}
-			}
+			string result = ReadFromOzone(client, nwStream);
 
 			return result;
 		}
@@ -293,15 +287,13 @@ namespace Torn
 					string playerContent = player.Value.ToString();
 					JObject playerRoot = JObject.Parse(playerContent);
 
-					Console.WriteLine(playerContent);
-
 					ServerPlayer serverPlayer = new ServerPlayer();
 					if (playerRoot["alias"] != null) serverPlayer.Alias = playerRoot["alias"].ToString();
 					if (playerRoot["score"] != null) serverPlayer.Score = Int32.Parse(playerRoot["score"].ToString());
 					if (playerRoot["wterm"] != null) serverPlayer.YellowCards = Int32.Parse(playerRoot["wterm"].ToString());
 					if (playerRoot["term"] != null) serverPlayer.RedCards = Int32.Parse(playerRoot["term"].ToString());
 					if (playerRoot["rank"] != null) serverPlayer.Rank = UInt32.Parse(playerRoot["rank"].ToString());
-					if (playerRoot["elim"] != null) serverPlayer.IsEliminated = Int32.Parse(playerRoot["elim"].ToString()) > 0;
+					if (playerRoot["elim"] != null) serverPlayer.SetIsEliminated(Int32.Parse(playerRoot["elim"].ToString()) > 0);
 					// This is correct Ozone has the names backwards for tagson and tagsby
 					if (playerRoot["tagsby"] != null) serverPlayer.HitsOn = Int32.Parse(playerRoot["tagsby"].ToString());
 					if (playerRoot["tagson"] != null) serverPlayer.HitsBy = Int32.Parse(playerRoot["tagson"].ToString());

@@ -437,6 +437,7 @@ namespace Torn
 		public string Grade { get; set; }
 		public string Pack { get; set; }
 		public double Score { get; set; }
+		public double? ZeroedScore { get; set; }
 		public uint Rank { get; set; }
 		public Colour Colour { get; set; }
 		public int HitsBy { get; set; }
@@ -451,6 +452,19 @@ namespace Torn
 
 		public bool IsEliminated { get; set; }
 
+		public void SetIsEliminated(bool isElimed)
+        {
+			if(isElimed)
+            {
+				IsEliminated = true;
+				ZeroedScore = ZeroedScore == null ? Score : ZeroedScore;
+            } else
+            {
+				IsEliminated = false;
+				ZeroedScore = null;
+            }
+        }
+
 		public void AddTermRecord(TermRecord termRecord)
         {
 			if(TermRecords == null)
@@ -464,6 +478,7 @@ namespace Torn
 		public void Add(GamePlayer source)
 		{
 			Score += source.Score;
+			ZeroedScore += source.ZeroedScore;
 			Rank += source.Rank;
 			HitsBy += source.HitsBy;
 			HitsOn += source.HitsOn;
@@ -488,6 +503,7 @@ namespace Torn
 			target.Grade = Grade;
 			target.Pack = Pack;
 			target.Score = Score;
+			target.ZeroedScore = ZeroedScore;
 			target.Rank = Rank;
 			target.Colour = Colour;
 			target.HitsBy = HitsBy;
@@ -510,6 +526,7 @@ namespace Torn
 			if (divisor == 0) return;
 
 			Score /= divisor;
+			ZeroedScore /= divisor;
 			Rank /= (uint)divisor;
 			HitsBy /= divisor;
 			HitsOn /= divisor;
@@ -537,7 +554,7 @@ namespace Torn
 		}
 		public string GetFormattedAlias(string alias)
 		{
-			return (IsEliminated ? "💀  " : "") + (RedCards > 0 ? (RedCards + "R ") : "") + (YellowCards > 0 ? (YellowCards + "Y ") : "") + alias;
+			return (IsEliminated ? "💀 " : "") + (RedCards > 0 ? (RedCards + "R ") : "") + (YellowCards > 0 ? (YellowCards + "Y ") : "") + alias + (IsEliminated ? ("(" + ZeroedScore + ")") : "");
 		}
 	}
 
@@ -1436,6 +1453,7 @@ namespace Torn
 						Pack = xplayer.GetString("pack"),
 						Grade = xplayer.GetString("grade"),
 						Score = xplayer.GetInt("score"),
+						ZeroedScore = xplayer.GetInt("zeroedScore"),
 						Rank = (uint)xplayer.GetInt("rank"),
 						HitsBy = xplayer.GetInt("hitsby"),
 						HitsOn = xplayer.GetInt("hitson"),
@@ -1657,7 +1675,11 @@ namespace Torn
 					doc.AppendNode(playerNode, "qrcode", player.QRCode);
 					doc.AppendNode(playerNode, "grade", player.Grade);
 					doc.AppendNode(playerNode, "pack", player.Pack);
-					doc.AppendNonZero(playerNode, "score", ZeroElimed && player.IsEliminated && player.Score > 0 ? 0 : player.Score);
+					doc.AppendNode(playerNode, "score", (int)(ZeroElimed && player.IsEliminated && player.Score > 0 ? 0 : player.Score));
+					if (ZeroElimed && player.IsEliminated)
+					{
+						doc.AppendNode(playerNode, "zeroedScore", (int)player.ZeroedScore);
+					}
 					doc.AppendNode(playerNode, "rank", (int)player.Rank);
 					doc.AppendNonZero(playerNode, "hitsby", player.HitsBy);
 					doc.AppendNonZero(playerNode, "hitson", player.HitsOn);
