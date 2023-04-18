@@ -71,14 +71,18 @@ namespace Torn.Report
 	{
 		public LeagueTeam Team { get; set; }
 		public double Score { get; set; } // Scores and ScoreList entries can be actual scores, or score ratios, as needed.
+		public double ZeroedScore { get; set; } // Scores and ScoreList entries can be actual scores, or score ratios, as needed.
 		public double Points { get; set; }
 		public List<double> ScoreList { get; set; }
+		public List<double> ZeroedScoreList { get; set; }
 		public int Dropped { get; set; }  // Number of scores dropped. Maintained by caller.
 
 		public TeamLadderEntry()
 		{
 			ScoreList = new List<double>();
+			ZeroedScoreList = new List<double>();
 			Score = 0;
+			ZeroedScore = 0;
 			Points = 0;
 			Dropped = 0;
 		}
@@ -89,6 +93,9 @@ namespace Torn.Report
 
 			if (result == 0)
 				result = entry.Score - Score;
+
+			if (result == 0)
+				result = entry.ZeroedScore - ZeroedScore;
 
 			return Math.Sign(result);
 		}
@@ -113,6 +120,9 @@ namespace Torn.Report
 
 			if (result == 0)
 				result = entry2.Score - entry1.Score;
+
+			if (result == 0)
+				result = entry2.ZeroedScore - entry1.ZeroedScore;
 
 			return Math.Sign(result);
 		}
@@ -2381,6 +2391,7 @@ namespace Torn.Report
 		public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
 			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
+			bool showZeroed = rt.FindSetting("showZeroed") >= 0;
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 			bool ratio = false;
 			bool scaled = rt.FindSetting("OrderBy") > 0 && rt.Setting("OrderBy").StartsWith("scaled");
@@ -2423,6 +2434,8 @@ namespace Torn.Report
 			double victoryPointsRange = games.Max(g => g.Teams.Max(t => t.Points)) - victoryPointsMin;
 
 			report.AddColumn(new ZColumn(ratio ? "Score Ratio" : "Average score", ZAlignment.Float));
+			if(showZeroed)
+				report.AddColumn(new ZColumn("Average Non-Zeroed score", ZAlignment.Float));
 			report.AddColumn(new ZColumn("Games", ZAlignment.Integer));
 
 			if (rt.Drops != null && rt.Drops.HasDrops())
@@ -2504,6 +2517,25 @@ namespace Torn.Report
 						scoreCell.Data.AddRange(entry.ScoreList);  // average game score
 				}
 				row.Add(scoreCell);     // average game scores
+
+				if (showZeroed)
+				{
+					ZCell zeroScoreCell;
+					if (entry.ZeroedScoreList.Count == 0)
+						zeroScoreCell = new ZCell("-");     // average game scores
+					else
+					{
+						//scoreCell = DataCell(scoreList, rt.Drops, chartType, "N0");
+						zeroScoreCell = new ZCell(0, chartType)
+						{
+							Number = entry.ZeroedScoreList.Average(),
+							NumberFormat = ratio ? "P1" : isDecimal ? "N1" : "N0"
+						};
+						zeroScoreCell.Data.AddRange(entry.ScoreList);  // average game score
+					}
+					row.Add(zeroScoreCell);     // average game scores
+				}
+
 				if (!league.IsPoints())
 					barCell = scoreCell;
 
@@ -3241,13 +3273,16 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 						else if (game.TotalScore() != 0)
 							entry.ScoreList.Add(gameTeam.Score / game.TotalScore() * game.Teams.Count);
 
-						if(!ignorePoints) entry.Points += gameTeam.Points;
+						entry.ZeroedScoreList.Add(gameTeam.GetZeroedScore());
+
+						if (!ignorePoints) entry.Points += gameTeam.Points;
 					}
 
 					if (entry.ScoreList.Count > 0)
 					{
 						entry.Dropped = DropScores(entry.ScoreList, rt.Drops);
 						entry.Score = entry.ScoreList.Average();
+						entry.ZeroedScore = entry.ZeroedScoreList.Average();
 					}
 
 					ladder.Add(entry);

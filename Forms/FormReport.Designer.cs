@@ -72,6 +72,7 @@ namespace Torn.UI
             this.showHits = new System.Windows.Forms.CheckBox();
             this.isDecimal = new System.Windows.Forms.CheckBox();
             this.ignorePoints = new System.Windows.Forms.CheckBox();
+            this.showZeroed = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
             this.groupBoxDateRange.SuspendLayout();
@@ -539,7 +540,7 @@ namespace Torn.UI
             // 
             this.showGrades.Location = new System.Drawing.Point(238, 563);
             this.showGrades.Name = "showGrades";
-            this.showGrades.Size = new System.Drawing.Size(250, 24);
+            this.showGrades.Size = new System.Drawing.Size(147, 24);
             this.showGrades.TabIndex = 23;
             this.showGrades.Tag = "ShowGrades";
             this.showGrades.Text = "show grades column";
@@ -575,6 +576,17 @@ namespace Torn.UI
             this.ignorePoints.Text = "ignore points";
             this.ignorePoints.UseVisualStyleBackColor = true;
             // 
+            // showZeroed
+            // 
+            this.showZeroed.Enabled = false;
+            this.showZeroed.Location = new System.Drawing.Point(410, 530);
+            this.showZeroed.Name = "showZeroed";
+            this.showZeroed.Size = new System.Drawing.Size(142, 24);
+            this.showZeroed.TabIndex = 27;
+            this.showZeroed.Tag = "showZeroed";
+            this.showZeroed.Text = "show non-zeroed scores";
+            this.showZeroed.UseVisualStyleBackColor = true;
+            // 
             // FormReport
             // 
             this.AcceptButton = this.buttonOK;
@@ -582,6 +594,7 @@ namespace Torn.UI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(564, 661);
+            this.Controls.Add(this.showZeroed);
             this.Controls.Add(this.ignorePoints);
             this.Controls.Add(this.isDecimal);
             this.Controls.Add(this.showHits);
@@ -665,5 +678,6 @@ namespace Torn.UI
         private System.Windows.Forms.CheckBox showHits;
         private System.Windows.Forms.CheckBox isDecimal;
         private System.Windows.Forms.CheckBox ignorePoints;
+        private System.Windows.Forms.CheckBox showZeroed;
     }
 }

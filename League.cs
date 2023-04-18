@@ -346,6 +346,24 @@ namespace Torn
 			players = new List<GamePlayer>();
 		}
 
+		public double GetZeroedScore()
+        {
+			double score = 0;
+			foreach(GamePlayer player in players)
+            {
+				Console.WriteLine(player.PlayerId + " " + player.ZeroedScore + " " + player.Score);
+				if(player.ZeroedScore != null && player.ZeroedScore != 0)
+                {
+					score += (double)player.ZeroedScore;
+                } else
+                {
+					score += player.Score;
+                }
+				Console.WriteLine(score);
+            }
+			return score;
+        }
+
 		public GameTeam Clone()
 		{
 			return new GameTeam
