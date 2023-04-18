@@ -41,7 +41,6 @@ namespace Torn
 			client = new TcpClient(server, Int32.Parse(port));
 			nwStream = client.GetStream();
 			connected = true;
-			// nwStream.ReadTimeout = 500;
 
 
 			ReadFromOzone(client, nwStream);
@@ -146,8 +145,6 @@ namespace Torn
 		{
 			//---create a TCPClient object at the IP and port no.---
 			byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes("(" + query);
-
-			// nwStream.ReadTimeout = 3000;
 
 			int[] header = new int[] { query.Length, 0, 0, 0 };
 
