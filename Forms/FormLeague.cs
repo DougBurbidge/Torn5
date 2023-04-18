@@ -57,6 +57,10 @@ namespace Torn.UI
 			hitsTieBreak.Enabled = victoryPoints.Checked;
 			zeroVps.Checked = League.ZeroVps;
 			zeroVps.Enabled = victoryPoints.Checked;
+			halfVps.Checked = League.HalfVps;
+			halfVps.Enabled = victoryPoints.Checked;
+			zeroedTieBreak.Enabled = victoryPoints.Checked;
+			zeroedTieBreak.Checked = League.ZeroedTieBreak;
 			zeroElimed.Checked = League.ZeroElimed;
 
 			for (int i = 0; i < League.VictoryPoints.Count; i++)
@@ -324,6 +328,8 @@ namespace Torn.UI
 			}
 			hitsTieBreak.Enabled = victoryPoints.Checked;
 			zeroVps.Enabled = victoryPoints.Checked;
+			halfVps.Enabled = victoryPoints.Checked;
+			zeroedTieBreak.Enabled = victoryPoints.Checked;
 			sweepBonus.Enabled = victoryPoints.Checked;
 		}
 
@@ -504,6 +510,10 @@ namespace Torn.UI
         private void hitsTieBreak_CheckedChanged(object sender, EventArgs e)
         {
 			League.HitsTieBreak = hitsTieBreak.Checked;
+			if(hitsTieBreak.Checked)
+            {
+				zeroedTieBreak.Checked = false;
+            }
         }
 
 		void SetPointPercentBox(int i)
@@ -585,11 +595,34 @@ namespace Torn.UI
         private void zeroVps_CheckedChanged(object sender, EventArgs e)
         {
 			League.ZeroVps = zeroVps.Checked;
+			if(zeroVps.Checked)
+				halfVps.Checked = false;
 		}
 
         private void sweepBonus_ValueChanged(object sender, EventArgs e)
         {
 			League.SweepBonus = (int)sweepBonus.Value;
 		}
-	}
+
+        private void zeroedTieBreak_CheckedChanged(object sender, EventArgs e)
+        {
+			League.ZeroedTieBreak = zeroedTieBreak.Checked;
+			if (zeroedTieBreak.Checked)
+			{
+				hitsTieBreak.Checked = false;
+			}
+		}
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void halfElimed_CheckedChanged(object sender, EventArgs e)
+        {
+			League.HalfVps = halfVps.Checked;
+			if(halfVps.Checked)
+				zeroVps.Checked = false;
+		}
+    }
 }

@@ -815,8 +815,10 @@ namespace Torn
 		public Collection<double> VictoryPoints { get { return victoryPoints; } }
 
 		public bool HitsTieBreak { get; set; }
+		public bool ZeroedTieBreak { get; set; }
 		public bool ZeroElimed { get; set; }
 		public bool ZeroVps { get; set; }
+		public bool HalfVps { get; set; }
 
 		public double VictoryPointsHighScore { get; set; }
 		public int SweepBonus { get; set; }
@@ -1334,8 +1336,10 @@ namespace Torn
 			RedTermValue = root.GetString("RedTermValue") == null ? DEFAULT_RED_TERM : root.GetDecimal("RedTermValue");
 			IsAutoHandicap = root.GetInt("AutoHandicap") > 0;
 			HitsTieBreak = root.GetInt("HitsTieBreak") > 0;
+			ZeroedTieBreak = root.GetInt("ZeroedTieBreak") > 0;
 			ZeroElimed = root.GetInt("ZeroElimed") > 0;
 			ZeroVps = root.GetInt("ZeroVps") > 0;
+			HalfVps = root.GetInt("HalfVps") > 0;
 			SweepBonus = root.GetInt("SweepBonus");
 
 			ExpectedTeamSize = teamSize == 0 ? 5 : teamSize;
@@ -1582,12 +1586,14 @@ namespace Torn
 			doc.AppendNode(bodyNode, "ExtraAPenalty", ExtraAPenalty.ToString());
 			doc.AppendNode(bodyNode, "ExtraGBonus", ExtraGBonus.ToString());
 			doc.AppendNode(bodyNode, "HitsTieBreak", HitsTieBreak ? 1 : 0);
+			doc.AppendNode(bodyNode, "ZeroedTieBreak", ZeroedTieBreak ? 1 : 0);
 			doc.AppendNode(bodyNode, "Key", Key);
 			doc.AppendNode(bodyNode, "VerbalTermValue", VerbalTermValue.ToString());
 			doc.AppendNode(bodyNode, "YellowTermValue", YellowTermValue.ToString());
 			doc.AppendNode(bodyNode, "RedTermValue", RedTermValue.ToString());
 			doc.AppendNode(bodyNode, "ZeroElimed", ZeroElimed ? 1 : 0);
 			doc.AppendNode(bodyNode, "ZeroVps", ZeroVps ? 1 : 0);
+			doc.AppendNode(bodyNode, "HalfVps", HalfVps ? 1 : 0);
 			doc.AppendNode(bodyNode, "SweepBonus", SweepBonus);
 
 
@@ -2070,22 +2076,29 @@ namespace Torn
 
 				bool hasSwept = nonElimedTeams.Count() == 1 && nonElimedTeams[0].TeamId == gameTeam.TeamId;
 
+				Console.WriteLine("Tie Break " + ZeroedTieBreak);
+
 				if (HitsTieBreak)
                 {
 					relevantTeams = relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetHitsBy()).ToList();
+				} else if (ZeroedTieBreak)
+                {
+					relevantTeams = relevantTeams.OrderBy(x => -x.Score).ThenBy(x => -x.GetZeroedScore()).ToList();
 				}
-				
-				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((HitsTieBreak && t.GetHitsBy() == gameTeam.GetHitsBy()) || !HitsTieBreak));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
+				var ties = relevantTeams.Where(t => (t.Score == gameTeam.Score) && ((HitsTieBreak && t.GetHitsBy() == gameTeam.GetHitsBy()) || !HitsTieBreak) && ((ZeroedTieBreak && t.GetZeroedScore() == gameTeam.GetZeroedScore()) || !ZeroedTieBreak));  // If there are ties, this list will contain the tied teams. If not, it will contain just this team.
 
-				if(ties.Count() == 0) { return 0; }
+				if (ties.Count() == 0) { return 0; }
 
 				double totalPoints = 0;
 				foreach (var team in ties)
 				{
 					int index = relevantTeams.IndexOf(team);
 
+					bool isSwept = !nonElimedTeams.Contains(team);
+					bool halfPoints = isSwept && HalfVps;
+
 					if (victoryPoints.Valid(index))
-						totalPoints += victoryPoints[index];
+						totalPoints += Math.Floor(halfPoints ? victoryPoints[index] / 2: victoryPoints[index]);
 				}
 				return totalPoints / ties.Count() + gameTeam.PointsAdjustment + (hasSwept ? SweepBonus : 0);  // If there are ties, average the victory points for all teams involved in the tie.
 			}

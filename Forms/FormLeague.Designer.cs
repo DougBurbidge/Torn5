@@ -50,6 +50,8 @@ namespace Torn.UI
             this.panelRight = new System.Windows.Forms.Panel();
             this.temTab = new System.Windows.Forms.TabControl();
             this.leaguePage = new System.Windows.Forms.TabPage();
+            this.sweepBonus = new System.Windows.Forms.NumericUpDown();
+            this.label10 = new System.Windows.Forms.Label();
             this.zeroVps = new System.Windows.Forms.CheckBox();
             this.zeroElimed = new System.Windows.Forms.CheckBox();
             this.hitsTieBreak = new System.Windows.Forms.CheckBox();
@@ -102,8 +104,9 @@ namespace Torn.UI
             this.redTermValue = new System.Windows.Forms.NumericUpDown();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
-            this.sweepBonus = new System.Windows.Forms.NumericUpDown();
-            this.label10 = new System.Windows.Forms.Label();
+            this.zeroedTieBreak = new System.Windows.Forms.CheckBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.halfVps = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -111,6 +114,7 @@ namespace Torn.UI
             this.panelRight.SuspendLayout();
             this.temTab.SuspendLayout();
             this.leaguePage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sweepBonus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).BeginInit();
             this.groupBoxHandicapStyle.SuspendLayout();
             this.scoresPage.SuspendLayout();
@@ -126,7 +130,6 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.yellowTermValue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.verbalTermValue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.redTermValue)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sweepBonus)).BeginInit();
             this.SuspendLayout();
             // 
             // treeView1
@@ -329,6 +332,9 @@ namespace Torn.UI
             // 
             // leaguePage
             // 
+            this.leaguePage.Controls.Add(this.halfVps);
+            this.leaguePage.Controls.Add(this.label11);
+            this.leaguePage.Controls.Add(this.zeroedTieBreak);
             this.leaguePage.Controls.Add(this.sweepBonus);
             this.leaguePage.Controls.Add(this.label10);
             this.leaguePage.Controls.Add(this.zeroVps);
@@ -348,11 +354,31 @@ namespace Torn.UI
             this.leaguePage.Text = "League";
             this.leaguePage.UseVisualStyleBackColor = true;
             // 
+            // sweepBonus
+            // 
+            this.sweepBonus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.sweepBonus.Enabled = false;
+            this.sweepBonus.Location = new System.Drawing.Point(239, 248);
+            this.sweepBonus.Name = "sweepBonus";
+            this.sweepBonus.Size = new System.Drawing.Size(60, 20);
+            this.sweepBonus.TabIndex = 9;
+            this.sweepBonus.ValueChanged += new System.EventHandler(this.sweepBonus_ValueChanged);
+            // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(177, 250);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(56, 13);
+            this.label10.TabIndex = 8;
+            this.label10.Text = "For sweep";
+            // 
             // zeroVps
             // 
             this.zeroVps.AutoSize = true;
             this.zeroVps.Enabled = false;
-            this.zeroVps.Location = new System.Drawing.Point(130, 29);
+            this.zeroVps.Location = new System.Drawing.Point(175, 77);
             this.zeroVps.Name = "zeroVps";
             this.zeroVps.Size = new System.Drawing.Size(144, 17);
             this.zeroVps.TabIndex = 7;
@@ -363,7 +389,7 @@ namespace Torn.UI
             // zeroElimed
             // 
             this.zeroElimed.AutoSize = true;
-            this.zeroElimed.Location = new System.Drawing.Point(130, 8);
+            this.zeroElimed.Location = new System.Drawing.Point(175, 7);
             this.zeroElimed.Name = "zeroElimed";
             this.zeroElimed.Size = new System.Drawing.Size(158, 17);
             this.zeroElimed.TabIndex = 6;
@@ -375,11 +401,11 @@ namespace Torn.UI
             // 
             this.hitsTieBreak.AutoSize = true;
             this.hitsTieBreak.Enabled = false;
-            this.hitsTieBreak.Location = new System.Drawing.Point(130, 49);
+            this.hitsTieBreak.Location = new System.Drawing.Point(175, 29);
             this.hitsTieBreak.Name = "hitsTieBreak";
-            this.hitsTieBreak.Size = new System.Drawing.Size(93, 17);
+            this.hitsTieBreak.Size = new System.Drawing.Size(44, 17);
             this.hitsTieBreak.TabIndex = 4;
-            this.hitsTieBreak.Text = "Hits Tie Break";
+            this.hitsTieBreak.Text = "Hits";
             this.hitsTieBreak.UseVisualStyleBackColor = true;
             this.hitsTieBreak.CheckedChanged += new System.EventHandler(this.hitsTieBreak_CheckedChanged);
             // 
@@ -970,25 +996,39 @@ namespace Torn.UI
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
-            // sweepBonus
+            // zeroedTieBreak
             // 
-            this.sweepBonus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.sweepBonus.Enabled = false;
-            this.sweepBonus.Location = new System.Drawing.Point(239, 248);
-            this.sweepBonus.Name = "sweepBonus";
-            this.sweepBonus.Size = new System.Drawing.Size(60, 20);
-            this.sweepBonus.TabIndex = 9;
-            this.sweepBonus.ValueChanged += new System.EventHandler(this.sweepBonus_ValueChanged);
+            this.zeroedTieBreak.AutoSize = true;
+            this.zeroedTieBreak.Enabled = false;
+            this.zeroedTieBreak.Location = new System.Drawing.Point(225, 29);
+            this.zeroedTieBreak.Name = "zeroedTieBreak";
+            this.zeroedTieBreak.Size = new System.Drawing.Size(83, 17);
+            this.zeroedTieBreak.TabIndex = 10;
+            this.zeroedTieBreak.Text = "Non-Zeroed";
+            this.zeroedTieBreak.UseVisualStyleBackColor = true;
+            this.zeroedTieBreak.CheckedChanged += new System.EventHandler(this.zeroedTieBreak_CheckedChanged);
             // 
-            // label10
+            // label11
             // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(177, 250);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(56, 13);
-            this.label10.TabIndex = 8;
-            this.label10.Text = "For sweep";
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(117, 30);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(53, 13);
+            this.label11.TabIndex = 11;
+            this.label11.Text = "Tie-Break";
+            this.label11.Click += new System.EventHandler(this.label11_Click);
+            // 
+            // halfVps
+            // 
+            this.halfVps.AutoSize = true;
+            this.halfVps.Enabled = false;
+            this.halfVps.Location = new System.Drawing.Point(175, 54);
+            this.halfVps.Name = "halfVps";
+            this.halfVps.Size = new System.Drawing.Size(146, 17);
+            this.halfVps.TabIndex = 12;
+            this.halfVps.Text = "Half VPs for Elimed Team";
+            this.halfVps.UseVisualStyleBackColor = true;
+            this.halfVps.CheckedChanged += new System.EventHandler(this.halfElimed_CheckedChanged);
             // 
             // FormLeague
             // 
@@ -1016,6 +1056,7 @@ namespace Torn.UI
             this.temTab.ResumeLayout(false);
             this.leaguePage.ResumeLayout(false);
             this.leaguePage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sweepBonus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericHighScore)).EndInit();
             this.groupBoxHandicapStyle.ResumeLayout(false);
             this.scoresPage.ResumeLayout(false);
@@ -1035,7 +1076,6 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.yellowTermValue)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.verbalTermValue)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.redTermValue)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sweepBonus)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -1113,5 +1153,8 @@ namespace Torn.UI
         private System.Windows.Forms.CheckBox zeroVps;
         private System.Windows.Forms.NumericUpDown sweepBonus;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox zeroedTieBreak;
+        private System.Windows.Forms.CheckBox halfVps;
     }
 }
