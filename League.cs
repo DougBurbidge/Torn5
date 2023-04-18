@@ -470,6 +470,15 @@ namespace Torn
 
 		public bool IsEliminated { get; set; }
 
+		public double GetZeroedScore()
+        {
+			if(ZeroedScore != null && ZeroedScore != 0)
+            {
+				return (double)ZeroedScore;
+            } 
+			return Score;
+        }
+
 		public void SetIsEliminated(bool isElimed)
         {
 			if(isElimed)

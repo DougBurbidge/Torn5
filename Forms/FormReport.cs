@@ -184,7 +184,7 @@ namespace Torn.UI
 			showHits.Enabled = r == ReportType.DetailedGames || r == ReportType.GameByGame || r == ReportType.GameGrid;
 			isDecimal.Enabled = r == ReportType.GameGrid || r == ReportType.TeamLadder || r == ReportType.SoloLadder || r == ReportType.GameGridCondensed;
 			longitudinal.Checked = false;
-			showZeroed.Enabled = r == ReportType.TeamLadder;
+			showZeroed.Enabled = r == ReportType.TeamLadder || r == ReportType.SoloLadder;
 
 			labelTopWhat.Text = r == ReportType.SoloLadder ? "players" : "teams";
 			atLeastN.Text = r == ReportType.SoloLadder ? "show only players with at least" : "show only teams with at least";

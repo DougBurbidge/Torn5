@@ -2218,12 +2218,13 @@ namespace Torn.Report
 		public static ZoomReport SoloLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
 			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
+			bool showZeroed = rt.FindSetting("showZeroed") >= 0;
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
-											   "Rank,Player,Team,Average Score,TR\u00D7SR,Tag Ratio,Score Ratio,Tags +,Tags-,Average Rank,Destroys,Denies,Denied,Yellow,Red,Games,Dropped,Grade,Comments,Longitudinal",
-											   "center,left,left,integer,integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,integer",
-											   ",,,,Ratios,Ratios,Ratios,Tags,Tags,,Base,Base,Base,Penalties,Penalties,,,")
+											   "Rank,Player,Team,Average Score," + (showZeroed ? "Average Non-Zeroed Score," : "") + "TR\u00D7SR,Tag Ratio,Score Ratio,Tags +,Tags-,Average Rank,Destroys,Denies,Denied,Yellow,Red,Elimed,Games,Dropped,Grade,Comments,Longitudinal",
+											   "center,left,left,integer," + (showZeroed ? "integer," : "") + "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,integer,integer",
+											   ",,," + (showZeroed ? "," : "") + ",Ratios,Ratios,Ratios,Tags,Tags,,Base,Base,Base,Penalties,Penalties,,,,")
 			{
 				MaxChartByColumn = true,
 				MultiColumnOK = true
@@ -2240,11 +2241,14 @@ namespace Torn.Report
 			bool showGrades = rt.FindSetting("ShowGrades") >= 0;
 			bool showComments = rt.FindSetting("ShowComments") >= 0;
 
-			if(showGrades)
+			if (showGrades)
 				report.AddColumn(new ZColumn("Grade"));
 
 			if (showComments)
 				report.AddColumn(new ZColumn("Comment"));
+
+			if (showZeroed)
+				report.AddColumn(new ZColumn("ZeroedScore"));
 
 			var playerTeams = league.BuildPlayerTeamList();
 			foreach (var pt in playerTeams)
@@ -2266,6 +2270,8 @@ namespace Torn.Report
 					var played = League.Played(games, player, includeSecret);
 
 					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0"));  // Av score
+					if(showZeroed)
+						row.Add(DataCell(played.Select(x => (double)x.GetZeroedScore()).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0"));  // Av score
 
 					List<double> scoreRatios = new List<double>();
 					List<double> srxTrs = new List<double>();
@@ -2317,6 +2323,7 @@ namespace Torn.Report
 					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
 					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
+					row.Add(TotalDataCell(played.Select(x => (double)(x.IsEliminated ? 1 : 0)).ToList(), rt.Drops, ChartType.Bar, "N0"));
 
 					row.Add(new ZCell(played.Count(), ChartType.None, "N0"));  // Games
 
@@ -3178,6 +3185,17 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			if (drops != null)
 				DropScores(dataList, drops);
 			dataCell.Number = dataList.Where(x => !double.IsNaN(x)).DefaultIfEmpty(0).Average();
+
+			return dataCell;
+		}
+
+		static ZCell TotalDataCell(List<double> dataList, Drops drops, ChartType chartType, string numberFormat)
+		{
+			var dataCell = new ZCell(0, chartType, numberFormat);
+			dataCell.Data.AddRange(dataList);
+			if (drops != null)
+				DropScores(dataList, drops);
+			dataCell.Number = dataList.Where(x => !double.IsNaN(x)).DefaultIfEmpty(0).Sum();
 
 			return dataCell;
 		}
