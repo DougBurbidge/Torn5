@@ -908,6 +908,7 @@ namespace Torn.Report
 		public static ZoomReport DetailedGamesList(League league, bool includeSecret, ReportTemplate rt)
 		{
 			bool hasHits = rt.FindSetting("showHits") >= 0;
+			bool showZeroed = rt.FindSetting("showZeroed") >= 0;
 			ZoomReport report = new ZoomReport("", "Game", "right")
 			{
 				MultiColumnOK = true
@@ -949,6 +950,12 @@ namespace Torn.Report
 					teamsRow.Add(scoreCell);
 					teamCell.ChartCell = scoreCell;
 					scoreCell.ChartCell = scoreCell;
+					if (showZeroed)
+					{
+						ZCell zeroedCell = new ZCell(gameTeam.GetZeroedScore(), ChartType.Bar, "N0", gameTeam.Colour.ToColor());
+						teamsRow.Add(zeroedCell);
+						zeroedCell.ChartCell = zeroedCell;
+					}
 					if (hasHits)
 					{
 						ZCell hitsCell = new ZCell(gameTeam.GetHitsBy(), ChartType.Bar, "N0", gameTeam.Colour.ToColor());
@@ -992,6 +999,11 @@ namespace Torn.Report
 								scoreCell.Border = Color.Black;
 
 							playersRow.Add(scoreCell);
+							if (showZeroed)
+							{
+								ZCell zeroedCell = new ZCell(player.GetZeroedScore(), ChartType.Bar, "N0", gameTeam.Colour.ToColor());
+								playersRow.Add(zeroedCell);
+							}
 							if (hasHits)
 							{
 								ZCell hitsCell = new ZCell(player.HitsBy, ChartType.Bar, "N0", gameTeam.Colour.ToColor());
@@ -1004,6 +1016,8 @@ namespace Torn.Report
 							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 							playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 							if (hasHits)
+								playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
+							if (showZeroed)
 								playersRow.Add(new ZCell("", gameTeam.Colour.ToColor()));
 						}
 					}
@@ -1049,6 +1063,8 @@ namespace Torn.Report
 				report.AddColumn(new ZColumn("Score", ZAlignment.Right));
 				if (hasHits)
 					report.AddColumn(new ZColumn("Hits", ZAlignment.Right));
+				if (showZeroed)
+					report.AddColumn(new ZColumn("Non-Zeroed", ZAlignment.Right));
 				if (league.IsPoints())  // there are victory points for this league
 					report.AddColumn(new ZColumn("Pts", ZAlignment.Right));
 				else
