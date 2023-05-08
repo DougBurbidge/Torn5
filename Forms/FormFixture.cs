@@ -95,6 +95,7 @@ namespace Torn.UI
 		List<List<int>> GetGrid(double numberOfTeams, double teamsPerGame, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays, int maxMillis)
 		{
 			List<List<int>> bestGrid = SetupGrid(numberOfTeams, teamsPerGame, gamesPerTeam);
+
 			double bestScore = CalcScore(bestGrid, gamesPerTeam, hasRef, existingPlays);
 
 			return ContinueMixing(bestGrid, gamesPerTeam, hasRef, existingPlays, maxMillis, bestScore);
@@ -157,6 +158,7 @@ namespace Torn.UI
 					}
 				}
 			}
+			CalcScore(bestGrid, gamesPerTeam, hasRef, existingPlays, true);
 			Console.WriteLine("Time Elapsed (ms): {0}", sw.ElapsedMilliseconds);
 			Console.WriteLine("Iterations: {0}", count);
 
@@ -227,10 +229,10 @@ namespace Torn.UI
 				
 		}
 
-		double CalcScore(List<List<int>> grid, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays)
+		double CalcScore(List<List<int>> grid, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays, bool log = false)
 		{
 			int totalTeams = FlattenGrid(grid).Uniq().Count;
-			int BACK_TO_BACK_PENALTY = totalTeams * 3;
+			int BACK_TO_BACK_PENALTY = (int)backToBackPenalty.Value;
 			int teamsPerGame = grid[0].Count;
 			double previousAveragePlays = AverageRow(SumRows(existingPlays)) / totalTeams;
 			List<List<int>> plays = CalcPlays(grid, hasRef, existingPlays);
@@ -269,33 +271,16 @@ namespace Torn.UI
 				score += Math.Abs(uniquePlayers - teamsPerGame) * 100000; // penalty for playing themselves
 			}
 
-			//back to back
-			for (int game = 0; game < grid.Count - (hasRef ? 2 : 1); game++)
+			for (int game = 0; game < grid.Count - 1; game++)
 			{
-				for (int player1 = 0; player1 < teamsPerGame; player1++)
+				foreach (var team in grid[game])
 				{
-					for (int player2 = 0; player2 < teamsPerGame; player2++)
-					{
-						foreach(int player in grid[game])
-                        {
-							List<int> backToBacks = grid[game + 1].FindAll(p => p == player);
-							score += BACK_TO_BACK_PENALTY * backToBacks.Count;
-                        }
-					}
-				}
-			}
-
-			if(hasRef) // half penalty for ref back to back with games
-            {
-				for (int player1 = 0; player1 < teamsPerGame; player1++)
-				{
-					for (int player2 = 0; player2 < teamsPerGame; player2++)
-					{
-						foreach (int player in grid[grid.Count - 2])
-						{
-							List<int> backToBacks = grid[grid.Count - 1].FindAll(p => p == player);
-							score += (BACK_TO_BACK_PENALTY / 2) * backToBacks.Count;
-						}
+					var nextGame = grid[game + 1];
+					if(nextGame.Contains(team))
+                    {
+						var isRefTho = hasRef && (nextGame.IndexOf(team) == (nextGame.Count - 1) || grid[game].IndexOf(team) == (grid[game].Count - 1));
+						if (log) { Console.WriteLine("team " + team + " is in games " + game + " and " + (game + 1) + " back to back" + (isRefTho ? " but one is a ref game" : "")); }
+						score += BACK_TO_BACK_PENALTY - (isRefTho ? BACK_TO_BACK_PENALTY * (0.5) : 0);
 					}
 				}
 			}
@@ -504,17 +489,11 @@ namespace Torn.UI
 			int maxMillis = (int)maxTime.Value * 1000;
 
 			List<List<int>> existingGrid = GetLeagueGrid(Holder.League);
-			List<List<int>> existingPlays = CalcPlays(existingGrid, false, new List<List<int>>());
+			List<List<int>> existingPlays = CalcPlays(existingGrid, false, new List<List<int>>());			
+
 			List<List<int>> existingPlaysPadded = PadPlaysToTeamNumber((int)numberOfTeams, existingPlays);
 
 			List<List<int>> grid = GetGrid(numberOfTeams, teamsPerGame, gamesPerTeam, hasRef, existingPlaysPadded, maxMillis);
-
-			foreach(FixtureTeam team in Holder.Fixture.Teams)
-            {
-				Console.WriteLine(team.Name);
-				Console.WriteLine(team.Id());
-            }
-
 
 			Holder.Fixture.Games.Parse(grid, Holder.Fixture.Teams, gameDateTime.Value, TimeSpan.FromMinutes((double)minBetween.Value), TeamColours());
 

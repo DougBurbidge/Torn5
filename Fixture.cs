@@ -164,9 +164,9 @@ namespace Torn
 					if (!string.IsNullOrEmpty(fields[i]))
 					{
 						FixtureTeam ft;
-						if (int.TryParse(fields[i], out int teamnum) && teams.Count >= teamnum)
+						if (int.TryParse(fields[i], out int teamnum))
 						{
-							ft = teams[teamnum - 1];
+							ft = teams.Find(t => t.Id() == teamnum);
 						}
 						else
 							ft = teams.Find(x => x.LeagueTeam != null && x.LeagueTeam.Name == fields[i]);

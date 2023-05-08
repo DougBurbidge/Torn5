@@ -83,10 +83,10 @@ namespace Torn.UI
 
 					Console.WriteLine("playerScore " + player.Score);
 					Console.WriteLine("playerIsElmininated " + player.IsEliminated);
-					Console.WriteLine("zeroElimed " + league.ZeroElimed);
-					Console.WriteLine("zeroElimed " + league.ZeroElimed);
+					Console.WriteLine("zeroElimed " + league?.ZeroElimed);
+					Console.WriteLine("zeroElimed " + league?.ZeroElimed);
 
-					var score = player.Score > 0 && player.IsEliminated && league.ZeroElimed ? "0" : player.Score.ToString();
+					var score = player.Score > 0 && player.IsEliminated && (league?.ZeroElimed ?? false) ? "0" : player.Score.ToString();
 
 					item.SubItems.Add(alias);
 					item.SubItems.Add(score);
