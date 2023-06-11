@@ -524,7 +524,7 @@ namespace Torn.UI
 					}
 				}
 			}
-			ListView.Columns[1].Text = (yellows > 0 ? yellows + "Y " : "") + (reds > 0 ? reds + "R " : "") + leagueTeam.Name;
+			ListView.Columns[1].Text = (yellows > 0 ? yellows + "Y " : "") + (reds > 0 ? reds + "R " : "") + (leagueTeam?.Name ?? "Players");
 		}
     }
 
