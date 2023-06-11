@@ -14,6 +14,8 @@ namespace Torn5.Forms
     public partial class FormManageTerms : Form
     {
         public ServerPlayer Player { get; set; }
+
+        public GameTeam Team { get; set; }
         public League League { get; set; }
         private int initialPenalties = 0;
         public FormManageTerms()
@@ -48,6 +50,13 @@ namespace Torn5.Forms
             if (Player?.TermRecords != null)
             {
                 foreach (TermRecord term in Player.TermRecords)
+                {
+                    AddTermToList(term);
+                    initialPenalties += term.Value;
+                }
+            } else if (Team?.TermRecords != null)
+            {
+                foreach (TermRecord term in Team.TermRecords)
                 {
                     AddTermToList(term);
                     initialPenalties += term.Value;
@@ -127,10 +136,18 @@ namespace Torn5.Forms
                 if (term.Type == TermType.Red)
                     redTerms++;
             }
-            Player.TermRecords = terms;
-            Player.Score = Player.Score - initialPenalties + totalPenalties;
-            Player.RedCards = redTerms;
-            Player.YellowCards = yellowTerms;
+
+            if (Player != null)
+            {
+                Player.TermRecords = terms;
+                Player.Score = Player.Score - initialPenalties + totalPenalties;
+                Player.RedCards = redTerms;
+                Player.YellowCards = yellowTerms;
+            } else if (Team != null)
+            {
+                Team.TermRecords = terms;
+                Team.Score = Team.Score - initialPenalties + totalPenalties;
+            }
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

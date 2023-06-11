@@ -39,6 +39,7 @@ namespace Torn.UI
             this.menuNameTeam = new System.Windows.Forms.ToolStripMenuItem();
             this.menuIdentifyTeam = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.manageTeamTerms = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAdjustTeamScore = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAdjustVictoryPoints = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -64,6 +65,7 @@ namespace Torn.UI
             this.menuNameTeam,
             this.menuIdentifyTeam,
             this.toolStripSeparator2,
+            this.manageTeamTerms,
             this.menuAdjustTeamScore,
             this.menuAdjustVictoryPoints,
             this.toolStripSeparator3,
@@ -76,7 +78,7 @@ namespace Torn.UI
             this.manageTermsToolStripMenuItem,
             this.eliminatePlayerToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 396);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 418);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip1Opening);
             // 
             // menuSortTeams
@@ -129,6 +131,13 @@ namespace Torn.UI
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(189, 6);
+            // 
+            // manageTeamTerms
+            // 
+            this.manageTeamTerms.Name = "manageTeamTerms";
+            this.manageTeamTerms.Size = new System.Drawing.Size(192, 22);
+            this.manageTeamTerms.Text = "Manage team terms";
+            this.manageTeamTerms.Click += new System.EventHandler(this.manageTeamTerms_Click);
             // 
             // menuAdjustTeamScore
             // 
@@ -232,5 +241,6 @@ namespace Torn.UI
         private System.Windows.Forms.ToolStripMenuItem changeAliasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manageTermsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem eliminatePlayerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem manageTeamTerms;
     }
 }

@@ -333,6 +333,9 @@ namespace Torn
 		public double Score { get; set; }
 		/// <summary>Game score adjustment</summary>
 		public double Adjustment { get; set; }
+
+		public List<TermRecord> TermRecords { get; set; }
+
 		/// <summary>Victory points</summary>
 		public double Points { get; set; }
 		/// <summary>Victory points adjustment</summary>
@@ -344,6 +347,15 @@ namespace Torn
 		public GameTeam()
 		{
 			players = new List<GamePlayer>();
+		}
+
+		public void AddTermRecord(TermRecord termRecord)
+		{
+			if (TermRecords == null)
+			{
+				TermRecords = new List<TermRecord>();
+			}
+			TermRecords.Add(termRecord);
 		}
 
 		public double GetZeroedScore()
@@ -374,7 +386,8 @@ namespace Torn
 				Score = Score,
 				Adjustment = Adjustment,
 				Points = Points,
-				PointsAdjustment = PointsAdjustment
+				PointsAdjustment = PointsAdjustment,
+				TermRecords = TermRecords
 			};
 			// Don't clone players as this will be done by LinkThings().
 		}
@@ -1468,6 +1481,24 @@ namespace Torn
 						PointsAdjustment = xteam.GetDouble("victorypointsadjustment")
 					};
 
+					if (xteam.SelectSingleNode("terms") != null)
+					{
+						XmlNodeList xterms = xteam.SelectSingleNode("terms").SelectNodes("term");
+
+						foreach (XmlNode xterm in xterms)
+						{
+							TermType termType;
+							TermType.TryParse(xterm.GetString("type"), out termType);
+							string reason = xterm.SelectSingleNode("reason") != null ? xterm.GetString("reason") : "";
+							string time = xterm.SelectSingleNode("time") != null ? xterm.GetString("time") : "";
+							TermRecord termRecord = time == "" ?
+								termRecord = new TermRecord(termType, xterm.GetInt("value"), reason) :
+								termRecord = new TermRecord(termType, DateTime.Parse(time), xterm.GetInt("value"), reason);
+
+							gameTeam.AddTermRecord(termRecord);
+						}
+					}
+
 					game.Teams.Add(gameTeam);
 				}
 				game.Teams.Sort();
@@ -1693,6 +1724,24 @@ namespace Torn
 					doc.AppendNonZero(teamNode, "points", team.Points);
 					doc.AppendNonZero(teamNode, "adjustment", team.Adjustment);
 					doc.AppendNonZero(teamNode, "victorypointsadjustment", team.PointsAdjustment);
+
+					if (team.TermRecords != null)
+					{
+						XmlNode termsNode = doc.CreateElement("terms");
+						teamNode.AppendChild(termsNode);
+
+						foreach (TermRecord termRecord in team.TermRecords)
+						{
+							XmlNode termNode = doc.CreateElement("term");
+							termsNode.AppendChild(termNode);
+
+							doc.AppendNode(termNode, "type", termRecord.Type.ToString());
+							doc.AppendNode(termNode, "time", termRecord.Time.ToString());
+							doc.AppendNode(termNode, "value", termRecord.Value);
+							doc.AppendNode(termNode, "reason", termRecord.Reason);
+						}
+					}
+
 				}
 
 				XmlNode playersNode = doc.CreateElement("players");
@@ -1995,6 +2044,15 @@ namespace Torn
 
 				score += gameTeam.Adjustment;
 
+				if (gameTeam?.TermRecords != null)
+				{
+					foreach (TermRecord term in gameTeam?.TermRecords)
+					{
+						score += term.Value;
+					}
+				}
+
+
 				LeagueTeam leagueTeam = LeagueTeam(gameTeam);
 				return leagueTeam != null && leagueTeam.Handicap != null ? new Handicap(leagueTeam.Handicap.Value, HandicapStyle).Apply(score) : score;
 			}			
@@ -2044,6 +2102,14 @@ namespace Torn
 
 			foreach (var player in gameTeam.Players)
 				score += (ZeroElimed && (player?.IsEliminated ?? false) && player.Score > 0) ? 0 : player.Score;
+
+			if (gameTeam?.TermRecords != null)
+			{
+				foreach (TermRecord term in gameTeam?.TermRecords)
+				{
+					score += term.Value;
+				}
+			}
 
 			int cap = CalulateTeamCap(gameTeam);
 

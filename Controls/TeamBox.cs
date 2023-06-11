@@ -41,7 +41,23 @@ namespace Torn.UI
 					value.Handicap = handicap;
 				leagueTeam = value;
 				GameTeam.TeamId = leagueTeam == null ? (int?)null : leagueTeam.TeamId;
-				ListView.Columns[1].Text = leagueTeam == null ? "Players" : leagueTeam.Name;
+				var yellows = 0;
+				var reds = 0;
+				if (GameTeam?.TermRecords != null)
+				{
+					foreach (TermRecord term in GameTeam.TermRecords)
+					{
+						if (term.Type == TermType.Yellow)
+						{
+							yellows++;
+						}
+						if (term.Type == TermType.Red)
+						{
+							reds++;
+						}
+					}
+				}
+				ListView.Columns[1].Text = leagueTeam == null ? "Players" : (yellows > 0 ? yellows + "Y " : "") + (reds > 0 ? reds + "R " : "") + leagueTeam.Name;
 			}
 		}
 
@@ -165,19 +181,23 @@ namespace Torn.UI
 
 		void ContextMenuStrip1Opening(object sender, CancelEventArgs e)
 		{
-			menuHandicapTeam.Enabled   = League != null && !League.IsAutoHandicap;
-			menuRememberTeam.Enabled   = League != null;
-			menuUpdateTeam.Enabled     = LeagueTeam != null;
-			menuNameTeam.Enabled       = LeagueTeam != null;
-			menuIdentifyTeam.Enabled   = League != null;
+			menuSortTeams.Enabled = ListView.SelectedItems.Count == 0;
+			menuHandicapTeam.Enabled   = League != null && !League.IsAutoHandicap && ListView.SelectedItems.Count == 0;
+			menuRememberTeam.Enabled   = League != null && ListView.SelectedItems.Count == 0;
+			menuUpdateTeam.Enabled     = LeagueTeam != null && ListView.SelectedItems.Count == 0;
+			menuNameTeam.Enabled       = LeagueTeam != null && ListView.SelectedItems.Count == 0;
+			menuIdentifyTeam.Enabled   = League != null && ListView.SelectedItems.Count == 0;
 			menuIdentifyPlayer.Enabled = ListView.SelectedItems.Count == 1;
 			menuHandicapPlayer.Enabled = false;// ListView.SelectedItems.Count == 1;
-			manageTermsToolStripMenuItem.Enabled = ListView.SelectedItems.Count == 1;
+			manageTermsToolStripMenuItem.Enabled = League != null && ListView.SelectedItems.Count == 1;
 			menuAdjustPlayerScore.Enabled = false; // TODO REMOVE ONCE TERM MANAGEMENT TESTED ON OZONE :: ListView.SelectedItems.Count == 1
-			menuMergePlayer.Enabled    = ListView.SelectedItems.Count == 2;
-			changeAliasToolStripMenuItem.Enabled = League != null;
+			menuMergePlayer.Enabled    = League != null && ListView.SelectedItems.Count == 2;
+			changeAliasToolStripMenuItem.Enabled = League != null && ListView.SelectedItems.Count == 1;
 			menuGradePlayer.Enabled = ListView.SelectedItems.Count == 1 && League != null && League.IsAutoHandicap && LeagueTeam != null;
-			//menuAdjustTeamScore.Enabled = always true.
+			manageTeamTerms.Enabled = League != null && ListView.SelectedItems.Count == 0;
+			menuAdjustTeamScore.Enabled = false;
+			eliminatePlayerToolStripMenuItem.Enabled = League != null && ListView.SelectedItems.Count == 1;
+			menuAdjustVictoryPoints.Enabled = League != null && ListView.SelectedItems.Count == 0;
 
 			menuIdentifyTeam.DropDownItems.Clear();
 			menuGradePlayer.DropDownItems.Clear();
@@ -476,6 +496,35 @@ namespace Torn.UI
 			ListView.SelectedItems[0].SubItems[2].Text = player.Score.ToString();
 			ListView.SelectedItems[0].SubItems[1].Text = player.GetFormattedAlias();
 			Recalculate(false);
+		}
+
+        private void manageTeamTerms_Click(object sender, EventArgs e)
+        {
+			using (var form = new FormManageTerms { Team = GameTeam, League = League })
+			{
+				var result = form.ShowDialog();
+				if (result == DialogResult.OK)
+				{
+					Recalculate(false);
+				}
+			}
+			var yellows = 0;
+			var reds = 0;
+			if (GameTeam?.TermRecords != null)
+			{
+				foreach (TermRecord term in GameTeam.TermRecords)
+				{
+					if (term.Type == TermType.Yellow)
+					{
+						yellows++;
+					}
+					if (term.Type == TermType.Red)
+					{
+						reds++;
+					}
+				}
+			}
+			ListView.Columns[1].Text = (yellows > 0 ? yellows + "Y " : "") + (reds > 0 ? reds + "R " : "") + leagueTeam.Name;
 		}
     }
 
