@@ -632,8 +632,33 @@ xhr.send();
 					gameJSON.Add(new JProperty("Players", playersJSON));
 					gameJSON.Add(new JProperty("Events", eventsJSON));
 
-					using (StreamWriter sw = File.CreateText(Path.Combine(path, "json\\game" + game.Time.ToString("yyyy-MM-ddTHH_mm_ss") + ".json")))
-						sw.Write(gameJSON.ToString());
+					string jsonPath = Path.Combine(path, "json\\game" + game.Time.ToString("yyyy-MM-ddTHH_mm_ss") + ".json");
+                    if (File.Exists(jsonPath))
+					{
+						string jsonLines = File.ReadAllText(jsonPath);
+						JArray loggedEvents = new JArray();
+
+						try
+                        {
+                            loggedEvents = JsonSerializer.Deserialize<JObject>(jsonLines).Value<JArray>("Events");
+                        }
+						catch (JsonException)
+						{
+							Console.WriteLine("JSON file at path ({0}) does not contain JSON data, event data ignored", jsonPath);
+						}
+
+						if (eventsJSON.Count > loggedEvents.Count)
+                        {
+                            using (StreamWriter sw = File.CreateText(jsonPath))
+                                sw.Write(gameJSON.ToString());
+                        }
+					}
+					else
+                    {
+                        using (StreamWriter sw = File.CreateText(jsonPath))
+                            sw.Write(gameJSON.ToString());
+                    }
+
 					myProgress.Increment("Game" + game.Time.ToString("yyyy-MM-ddTHH-mm-ss") + " exported.");
 				}
 			}
