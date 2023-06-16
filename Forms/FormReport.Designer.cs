@@ -461,6 +461,7 @@ namespace Torn.UI
             "Pyramid condensed",
             "Colours",
             "Packs",
+            "Pack Hits",
             "Tech",
             "Sanity Check",
             "Everything"});

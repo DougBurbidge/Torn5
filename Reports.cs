@@ -5,6 +5,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using Zoom;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using Newtonsoft.Json;
+using Torn5;
 
 namespace Torn.Report
 {
@@ -2229,6 +2234,103 @@ namespace Torn.Report
 
 			return report;
 		}
+
+		public static ZoomReport PackHitsReport(League league, bool includeSecret, ReportTemplate rt, string exportFolder)
+        {
+			ZoomReport report = new ZoomReport(ReportTitle("Pack Hits", league.Title, rt),
+											   "Pack,Chest,Back,Phasor,L Shoulder,R Shoulder,Total Hits",
+											   "left,right,right,right,right,right,integer");
+
+			if (exportFolder == "" || exportFolder == null)
+            {
+				Console.WriteLine("Cannot find json exports");
+				return report;
+            }
+
+			string jsonPath = Path.Combine(exportFolder, "json");
+
+			var files = from file in Directory.EnumerateFiles(jsonPath) select file;
+
+			List<PackHits> packs = new List<PackHits>();
+
+			foreach (var file in files)
+            {
+				string jsonLines = File.ReadAllText(file);
+				JObject json = new JObject(); ;
+				JArray loggedEvents = new JArray();
+				JArray players = new JArray();
+
+				try
+				{
+					json = JsonConvert.DeserializeObject<JObject>(jsonLines);
+					loggedEvents = json.Value<JArray>("Events");
+					players = json.Value<JArray>("Players");
+				}
+				catch (Newtonsoft.Json.JsonException)
+				{
+					Console.WriteLine("JSON file at path ({0}) does not contain JSON data, event data ignored", file);
+				}
+
+				foreach (JObject evnt in loggedEvents)
+				{
+					var eventNum = Int32.Parse(evnt["Event_Type"].ToString());
+					var serverPlayerId = evnt["ServerPlayerId"].ToString();
+					JObject player = players.Children<JObject>().FirstOrDefault(p => p["ServerPlayerId"] != null && p["ServerPlayerId"].ToString() == serverPlayerId);
+					string packName = player["Pack"].ToString();
+					int packIndex = packs.FindIndex(p => p.name == packName);
+					if (packIndex == -1)
+					{
+						packIndex = packs.Count();
+						packs.Add(new PackHits(packName));
+					}
+					switch (eventNum)
+					{
+						case 14:
+						case 21:
+							packs[packIndex].phasor++;
+							break;
+						case 15:
+						case 22:
+							packs[packIndex].chest++;
+							break;
+						case 16:
+						case 23:
+							packs[packIndex].flShoulder++;
+							break;
+						case 17:
+						case 24:
+							packs[packIndex].frShoulder++;
+							break;
+						case 20:
+						case 27:
+							packs[packIndex].back++;
+							break;
+					}
+				}
+			}
+
+			foreach(PackHits pack in packs)
+            {
+				Console.WriteLine(pack.name);
+				ZRow row = report.AddRow(new ZRow());
+
+				decimal chest = Math.Round(pack.chest / pack.TotalHits() * 100,2);
+				decimal back = Math.Round(pack.back / pack.TotalHits() * 100,2);
+				decimal phasor = Math.Round(pack.phasor / pack.TotalHits() * 100,2);
+				decimal flShoulder = Math.Round(pack.flShoulder / pack.TotalHits() * 100,2);
+				decimal frShoulder = Math.Round(pack.frShoulder / pack.TotalHits() * 100,2);
+
+				row.AddCell(new ZCell(pack.name));
+				row.AddCell(new ZCell(chest + "%"));
+				row.AddCell(new ZCell(back + "%"));
+				row.AddCell(new ZCell(phasor + "%"));
+				row.AddCell(new ZCell(flShoulder + "%"));
+				row.AddCell(new ZCell(frShoulder + "%"));
+				row.AddCell(new ZCell((int)pack.TotalHits()));
+			}
+
+			return report;
+        }
 
 		/// <summary>List each player and their number of games, average score, tag ratio, etc.</summary>
 		public static ZoomReport SoloLadder(League league, bool includeSecret, ReportTemplate rt)

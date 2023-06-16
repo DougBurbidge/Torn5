@@ -608,7 +608,8 @@ namespace Torn.UI
 				Cursor.Current = Cursors.WaitCursor;
 				try
 				{
-					pd = ReportPages.OverviewReports(holder, true).ToPrint();
+					GetExportFolder();
+					pd = ReportPages.OverviewReports(holder, true, exportFolder).ToPrint();
 				}
 				finally
 				{
@@ -647,9 +648,10 @@ namespace Torn.UI
 					Cursor.Current = Cursors.WaitCursor;
 					try
 					{
+						GetExportFolder();
 						new FormAdhoc 
 						{
-							Report = (ZoomReport)ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate),
+							Report = (ZoomReport)ReportPages.Report(SelectedLeagues().Select(h => h.League).ToList(), IncludeSecret(), adhocReportTemplate, exportFolder),
 							Icon = (Icon)this.Icon.Clone()
 						}.Show();
 					}

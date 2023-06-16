@@ -13,7 +13,7 @@ using Zoom;
 namespace Torn.Report
 {
 	public enum ReportType { None = 0, TeamLadder, MultiLadder, TeamsVsTeams, SoloLadder, GameByGame, GameGrid, GameGridCondensed, DetailedGames, Ascension, Pyramid, PyramidCondensed,
-		                     ColourPerformance, Packs, Tech, SanityCheck, Everything, PageBreak };
+		                     ColourPerformance, Packs, PackHits, Tech, SanityCheck, Everything, PageBreak };
 
 	//ChartType[] barTypes = { Zoom.ChartType.None, Zoom.ChartType.Bar | Zoom.ChartType.Rug, Zoom.ChartType.Bar | Zoom.ChartType.Rug, Zoom.ChartType.Bar | Zoom.ChartType.Rug, 
 	// Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar, Zoom.ChartType.Bar,

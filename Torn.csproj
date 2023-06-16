@@ -233,6 +233,7 @@
       <DependentUpon>MainForm.resx</DependentUpon>
     </Compile>
     <Compile Include="OZone.cs" />
+    <Compile Include="PackHits.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

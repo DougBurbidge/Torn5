@@ -66,7 +66,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Generate a page full of reports for a league. If no ReportTemplates, use a default set of reports.</summary>
-		public static ZoomReports OverviewReports(Holder holder, bool includeSecret)
+		public static ZoomReports OverviewReports(Holder holder, bool includeSecret, string exportFolder = "")
 		{
 			ZoomReports reports = new ZoomReports(holder.League.Title);
 
@@ -80,7 +80,7 @@ namespace Torn.Report
 				reportTemplates = holder.ReportTemplates;
 
 			foreach (ReportTemplate rt in reportTemplates)
-				reports.Add(Report(holder.League, includeSecret, rt));
+				reports.Add(Report(holder.League, includeSecret, rt, exportFolder));
 
 			//reports.Add(new ZoomHtmlInclusion("</div><br/><a href=\"../now.html\">Now Playing</a><br/><a href=\"fixture.html\">Fixture</a><br/><a href=\"../index.html\">Index</a><div>"));
 
@@ -88,7 +88,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Generate one report. The type of report generated is specified in the ReportTemplate.</summary>
-		public static ZoomReportBase Report(League league, bool includeSecret, ReportTemplate rt)
+		public static ZoomReportBase Report(League league, bool includeSecret, ReportTemplate rt, string exportFolder)
 		{
 			bool description = rt.Settings.Contains("Description");
 			switch (rt.ReportType)
@@ -110,6 +110,7 @@ namespace Torn.Report
 				case ReportType.Packs:
 					return Reports.PackReport(new List<League> { league }, league.Games(includeSecret), rt.Title, rt.From, rt.To,
 						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal"));
+				case ReportType.PackHits: return Reports.PackHitsReport(league, includeSecret, rt, exportFolder);
 				case ReportType.Tech:
 					return Reports.TechReport(new List<League> { league }, rt.Title, rt.From, rt.To,
 						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description);
@@ -122,7 +123,7 @@ namespace Torn.Report
 		}
 
 		/// <summary>Generate one report. The type of report generated is specified in the ReportTemplate.</summary>
-		public static ZoomReportBase Report(List<League> leagues, bool includeSecret, ReportTemplate rt)
+		public static ZoomReportBase Report(List<League> leagues, bool includeSecret, ReportTemplate rt, string exportFolder)
 		{
 			bool description = rt.Settings.Contains("Description");
 			switch (rt.ReportType)
@@ -137,7 +138,7 @@ namespace Torn.Report
 						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description);
 				case ReportType.SanityCheck:
 					return Reports.SanityReport(leagues, rt.Title, rt.From, rt.To, description);
-				default: return Report(leagues.FirstOrDefault(), includeSecret, rt);
+				default: return Report(leagues.FirstOrDefault(), includeSecret, rt, exportFolder);
 			}
 		}
 
