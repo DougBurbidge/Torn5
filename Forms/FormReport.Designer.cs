@@ -73,6 +73,7 @@ namespace Torn.UI
             this.isDecimal = new System.Windows.Forms.CheckBox();
             this.ignorePoints = new System.Windows.Forms.CheckBox();
             this.showZeroed = new System.Windows.Forms.CheckBox();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTopN)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAtLeastN)).BeginInit();
             this.groupBoxDateRange.SuspendLayout();
@@ -447,24 +448,6 @@ namespace Torn.UI
             // listBoxReportType
             // 
             this.listBoxReportType.FormattingEnabled = true;
-            this.listBoxReportType.Items.AddRange(new object[] {
-            "Team ladder",
-            "Multi Ladder",
-            "Teams vs teams",
-            "Solo ladder",
-            "Game by game (good for 3 team games)",
-            "Game grid (good for many team games)",
-            "Game grid condensed",
-            "Detailed Games",
-            "Ascension",
-            "Pyramid",
-            "Pyramid condensed",
-            "Colours",
-            "Packs",
-            "Pack Hits",
-            "Tech",
-            "Sanity Check",
-            "Everything"});
             this.listBoxReportType.Location = new System.Drawing.Point(62, 12);
             this.listBoxReportType.Name = "listBoxReportType";
             this.listBoxReportType.Size = new System.Drawing.Size(224, 147);
@@ -588,6 +571,22 @@ namespace Torn.UI
             this.showZeroed.Text = "show non-zeroed scores";
             this.showZeroed.UseVisualStyleBackColor = true;
             // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.SystemColors.Control;
+            this.button1.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
+            this.button1.FlatAppearance.MouseOverBackColor = System.Drawing.SystemColors.Control;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.ForeColor = System.Drawing.SystemColors.Control;
+            this.button1.Location = new System.Drawing.Point(-1, 641);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(21, 22);
+            this.button1.TabIndex = 28;
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // FormReport
             // 
             this.AcceptButton = this.buttonOK;
@@ -595,6 +594,7 @@ namespace Torn.UI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(564, 661);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.showZeroed);
             this.Controls.Add(this.ignorePoints);
             this.Controls.Add(this.isDecimal);
@@ -680,5 +680,6 @@ namespace Torn.UI
         private System.Windows.Forms.CheckBox isDecimal;
         private System.Windows.Forms.CheckBox ignorePoints;
         private System.Windows.Forms.CheckBox showZeroed;
+        private System.Windows.Forms.Button button1;
     }
 }

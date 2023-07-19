@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -16,6 +17,8 @@ namespace Torn.UI
 		public DateTime To { set { datePickerTo.Value = value; } get { return datePickerTo.Value; } }
 		public League League { get; set; }
 
+		private int secretClicked = 0;
+
 		bool chartTypeChanged = false;
 		public FormReport()
 		{
@@ -30,6 +33,25 @@ namespace Torn.UI
 
 		void FormReportShown(object sender, EventArgs e)
 		{
+			listBoxReportType.Items.Clear();
+			List<string> reports = new List<string>
+			{
+				"Team Ladder",
+				"Multi Ladder",
+				"Teams vs teams",
+				"Solo Ladder",
+				"Game by game (good for 3 team games)",
+				"Game grid (good for many team games)",
+				"Game grid condensed",
+				"Detailed Games",
+				"Ascension",
+				"Pyramid",
+				"Pyramid condensed",
+				"Colours",
+				"Sanity Check",
+				"Everything",
+			};
+			listBoxReportType.Items.AddRange(reports.ToArray());
 			League.Load(League.FileName);
 			listBoxReportType.Focus();
 
@@ -45,7 +67,7 @@ namespace Torn.UI
 
 			if (ReportTemplate != null)
 			{
-				listBoxReportType.SelectedIndex = (int)ReportTemplate.ReportType - 1;
+				listBoxReportType.SelectedIndex = listBoxReportType.Items.Count <= (int)ReportTemplate.ReportType - 1 ? listBoxReportType.Items.Count - 1 : (int)ReportTemplate.ReportType - 1;
 
 				title.Text = ReportTemplate.Title;
 
@@ -193,7 +215,6 @@ namespace Torn.UI
 				chartType.SelectedIndex =
 					isTeamOrSolo || r == ReportType.TeamsVsTeams ? 3 :  // bar with rug
 					r == ReportType.Packs ? 8 :  // kernel density estimate with rug
-					r == ReportType.Tech ? 6 :  // histogram
 					1;  // everything else: bar
 		}
 
@@ -250,5 +271,15 @@ namespace Torn.UI
 		{
 			descriptionGroup.Enabled = withDescription.Checked;
 		}
-	}
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+			secretClicked++;
+			if(secretClicked == 5)
+            {
+				listBoxReportType.Items.Add("Packs");
+				listBoxReportType.Items.Add("Pack Hits");
+			}
+		}
+    }
 }
