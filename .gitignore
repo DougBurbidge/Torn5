@@ -3,3 +3,5 @@ obj
 packages
 publish
 .vs/
+Releases/
+.env

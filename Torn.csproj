@@ -202,6 +202,12 @@
       <DependentUpon>PyramidHalfFixture.cs</DependentUpon>
     </Compile>
     <Compile Include="Finals.cs" />
+    <Compile Include="Forms\About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FormEditTerm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -225,6 +231,12 @@
     </Compile>
     <Compile Include="Forms\FormManageTerms.Designer.cs">
       <DependentUpon>FormManageTerms.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\NewVersion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\NewVersion.Designer.cs">
+      <DependentUpon>NewVersion.cs</DependentUpon>
     </Compile>
     <Compile Include="JsonServer.cs" />
     <Compile Include="Forms\MainForm1.Designer.cs">
@@ -356,6 +368,9 @@
     <EmbeddedResource Include="Controls\PyramidHalfFixture.resx">
       <DependentUpon>PyramidHalfFixture.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormEditTerm.resx">
       <DependentUpon>FormEditTerm.cs</DependentUpon>
     </EmbeddedResource>
@@ -397,6 +412,9 @@
     <EmbeddedResource Include="Forms\FormManageTerms.resx">
       <DependentUpon>FormManageTerms.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewVersion.resx">
+      <DependentUpon>NewVersion.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -414,6 +432,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="TornIcon.ico" />
+    <None Include="version.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">

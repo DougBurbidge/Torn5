@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Xml;
 using Torn.Report;
 using Torn5;
+using Torn5.Forms;
 using Zoom;
 
 /*
@@ -172,8 +173,17 @@ namespace Torn.UI
 			if (listViewLeagues.Items.Count == 0)
 				ListViewLeaguesItemSelectionChanged(null, null);
 			else if (listViewLeagues.SelectedIndices.Count == 0)
-				listViewLeagues.SelectedIndices.Add(0);			
-		}
+				listViewLeagues.SelectedIndices.Add(0);
+
+			bool newVersionAvailable = Utility.IsNewerVersionAvailable();
+
+			if(newVersionAvailable)
+			{
+				NewVersion updater = new NewVersion();
+				updater.ShowDialog();
+			}
+
+        }
 
 		void ConnectLaserGameServer()
 		{
@@ -316,7 +326,9 @@ namespace Torn.UI
 
 		void ButtonAboutClick(object sender, EventArgs e)
 		{
-			MessageBox.Show("A tournament scores editor by Doug Burbidge & AJ Horsman.\n\nhttp://www.dougburbidge.com/Apps/\n\nhttps://github.com/DougBurbidge/Torn5/\nhttps://github.com/MrMeeseeks200/Torn5/", "Torn 5");
+			About about = new About();
+			about.Show();
+			//MessageBox.Show("A tournament scores editor by Doug Burbidge & AJ Horsman.\n\nhttp://www.dougburbidge.com/Apps/\n\nhttps://github.com/DougBurbidge/Torn5/\nhttps://github.com/MrMeeseeks200/Torn5/", "Torn 5");
 		}
 
 		void ButtonAddRowClick(object sender, EventArgs e)
@@ -1673,6 +1685,11 @@ namespace Torn.UI
 			} else {
 				RerenderGamesList(serverGames, serverGames, gameFilter.Text);
 			}
+        }
+
+        private void labelStatus_Click(object sender, EventArgs e)
+        {
+
         }
     }
     public static class Extensions

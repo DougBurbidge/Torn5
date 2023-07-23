@@ -674,6 +674,7 @@ namespace Torn.UI
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(306, 21);
             this.labelStatus.TabIndex = 3;
+            this.labelStatus.Click += new System.EventHandler(this.labelStatus_Click);
             // 
             // progressBar1
             // 

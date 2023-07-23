@@ -4,6 +4,9 @@ using System.Globalization;
 using System.Drawing;
 using System.Text;
 using System.Xml;
+using MySqlX.XDevAPI;
+using System.Net;
+using Torn5.Properties;
 
 namespace Torn
 {
@@ -233,5 +236,60 @@ namespace Torn
 
 			return s + "s";
 		}
+
+		public static string GetDeployedVersion()
+		{
+            string deployedVersion = "";
+			try
+			{
+
+				FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://horsman.synology.me/Torn5/Current/version.txt");
+				request.Method = WebRequestMethods.Ftp.DownloadFile;
+				request.EnableSsl = true;
+
+				using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+				{
+					using (var stream = response.GetResponseStream())
+					{
+						byte[] buffer = new byte[0x10000];
+						int len;
+						while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+						{
+							deployedVersion += Encoding.ASCII.GetString(buffer, 0, len);
+						}
+					}
+				}
+			} catch
+			{
+				Console.WriteLine("Cannot fetch deployed version");
+			}
+
+			return deployedVersion;
+        }
+
+		public static bool IsNewerVersionAvailable()
+		{
+			string deployedVersion = GetDeployedVersion();
+			if (deployedVersion == "")
+			{
+				return false;
+			}
+			string currentVersion = Resources.version;
+
+			string[] deployedArr = deployedVersion.Split('.');
+			string[] currentArr = currentVersion.Split('.');
+
+			int deployedMajor = Int32.Parse(deployedArr[0]);
+			int deployedMinor = Int32.Parse(deployedArr[1]);
+			int deployedPatch = Int32.Parse(deployedArr[2]);
+
+            int currentMajor = Int32.Parse(currentArr[0]);
+            int currentMinor = Int32.Parse(currentArr[1]);
+            int currentPatch = Int32.Parse(currentArr[2]);
+
+			return deployedMajor > currentMajor ||
+				(deployedMajor == currentMajor && deployedMinor > currentMinor) ||
+				(deployedMajor == currentMajor && deployedMinor == currentMinor && deployedPatch > currentPatch);
+        }
 	}
 }
