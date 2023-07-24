@@ -2235,9 +2235,121 @@ namespace Torn.Report
 			return report;
 		}
 
-		public static ZoomReport PackHitsReport(League league, bool includeSecret, ReportTemplate rt, string exportFolder)
+		public static bool logFileIsBeforeDate(string file, DateTime? to)
+		{
+			if (to == null)
+			{
+				return true;
+			}
+
+			string[] fileParts = file.Split('\\');
+			string fileName = fileParts[fileParts.Length - 1];
+			string dateTime = fileName.Replace("game", "").Replace(".json","");
+
+			string[] dateTimes = dateTime.Split('T');
+			string date = dateTimes[0];
+			string time = dateTimes[1];
+
+			string[] dates = date.Split('-');
+			string[] times = time.Split('_');
+
+			int year = Int32.Parse(dates[0]);
+			int month = Int32.Parse(dates[1]);
+			int day = Int32.Parse(dates[2]);
+
+			int hour = Int32.Parse(times[0]);
+			int minute = Int32.Parse(times[1]);
+
+			if (year < to.Value.Year)
+				return true;
+
+			if (year == to.Value.Year)
+			{
+				if (month < to.Value.Month) 
+					return true;
+
+				if (month == to.Value.Month)
+				{
+					if (day < to.Value.Day)
+						return true;
+
+					if (day == to.Value.Day)
+					{
+						if (hour < to.Value.Hour)
+							return true;
+
+						if (hour == to.Value.Hour)
+						{
+							if (minute <= to.Value.Minute)
+								return true;
+						}
+					}
+				}
+			}
+
+            return false;
+
+		}
+
+        public static bool logFileIsAfterDate(string file, DateTime? from)
         {
-			ZoomReport report = new ZoomReport(ReportTitle("Pack Hits", league.Title, rt),
+            if (from == null)
+            {
+                return true;
+            }
+
+            string[] fileParts = file.Split('\\');
+            string fileName = fileParts[fileParts.Length - 1];
+            string dateTime = fileName.Replace("game", "").Replace(".json", "");
+
+            string[] dateTimes = dateTime.Split('T');
+            string date = dateTimes[0];
+            string time = dateTimes[1];
+
+            string[] dates = date.Split('-');
+            string[] times = time.Split('_');
+
+            int year = Int32.Parse(dates[0]);
+            int month = Int32.Parse(dates[1]);
+            int day = Int32.Parse(dates[2]);
+
+            int hour = Int32.Parse(times[0]);
+            int minute = Int32.Parse(times[1]);
+
+            if (year > from.Value.Year)
+                return true;
+
+            if (year == from.Value.Year)
+            {
+                if (month > from.Value.Month)
+                    return true;
+
+                if (month == from.Value.Month)
+                {
+                    if (day > from.Value.Day)
+                        return true;
+
+                    if (day == from.Value.Day)
+                    {
+                        if (hour > from.Value.Hour)
+                            return true;
+
+                        if (hour == from.Value.Hour)
+                        {
+                            if (minute >= from.Value.Minute)
+                                return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+
+        }
+
+        public static ZoomReport PackHitsReport(League league, bool includeSecret, ReportTemplate rt, string exportFolder, DateTime? from, DateTime? to)
+        {
+            ZoomReport report = new ZoomReport(ReportTitle("Pack Hits", league.Title, rt),
 											   "Pack,Chest,Back,Phasor,L Shoulder,R Shoulder,Total Hits",
 											   "left,right,right,right,right,right,integer");
 
@@ -2255,56 +2367,60 @@ namespace Torn.Report
 
 			foreach (var file in files)
             {
-				string jsonLines = File.ReadAllText(file);
-				JObject json = new JObject(); ;
-				JArray loggedEvents = new JArray();
-				JArray players = new JArray();
+				if (logFileIsAfterDate(file, from) && logFileIsBeforeDate(file, to))
+				{
 
-				try
-				{
-					json = JsonConvert.DeserializeObject<JObject>(jsonLines);
-					loggedEvents = json.Value<JArray>("Events");
-					players = json.Value<JArray>("Players");
-				}
-				catch (Newtonsoft.Json.JsonException)
-				{
-					Console.WriteLine("JSON file at path ({0}) does not contain JSON data, event data ignored", file);
-				}
+					string jsonLines = File.ReadAllText(file);
+					JObject json = new JObject(); ;
+					JArray loggedEvents = new JArray();
+					JArray players = new JArray();
 
-				foreach (JObject evnt in loggedEvents)
-				{
-					var eventNum = Int32.Parse(evnt["Event_Type"].ToString());
-					var serverPlayerId = evnt["ServerPlayerId"].ToString();
-					JObject player = players.Children<JObject>().FirstOrDefault(p => p["ServerPlayerId"] != null && p["ServerPlayerId"].ToString() == serverPlayerId);
-					string packName = player["Pack"].ToString();
-					int packIndex = packs.FindIndex(p => p.name == packName);
-					if (packIndex == -1)
+					try
 					{
-						packIndex = packs.Count();
-						packs.Add(new PackHits(packName));
+						json = JsonConvert.DeserializeObject<JObject>(jsonLines);
+						loggedEvents = json.Value<JArray>("Events");
+						players = json.Value<JArray>("Players");
 					}
-					switch (eventNum)
+					catch (Newtonsoft.Json.JsonException)
 					{
-						case 14:
-						case 21:
-							packs[packIndex].phasor++;
-							break;
-						case 15:
-						case 22:
-							packs[packIndex].chest++;
-							break;
-						case 16:
-						case 23:
-							packs[packIndex].flShoulder++;
-							break;
-						case 17:
-						case 24:
-							packs[packIndex].frShoulder++;
-							break;
-						case 20:
-						case 27:
-							packs[packIndex].back++;
-							break;
+						Console.WriteLine("JSON file at path ({0}) does not contain JSON data, event data ignored", file);
+					}
+
+					foreach (JObject evnt in loggedEvents)
+					{
+						var eventNum = Int32.Parse(evnt["Event_Type"].ToString());
+						var serverPlayerId = evnt["ServerPlayerId"].ToString();
+						JObject player = players.Children<JObject>().FirstOrDefault(p => p["ServerPlayerId"] != null && p["ServerPlayerId"].ToString() == serverPlayerId);
+						string packName = player["Pack"].ToString();
+						int packIndex = packs.FindIndex(p => p.name == packName);
+						if (packIndex == -1)
+						{
+							packIndex = packs.Count();
+							packs.Add(new PackHits(packName));
+						}
+						switch (eventNum)
+						{
+							case 14:
+							case 21:
+								packs[packIndex].phasor++;
+								break;
+							case 15:
+							case 22:
+								packs[packIndex].chest++;
+								break;
+							case 16:
+							case 23:
+								packs[packIndex].flShoulder++;
+								break;
+							case 17:
+							case 24:
+								packs[packIndex].frShoulder++;
+								break;
+							case 20:
+							case 27:
+								packs[packIndex].back++;
+								break;
+						}
 					}
 				}
 			}

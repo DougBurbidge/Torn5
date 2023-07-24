@@ -110,7 +110,7 @@ namespace Torn.Report
 				case ReportType.Packs:
 					return Reports.PackReport(new List<League> { league }, league.Games(includeSecret), rt.Title, rt.From, rt.To,
 						ChartTypeExtensions.ToChartType(rt.Setting("ChartType")), description, rt.Settings.Contains("Longitudinal"));
-				case ReportType.PackHits: return Reports.PackHitsReport(league, includeSecret, rt, exportFolder);
+				case ReportType.PackHits: return Reports.PackHitsReport(league, includeSecret, rt, exportFolder, rt.From, rt.To);
 				case ReportType.SanityCheck:
 					return Reports.SanityReport(new List<League> { league }, rt.Title, rt.From, rt.To, description);
 				case ReportType.Everything: return Reports.EverythingReport(league, rt.Title, rt.From, rt.To, description);
