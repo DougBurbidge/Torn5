@@ -2456,7 +2456,7 @@ namespace Torn.Report
 			ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
 
 			ZoomReport report = new ZoomReport(ReportTitle("Solo Ladder", league.Title, rt),
-											   "Rank,Player,Team,Average Score," + (showZeroed ? "Average Non-Zeroed Score," : "") + "TR\u00D7SR,Tag Ratio,Score Ratio,Tags +,Tags-,Average Rank,Destroys,Denies,Denied,Yellow,Red,Elimed,Games,Dropped,Grade,Comments,Longitudinal",
+											   ",Player,Team,Average Score," + (showZeroed ? "Average Non-Zeroed Score," : "") + "TR\u00D7SR,Tag Ratio,Score Ratio,Tags +,Tags-,Rank,Destroys,Denies,Denied,Yellow,Red,Elimed,Games,Dropped,Grade,Comments,Longitudinal",
 											   "center,left,left,integer," + (showZeroed ? "integer," : "") + "integer,integer,integer,float,float,float,integer,integer,integer,integer,integer,integer,integer,integer,integer",
 											   ",,," + (showZeroed ? "," : "") + ",Ratios,Ratios,Ratios,Tags,Tags,,Base,Base,Base,Penalties,Penalties,,,,")
 			{
@@ -2503,9 +2503,9 @@ namespace Torn.Report
 
 					var played = League.Played(games, player, includeSecret);
 
-					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0"));  // Av score
+					row.Add(DataCell(played.Select(x => (double)x.Score).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0", "Average Score"));  // Av score
 					if(showZeroed)
-						row.Add(DataCell(played.Select(x => (double)x.GetZeroedScore()).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0"));  // Av score
+						row.Add(DataCell(played.Select(x => (double)x.GetZeroedScore()).ToList(), rt.Drops, chartType, isDecimal ? "N1" : "N0", "Average Score"));  // Av score
 
 					List<double> scoreRatios = new List<double>();
 					List<double> srxTrs = new List<double>();
@@ -2541,25 +2541,25 @@ namespace Torn.Report
 						}
 					}
 
-					row.Add(DataCell(srxTrs, rt.Drops, chartType, "P0"));  // SR x TR
+					row.Add(DataCell(srxTrs, rt.Drops, chartType, "P0", "TR x SR"));  // SR x TR
 					if (played.Max(x => x.HitsOn) == 0 && played.Max(x => x.HitsBy) == 0)
 						row.Add(new ZCell(double.NaN));  // Tag ratio
 					else
-						row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P0"));  // Tag ratio
+						row.Add(DataCell(played.Select(x => (double)x.HitsBy / x.HitsOn).ToList(), rt.Drops, chartType, "P0", "Tag ratio"));  // Tag ratio
 
-					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P0"));  // Score ratio
+					row.Add(DataCell(scoreRatios, rt.Drops, chartType, "P0", "Score ratio"));  // Score ratio
 
-					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0"));  // Tags +
-					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0"));  // Tags -
-					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2"));  // Av rank
-					row.Add(DataCell(played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1"));
-					row.Add(TotalDataCell(played.Select(x => (double)(x.IsEliminated ? 1 : 0)).ToList(), rt.Drops, ChartType.Bar, "N0"));
+					row.Add(DataCell(played.Select(x => (double)x.HitsBy).ToList(), rt.Drops, chartType, "N0", "Tags +"));  // Tags +
+					row.Add(DataCell(played.Select(x => (double)x.HitsOn).ToList(), rt.Drops, chartType, "N0", "Tags -"));  // Tags -
+					row.Add(DataCell(played.Select(x => (double)x.Rank).ToList(), rt.Drops, chartType, "N2", "Rank"));  // Av rank
+					row.Add(DataCell(played.Select(x => (double)x.BaseDestroys).ToList(), rt.Drops, ChartType.Bar, "N1", "Destroys"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDenies).ToList(), rt.Drops, ChartType.Bar, "N1", "Denies"));
+					row.Add(DataCell(played.Select(x => (double)x.BaseDenied).ToList(), rt.Drops, ChartType.Bar, "N1", "Denied"));
+					row.Add(DataCell(played.Select(x => (double)x.YellowCards).ToList(), rt.Drops, ChartType.Bar, "N1", "Yellow"));
+					row.Add(DataCell(played.Select(x => (double)x.RedCards).ToList(), rt.Drops, ChartType.Bar, "N1", "Red"));
+					row.Add(TotalDataCell(played.Select(x => (double)(x.IsEliminated ? 1 : 0)).ToList(), rt.Drops, ChartType.Bar, "N0", "Eliminated"));
 
-					row.Add(new ZCell(played.Count(), ChartType.None, "N0"));  // Games
+					row.Add(new ZCell(played.Count(), ChartType.None, "N0", default, "Games"));  // Games
 
 					if (rt.Drops == null)
 						row.Add(new ZCell());  // games dropped
@@ -2567,16 +2567,16 @@ namespace Torn.Report
 					{
 						int countAfterDrops = rt.Drops.CountAfterDrops(played.Count);
 						if (countAfterDrops < played.Count)
-							row.Add(new ZCell(played.Count - countAfterDrops, ChartType.None, "N0"));  // games dropped
+							row.Add(new ZCell(played.Count - countAfterDrops, ChartType.None, "N0", default, "Dropped"));  // games dropped
 						else
 							row.Add(new ZCell());  // games dropped
 					}
 
 					if(showGrades)
-						row.AddCell(new ZCell(player.Grade));  // Player grade
+						row.AddCell(new ZCell(player.Grade, "Grade"));  // Player grade
 
 					if (showComments)
-						row.AddCell(new ZCell(player.Comment));  // Player comment
+						row.AddCell(new ZCell(player.Comment, "Comment"));  // Player comment
 
 					if (rt.Settings.Contains("Longitudinal"))
 						row.AddCell(new ZCell(null, ChartType.XYScatter, "P0")).Tag = pointRatios;  // Longitudinal scatter of score ratios and tag ratios.
@@ -2628,8 +2628,94 @@ namespace Torn.Report
 			return report;
 		}
 
-		/// <summary>List each team and their number of games, average score, victory points, etc.</summary>
-		public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
+        public static ZoomReport TermReport(League league, bool includeSecret, ReportTemplate rt)
+        {
+            ChartType chartType = ChartTypeExtensions.ToChartType(rt.Setting("ChartType"));
+
+            ZoomReport report = new ZoomReport(ReportTitle("Term Report", league.Title, rt),
+                                               "Rank,Player,Team,Total,Red,Yellow,Verbals,Other,Games",
+                                               "center,left,left,integer,integer,integer,integer,integer,integer",
+                                               ",,,Penalties,Penalties,Penalties,Penalties,Penalties,")
+            {
+                MaxChartByColumn = true,
+                MultiColumnOK = true
+            };
+            int atLeastN = rt.SettingInt("AtLeastN") ?? 1;
+
+            var playerTeams = league.BuildPlayerTeamList();
+            foreach (var pt in playerTeams)
+            {
+                var player = pt.Key;
+                var games = Games(league, includeSecret, rt).Where(x => x.Players().Exists(y => y.PlayerId == player.Id));
+
+                if (games.Count() >= atLeastN && player.Name != null)
+                {
+                    ZRow row = report.AddRow(new ZRow());
+                    row.Add(new ZCell(0, ChartType.None, "N0"));  // Temporary rank
+                    row.AddCell(new ZCell(player.Name)).Hyper = PlayerHyper(pt.Value[0], player);  // Player alias
+
+                    if (pt.Value.Count() == 1)
+                        row.Add(TeamCell(pt.Value.First()));
+                    else
+                        row.Add(new ZCell(string.Join(", ", pt.Value.Select(x => x.Name))));  // Team(s) played for
+
+                    var played = League.Played(games, player, includeSecret);
+
+                    row.Add(TotalDataCell(played.Select(x => (double)(x.TermRecords?.Count() ?? 0)).ToList(), rt.Drops, ChartType.Bar, "N0", "Totals"));
+                    row.Add(TotalDataCell(played.Select(x => (double)(x.TermRecords?.FindAll(r => r.Type == TermType.Red)?.Count() ?? 0)).ToList(), rt.Drops, ChartType.Bar, "N0", "Red"));
+                    row.Add(TotalDataCell(played.Select(x => (double)(x.TermRecords?.FindAll(r => r.Type == TermType.Yellow)?.Count() ?? 0)).ToList(), rt.Drops, ChartType.Bar, "N0", "Yellow"));
+                    row.Add(TotalDataCell(played.Select(x => (double)(x.TermRecords?.FindAll(r => r.Type == TermType.Verbal)?.Count() ?? 0)).ToList(), rt.Drops, ChartType.Bar, "N0", "Verbal"));
+                    row.Add(TotalDataCell(played.Select(x => (double)(x.TermRecords?.FindAll(r => r.Type == TermType.Other)?.Count() ?? 0)).ToList(), rt.Drops, ChartType.Bar, "N0", "Other"));
+
+                    row.Add(new ZCell(played.Count(), ChartType.None, "N0", default, "Games"));  // Games
+
+                }
+            }
+
+            report.Rows.Sort(delegate (ZRow x, ZRow y)
+            {
+                int index = 0;
+                index = report.Columns.FindIndex((c) => c.ToString() == "Total");
+
+                double? result = y[index].Number - x[index].Number;
+				if(result == 0)
+				{
+                    index = report.Columns.FindIndex((c) => c.ToString() == "Red");
+					result = y[index].Number - x[index].Number;
+                }
+                if (result == 0)
+                {
+                    index = report.Columns.FindIndex((c) => c.ToString() == "Yellow");
+                    result = y[index].Number - x[index].Number;
+                }
+
+                return Math.Sign((double)result);
+            });
+
+			report.Rows.RemoveAll(r =>
+			{
+                int index = 0;
+                index = report.Columns.FindIndex((c) => c.ToString() == "Total");
+				double value = (double)r[index].Number;
+				return value == 0;
+            });
+
+            for (int i = 0; i < report.Rows.Count; i++)
+                report.Rows[i][0].Number = i + 1;
+
+            int? topN = rt.SettingInt("ShowTopN");
+
+            if (topN != null)
+                for (int i = report.Rows.Count - 1; i >= topN; i--)
+                    report.Rows.RemoveAt(i);
+
+			report.RemoveZeroColumns();
+
+            return report;
+        }
+
+        /// <summary>List each team and their number of games, average score, victory points, etc.</summary>
+        public static ZoomReport TeamLadder(League league, bool includeSecret, ReportTemplate rt)
 		{
 			bool isDecimal = rt.FindSetting("isDecimal") >= 0;
 			bool showZeroed = rt.FindSetting("showZeroed") >= 0;
@@ -3412,9 +3498,9 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 				new ZCell(i, chartType, null, color);
 		}
 
-		static ZCell DataCell(List<double> dataList, Drops drops, ChartType chartType, string numberFormat)
+		static ZCell DataCell(List<double> dataList, Drops drops, ChartType chartType, string numberFormat, string title = "")
 		{
-			var dataCell = new ZCell(0, chartType, numberFormat);
+			var dataCell = new ZCell(0, chartType, numberFormat, default, title);
 			dataCell.Data.AddRange(dataList);
 			if (drops != null)
 				DropScores(dataList, drops);
@@ -3423,9 +3509,9 @@ Tiny numbers at the bottom of the bottom row show the minimum, bin size, and max
 			return dataCell;
 		}
 
-		static ZCell TotalDataCell(List<double> dataList, Drops drops, ChartType chartType, string numberFormat)
+		static ZCell TotalDataCell(List<double> dataList, Drops drops, ChartType chartType, string numberFormat, string title = "")
 		{
-			var dataCell = new ZCell(0, chartType, numberFormat);
+			var dataCell = new ZCell(0, chartType, numberFormat, default, title);
 			dataCell.Data.AddRange(dataList);
 			if (drops != null)
 				DropScores(dataList, drops);

@@ -239,28 +239,39 @@ namespace Zoom
 		public Color Border { get; set; }
 		/// <summary>List of values to be shown as a scatter plot / quartile plot / stem-and-leaf plot / rug map / kernel density estimation.</summary>
 		public List<double> Data { get; private set; }
+		public string Title {  get; set; }
 
 		public ZCell()
 		{
 		}
 
-		public ZCell(string text = "", Color color = default, ZCell barCell = null)
+        public ZCell(string text, string title)
+        {
+            Text = text;
+            Color = default;
+            ChartCell = null;
+            Title = title;
+        }
+
+        public ZCell(string text = "", Color color = default, ZCell barCell = null, string title = "")
 		{
 			Text = text;
 			Color = color;
 			ChartCell = barCell;
+			Title = title;
 		}
 
-		public ZCell(double? number, ChartType chartType = ChartType.None, string numberFormat = "", Color color = default)
+		public ZCell(double? number, ChartType chartType = ChartType.None, string numberFormat = "", Color color = default, string title = "")
 		{
 			Number = number;
 			NumberFormat = numberFormat;
 			Color = color;
 			ChartType = chartType;
 			Data = new List<double>();
+			Title = title;
 		}
 
-		public bool Empty()
+        public bool Empty()
 		{
 			return string.IsNullOrEmpty(text) && Number == null;
 		}
@@ -594,6 +605,7 @@ namespace Zoom
 				double max = 0.0;
 				string numberFormat = "";
 				bool hasNumber = false;
+				float widestTitle = 0;
 
 				for (int row = 0; row < Rows.Count; row++)
 				{
@@ -640,6 +652,9 @@ namespace Zoom
 						{
 							numberFormat = cell.NumberFormat;
 						}
+
+						float titleWidth = graphics.MeasureString(cell.Title, font, 1000).Width * 1.01f;
+						widestTitle = Math.Max(widestTitle, titleWidth);
 					}
 				}
 
@@ -650,12 +665,20 @@ namespace Zoom
 					if (double.IsInfinity(max) && !string.IsNullOrEmpty(numberFormat) && numberFormat.Length > 1 && numberFormat[0] == 'P' && stringMax.Length < 4)
 						stringMax = 9.99.ToString(numberFormat);
 
-					widths.Add(graphics.MeasureString(stringMax, font, 1000).Width * 1.01f);
+					float widestNumber = graphics.MeasureString(stringMax, font, 1000).Width * 1.01f;
+					float width = Math.Max(widestTitle, widestNumber);
+
+					widths.Add(width);
 				}
 				else
-					widths.Add(widest > 2 * total / count ?  // Are there are a few pathologically wide fields?
-						       total / count * 1.4f :        // Just use the average, plus some padding.
-						       widest);
+				{
+					float cellWidth = widest > 2 * total / count ?  // Are there are a few pathologically wide fields?
+							   total / count * 1.4f :        // Just use the average, plus some padding.
+							   widest;
+                    float width = Math.Max(widestTitle, cellWidth);
+
+                    widths.Add(cellWidth);
+				}
 				mins.Add(min);
 				maxs.Add(max);
 			}

@@ -48,6 +48,7 @@ namespace Torn.UI
 				"Pyramid",
 				"Pyramid condensed",
 				"Colours",
+				"Term Report",
 				"Sanity Check",
 				"Everything",
 			};

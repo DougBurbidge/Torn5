@@ -115,6 +115,7 @@ namespace Torn.Report
 					return Reports.SanityReport(new List<League> { league }, rt.Title, rt.From, rt.To, description);
 				case ReportType.Everything: return Reports.EverythingReport(league, rt.Title, rt.From, rt.To, description);
 				case ReportType.PageBreak: return new ZoomSeparator();
+				case ReportType.TermReport: return Reports.TermReport(league, includeSecret, rt);
 				default: return null;
 			}
 		}
