@@ -2350,8 +2350,9 @@ namespace Torn.Report
         public static ZoomReport PackHitsReport(League league, bool includeSecret, ReportTemplate rt, string exportFolder, DateTime? from, DateTime? to)
         {
             ZoomReport report = new ZoomReport(ReportTitle("Pack Hits", league.Title, rt),
-											   "Pack,Chest,Back,Phasor,L Shoulder,R Shoulder,Total Hits",
-											   "left,right,right,right,right,right,integer");
+											   "Pack,Chest,Back,Phasor,L Shoulder,R Shoulder,Chest,Back,Phasor,L Shoulder,R Shoulder,Total Hits",
+											   "left,integer,right,integer,right,integer,right,integer,right,integer,right,integer",
+											   ",Percentage,Percentage,Percentage,Percentage,Percentage,Hits,Hits,Hits,Hits,Hits,");
 
 			if (exportFolder == "" || exportFolder == null)
             {
@@ -2437,11 +2438,16 @@ namespace Torn.Report
 				decimal frShoulder = Math.Round(pack.frShoulder / pack.TotalHits() * 100,2);
 
 				row.AddCell(new ZCell(pack.name));
-				row.AddCell(new ZCell(chest + "%"));
-				row.AddCell(new ZCell(back + "%"));
-				row.AddCell(new ZCell(phasor + "%"));
-				row.AddCell(new ZCell(flShoulder + "%"));
-				row.AddCell(new ZCell(frShoulder + "%"));
+				row.AddCell(new ZCell(chest + "%", "Chest"));
+				row.AddCell(new ZCell(back + "%", "Back"));
+				row.AddCell(new ZCell(phasor + "%", "Phasor"));
+				row.AddCell(new ZCell(flShoulder + "%", "L Shoulder"));
+				row.AddCell(new ZCell(frShoulder + "%", "R Shoulder"));
+				row.AddCell(new ZCell(pack.chest.ToString(), "Chest"));
+				row.AddCell(new ZCell(pack.back.ToString(), "Back"));
+				row.AddCell(new ZCell(pack.phasor.ToString(), "Phasor"));
+				row.AddCell(new ZCell(pack.flShoulder.ToString(), "L Shoulder"));
+				row.AddCell(new ZCell(pack.frShoulder.ToString(), "R Shoulder"));
 				row.AddCell(new ZCell((int)pack.TotalHits()));
 			}
 

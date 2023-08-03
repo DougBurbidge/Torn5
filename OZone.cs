@@ -42,9 +42,9 @@ namespace Torn
 			nwStream = client.GetStream();
 			connected = true;
 
+			ReadFromOzone(client, nwStream);
+			ReadFromOzone(client, nwStream);
 
-			ReadFromOzone(client, nwStream);
-			ReadFromOzone(client, nwStream);
 			return connected;
 		}
 
