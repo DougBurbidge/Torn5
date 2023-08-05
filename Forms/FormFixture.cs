@@ -652,23 +652,26 @@ namespace Torn.UI
 				loading = true;
 				Console.WriteLine(leagueTeams.Count);
 				SetTeamsBox(leagueTeams.Count);
-				for (int i = 0; i < leagueTeams?.Count; i++)
+				if (leagueTeams?.Count < 50)
 				{
-					teamSelectors[i].Text = leagueTeams[i].Name;
-					teamSelectors[i].Checked = true;
-					fixtureTeamSelectors[i].Text = leagueTeams[i].Name;
-					fixtureTeamSelectors[i].Checked = true;
-					fixtureTeamSelectors[i].Width = 250;
-					teamSelectors[i].Visible = true;
-					fixtureTeamSelectors[i].Visible = true;
+					for (int i = 0; i < leagueTeams?.Count; i++)
+					{
+						teamSelectors[i].Text = leagueTeams[i].Name;
+						teamSelectors[i].Checked = true;
+						fixtureTeamSelectors[i].Text = leagueTeams[i].Name;
+						fixtureTeamSelectors[i].Checked = true;
+						fixtureTeamSelectors[i].Width = 250;
+						teamSelectors[i].Visible = true;
+						fixtureTeamSelectors[i].Visible = true;
 
-				}
-				for (int i = leagueTeams?.Count ?? 0; i < teamSelectors?.Count; i++)
-				{
-					teamSelectors[i].Checked = false;
-					teamSelectors[i].Visible = false;
-					fixtureTeamSelectors[i].Checked = false;
-					fixtureTeamSelectors[i].Visible = false;
+					}
+					for (int i = leagueTeams?.Count ?? 0; i < teamSelectors?.Count; i++)
+					{
+						teamSelectors[i].Checked = false;
+						teamSelectors[i].Visible = false;
+						fixtureTeamSelectors[i].Checked = false;
+						fixtureTeamSelectors[i].Visible = false;
+					}
 				}
 				loading = false;
 			}
