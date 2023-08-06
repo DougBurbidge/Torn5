@@ -1943,7 +1943,9 @@ namespace Zoom
 			int arrowTop = headerHeight;
 			Height = headerHeight + Rows.Count * (RowHeight + 1);
 			int multiColumns = MultiColumnOK && aspectRatio.HasValue ? Math.Max((int)Math.Sqrt((double)aspectRatio / Width * Height), 1) : 1;
-			Height = headerHeight + (int)(Rows.Count / multiColumns + 0.999) * (RowHeight + 1);
+			int rowsPerCol = (int)Math.Ceiling((double)Rows.Count / multiColumns);
+            Height = headerHeight + rowsPerCol * (RowHeight + 1);
+
 
 			SvgBegin(sb, RowHeight, (int)(Width * 1.1 * multiColumns - Width * 0.1), Height, pure);
 			for (int col = 0; col < multiColumns; col++)
@@ -1952,9 +1954,9 @@ namespace Zoom
 				SvgHeader(sb, HasGroupHeadings(), RowHeight, thisLeft, widths, pure);
 				int rowTop = headerHeight;
 				bool odd = true;
-				for (int row = Rows.Count * col / multiColumns; row < Rows.Count * (col + 1) / multiColumns; row++)
+				for (int row = rowsPerCol * col; row < rowsPerCol * (col + 1); row++)
 				{
-					SvgRow(sb, rowTop, RowHeight, thisLeft, widths, mins, maxs, maxPoints, Width, Rows[row], odd, pure);
+					SvgRow(sb, rowTop, RowHeight, thisLeft, widths, mins, maxs, maxPoints, Width, row < Rows.Count ? Rows[row] : new ZRow(), odd, pure);
 
 					rowTop += RowHeight + 1;
 					odd = !odd;
@@ -1973,7 +1975,7 @@ namespace Zoom
 				AppendStrings(sb, "<p>", Description.Replace("\n", "<br/>\n"), "</p>\n");
 			if (!pure)
 				sb.Append("</div>");
-		}
+        }
 
 		public override string ToString()
 		{
