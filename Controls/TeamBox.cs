@@ -57,7 +57,10 @@ namespace Torn.UI
 						}
 					}
 				}
-				ListView.Columns[1].Text = leagueTeam == null ? "Players" : (yellows > 0 ? yellows + "Y " : "") + (reds > 0 ? reds + "R " : "") + leagueTeam.Name;
+				League.Load(League.FileName);
+				bool isPoints = League.IsPoints();
+				var points = GameTeam.Points;
+				ListView.Columns[1].Text = (isPoints ? "(" + points + ") " : "") + (leagueTeam == null ? "Players" : (yellows > 0 ? yellows + "Y " : "") + (reds > 0 ? reds + "R " : "") + leagueTeam.Name);
 			}
 		}
 
