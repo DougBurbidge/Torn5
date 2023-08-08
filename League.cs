@@ -1569,8 +1569,9 @@ namespace Torn
 		{
 			teams.Sort();
 
-			foreach (Game game in AllGames)
-			{
+			for(int i = 0; i < AllGames.Count; i++)
+            {
+				var game = AllGames[i];
 				foreach (GameTeam gameTeam in game.Teams) 
 				{
 					// Connect each game team back to their league team.
