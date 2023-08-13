@@ -60,7 +60,7 @@ namespace Torn.UI
 				if (caretPos < textSearch.Text.Length)
 					textSearch.Select(caretPos + 1, textSearch.Text.Length - caretPos - 1);
 			}
-			else
+			else if (e == null || e.KeyCode != Keys.ShiftKey)
 			{
 				var players = LaserGameServer.GetPlayers(search, CurrentLeague?.Players);
 
