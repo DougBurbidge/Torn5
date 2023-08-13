@@ -44,25 +44,14 @@ if [ $deployable == false ]
     exit 1
 fi
 
-mkdir workrepo
-cd workrepo
-git init
-cp -r "../bin/Debug/." .
-git add .
-git commit -m commit
-mkdir -p ../Releases/$version/
-git archive -o "../Releases/$version/Torn5.zip" @
-cd ..
-rm -rf workrepo
-
 # download old version
-curl ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Current/Torn5.zip --ssl -o ./temp/Torn5.zip
+curl ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Current/Torn%20Installer.msi --ssl -o ./temp/"Torn Installer.msi"
 
 # upload old version to archive folder
-curl -T temp/Torn5.zip ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Archive/Torn5_$deployedVersion.zip --ssl
+curl -T temp/"Torn Installer.msi" ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Archive/Torn%20Installer_$deployedVersion.msi --ssl
 
 # upload new version to current folder
-curl -T Releases/$version/Torn5.zip ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Current/Torn5.zip --ssl
+curl -T "Torn Installer"/bin/x64/Release/en-US/"Torn Installer.msi" ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Current/Torn%20Installer.msi --ssl
 
 # update version file
 curl -T version.txt ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST:21/Torn5/Current/version.txt --ssl
