@@ -29,7 +29,7 @@ namespace Torn5.Forms
 
         private void tornDownload_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://gofile.me/71oml/eKEf4elhv");
+            System.Diagnostics.Process.Start("https://torn.lasersports.au/downloads/latest");
         }
     }
 }

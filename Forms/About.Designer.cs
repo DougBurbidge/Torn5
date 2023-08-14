@@ -105,10 +105,10 @@
             this.tornDownload.AutoSize = true;
             this.tornDownload.Location = new System.Drawing.Point(12, 137);
             this.tornDownload.Name = "tornDownload";
-            this.tornDownload.Size = new System.Drawing.Size(172, 13);
+            this.tornDownload.Size = new System.Drawing.Size(215, 13);
             this.tornDownload.TabIndex = 6;
             this.tornDownload.TabStop = true;
-            this.tornDownload.Text = "https://gofile.me/71oml/eKEf4elhv";
+            this.tornDownload.Text = "https://torn.lasersports.au/downloads/latest";
             this.tornDownload.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.tornDownload_LinkClicked);
             // 
             // label5
