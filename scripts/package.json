@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ssh2-sftp-client": "^8.0.0"
+  }
+}
