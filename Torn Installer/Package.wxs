@@ -37,9 +37,75 @@
 						WorkingDirectory="APPLICATIONFOLDER" Icon="TornIcon.exe" IconIndex="0" Advertise="yes" />
 				</File>
 			</Component>
-			<Component Id="WindowsFormsRibbon" Guid="{457725E2-C090-48C1-AFC2-8DB8665A603B}">
-				<File Id="FormsRibbonDLL" Name="System.Windows.Forms.Ribbon.dll" DiskId="1" Source="System.Windows.Forms.Ribbon.dll" />
-			</Component>
+			<Component Id="BouncyCastle.Crypto.dll" Guid="{39d5acd9-5f6b-4d2b-a701-d60964a13ce1}"> 
+        <File  Id="BouncyCastle.Crypto.dll" Name="BouncyCastle.Crypto.dll" Source="BouncyCastle.Crypto.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Fizzler.dll" Guid="{21807718-60cb-47ba-af2b-6f0785f9a94e}"> 
+        <File  Id="Fizzler.dll" Name="Fizzler.dll" Source="Fizzler.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Google.Protobuf.dll" Guid="{239952b8-91fc-495c-8c84-15b96b200daf}"> 
+        <File  Id="Google.Protobuf.dll" Name="Google.Protobuf.dll" Source="Google.Protobuf.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="K4os.Compression.LZ4.dll" Guid="{5a69289c-b15a-4591-89c5-92964cc108a5}"> 
+        <File  Id="K4os.Compression.LZ4.dll" Name="K4os.Compression.LZ4.dll" Source="K4os.Compression.LZ4.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="K4os.Compression.LZ4.Streams.dll" Guid="{79d39496-999e-4e6c-bb1f-de718a548819}"> 
+        <File  Id="K4os.Compression.LZ4.Streams.dll" Name="K4os.Compression.LZ4.Streams.dll" Source="K4os.Compression.LZ4.Streams.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="K4os.Hash.xxHash.dll" Guid="{c5f4d320-78ef-4f1d-a22d-3325e362af4c}"> 
+        <File  Id="K4os.Hash.xxHash.dll" Name="K4os.Hash.xxHash.dll" Source="K4os.Hash.xxHash.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Microsoft.Bcl.AsyncInterfaces.dll" Guid="{69a95f68-f39f-4192-94ba-7ed842f45995}"> 
+        <File  Id="Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="Microsoft.Bcl.AsyncInterfaces.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="MySql.Data.dll" Guid="{9e373158-dee2-443a-9f2f-f793b332266d}"> 
+        <File  Id="MySql.Data.dll" Name="MySql.Data.dll" Source="MySql.Data.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Newtonsoft.Json.dll" Guid="{51280589-8f58-45d8-bc91-232b2340fa11}"> 
+        <File  Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="Newtonsoft.Json.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="nunit.framework.dll" Guid="{c9f5f0f4-492c-4b1d-afed-9918aec58d0f}"> 
+        <File  Id="nunit.framework.dll" Name="nunit.framework.dll" Source="nunit.framework.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Svg.dll" Guid="{f3b53eda-c882-4c07-96f4-fe1229f05d4f}"> 
+        <File  Id="Svg.dll" Name="Svg.dll" Source="Svg.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Buffers.dll" Guid="{e4e7afbf-fe4e-49d8-bfd4-6e4666cecf17}"> 
+        <File  Id="System.Buffers.dll" Name="System.Buffers.dll" Source="System.Buffers.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Memory.dll" Guid="{7b9e8676-9cb1-4521-978a-cd76d31850a0}"> 
+        <File  Id="System.Memory.dll" Name="System.Memory.dll" Source="System.Memory.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Numerics.Vectors.dll" Guid="{be0a8bbd-57c5-423f-874e-646b48c057a1}"> 
+        <File  Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="System.Numerics.Vectors.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="{21434a63-4095-4382-ad7f-c903b3e747a7}"> 
+        <File  Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="System.Runtime.CompilerServices.Unsafe.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Text.Encodings.Web.dll" Guid="{e6464045-6238-4616-a168-0766323140cb}"> 
+        <File  Id="System.Text.Encodings.Web.dll" Name="System.Text.Encodings.Web.dll" Source="System.Text.Encodings.Web.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Text.Json.dll" Guid="{4b4d2787-673a-4004-ba68-2847c905dee8}"> 
+        <File  Id="System.Text.Json.dll" Name="System.Text.Json.dll" Source="System.Text.Json.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Threading.Tasks.Extensions.dll" Guid="{dcda09f2-67dd-40c9-b66c-9a492f4e853b}"> 
+        <File  Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="System.Threading.Tasks.Extensions.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.ValueTuple.dll" Guid="{e8758535-4bb4-40c4-b7da-7a533b48022b}"> 
+        <File  Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="System.ValueTuple.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="System.Windows.Forms.Ribbon.dll" Guid="{d0ac1d67-6d4a-4f4c-9353-f542fd49e3b7}"> 
+        <File  Id="System.Windows.Forms.Ribbon.dll" Name="System.Windows.Forms.Ribbon.dll" Source="System.Windows.Forms.Ribbon.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Ubiety.Dns.Core.dll" Guid="{19f99096-f3f5-4260-83d9-9ebee6a24590}"> 
+        <File  Id="Ubiety.Dns.Core.dll" Name="Ubiety.Dns.Core.dll" Source="Ubiety.Dns.Core.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="ZstdNet.dll" Guid="{636d60e5-3935-4396-9f51-e5200218e920}"> 
+        <File  Id="ZstdNet.dll" Name="ZstdNet.dll" Source="ZstdNet.dll" DiskId="1"/> 
+      </Component> 
+      <Component Id="Torn.exe.config" Guid="{132d4b51-c76b-4772-aeba-3b40d1c49b42}"> 
+        <File  Id="Torn.exe.config" Name="Torn.exe.config" Source="Torn.exe.config" DiskId="1"/> 
+      </Component> 
 		</DirectoryRef>
 		
 		<!-- Program Menu - Registry -->
@@ -62,7 +128,29 @@
 		<Feature Id="Complete" Level="1" Title="Torn 5" Description="Full Installation" Display="expand">
 			<Feature Id="MainProgram" Title="Torn 5" Description="The main TORN package" Level="1" AllowAbsent="no" AllowAdvertise="no" ConfigurableDirectory="TARGETDIR">
 				<ComponentRef Id="MainExecutable"/>
-				<ComponentRef Id="WindowsFormsRibbon"/>
+        <ComponentRef Id="BouncyCastle.Crypto.dll"/> 
+        <ComponentRef Id="Fizzler.dll"/> 
+        <ComponentRef Id="Google.Protobuf.dll"/> 
+        <ComponentRef Id="K4os.Compression.LZ4.dll"/> 
+        <ComponentRef Id="K4os.Compression.LZ4.Streams.dll"/> 
+        <ComponentRef Id="K4os.Hash.xxHash.dll"/> 
+        <ComponentRef Id="Microsoft.Bcl.AsyncInterfaces.dll"/> 
+        <ComponentRef Id="MySql.Data.dll"/> 
+        <ComponentRef Id="Newtonsoft.Json.dll"/> 
+        <ComponentRef Id="nunit.framework.dll"/> 
+        <ComponentRef Id="Svg.dll"/> 
+        <ComponentRef Id="System.Buffers.dll"/> 
+        <ComponentRef Id="System.Memory.dll"/> 
+        <ComponentRef Id="System.Numerics.Vectors.dll"/> 
+        <ComponentRef Id="System.Runtime.CompilerServices.Unsafe.dll"/> 
+        <ComponentRef Id="System.Text.Encodings.Web.dll"/> 
+        <ComponentRef Id="System.Text.Json.dll"/> 
+        <ComponentRef Id="System.Threading.Tasks.Extensions.dll"/> 
+        <ComponentRef Id="System.ValueTuple.dll"/> 
+        <ComponentRef Id="System.Windows.Forms.Ribbon.dll"/> 
+        <ComponentRef Id="Ubiety.Dns.Core.dll"/> 
+        <ComponentRef Id="ZstdNet.dll"/> 
+        <ComponentRef Id="Torn.exe.config"/> 
 			</Feature>
 			<Feature Id="ProgramMenu" Title="Program Menu Shortcut" Description="Adds a shortcut to TORN in the program menu" Level="1" AllowAdvertise="no">
 				<ComponentRef Id="ProgramMenuDir"/>				

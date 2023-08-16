@@ -1,7 +1,9 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
     <OutputType>Package</OutputType>
-	<DefineConstants>Torn.Version=80.0.0</DefineConstants>
+    <DefineConstants>Torn.Version=81.0.0</DefineConstants>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="TornIcon.ico" />
