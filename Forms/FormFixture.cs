@@ -928,7 +928,7 @@ namespace Torn.UI
 
 		private void PyramidRound3ValueChanged(object sender, EventArgs e)
 		{
-			numericPyramidFinalsTeams.Value = pyramidRound3.TeamsOut;
+			labelPyramidFinalsTeams.Text = pyramidRound3.TeamsOut.ToString();
 			RefreshPyramidFixture();
 		}
 
@@ -939,7 +939,7 @@ namespace Torn.UI
 
 		void RefreshPyramidFixture()
 		{
-			displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, (int)numericPyramidFinalsTeams.Value);
+			displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, pyramidRound3.TeamsOut);
 			textDescription.Text = displayReportPyramid.Report.Description;
 		}
 
