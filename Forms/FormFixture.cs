@@ -11,7 +11,7 @@ using Torn.Report;
 namespace Torn.UI
 {
 	/// <summary>
-	/// Allow users to import tournament fixtures.
+	/// Allow users to create or import tournament fixtures.
 	/// </summary>
 	public partial class FormFixture : Form
 	{
@@ -896,13 +896,30 @@ namespace Torn.UI
 		Pyramid Pyramid = new Pyramid();
 		private void TabPyramidSelected()
 		{
-			Pyramid.Rounds.Add(pyramidRound1);
-			Pyramid.Rounds.Add(pyramidRound2);
-			Pyramid.Rounds.Add(pyramidRound3);
-			RefreshPyramidFixture();
+            NumericPyramidRoundsValueChanged(null, null);
 		}
 
-		private void NumericPyramidGamesPerTeamValueChanged(object sender, EventArgs e)
+        private void NumericPyramidRoundsValueChanged(object sender, EventArgs e)
+        {
+			Pyramid.Rounds.Clear();
+
+            pyramidRound1.Visible = numericPyramidRounds.Value >= 1;
+            pyramidRound2.Visible = numericPyramidRounds.Value >= 2;
+            pyramidRound3.Visible = numericPyramidRounds.Value >= 3;
+
+            if (numericPyramidRounds.Value >= 1)
+                Pyramid.Rounds.Add(pyramidRound1);
+
+            if (numericPyramidRounds.Value >= 2)
+                Pyramid.Rounds.Add(pyramidRound2);
+
+            if (numericPyramidRounds.Value >= 3)
+                Pyramid.Rounds.Add(pyramidRound3);
+
+            RefreshPyramidFixture();
+        }
+
+        private void NumericPyramidGamesPerTeamValueChanged(object sender, EventArgs e)
 		{
 			pyramidRound1.RoundGamesPerTeam = (int)numericPyramidGamesPerTeam.Value;
 			RefreshPyramidFixture();
@@ -911,25 +928,17 @@ namespace Torn.UI
 		private void NumericPyramidTeamsValueChanged(object sender, EventArgs e)
 		{
 			pyramidRound1.TeamsIn = (int)numericPyramidTeams.Value;
-			RefreshPyramidFixture();
+            RefreshPyramidFixture();
 		}
 
-		private void PyramidRound1ValueChanged(object sender, EventArgs e)
+		private void PyramidRoundValueChanged(object sender, EventArgs e)
 		{
-			pyramidRound2.TeamsIn = pyramidRound1.TeamsOut;
-			RefreshPyramidFixture();
-		}
+			int i;
+            for (i = 0; i < Pyramid.Rounds.Count - 1; i++)
+                Pyramid.Rounds[i + 1].TeamsIn = Pyramid.Rounds[i].TeamsOut;
 
-		private void PyramidRound2ValueChanged(object sender, EventArgs e)
-		{
-			pyramidRound3.TeamsIn = pyramidRound2.TeamsOut;
-			RefreshPyramidFixture();
-		}
-
-		private void PyramidRound3ValueChanged(object sender, EventArgs e)
-		{
-			labelPyramidFinalsTeams.Text = pyramidRound3.TeamsOut.ToString();
-			RefreshPyramidFixture();
+            labelPyramidFinalsTeams.Text = Pyramid.Rounds[i].TeamsOut.ToString();
+            RefreshPyramidFixture();
 		}
 
 		private void NumericPyramidFinalsGamesValueChanged(object sender, EventArgs e)
@@ -939,7 +948,7 @@ namespace Torn.UI
 
 		void RefreshPyramidFixture()
 		{
-			displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, pyramidRound3.TeamsOut);
+			displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, Pyramid.Rounds.Last().TeamsOut);
 			textDescription.Text = displayReportPyramid.Report.Description;
 		}
 

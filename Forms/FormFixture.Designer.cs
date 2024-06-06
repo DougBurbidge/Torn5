@@ -1036,7 +1036,7 @@ namespace Torn.UI
             this.labelPyramidFinalsTeams.Size = new System.Drawing.Size(40, 19);
             this.labelPyramidFinalsTeams.TabIndex = 41;
             this.labelPyramidFinalsTeams.Text = "8";
-            this.labelPyramidFinalsTeams.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.labelPyramidFinalsTeams.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // textDescription
             // 
@@ -1206,10 +1206,9 @@ namespace Torn.UI
             // 
             // numericPyramidRounds
             // 
-            this.numericPyramidRounds.Enabled = false;
             this.numericPyramidRounds.Location = new System.Drawing.Point(148, 49);
             this.numericPyramidRounds.Maximum = new decimal(new int[] {
-            99,
+            3,
             0,
             0,
             0});
@@ -1226,6 +1225,7 @@ namespace Torn.UI
             0,
             0,
             0});
+            this.numericPyramidRounds.ValueChanged += new System.EventHandler(this.NumericPyramidRoundsValueChanged);
             // 
             // label11
             // 
@@ -1271,7 +1271,7 @@ namespace Torn.UI
             this.pyramidRound3.Size = new System.Drawing.Size(914, 66);
             this.pyramidRound3.TabIndex = 3;
             this.pyramidRound3.TeamsIn = 16;
-            this.pyramidRound3.ValueChanged += new System.EventHandler(this.PyramidRound3ValueChanged);
+            this.pyramidRound3.ValueChanged += new System.EventHandler(this.PyramidRoundValueChanged);
             // 
             // pyramidRound2
             // 
@@ -1287,7 +1287,7 @@ namespace Torn.UI
             this.pyramidRound2.Size = new System.Drawing.Size(914, 66);
             this.pyramidRound2.TabIndex = 2;
             this.pyramidRound2.TeamsIn = 32;
-            this.pyramidRound2.ValueChanged += new System.EventHandler(this.PyramidRound2ValueChanged);
+            this.pyramidRound2.ValueChanged += new System.EventHandler(this.PyramidRoundValueChanged);
             // 
             // pyramidRound1
             // 
@@ -1303,7 +1303,7 @@ namespace Torn.UI
             this.pyramidRound1.Size = new System.Drawing.Size(914, 66);
             this.pyramidRound1.TabIndex = 1;
             this.pyramidRound1.TeamsIn = 56;
-            this.pyramidRound1.ValueChanged += new System.EventHandler(this.PyramidRound1ValueChanged);
+            this.pyramidRound1.ValueChanged += new System.EventHandler(this.PyramidRoundValueChanged);
             // 
             // tabPyramidRound
             // 
