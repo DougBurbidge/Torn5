@@ -896,8 +896,36 @@ namespace Torn.UI
 		Pyramid Pyramid = new Pyramid();
 		private void TabPyramidSelected()
 		{
+			if (numericPyramidTeams.Value == 1 && numericPyramidDesiredTeamsPerGame.Value == 1)
+			{
+				string s = Holder.League.Title;
+				if (Holder.League.Teams.Count > 3)
+				{
+					numericPyramidTeams.Value = Holder.League.Teams.Count;
+					if (Holder.League.Games(true).Count > 0)
+                        numericPyramidDesiredTeamsPerGame.Value = (int)Math.Round(Holder.League.Games(true).Average(g => g.Teams.Count));
+					else
+						numericPyramidDesiredTeamsPerGame.Value = (int)Math.Round(Math.Sqrt(Holder.League.Teams.Count));
+                }
+				else if (s.IndexOf("Solo", StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					numericPyramidTeams.Value = 160;
+					numericPyramidDesiredTeamsPerGame.Value = 20;
+				}
+				else if (s.IndexOf("Double", StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					numericPyramidTeams.Value = 56;
+					numericPyramidDesiredTeamsPerGame.Value = 8;
+				}
+				else
+                {
+                    numericPyramidTeams.Value = 42;
+                    numericPyramidDesiredTeamsPerGame.Value = 6;
+                }
+            }
             NumericPyramidRoundsValueChanged(null, null);
-		}
+            ButtonIdealiseClick(null, null);
+        }
 
         private void NumericPyramidRoundsValueChanged(object sender, EventArgs e)
         {
@@ -948,13 +976,18 @@ namespace Torn.UI
 
 		void RefreshPyramidFixture()
 		{
-			displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, Pyramid.Rounds.Last().TeamsOut);
-			textDescription.Text = displayReportPyramid.Report.Description;
+			if (Pyramid.Rounds.Count > 0)
+			{
+				displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, Pyramid.Rounds.Last().TeamsOut);
+				textDescription.Text = displayReportPyramid.Report.Description;
+			}
 		}
 
 		private void ButtonIdealiseClick(object sender, EventArgs e)
 		{
-			Pyramid.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, (int)numericPyramidTeams.Value);
+			var x = Pyramid.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, (int)numericPyramidTeams.Value);
+			labelAdvancePercent.Text = String.Format("{0:0.00%}", x);
+				
 		}
 
 		const int ColTitle = 1;

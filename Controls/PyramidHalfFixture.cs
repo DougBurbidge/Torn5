@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
+using Zoom;
 
 namespace Torn5.Controls
 {
@@ -60,9 +62,15 @@ namespace Torn5.Controls
 			InitializeComponent();
         }
 
-		public void Idealise(int desiredTeamsPerGame, double advanceRatePerPartRound)
+		int _desiredTeamsPerGame = -1;
+		double _advanceRatePerPartRound = -1;
+
+        public void Idealise(int desiredTeamsPerGame, double advanceRatePerPartRound)
 		{
-			Games = (int)Math.Round(1.0 * TeamsIn * GamesPerTeam / desiredTeamsPerGame);
+			_desiredTeamsPerGame = desiredTeamsPerGame;
+			_advanceRatePerPartRound = advanceRatePerPartRound;
+
+			Games = (int)Math.Ceiling(1.0 * TeamsIn * GamesPerTeam / desiredTeamsPerGame);
 			Advance = (int)Math.Round(1.0 * TeamsIn * advanceRatePerPartRound);
 		}
 
@@ -85,9 +93,25 @@ namespace Torn5.Controls
 
             if (teamsIn > 0)
                 labelAdvancePercent.Text = String.Format("{0:0.00%}", numericAdvance.Value / teamsIn);
-		}
 
-		private void NumericKeyUp(object sender, KeyEventArgs e)
+			if (_desiredTeamsPerGame != - 1)
+			{
+				double ratio = (double)tpg / _desiredTeamsPerGame;
+				labelTeamsPerGame.BackColor = ratio > 1 ? ZReportColors.Mix(SystemColors.Control, Color.Red, 0.5) :
+                    tpg != (int)tpg ? ZReportColors.Mix(SystemColors.Control, Color.Orange, 0.5) :
+					SystemColors.Control;
+			}
+
+			if (_advanceRatePerPartRound != -1)
+			{
+				double ratio = (double)numericAdvance.Value / teamsIn / _advanceRatePerPartRound;
+				labelAdvancePercent.BackColor = ratio > 1.1 ? ZReportColors.Mix(SystemColors.Control, Color.Orange, 1 / ratio) :
+					ratio < 0.9 ? ZReportColors.Mix(SystemColors.Control, Color.Orange, ratio) :
+					SystemColors.Control;
+			}
+        }
+
+        private void NumericKeyUp(object sender, KeyEventArgs e)
 		{
 			var _ = ((NumericUpDown)sender).Value;  // This black magic forces the control's ValueChanged to fire after the user edits the text in the control.
 		}

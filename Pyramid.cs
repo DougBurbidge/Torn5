@@ -106,10 +106,10 @@ namespace Torn
 		/// Set all rounds and repêchages to a similar advance percentage; i.e. all games are approximately the same difficulty.
 		/// Number of teams and games in each round and repêchage are adjusted accordingly.
 		/// </summary>
-		public void Idealise(int desiredTeamsPerGame, int teams)
+		public double Idealise(int desiredTeamsPerGame, int teams)
 		{
-			var advanceRatePerRound = Math.Pow((double)desiredTeamsPerGame / teams, 1.0 / Rounds.Count);
-			var advanceRatePerPartRound = 1 - Math.Sqrt(1 - advanceRatePerRound);
+            double advanceRatePerRound = Math.Pow((double)desiredTeamsPerGame / teams, 1.0 / Rounds.Count);
+            double advanceRatePerPartRound = 1 - Math.Sqrt(1 - advanceRatePerRound);
 
 			for (int i = 0; i < Rounds.Count; i++)
 			{
@@ -118,6 +118,8 @@ namespace Torn
 				if (i < Rounds.Count - 1)
 					Rounds[i + 1].TeamsIn = Rounds[i].TeamsOut;
 			}
+
+			return advanceRatePerPartRound;
 		}
 	}
 

@@ -19,7 +19,7 @@ namespace Torn5.Controls
 		}
 
 		public int TeamsIn { get => fixtureRound.TeamsIn; set { fixtureRound.TeamsIn = value; ValueChangedInternal(); } }
-		public int TeamsOut { get => fixtureRound.Advance + fixtureRepechage.Advance; }
+		public int TeamsOut { get => fixtureRound.Advance + (checkBoxRepechage.Checked ? fixtureRepechage.Advance : 0); }
 		public int RepechageTeams { get => checkBoxRepechage.Checked ? fixtureRepechage.TeamsIn : 0; }
 		public int RoundGames { get => fixtureRound.Games; set => fixtureRound.Games = value; }
 		public int RepechageGames { get => checkBoxRepechage.Checked ? fixtureRepechage.Games : 0; set => fixtureRepechage.Games = value; }
@@ -75,6 +75,7 @@ namespace Torn5.Controls
 		private void CheckBoxRepechageCheckedChanged(object sender, System.EventArgs e)
 		{
 			fixtureRepechage.Visible = checkBoxRepechage.Checked;
-		}
+			HalfFixtureChanged(sender, e);
+        }
 	}
 }
