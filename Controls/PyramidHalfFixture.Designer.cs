@@ -29,6 +29,7 @@ namespace Torn5.Controls
 		/// </summary>
 		private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
             this.labelEquals = new System.Windows.Forms.Label();
             this.labelDivide = new System.Windows.Forms.Label();
             this.numericAdvance = new System.Windows.Forms.NumericUpDown();
@@ -41,6 +42,7 @@ namespace Torn5.Controls
             this.labelTeamsIn = new System.Windows.Forms.Label();
             this.labelTeamsPerGame = new System.Windows.Forms.Label();
             this.labelAdvancePercent = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numericAdvance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericGames)).BeginInit();
             this.SuspendLayout();
@@ -215,5 +217,6 @@ namespace Torn5.Controls
         private System.Windows.Forms.Label labelTeamsIn;
         private System.Windows.Forms.Label labelTeamsPerGame;
         private System.Windows.Forms.Label labelAdvancePercent;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
