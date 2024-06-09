@@ -121,7 +121,7 @@ namespace Torn5
                     return JsonSerializer.Serialize<TimeSpan>(elapsed);
                 }
                 return "Message Recieved";
-            } catch(Exception e)
+            } catch
             {
                 return "{ error: 'Could not process message'}";
             }

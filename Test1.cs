@@ -90,12 +90,12 @@ namespace TornWeb
 			var league2 = new League();
 			league2.Load("testleague.Torn");
 
-			Assert.AreEqual(3, league2.Teams.Count, "Number of teams");
-			Assert.AreEqual("Team A", league2.Teams[0].Name, "name of team 1");
-			Assert.AreEqual(3, league2.Teams[0].Players.Count, "Number of players on team A");
-			Assert.AreEqual(2, league2.Teams[1].Players.Count, "Number of players on team B");
-			Assert.AreEqual(0, league2.Teams[2].Players.Count, "Number of players on team C");
-			Assert.AreEqual("<&>' \"", league2.Teams[0].Players[1].Name, "Special character in player name");
+			Assert.That(3 == league2.Teams.Count, "Number of teams");
+			Assert.That("Team A" == league2.Teams[0].Name, "name of team 1");
+			Assert.That(3 == league2.Teams[0].Players.Count, "Number of players on team A");
+			Assert.That(2 == league2.Teams[1].Players.Count, "Number of players on team B");
+			Assert.That(0 == league2.Teams[2].Players.Count, "Number of players on team C");
+			Assert.That("<&>' \"" == league2.Teams[0].Players[1].Name, "Special character in player name");
 		}
 
 		[Test]
@@ -106,20 +106,20 @@ namespace TornWeb
 			
 			clone.Teams[0].Name = "Team A changed";
 
-			Assert.AreEqual(3, clone.Teams.Count, "Number of teams");
-			Assert.AreEqual("Team A", league.Teams[0].Name, "name of team 1");
-			Assert.AreEqual("Team A changed", clone.Teams[0].Name, "name of team 1");
+			Assert.That(3 == clone.Teams.Count, "Number of teams");
+			Assert.That("Team A" == league.Teams[0].Name, "name of team 1");
+			Assert.That("Team A changed" == clone.Teams[0].Name, "name of team 1");
 
 			league.Teams[0].Name = "Team A also changed";
 
-			Assert.AreEqual("Team A also changed", league.Teams[0].Name, "name of team 1");
-			Assert.AreEqual("Team A changed", clone.Teams[0].Name, "name of team 1");
+			Assert.That("Team A also changed" == league.Teams[0].Name, "name of team 1");
+			Assert.That("Team A changed" == clone.Teams[0].Name, "name of team 1");
 
 			clone.Teams[0].Players.Add(new LeaguePlayer() { Name = "Four", Id = "004" } );
 			clone.Teams[0].Players.Add(new LeaguePlayer() { Name = "Five", Id = "005" } );
 
-			Assert.AreEqual(3, league.Teams[0].Players.Count, "Number of players on team A");
-			Assert.AreEqual(5, clone.Teams[0].Players.Count, "Number of players on team A");
+			Assert.That(3 == league.Teams[0].Players.Count, "Number of players on team A");
+			Assert.That(5 == clone.Teams[0].Players.Count, "Number of players on team A");
 		}
 
 		[Test]
@@ -128,13 +128,13 @@ namespace TornWeb
 			var league = CreateLeague();
 			AddGame(league);
 
-			Assert.AreEqual(1, league.AllGames.Count, "game count");
-//			Assert.AreEqual(1, league.Teams[0].AllPlayed.Count, "team 0 game count");
-//			Assert.AreEqual(1, league.Teams[1].AllPlayed.Count, "team 1 game count");
-//			Assert.AreEqual(0, league.Teams[2].AllPlayed.Count, "team 2 game count");
-			Assert.AreEqual(1, league.Played(league.Teams[0]).Count, "team 0 game count");
-			Assert.AreEqual(1, league.Played(league.Teams[1]).Count, "team 1 game count");
-			Assert.AreEqual(0, league.Played(league.Teams[2]).Count, "team 2 game count");
+			Assert.That(1 == league.AllGames.Count, "game count");
+//			Assert.That(1 == league.Teams[0].AllPlayed.Count, "team 0 game count");
+//			Assert.That(1 == league.Teams[1].AllPlayed.Count, "team 1 game count");
+//			Assert.That(0 == league.Teams[2].AllPlayed.Count, "team 2 game count");
+			Assert.That(1 == league.Played(league.Teams[0]).Count, "team 0 game count");
+			Assert.That(1 == league.Played(league.Teams[1]).Count, "team 1 game count");
+			Assert.That(0 == league.Played(league.Teams[2]).Count, "team 2 game count");
 		}
 
 		[Test]
@@ -142,11 +142,11 @@ namespace TornWeb
 		{
 			var reportTemplates = new ReportTemplates();
 			reportTemplates.Parse("TeamLadder, Description, ShowColours, ChartType=bar with rug, OrderBy=score, to 2018-09-11 23:59&SoloLadder, ChartType=bar with rug, OrderBy=score, , Drop worst 10% best 10% ");
-			Assert.AreEqual(2, reportTemplates.Count, "Number of report templates");
+			Assert.That(2 == reportTemplates.Count, "Number of report templates");
 			Assert.That(reportTemplates[0].ReportType == ReportType.TeamLadder, "team ladder");
 			Assert.That(reportTemplates[0].Settings.Contains("ShowColours"), "ShowColours");
 			Assert.That(reportTemplates[0].To == new DateTime(2018, 09, 11, 23,59, 00), "to 2018-09-11 23:59");
-			Assert.AreEqual("bar with rug", reportTemplates[0].Setting("ChartType"), "ChartType");
+			Assert.That("bar with rug" == reportTemplates[0].Setting("ChartType"), "ChartType");
 			Assert.That(ChartTypeExtensions.ToChartType(reportTemplates[0].Setting("ChartType")) == (ChartType.Bar | ChartType.Rug), "parse ChartType");
 
 			Assert.That(reportTemplates[1].ReportType == ReportType.SoloLadder, "solo ladder");
@@ -167,11 +167,11 @@ namespace TornWeb
 			var reportTemplates2 = new ReportTemplates();
 			reportTemplates2.FromXml(bodyNode.FirstChild);
 			
-			Assert.AreEqual(2, reportTemplates2.Count, "XML Number of report templates");
+			Assert.That(2 == reportTemplates2.Count, "XML Number of report templates");
 			Assert.That(reportTemplates2[0].ReportType == ReportType.TeamLadder, "XML team ladder");
 			Assert.That(reportTemplates2[0].Settings.Contains("ShowColours"), "XML ShowColours");
 			Assert.That(reportTemplates2[0].To == new DateTime(2018, 09, 11, 23,59, 00), "XML to 2018-09-11 23:59");
-			Assert.AreEqual("bar with rug", reportTemplates2[0].Setting("ChartType"), "XML ChartType");
+			Assert.That("bar with rug" == reportTemplates2[0].Setting("ChartType"), "XML ChartType");
 			Assert.That(ChartTypeExtensions.ToChartType(reportTemplates2[0].Setting("ChartType")) == (ChartType.Bar | ChartType.Rug), "XML parse ChartType");
 
 			Assert.That(reportTemplates2[1].ReportType == ReportType.SoloLadder, "XML solo ladder");
@@ -185,18 +185,18 @@ namespace TornWeb
 		public void TestHandicap()
 		{
 			var h = Handicap.Parse("100%");
-			Assert.AreEqual(100, h.Value, "handicap is 100");
+			Assert.That(100 == h.Value, "handicap is 100");
 			Assert.That(h.IsZero(), "handicap is 100%");
 
 			h = Handicap.Parse("+0");
-			Assert.AreEqual(0, h.Value, "handicap is 0");
+			Assert.That(0 == h.Value, "handicap is 0");
 			Assert.That(h.IsZero(), "handicap is +0");
 
 			h = Handicap.Parse("-0");
 			Assert.That(h.IsZero(), "handicap is -0");
 
 			h = Handicap.Parse("0");
-			Assert.AreEqual(0, h.Value, "handicap is still 0");
+			Assert.That(0 == h.Value, "handicap is still 0");
 		}
 
 		[Test]
@@ -206,45 +206,45 @@ namespace TornWeb
 			var fixture = new Fixture();
 			fixture.Teams.Parse(league);
 
-			Assert.AreEqual(3, fixture.Teams.Count, "fixture teams = 3");
-			Assert.AreEqual("Team B", fixture.Teams[1].Name, "fixture Team B");
+			Assert.That(3 == fixture.Teams.Count, "fixture teams = 3");
+			Assert.That("Team B" == fixture.Teams[1].Name, "fixture Team B");
 
 			AddGame(league);
 			fixture.Games.Parse(league, fixture.Teams);
 
-			Assert.AreEqual(1, fixture.Games.Count, "fixture games = 1");
-			Assert.AreEqual(new DateTime(2018, 1, 1, 12, 0, 0), fixture.Games[0].Time, "fixture game time");
-			Assert.AreEqual(2, fixture.Games[0].Teams.Count, "fixture game team count");
-			Assert.AreEqual(Colour.Green, fixture.Games[0].Teams[fixture.Teams[0]], "fixture game team colour");
-			Assert.AreEqual(Colour.Red, fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
+			Assert.That(1 == fixture.Games.Count, "fixture games = 1");
+			Assert.That(new DateTime(2018, 1, 1, 12, 0, 0) == fixture.Games[0].Time, "fixture game time");
+			Assert.That(2 == fixture.Games[0].Teams.Count, "fixture game team count");
+			Assert.That(Colour.Green == fixture.Games[0].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.That(Colour.Red == fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
 			
 			fixture.Games.Clear();
-			Assert.IsNull(fixture.BestMatch(league.AllGames[0]), "match game null");
+			Assert.That(fixture.BestMatch(league.AllGames[0]) is null, "match game null");
 			
 			var lines = new string[] { "row", "b..", "y.p" };
 			fixture.Games.Parse(lines, fixture.Teams, null, null);
 
-			Assert.AreEqual(3, fixture.Games.Count, "fixture games = 3");
-			Assert.AreEqual(Colour.Red, fixture.Games[0].Teams[fixture.Teams[0]], "fixture game team colour");
-			Assert.AreEqual(Colour.Blue, fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
-			Assert.AreEqual(Colour.Yellow, fixture.Games[0].Teams[fixture.Teams[2]], "fixture game team colour");
-			Assert.AreEqual(Colour.Orange, fixture.Games[1].Teams[fixture.Teams[0]], "fixture game team colour");
-			Assert.AreEqual(Colour.White, fixture.Games[2].Teams[fixture.Teams[0]], "fixture game team colour");
-			Assert.AreEqual(Colour.Purple, fixture.Games[2].Teams[fixture.Teams[2]], "fixture game team colour");
+			Assert.That(3 == fixture.Games.Count, "fixture games = 3");
+			Assert.That(Colour.Red == fixture.Games[0].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.That(Colour.Blue == fixture.Games[0].Teams[fixture.Teams[1]], "fixture game team colour");
+			Assert.That(Colour.Yellow == fixture.Games[0].Teams[fixture.Teams[2]], "fixture game team colour");
+			Assert.That(Colour.Orange == fixture.Games[1].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.That(Colour.White == fixture.Games[2].Teams[fixture.Teams[0]], "fixture game team colour");
+			Assert.That(Colour.Purple == fixture.Games[2].Teams[fixture.Teams[2]], "fixture game team colour");
 			
 			var grid = fixture.Games.ToGrid(fixture.Teams);
-			Assert.AreEqual(3, grid.Length);
-			Assert.AreEqual("ROW", grid[0]);
-			Assert.AreEqual("B..", grid[1]);
-			Assert.AreEqual("Y.P", grid[2]);
+			Assert.That(3 == grid.Length);
+			Assert.That("ROW" == grid[0]);
+			Assert.That("B.." == grid[1]);
+			Assert.That("Y.P" == grid[2]);
 			
 			AddGame(league);
-			Assert.AreSame(fixture.Games[0], fixture.BestMatch(league.AllGames[0]), "match game 1");
+			Assert.That(fixture.Games[0], Is.SameAs(fixture.BestMatch(league.AllGames[0])), "match game 1");
 			fixture.Games.Parse("8:00\t2\t1\t3", fixture.Teams, '\t');
-			Assert.AreSame(fixture.Games[3], fixture.BestMatch(league.AllGames[0]), "match game 4");
+			Assert.That(fixture.Games[3], Is.SameAs(fixture.BestMatch(league.AllGames[0])), "match game 4");
 			league.AllGames[0].Teams[0].Colour = Colour.Green;
 			league.AllGames[0].Teams[1].Colour = Colour.Red;
-			Assert.AreSame(fixture.Games[0], fixture.BestMatch(league.AllGames[0]), "match game 1 again");
+			Assert.That(fixture.Games[0], Is.SameAs(fixture.BestMatch(league.AllGames[0])), "match game 1 again");
 		}
 
 		[Test]
@@ -262,17 +262,17 @@ namespace TornWeb
 
 			league.AllGames[0].Teams[0].Score = 2000;
 			
-			Assert.AreEqual(6.0, league.CalculatePoints(league.AllGames[0].Teams[0], GroupPlayersBy.Alias), "2000 - 1st");
-			Assert.AreEqual(0.0, league.CalculatePoints(league.AllGames[0].Teams[1], GroupPlayersBy.Alias), "0 - 5th");
-			Assert.AreEqual(2.0, league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th A");
-			Assert.AreEqual(2.0, league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th B");
-			Assert.AreEqual(2.0, league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th C");
+			Assert.That(6.0 == league.CalculatePoints(league.AllGames[0].Teams[0], GroupPlayersBy.Alias), "2000 - 1st");
+			Assert.That(0.0 == league.CalculatePoints(league.AllGames[0].Teams[1], GroupPlayersBy.Alias), "0 - 5th");
+			Assert.That(2.0 == league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th A");
+			Assert.That(2.0 == league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th B");
+			Assert.That(2.0 == league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Alias), "1000 - tied 2nd/3rd/4th C");
 
-			Assert.AreEqual(6.0, league.CalculatePoints(league.AllGames[0].Teams[0], GroupPlayersBy.Lotr), "2000 - 1st");
-			Assert.AreEqual(6.0, league.CalculatePoints(league.AllGames[0].Teams[1], GroupPlayersBy.Lotr), "0 - 1st");
-			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd A");
-			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd B");
-			Assert.AreEqual(4.0, league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd C");
+			Assert.That(6.0 == league.CalculatePoints(league.AllGames[0].Teams[0], GroupPlayersBy.Lotr), "2000 - 1st");
+			Assert.That(6.0 == league.CalculatePoints(league.AllGames[0].Teams[1], GroupPlayersBy.Lotr), "0 - 1st");
+			Assert.That(4.0 == league.CalculatePoints(league.AllGames[0].Teams[2], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd A");
+			Assert.That(4.0 == league.CalculatePoints(league.AllGames[0].Teams[3], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd B");
+			Assert.That(4.0 == league.CalculatePoints(league.AllGames[0].Teams[4], GroupPlayersBy.Lotr), "1000 - tied 1st/2nd/3rd C");
 		}
 
 		LaserGameServer stubServer;
@@ -291,10 +291,10 @@ namespace TornWeb
 			webOutput.Elapsed = Elapsed;
 
 			jsonServer = new JsonServer();
-			Assert.AreEqual(new TimeSpan(0, 0, 42), jsonServer.GameTimeElapsed(), "jsonServer time");
+			Assert.That(new TimeSpan(0, 0, 42) == jsonServer.GameTimeElapsed(), "jsonServer time");
 
 			var games = jsonServer.GetGames();
-			Assert.AreEqual(3, games.Count);
+			Assert.That(3 == games.Count);
 			
 			webOutput.Dispose();
 		}
@@ -317,22 +317,22 @@ namespace TornWeb
 		[Test]
 		public void TestUtility()
 		{
-			Assert.AreEqual("one", "one two three".FirstWord(), "FirstWord()");
-			Assert.AreEqual("three", "one two three".LastWord(), "LastWord()");
+			Assert.That("one" == "one two three".FirstWord(), "FirstWord()");
+			Assert.That("three" == "one two three".LastWord(), "LastWord()");
 
-			Assert.AreEqual("one two", Utility.JoinWithoutDuplicate("one", "two"), "JoinWithoutDuplicate 12");
-			Assert.AreEqual("one two three four", Utility.JoinWithoutDuplicate("one two", "three four"), "JoinWithoutDuplicate 1234");
-			Assert.AreEqual("one two three", Utility.JoinWithoutDuplicate("one two", "two three"), "JoinWithoutDuplicate 123");
-			Assert.AreEqual("one twos three", Utility.JoinWithoutDuplicate("one twos", "two three"), "JoinWithoutDuplicate 12s3");
-			Assert.AreEqual("one twos three", Utility.JoinWithoutDuplicate("one two", "twos three"), "JoinWithoutDuplicate 12s3 again");
+			Assert.That("one two" == Utility.JoinWithoutDuplicate("one", "two"), "JoinWithoutDuplicate 12");
+			Assert.That("one two three four" == Utility.JoinWithoutDuplicate("one two", "three four"), "JoinWithoutDuplicate 1234");
+			Assert.That("one two three" == Utility.JoinWithoutDuplicate("one two", "two three"), "JoinWithoutDuplicate 123");
+			Assert.That("one twos three" == Utility.JoinWithoutDuplicate("one twos", "two three"), "JoinWithoutDuplicate 12s3");
+			Assert.That("one twos three" == Utility.JoinWithoutDuplicate("one two", "twos three"), "JoinWithoutDuplicate 12s3 again");
 
-			Assert.AreEqual("dogs", Utility.Pluralise("dog"), "pluralise dog");
-			Assert.AreEqual("mouths", Utility.Pluralise("mouth"), "pluralise mouth");
-			Assert.AreEqual("photos", Utility.Pluralise("photo"), "pluralise photo");
-			Assert.AreEqual("buses", Utility.Pluralise("bus"), "pluralise bus");
-			Assert.AreEqual("axes", Utility.Pluralise("axis"), "pluralise axis");
-			Assert.AreEqual("fairies", Utility.Pluralise("fairy"), "pluralise fairy");
-			Assert.AreEqual("monkeys", Utility.Pluralise("monkey"), "pluralise monkey");
+			Assert.That("dogs" == Utility.Pluralise("dog"), "pluralise dog");
+			Assert.That("mouths" == Utility.Pluralise("mouth"), "pluralise mouth");
+			Assert.That("photos" == Utility.Pluralise("photo"), "pluralise photo");
+			Assert.That("buses" == Utility.Pluralise("bus"), "pluralise bus");
+			Assert.That("axes" == Utility.Pluralise("axis"), "pluralise axis");
+			Assert.That("fairies" == Utility.Pluralise("fairy"), "pluralise fairy");
+			Assert.That("monkeys" == Utility.Pluralise("monkey"), "pluralise monkey");
 		}
 	}
 

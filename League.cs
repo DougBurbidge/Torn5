@@ -1768,28 +1768,29 @@ namespace Torn
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 		public int ShotsDenied { get; set; }  // if hit is Event_Type = 1402 or 1404, number of shots shootee had on the base when denied.
 
-		// EventType (see P&C ng_event_types):
-		//  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, left back shoulder (never used), right back shoulder (never used), back);
-		//  7..13:  tagged ally;
-		//  14..20: tagged by foe;
-		//  21..27: tagged by ally;
-		//  28: warning;
-		//  29: termination;
-		//  30: hit base;
-		//  31: destroyed base;
-		//  32: eliminated;
-		//  33: hit by base;
-		//  34: hit by mine;
-		//  35: trigger pressed;
-		//  36: game state (whatever that means);
-		//  37..46: player tagged target (whatever that means);
-		//  1401: score denial points, friendly;
-		//  1402: score denial points;
-		//  1403: lose points for being denied, friendly;
-		//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
-		//  1404: lose points for being denied. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
+        // EventType (see P&C ng_event_types):
+        //  0..6:   tagged foe (in various hit locations: laser, chest, left shoulder, right shoulder, left back shoulder (never used), right back shoulder (never used), back);
+        //  7..13:  tagged ally;
+        //  14..20: tagged by foe;
+        //  21..27: tagged by ally;
+        //  28: warning;
+        //  29: termination;
+        //  30: hit base;
+        //  31: destroyed base;
+        //  32: eliminated;
+        //  33: hit by base;
+        //  34: hit by mine;
+        //  35: trigger pressed;
+        //  36: game state (whatever that means);
+        //  37..46: player tagged target (whatever that means);
+        //  1401: score denial points, friendly;
+        //  1402: score denial points, foe;
+        //  1403: lose points for being denied, friendly. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
+        //  1404: lose points for being denied, foe. Note that Score field is incorrect for this event type -- use Result_Data_3, PointsLostByDeniee instead.
+        //  1405: looks like it occurs alongside any 33 (hit by base) and contains the actual points lost for being hit, in Result_Data_3, PointsLostByDeniee.
+		//  1409: Dunno. Looks boring, though.
 
-		public override string ToString()
+        public override string ToString()
 		{
 			return "Event Type " + Event_Type.ToString();
 		}

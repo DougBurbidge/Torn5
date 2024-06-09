@@ -185,7 +185,7 @@ namespace Torn
 			return s.Substring(0, i);
 		}
 
-		/// <summary>If s is a string containing whitespace-separated text, return the lasst word of s.</summary>
+		/// <summary>If s is a string containing whitespace-separated text, return the last word of s.</summary>
 		public static string LastWord(this string s)
 		{
 			if (string.IsNullOrWhiteSpace(s))
