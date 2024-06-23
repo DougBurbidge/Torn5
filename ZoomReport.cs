@@ -549,7 +549,12 @@ namespace Zoom
 		public void RemoveColumn(int i)
 		{
 			if (Columns.Valid(i))
+			{
+                foreach (var sw in SameWidths)
+					sw.Remove(Columns[i]);
+                
 				Columns.RemoveAt(i);
+			}
 
 			foreach(ZRow row in Rows)
 				if (row.Valid(i))
@@ -1110,7 +1115,7 @@ namespace Zoom
 		{
 			s.Append('\t', indent);
 			if (!string.IsNullOrEmpty(hyper))
-				AppendStrings(s, "<a xlink:href=\"", hyper, "\">");
+				AppendStrings(s, "<a href=\"", hyper, "\">");
 
 			s.Append("<text ");
 			if (!string.IsNullOrEmpty(cssClass))  // cssClass is so that cells can be given a CSS class that can e.g. be used later by JavaScript.
@@ -1593,7 +1598,7 @@ namespace Zoom
 					s.Append("\t");
 
 					if (!pure && !string.IsNullOrEmpty(column.Hyper))
-						AppendStrings(s, "<a xlink:href=\"", column.Hyper, "\">");
+						AppendStrings(s, "<a href=\"", column.Hyper, "\">");
 
 					// Draw text inside parallelogram.
 					s.Append("<text ");
