@@ -788,7 +788,7 @@ xhrScoreboard.send();
 				reports.Colors.BackgroundColor = Color.Empty;
 				reports.Colors.OddColor = Color.Empty;
 				league.AllGames.Sort();
-				bool detailed = false;
+				bool anyDetailed = false;
 
 				var rt = new ReportTemplate() { From = day, To = day.AddSeconds(86399) };
 				reports.Add(Reports.GamesToc(league, false, rt));
@@ -802,9 +802,14 @@ xhrScoreboard.send();
 						gameTitle = game.Title;
 					}
 
-					reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\"><div style=\"display: flex; flex-flow: row wrap; justify-content: space-around; \">\n"));
-					reports.Add(Reports.OneGame(league, game));
-					if (game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress)
+					bool thisDetailed = game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress;
+
+					reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">" +
+                        (thisDetailed ? "<div style =\"display: flex; flex-flow: row wrap; justify-content: space-around; \">\n" : "\n")));
+
+                    reports.Add(Reports.OneGame(league, game));
+
+					if (thisDetailed)
 					{
 						string imageName = "score" + game.Time.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".png";
 						string imagePath = Path.Combine(path, holder.Key, imageName);
@@ -816,10 +821,13 @@ xhrScoreboard.send();
 						}
 						reports.Add(new ZoomHtmlInclusion("\n<div><p> </p></div><div><p> </p></div>\n<div><img src=\"" + imageName + "\"></div></div>\n"));
 						game.Reported = true;
-						detailed = true;
+						anyDetailed = true;
 					}
-				}
-				if (detailed)
+
+                    reports.Add(new ZoomHtmlInclusion("</a>"));
+                }
+
+                if (anyDetailed)
 				{
 					var eventsUsed = dayGames.Where(g => g.ServerGame != null).SelectMany(g => g.ServerGame.Events.Select(e => e.Event_Type)).Distinct();
 					var sb = new StringBuilder("</div>\n<p>");
@@ -833,7 +841,7 @@ xhrScoreboard.send();
 					if (eventsUsed.Contains(33) && !eventsUsed.Contains(34) && !eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base, or player self-denied.<br/>");
 					if (eventsUsed.Contains(34) || eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base or mine, or player self-denied, or player tagged target.<br/>");
 					sb.Append("\u00B7 shows each minute elapsed.<br/>Tags+ includes shots on bases and teammates.</p>\n");
-					sb.Append(@"<p>""Worm"" charts show coloured lines for each team. Vertical dashed lines show time in minutes. <br/>
+                    sb.Append(@"<p>""Worm"" charts show coloured lines for each team. Vertical dashed lines show time in minutes. <br/>
 Sloped dashed lines show lines of constant score: 0 points, 10K points, etc. The slope of these lines shows the average rate of scoring of ""field points"" 
 during the game. Field points are points not derived from shooting bases, getting penalised by a referee, etc. A team whose score line is horizontal is 
 scoring points  at the average field pointing rate for the game. <br/>
