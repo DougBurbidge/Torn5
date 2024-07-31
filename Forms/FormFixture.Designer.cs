@@ -77,6 +77,18 @@ namespace Torn.UI
             this.numericSize = new System.Windows.Forms.NumericUpDown();
             this.panelGraphic = new System.Windows.Forms.Panel();
             this.tabFinals = new System.Windows.Forms.TabPage();
+            this.label27 = new System.Windows.Forms.Label();
+            this.buttonMoveRight = new System.Windows.Forms.Button();
+            this.buttonMoveLeft = new System.Windows.Forms.Button();
+            this.label25 = new System.Windows.Forms.Label();
+            this.buttonDeleteGame = new System.Windows.Forms.Button();
+            this.label26 = new System.Windows.Forms.Label();
+            this.numericToMove = new System.Windows.Forms.NumericUpDown();
+            this.buttonDown = new System.Windows.Forms.Button();
+            this.buttonUp = new System.Windows.Forms.Button();
+            this.buttonRight = new System.Windows.Forms.Button();
+            this.labelSelectedColumn = new System.Windows.Forms.Label();
+            this.buttonLeft = new System.Windows.Forms.Button();
             this.printReportFinals = new Torn5.Controls.PrintReport();
             this.displayReportFinals = new Torn5.Controls.DisplayReport();
             this.labelTeamsToSendUp = new System.Windows.Forms.Label();
@@ -168,6 +180,7 @@ namespace Torn.UI
             this.tabGraphic.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericSize)).BeginInit();
             this.tabFinals.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericToMove)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
@@ -231,7 +244,7 @@ namespace Torn.UI
             // buttonImportGrid
             // 
             this.buttonImportGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonImportGrid.Location = new System.Drawing.Point(675, 665);
+            this.buttonImportGrid.Location = new System.Drawing.Point(673, 665);
             this.buttonImportGrid.Name = "buttonImportGrid";
             this.buttonImportGrid.Size = new System.Drawing.Size(75, 23);
             this.buttonImportGrid.TabIndex = 25;
@@ -309,7 +322,7 @@ namespace Torn.UI
             this.textBoxGames.Multiline = true;
             this.textBoxGames.Name = "textBoxGames";
             this.textBoxGames.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxGames.Size = new System.Drawing.Size(599, 592);
+            this.textBoxGames.Size = new System.Drawing.Size(598, 592);
             this.textBoxGames.TabIndex = 18;
             this.textBoxGames.Text = "1/1/2000 7:00pm\t1\t2\t3\r\n1/1/2000 7:15pm\t2\t3\t4\r\n1/1/2000 7:30pm\t3\t4\t1\r\n1/1/2000 7:4" +
     "5pm\t2\t3\t4";
@@ -597,7 +610,7 @@ namespace Torn.UI
             // buttonExportGames
             // 
             this.buttonExportGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonExportGames.Location = new System.Drawing.Point(530, 669);
+            this.buttonExportGames.Location = new System.Drawing.Point(529, 669);
             this.buttonExportGames.Name = "buttonExportGames";
             this.buttonExportGames.Size = new System.Drawing.Size(75, 23);
             this.buttonExportGames.TabIndex = 26;
@@ -660,7 +673,7 @@ namespace Torn.UI
             // 
             this.splitContainerGamesGrid.Panel2.Controls.Add(this.displayReportGrid);
             this.splitContainerGamesGrid.Size = new System.Drawing.Size(1218, 695);
-            this.splitContainerGamesGrid.SplitterDistance = 753;
+            this.splitContainerGamesGrid.SplitterDistance = 752;
             this.splitContainerGamesGrid.TabIndex = 33;
             // 
             // datePicker
@@ -705,7 +718,7 @@ namespace Torn.UI
             // buttonClearGrid
             // 
             this.buttonClearGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonClearGrid.Location = new System.Drawing.Point(594, 665);
+            this.buttonClearGrid.Location = new System.Drawing.Point(592, 665);
             this.buttonClearGrid.Name = "buttonClearGrid";
             this.buttonClearGrid.Size = new System.Drawing.Size(75, 23);
             this.buttonClearGrid.TabIndex = 31;
@@ -723,7 +736,7 @@ namespace Torn.UI
             this.textBoxGrid.Multiline = true;
             this.textBoxGrid.Name = "textBoxGrid";
             this.textBoxGrid.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxGrid.Size = new System.Drawing.Size(741, 623);
+            this.textBoxGrid.Size = new System.Drawing.Size(740, 623);
             this.textBoxGrid.TabIndex = 21;
             this.textBoxGrid.Text = "R...G.B\r\nBR...G.\r\n.BR...G\r\nG.BR...\r\n.G.BR..\r\n..G.BR.\r\n...G.BR\r\n";
             this.textBoxGrid.WordWrap = false;
@@ -735,7 +748,7 @@ namespace Torn.UI
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.Location = new System.Drawing.Point(6, 6);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(741, 27);
+            this.label4.Size = new System.Drawing.Size(740, 27);
             this.label4.TabIndex = 22;
             this.label4.Text = "Enter a grid of games, with each row being a team, each column being a game, and " +
     "each letter representing the colour of that team in that game: RGBYPMCOW";
@@ -766,7 +779,7 @@ namespace Torn.UI
             this.displayReportGrid.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.displayReportGrid.Name = "displayReportGrid";
             this.displayReportGrid.Report = null;
-            this.displayReportGrid.Size = new System.Drawing.Size(461, 695);
+            this.displayReportGrid.Size = new System.Drawing.Size(462, 695);
             this.displayReportGrid.TabIndex = 32;
             // 
             // tabGraphic
@@ -814,6 +827,18 @@ namespace Torn.UI
             // 
             // tabFinals
             // 
+            this.tabFinals.Controls.Add(this.label27);
+            this.tabFinals.Controls.Add(this.buttonMoveRight);
+            this.tabFinals.Controls.Add(this.buttonMoveLeft);
+            this.tabFinals.Controls.Add(this.label25);
+            this.tabFinals.Controls.Add(this.buttonDeleteGame);
+            this.tabFinals.Controls.Add(this.label26);
+            this.tabFinals.Controls.Add(this.numericToMove);
+            this.tabFinals.Controls.Add(this.buttonDown);
+            this.tabFinals.Controls.Add(this.buttonUp);
+            this.tabFinals.Controls.Add(this.buttonRight);
+            this.tabFinals.Controls.Add(this.labelSelectedColumn);
+            this.tabFinals.Controls.Add(this.buttonLeft);
             this.tabFinals.Controls.Add(this.printReportFinals);
             this.tabFinals.Controls.Add(this.displayReportFinals);
             this.tabFinals.Controls.Add(this.labelTeamsToSendUp);
@@ -835,6 +860,141 @@ namespace Torn.UI
             this.tabFinals.Text = "Finals";
             this.tabFinals.UseVisualStyleBackColor = true;
             this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(358, 652);
+            this.label27.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(71, 13);
+            this.label27.TabIndex = 27;
+            this.label27.Text = "Move column";
+            // 
+            // buttonMoveRight
+            // 
+            this.buttonMoveRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonMoveRight.Location = new System.Drawing.Point(398, 668);
+            this.buttonMoveRight.Name = "buttonMoveRight";
+            this.buttonMoveRight.Size = new System.Drawing.Size(23, 23);
+            this.buttonMoveRight.TabIndex = 26;
+            this.buttonMoveRight.Tag = "1";
+            this.buttonMoveRight.Text = "▶\t";
+            this.buttonMoveRight.UseVisualStyleBackColor = true;
+            this.buttonMoveRight.Click += new System.EventHandler(this.ButtonMoveLeftRightClick);
+            // 
+            // buttonMoveLeft
+            // 
+            this.buttonMoveLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonMoveLeft.Location = new System.Drawing.Point(365, 668);
+            this.buttonMoveLeft.Name = "buttonMoveLeft";
+            this.buttonMoveLeft.Size = new System.Drawing.Size(23, 23);
+            this.buttonMoveLeft.TabIndex = 25;
+            this.buttonMoveLeft.Tag = "-1";
+            this.buttonMoveLeft.Text = "◀\t";
+            this.buttonMoveLeft.UseVisualStyleBackColor = true;
+            this.buttonMoveLeft.Click += new System.EventHandler(this.ButtonMoveLeftRightClick);
+            // 
+            // label25
+            // 
+            this.label25.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(19, 652);
+            this.label25.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(74, 13);
+            this.label25.TabIndex = 24;
+            this.label25.Text = "Select column";
+            // 
+            // buttonDeleteGame
+            // 
+            this.buttonDeleteGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonDeleteGame.Location = new System.Drawing.Point(494, 668);
+            this.buttonDeleteGame.Name = "buttonDeleteGame";
+            this.buttonDeleteGame.Size = new System.Drawing.Size(77, 23);
+            this.buttonDeleteGame.TabIndex = 23;
+            this.buttonDeleteGame.Text = "Delete Game";
+            this.buttonDeleteGame.UseVisualStyleBackColor = true;
+            this.buttonDeleteGame.Click += new System.EventHandler(this.ButtonDeleteGameClick);
+            // 
+            // label26
+            // 
+            this.label26.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(147, 652);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(174, 13);
+            this.label26.TabIndex = 22;
+            this.label26.Text = "Number of teams to move up/down";
+            // 
+            // numericToMove
+            // 
+            this.numericToMove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.numericToMove.Location = new System.Drawing.Point(150, 672);
+            this.numericToMove.Name = "numericToMove";
+            this.numericToMove.Size = new System.Drawing.Size(50, 20);
+            this.numericToMove.TabIndex = 21;
+            this.numericToMove.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            // 
+            // buttonDown
+            // 
+            this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonDown.Location = new System.Drawing.Point(118, 672);
+            this.buttonDown.Name = "buttonDown";
+            this.buttonDown.Size = new System.Drawing.Size(23, 23);
+            this.buttonDown.TabIndex = 20;
+            this.buttonDown.Text = "▼";
+            this.buttonDown.UseVisualStyleBackColor = true;
+            this.buttonDown.Click += new System.EventHandler(this.ButtonDownClick);
+            // 
+            // buttonUp
+            // 
+            this.buttonUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonUp.Location = new System.Drawing.Point(118, 647);
+            this.buttonUp.Name = "buttonUp";
+            this.buttonUp.Size = new System.Drawing.Size(23, 23);
+            this.buttonUp.TabIndex = 19;
+            this.buttonUp.Text = "▲";
+            this.buttonUp.UseVisualStyleBackColor = true;
+            this.buttonUp.Click += new System.EventHandler(this.ButtonUpClick);
+            // 
+            // buttonRight
+            // 
+            this.buttonRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonRight.Location = new System.Drawing.Point(71, 668);
+            this.buttonRight.Name = "buttonRight";
+            this.buttonRight.Size = new System.Drawing.Size(23, 23);
+            this.buttonRight.TabIndex = 18;
+            this.buttonRight.Tag = "1";
+            this.buttonRight.Text = "▶\t";
+            this.buttonRight.UseVisualStyleBackColor = true;
+            this.buttonRight.Click += new System.EventHandler(this.ButtonLeftRightClick);
+            // 
+            // labelSelectedColumn
+            // 
+            this.labelSelectedColumn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelSelectedColumn.AutoSize = true;
+            this.labelSelectedColumn.Location = new System.Drawing.Point(49, 675);
+            this.labelSelectedColumn.Name = "labelSelectedColumn";
+            this.labelSelectedColumn.Size = new System.Drawing.Size(16, 13);
+            this.labelSelectedColumn.TabIndex = 17;
+            this.labelSelectedColumn.Text = "...";
+            // 
+            // buttonLeft
+            // 
+            this.buttonLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonLeft.Location = new System.Drawing.Point(18, 668);
+            this.buttonLeft.Name = "buttonLeft";
+            this.buttonLeft.Size = new System.Drawing.Size(23, 23);
+            this.buttonLeft.TabIndex = 16;
+            this.buttonLeft.Tag = "-1";
+            this.buttonLeft.Text = "◀\t";
+            this.buttonLeft.UseVisualStyleBackColor = true;
+            this.buttonLeft.Click += new System.EventHandler(this.ButtonLeftRightClick);
             // 
             // printReportFinals
             // 
@@ -1383,7 +1543,7 @@ namespace Torn.UI
             this.splitContainer1.Panel2.Controls.Add(this.splitContainerReports);
             this.splitContainer1.Panel2.Controls.Add(this.printReportDraw);
             this.splitContainer1.Size = new System.Drawing.Size(1224, 701);
-            this.splitContainer1.SplitterDistance = 256;
+            this.splitContainer1.SplitterDistance = 255;
             this.splitContainer1.TabIndex = 21;
             // 
             // buttonRepechage
@@ -1399,7 +1559,7 @@ namespace Torn.UI
             // buttonClearPyramidGames
             // 
             this.buttonClearPyramidGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonClearPyramidGames.Location = new System.Drawing.Point(766, 214);
+            this.buttonClearPyramidGames.Location = new System.Drawing.Point(766, 213);
             this.buttonClearPyramidGames.Name = "buttonClearPyramidGames";
             this.buttonClearPyramidGames.Size = new System.Drawing.Size(88, 23);
             this.buttonClearPyramidGames.TabIndex = 19;
@@ -1410,7 +1570,7 @@ namespace Torn.UI
             // buttonEditPyramidGames
             // 
             this.buttonEditPyramidGames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonEditPyramidGames.Location = new System.Drawing.Point(672, 214);
+            this.buttonEditPyramidGames.Location = new System.Drawing.Point(672, 213);
             this.buttonEditPyramidGames.Name = "buttonEditPyramidGames";
             this.buttonEditPyramidGames.Size = new System.Drawing.Size(88, 23);
             this.buttonEditPyramidGames.TabIndex = 18;
@@ -1693,8 +1853,8 @@ namespace Torn.UI
             // splitContainerReports.Panel2
             // 
             this.splitContainerReports.Panel2.Controls.Add(this.displayReportDraw);
-            this.splitContainerReports.Size = new System.Drawing.Size(1160, 441);
-            this.splitContainerReports.SplitterDistance = 384;
+            this.splitContainerReports.Size = new System.Drawing.Size(1160, 442);
+            this.splitContainerReports.SplitterDistance = 383;
             this.splitContainerReports.TabIndex = 14;
             // 
             // displayReportTaken
@@ -1705,7 +1865,7 @@ namespace Torn.UI
             this.displayReportTaken.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.displayReportTaken.Name = "displayReportTaken";
             this.displayReportTaken.Report = null;
-            this.displayReportTaken.Size = new System.Drawing.Size(384, 441);
+            this.displayReportTaken.Size = new System.Drawing.Size(383, 442);
             this.displayReportTaken.TabIndex = 0;
             // 
             // displayReportDraw
@@ -1716,7 +1876,7 @@ namespace Torn.UI
             this.displayReportDraw.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.displayReportDraw.Name = "displayReportDraw";
             this.displayReportDraw.Report = null;
-            this.displayReportDraw.Size = new System.Drawing.Size(772, 441);
+            this.displayReportDraw.Size = new System.Drawing.Size(773, 442);
             this.displayReportDraw.TabIndex = 0;
             // 
             // printReportDraw
@@ -1726,7 +1886,7 @@ namespace Torn.UI
             this.printReportDraw.Location = new System.Drawing.Point(1160, 0);
             this.printReportDraw.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.printReportDraw.Name = "printReportDraw";
-            this.printReportDraw.Size = new System.Drawing.Size(64, 441);
+            this.printReportDraw.Size = new System.Drawing.Size(64, 442);
             this.printReportDraw.TabIndex = 15;
             // 
             // FormFixture
@@ -1762,6 +1922,7 @@ namespace Torn.UI
             ((System.ComponentModel.ISupportInitialize)(this.numericSize)).EndInit();
             this.tabFinals.ResumeLayout(false);
             this.tabFinals.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericToMove)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
@@ -1916,5 +2077,17 @@ namespace Torn.UI
         private System.Windows.Forms.Label labelPyramidFinalsTeams;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label labelAdvancePercent;
+        private System.Windows.Forms.Button buttonDown;
+        private System.Windows.Forms.Button buttonUp;
+        private System.Windows.Forms.Button buttonRight;
+        private System.Windows.Forms.Label labelSelectedColumn;
+        private System.Windows.Forms.Button buttonLeft;
+        private System.Windows.Forms.Button buttonDeleteGame;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.NumericUpDown numericToMove;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.Button buttonMoveRight;
+        private System.Windows.Forms.Button buttonMoveLeft;
     }
 }

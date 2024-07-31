@@ -43,5 +43,10 @@ namespace Torn5.Controls
 
 			RedrawTimer.Enabled = false;
 		}
-	}
+
+        public void Redraw()
+		{
+            BackgroundImage = Report.ToBitmap(Width, Height, true);
+        }
+    }
 }
