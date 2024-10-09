@@ -77,32 +77,7 @@ namespace Torn.UI
             this.numericSize = new System.Windows.Forms.NumericUpDown();
             this.panelGraphic = new System.Windows.Forms.Panel();
             this.tabFinals = new System.Windows.Forms.TabPage();
-            this.label27 = new System.Windows.Forms.Label();
-            this.buttonMoveRight = new System.Windows.Forms.Button();
-            this.buttonMoveLeft = new System.Windows.Forms.Button();
-            this.label25 = new System.Windows.Forms.Label();
-            this.buttonDeleteGame = new System.Windows.Forms.Button();
-            this.label26 = new System.Windows.Forms.Label();
-            this.numericToMove = new System.Windows.Forms.NumericUpDown();
-            this.buttonDown = new System.Windows.Forms.Button();
-            this.buttonUp = new System.Windows.Forms.Button();
-            this.buttonRight = new System.Windows.Forms.Button();
-            this.labelSelectedColumn = new System.Windows.Forms.Label();
-            this.buttonLeft = new System.Windows.Forms.Button();
-            this.printReportFinals = new Torn5.Controls.PrintReport();
-            this.displayReportFinals = new Torn5.Controls.DisplayReport();
-            this.labelTeamsToSendUp = new System.Windows.Forms.Label();
-            this.numericFreeRides = new System.Windows.Forms.NumericUpDown();
-            this.label10 = new System.Windows.Forms.Label();
-            this.buttonFormatD = new System.Windows.Forms.Button();
-            this.buttonTwoTrack = new System.Windows.Forms.Button();
-            this.numericTeamsPerGame = new System.Windows.Forms.NumericUpDown();
-            this.label9 = new System.Windows.Forms.Label();
-            this.numericTeamsToCut = new System.Windows.Forms.NumericUpDown();
-            this.label8 = new System.Windows.Forms.Label();
-            this.numericTracks = new System.Windows.Forms.NumericUpDown();
-            this.label7 = new System.Windows.Forms.Label();
-            this.buttonAscension = new System.Windows.Forms.Button();
+            this.frameFinals1 = new Torn5.Controls.FrameFinals();
             this.tabPyramid = new System.Windows.Forms.TabPage();
             this.labelPyramidFinalsTeams = new System.Windows.Forms.Label();
             this.textDescription = new System.Windows.Forms.TextBox();
@@ -180,11 +155,6 @@ namespace Torn.UI
             this.tabGraphic.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericSize)).BeginInit();
             this.tabFinals.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericToMove)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericTracks)).BeginInit();
             this.tabPyramid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsGames)).BeginInit();
             this.panel1.SuspendLayout();
@@ -827,354 +797,23 @@ namespace Torn.UI
             // 
             // tabFinals
             // 
-            this.tabFinals.Controls.Add(this.label27);
-            this.tabFinals.Controls.Add(this.buttonMoveRight);
-            this.tabFinals.Controls.Add(this.buttonMoveLeft);
-            this.tabFinals.Controls.Add(this.label25);
-            this.tabFinals.Controls.Add(this.buttonDeleteGame);
-            this.tabFinals.Controls.Add(this.label26);
-            this.tabFinals.Controls.Add(this.numericToMove);
-            this.tabFinals.Controls.Add(this.buttonDown);
-            this.tabFinals.Controls.Add(this.buttonUp);
-            this.tabFinals.Controls.Add(this.buttonRight);
-            this.tabFinals.Controls.Add(this.labelSelectedColumn);
-            this.tabFinals.Controls.Add(this.buttonLeft);
-            this.tabFinals.Controls.Add(this.printReportFinals);
-            this.tabFinals.Controls.Add(this.displayReportFinals);
-            this.tabFinals.Controls.Add(this.labelTeamsToSendUp);
-            this.tabFinals.Controls.Add(this.numericFreeRides);
-            this.tabFinals.Controls.Add(this.label10);
-            this.tabFinals.Controls.Add(this.buttonFormatD);
-            this.tabFinals.Controls.Add(this.buttonTwoTrack);
-            this.tabFinals.Controls.Add(this.numericTeamsPerGame);
-            this.tabFinals.Controls.Add(this.label9);
-            this.tabFinals.Controls.Add(this.numericTeamsToCut);
-            this.tabFinals.Controls.Add(this.label8);
-            this.tabFinals.Controls.Add(this.numericTracks);
-            this.tabFinals.Controls.Add(this.label7);
-            this.tabFinals.Controls.Add(this.buttonAscension);
+            this.tabFinals.Controls.Add(this.frameFinals1);
             this.tabFinals.Location = new System.Drawing.Point(4, 22);
             this.tabFinals.Name = "tabFinals";
+            this.tabFinals.Padding = new System.Windows.Forms.Padding(3);
             this.tabFinals.Size = new System.Drawing.Size(1224, 701);
-            this.tabFinals.TabIndex = 4;
+            this.tabFinals.TabIndex = 7;
             this.tabFinals.Text = "Finals";
             this.tabFinals.UseVisualStyleBackColor = true;
-            this.tabFinals.Enter += new System.EventHandler(this.RefreshFinals);
             // 
-            // label27
+            // frameFinals1
             // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(358, 652);
-            this.label27.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(71, 13);
-            this.label27.TabIndex = 27;
-            this.label27.Text = "Move column";
-            // 
-            // buttonMoveRight
-            // 
-            this.buttonMoveRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonMoveRight.Location = new System.Drawing.Point(398, 668);
-            this.buttonMoveRight.Name = "buttonMoveRight";
-            this.buttonMoveRight.Size = new System.Drawing.Size(23, 23);
-            this.buttonMoveRight.TabIndex = 26;
-            this.buttonMoveRight.Tag = "1";
-            this.buttonMoveRight.Text = "▶\t";
-            this.buttonMoveRight.UseVisualStyleBackColor = true;
-            this.buttonMoveRight.Click += new System.EventHandler(this.ButtonMoveLeftRightClick);
-            // 
-            // buttonMoveLeft
-            // 
-            this.buttonMoveLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonMoveLeft.Location = new System.Drawing.Point(365, 668);
-            this.buttonMoveLeft.Name = "buttonMoveLeft";
-            this.buttonMoveLeft.Size = new System.Drawing.Size(23, 23);
-            this.buttonMoveLeft.TabIndex = 25;
-            this.buttonMoveLeft.Tag = "-1";
-            this.buttonMoveLeft.Text = "◀\t";
-            this.buttonMoveLeft.UseVisualStyleBackColor = true;
-            this.buttonMoveLeft.Click += new System.EventHandler(this.ButtonMoveLeftRightClick);
-            // 
-            // label25
-            // 
-            this.label25.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(19, 652);
-            this.label25.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(74, 13);
-            this.label25.TabIndex = 24;
-            this.label25.Text = "Select column";
-            // 
-            // buttonDeleteGame
-            // 
-            this.buttonDeleteGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonDeleteGame.Location = new System.Drawing.Point(494, 668);
-            this.buttonDeleteGame.Name = "buttonDeleteGame";
-            this.buttonDeleteGame.Size = new System.Drawing.Size(77, 23);
-            this.buttonDeleteGame.TabIndex = 23;
-            this.buttonDeleteGame.Text = "Delete Game";
-            this.buttonDeleteGame.UseVisualStyleBackColor = true;
-            this.buttonDeleteGame.Click += new System.EventHandler(this.ButtonDeleteGameClick);
-            // 
-            // label26
-            // 
-            this.label26.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(147, 652);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(174, 13);
-            this.label26.TabIndex = 22;
-            this.label26.Text = "Number of teams to move up/down";
-            // 
-            // numericToMove
-            // 
-            this.numericToMove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.numericToMove.Location = new System.Drawing.Point(150, 672);
-            this.numericToMove.Name = "numericToMove";
-            this.numericToMove.Size = new System.Drawing.Size(50, 20);
-            this.numericToMove.TabIndex = 21;
-            this.numericToMove.Value = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            // 
-            // buttonDown
-            // 
-            this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonDown.Location = new System.Drawing.Point(118, 672);
-            this.buttonDown.Name = "buttonDown";
-            this.buttonDown.Size = new System.Drawing.Size(23, 23);
-            this.buttonDown.TabIndex = 20;
-            this.buttonDown.Text = "▼";
-            this.buttonDown.UseVisualStyleBackColor = true;
-            this.buttonDown.Click += new System.EventHandler(this.ButtonDownClick);
-            // 
-            // buttonUp
-            // 
-            this.buttonUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonUp.Location = new System.Drawing.Point(118, 647);
-            this.buttonUp.Name = "buttonUp";
-            this.buttonUp.Size = new System.Drawing.Size(23, 23);
-            this.buttonUp.TabIndex = 19;
-            this.buttonUp.Text = "▲";
-            this.buttonUp.UseVisualStyleBackColor = true;
-            this.buttonUp.Click += new System.EventHandler(this.ButtonUpClick);
-            // 
-            // buttonRight
-            // 
-            this.buttonRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonRight.Location = new System.Drawing.Point(71, 668);
-            this.buttonRight.Name = "buttonRight";
-            this.buttonRight.Size = new System.Drawing.Size(23, 23);
-            this.buttonRight.TabIndex = 18;
-            this.buttonRight.Tag = "1";
-            this.buttonRight.Text = "▶\t";
-            this.buttonRight.UseVisualStyleBackColor = true;
-            this.buttonRight.Click += new System.EventHandler(this.ButtonLeftRightClick);
-            // 
-            // labelSelectedColumn
-            // 
-            this.labelSelectedColumn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.labelSelectedColumn.AutoSize = true;
-            this.labelSelectedColumn.Location = new System.Drawing.Point(49, 675);
-            this.labelSelectedColumn.Name = "labelSelectedColumn";
-            this.labelSelectedColumn.Size = new System.Drawing.Size(16, 13);
-            this.labelSelectedColumn.TabIndex = 17;
-            this.labelSelectedColumn.Text = "...";
-            // 
-            // buttonLeft
-            // 
-            this.buttonLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonLeft.Location = new System.Drawing.Point(18, 668);
-            this.buttonLeft.Name = "buttonLeft";
-            this.buttonLeft.Size = new System.Drawing.Size(23, 23);
-            this.buttonLeft.TabIndex = 16;
-            this.buttonLeft.Tag = "-1";
-            this.buttonLeft.Text = "◀\t";
-            this.buttonLeft.UseVisualStyleBackColor = true;
-            this.buttonLeft.Click += new System.EventHandler(this.ButtonLeftRightClick);
-            // 
-            // printReportFinals
-            // 
-            this.printReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.printReportFinals.DisplayReport = this.displayReportFinals;
-            this.printReportFinals.Location = new System.Drawing.Point(1154, 5);
-            this.printReportFinals.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.printReportFinals.Name = "printReportFinals";
-            this.printReportFinals.Size = new System.Drawing.Size(64, 475);
-            this.printReportFinals.TabIndex = 15;
-            // 
-            // displayReportFinals
-            // 
-            this.displayReportFinals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.displayReportFinals.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.displayReportFinals.Location = new System.Drawing.Point(3, 70);
-            this.displayReportFinals.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.displayReportFinals.Name = "displayReportFinals";
-            this.displayReportFinals.Report = null;
-            this.displayReportFinals.Size = new System.Drawing.Size(1145, 559);
-            this.displayReportFinals.TabIndex = 14;
-            // 
-            // labelTeamsToSendUp
-            // 
-            this.labelTeamsToSendUp.AutoSize = true;
-            this.labelTeamsToSendUp.Location = new System.Drawing.Point(528, 5);
-            this.labelTeamsToSendUp.Name = "labelTeamsToSendUp";
-            this.labelTeamsToSendUp.Size = new System.Drawing.Size(174, 13);
-            this.labelTeamsToSendUp.TabIndex = 12;
-            this.labelTeamsToSendUp.Text = "Teams to send up from each game:";
-            // 
-            // numericFreeRides
-            // 
-            this.numericFreeRides.Location = new System.Drawing.Point(472, 29);
-            this.numericFreeRides.Maximum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.numericFreeRides.Name = "numericFreeRides";
-            this.numericFreeRides.Size = new System.Drawing.Size(50, 20);
-            this.numericFreeRides.TabIndex = 11;
-            this.numericFreeRides.ValueChanged += new System.EventHandler(this.RefreshFinals);
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(266, 31);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(200, 13);
-            this.label10.TabIndex = 10;
-            this.label10.Text = "Teams that get a free ride to grand finals:";
-            // 
-            // buttonFormatD
-            // 
-            this.buttonFormatD.Location = new System.Drawing.Point(175, 29);
-            this.buttonFormatD.Name = "buttonFormatD";
-            this.buttonFormatD.Size = new System.Drawing.Size(75, 23);
-            this.buttonFormatD.TabIndex = 8;
-            this.buttonFormatD.Text = "Format D";
-            this.buttonFormatD.UseVisualStyleBackColor = true;
-            this.buttonFormatD.Click += new System.EventHandler(this.ButtonFormatDClick);
-            // 
-            // buttonTwoTrack
-            // 
-            this.buttonTwoTrack.Location = new System.Drawing.Point(94, 29);
-            this.buttonTwoTrack.Name = "buttonTwoTrack";
-            this.buttonTwoTrack.Size = new System.Drawing.Size(75, 23);
-            this.buttonTwoTrack.TabIndex = 7;
-            this.buttonTwoTrack.Text = "Two Track";
-            this.buttonTwoTrack.UseVisualStyleBackColor = true;
-            this.buttonTwoTrack.Click += new System.EventHandler(this.ButtonTwoTrackClick);
-            // 
-            // numericTeamsPerGame
-            // 
-            this.numericTeamsPerGame.Location = new System.Drawing.Point(210, 3);
-            this.numericTeamsPerGame.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.numericTeamsPerGame.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericTeamsPerGame.Name = "numericTeamsPerGame";
-            this.numericTeamsPerGame.Size = new System.Drawing.Size(50, 20);
-            this.numericTeamsPerGame.TabIndex = 3;
-            this.numericTeamsPerGame.Value = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            this.numericTeamsPerGame.ValueChanged += new System.EventHandler(this.NumericTeamsPerGameValueChanged);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(115, 5);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(89, 13);
-            this.label9.TabIndex = 2;
-            this.label9.Text = "Teams per game:";
-            // 
-            // numericTeamsToCut
-            // 
-            this.numericTeamsToCut.Location = new System.Drawing.Point(472, 3);
-            this.numericTeamsToCut.Maximum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.numericTeamsToCut.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericTeamsToCut.Name = "numericTeamsToCut";
-            this.numericTeamsToCut.Size = new System.Drawing.Size(50, 20);
-            this.numericTeamsToCut.TabIndex = 5;
-            this.numericTeamsToCut.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.numericTeamsToCut.ValueChanged += new System.EventHandler(this.RefreshFinals);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(266, 5);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(188, 13);
-            this.label8.TabIndex = 4;
-            this.label8.Text = "Teams to send down from each game:";
-            // 
-            // numericTracks
-            // 
-            this.numericTracks.Location = new System.Drawing.Point(59, 3);
-            this.numericTracks.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.numericTracks.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericTracks.Name = "numericTracks";
-            this.numericTracks.Size = new System.Drawing.Size(50, 20);
-            this.numericTracks.TabIndex = 1;
-            this.numericTracks.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.numericTracks.ValueChanged += new System.EventHandler(this.RefreshFinals);
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(10, 5);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(43, 13);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "Tracks:";
-            // 
-            // buttonAscension
-            // 
-            this.buttonAscension.Location = new System.Drawing.Point(13, 29);
-            this.buttonAscension.Name = "buttonAscension";
-            this.buttonAscension.Size = new System.Drawing.Size(75, 23);
-            this.buttonAscension.TabIndex = 6;
-            this.buttonAscension.Text = "Ascension";
-            this.buttonAscension.UseVisualStyleBackColor = true;
-            this.buttonAscension.Click += new System.EventHandler(this.ButtonAscensionClick);
+            this.frameFinals1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.frameFinals1.Holder = null;
+            this.frameFinals1.Location = new System.Drawing.Point(3, 3);
+            this.frameFinals1.Name = "frameFinals1";
+            this.frameFinals1.Size = new System.Drawing.Size(1218, 695);
+            this.frameFinals1.TabIndex = 0;
             // 
             // tabPyramid
             // 
@@ -1921,12 +1560,6 @@ namespace Torn.UI
             this.tabGraphic.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numericSize)).EndInit();
             this.tabFinals.ResumeLayout(false);
-            this.tabFinals.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericToMove)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericFreeRides)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericTeamsPerGame)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericTeamsToCut)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericTracks)).EndInit();
             this.tabPyramid.ResumeLayout(false);
             this.tabPyramid.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericPyramidFinalsGames)).EndInit();
@@ -1983,23 +1616,8 @@ namespace Torn.UI
 		private System.Windows.Forms.Button buttonImportTeams;
 		private System.Windows.Forms.TextBox textBoxGames;
 		private System.Windows.Forms.TextBox textBoxTeams;
-		private System.Windows.Forms.TabPage tabFinals;
-		private System.Windows.Forms.Button buttonAscension;
-		private System.Windows.Forms.Label label7;
-		private System.Windows.Forms.NumericUpDown numericTeamsPerGame;
-		private System.Windows.Forms.Label label9;
-		private System.Windows.Forms.NumericUpDown numericTeamsToCut;
-		private System.Windows.Forms.Label label8;
-		private System.Windows.Forms.NumericUpDown numericTracks;
-		private System.Windows.Forms.Button buttonFormatD;
-		private System.Windows.Forms.Button buttonTwoTrack;
-		private System.Windows.Forms.NumericUpDown numericFreeRides;
-		private System.Windows.Forms.Label label10;
-		private System.Windows.Forms.Label labelTeamsToSendUp;
 		private Torn5.Controls.DisplayReport displayReportGames;
 		private Torn5.Controls.DisplayReport displayReportGrid;
-		private Torn5.Controls.PrintReport printReportFinals;
-		private Torn5.Controls.DisplayReport displayReportFinals;
 		private System.Windows.Forms.TabPage tabPyramid;
 		private System.Windows.Forms.TabPage tabPyramidRound;
 		private System.Windows.Forms.NumericUpDown numericTeamsFromLastRepechage;
@@ -2077,17 +1695,7 @@ namespace Torn.UI
         private System.Windows.Forms.Label labelPyramidFinalsTeams;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label labelAdvancePercent;
-        private System.Windows.Forms.Button buttonDown;
-        private System.Windows.Forms.Button buttonUp;
-        private System.Windows.Forms.Button buttonRight;
-        private System.Windows.Forms.Label labelSelectedColumn;
-        private System.Windows.Forms.Button buttonLeft;
-        private System.Windows.Forms.Button buttonDeleteGame;
-        private System.Windows.Forms.Label label26;
-        private System.Windows.Forms.NumericUpDown numericToMove;
-        private System.Windows.Forms.Label label25;
-        private System.Windows.Forms.Label label27;
-        private System.Windows.Forms.Button buttonMoveRight;
-        private System.Windows.Forms.Button buttonMoveLeft;
+        private System.Windows.Forms.TabPage tabFinals;
+        private Torn5.Controls.FrameFinals frameFinals1;
     }
 }
