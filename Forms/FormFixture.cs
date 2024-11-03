@@ -16,15 +16,21 @@ namespace Torn.UI
 	public partial class FormFixture : Form
 	{
 		Holder holder;
-		public Holder Holder { 
+		public Holder Holder
+		{
 			get { return holder; }
 
-			set { 
+			set
+			{
 				holder = value;
 				if (frameFinals1 != null)
-					frameFinals1.Holder = holder; }
+					frameFinals1.Holder = holder;
+				if (framePyramid1 != null)
+					framePyramid1.Holder = holder;
+			}
 		}
-		public string ExportFolder { get; set; }
+
+public string ExportFolder { get; set; }
 
 		private List<List<int>> previousGrid;
 		private double previousBestScore;
@@ -845,8 +851,6 @@ namespace Torn.UI
 
 		private void TabControl1Selected(object sender, TabControlEventArgs e)
 		{
-			if (e.Action == TabControlAction.Selected && e.TabPage == tabPyramid)
-				TabPyramidSelected();
 			if (e.Action == TabControlAction.Selected && e.TabPage == tabPyramidRound)
 				TabPyramidRoundSelected();
 		}
@@ -860,103 +864,6 @@ namespace Torn.UI
 		{
 			resizing = false;
 			panelGraphic.Invalidate();
-		}
-
-        Pyramid Pyramid = new Pyramid();
-		private void TabPyramidSelected()
-		{
-			if (numericPyramidTeams.Value == 1 && numericPyramidDesiredTeamsPerGame.Value == 1)
-			{
-				string s = Holder.League.Title;
-				if (Holder.League.Teams.Count > 3)
-				{
-					numericPyramidTeams.Value = Holder.League.Teams.Count;
-					if (Holder.League.Games(true).Count > 0)
-                        numericPyramidDesiredTeamsPerGame.Value = (int)Math.Round(Holder.League.Games(true).Average(g => g.Teams.Count));
-					else
-						numericPyramidDesiredTeamsPerGame.Value = (int)Math.Round(Math.Sqrt(Holder.League.Teams.Count));
-                }
-				else if (s.IndexOf("Solo", StringComparison.OrdinalIgnoreCase) >= 0)
-				{
-					numericPyramidTeams.Value = 160;
-					numericPyramidDesiredTeamsPerGame.Value = 20;
-				}
-				else if (s.IndexOf("Double", StringComparison.OrdinalIgnoreCase) >= 0)
-				{
-					numericPyramidTeams.Value = 56;
-					numericPyramidDesiredTeamsPerGame.Value = 8;
-				}
-				else
-                {
-                    numericPyramidTeams.Value = 42;
-                    numericPyramidDesiredTeamsPerGame.Value = 6;
-                }
-            }
-            NumericPyramidRoundsValueChanged(null, null);
-            ButtonIdealiseClick(null, null);
-        }
-
-        private void NumericPyramidRoundsValueChanged(object sender, EventArgs e)
-        {
-			Pyramid.Rounds.Clear();
-
-            pyramidRound1.Visible = numericPyramidRounds.Value >= 1;
-            pyramidRound2.Visible = numericPyramidRounds.Value >= 2;
-            pyramidRound3.Visible = numericPyramidRounds.Value >= 3;
-
-            if (numericPyramidRounds.Value >= 1)
-                Pyramid.Rounds.Add(pyramidRound1);
-
-            if (numericPyramidRounds.Value >= 2)
-                Pyramid.Rounds.Add(pyramidRound2);
-
-            if (numericPyramidRounds.Value >= 3)
-                Pyramid.Rounds.Add(pyramidRound3);
-
-            RefreshPyramidFixture();
-        }
-
-        private void NumericPyramidGamesPerTeamValueChanged(object sender, EventArgs e)
-		{
-			pyramidRound1.RoundGamesPerTeam = (int)numericPyramidGamesPerTeam.Value;
-			RefreshPyramidFixture();
-		}
-
-		private void NumericPyramidTeamsValueChanged(object sender, EventArgs e)
-		{
-			pyramidRound1.TeamsIn = (int)numericPyramidTeams.Value;
-            RefreshPyramidFixture();
-		}
-
-		private void PyramidRoundValueChanged(object sender, EventArgs e)
-		{
-			int i;
-            for (i = 0; i < Pyramid.Rounds.Count - 1; i++)
-                Pyramid.Rounds[i + 1].TeamsIn = Pyramid.Rounds[i].TeamsOut;
-
-            labelPyramidFinalsTeams.Text = Pyramid.Rounds[i].TeamsOut.ToString();
-            RefreshPyramidFixture();
-		}
-
-		private void NumericPyramidFinalsGamesValueChanged(object sender, EventArgs e)
-		{
-			RefreshPyramidFixture();
-		}
-
-		void RefreshPyramidFixture()
-		{
-			if (Pyramid.Rounds.Count > 0)
-			{
-				displayReportPyramid.Report = Pyramid.Report(Holder.League.Title, (int)numericPyramidFinalsGames.Value, Pyramid.Rounds.Last().TeamsOut);
-				textDescription.Text = displayReportPyramid.Report.Description;
-			}
-		}
-
-		private void ButtonIdealiseClick(object sender, EventArgs e)
-		{
-			var x = Pyramid.Idealise((int)numericPyramidDesiredTeamsPerGame.Value, (int)numericPyramidTeams.Value);
-			labelAdvancePercent.Text = String.Format("{0:0.00%}", x);
-				
 		}
 
 		const int ColTitle = 1;

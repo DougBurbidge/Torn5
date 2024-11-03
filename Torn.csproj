@@ -190,6 +190,18 @@
     <Compile Include="Controls\DisplayReport.Designer.cs">
       <DependentUpon>DisplayReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FrameFinals.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FrameFinals.Designer.cs">
+      <DependentUpon>FrameFinals.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FramePyramid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FramePyramid.Designer.cs">
+      <DependentUpon>FramePyramid.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Grade.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -340,6 +352,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DisplayReport.resx">
       <DependentUpon>DisplayReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FrameFinals.resx">
+      <DependentUpon>FrameFinals.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FramePyramid.resx">
+      <DependentUpon>FramePyramid.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\Grade.resx">
       <DependentUpon>Grade.cs</DependentUpon>
