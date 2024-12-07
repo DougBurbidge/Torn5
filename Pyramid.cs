@@ -278,24 +278,42 @@ namespace Torn
 						i++;
 					}
 			}
-
-			Colour[] colours = { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };
-
+/*
 			if (colour)
 			{
-				var assignColours = new List<Colour>();
+                Colour[] colours = { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };  // This array has the hardest to distinguish colours last, so they get used the least.
+
+                // Create ordered list of colours, with one entry for each row in the report.
+                var assignColours = new List<Colour>();
 				for (int row = 0; row < drawReport.Rows.Count; row++)
 					assignColours.Add(colours[row % 8]);
 
-				for (int col = 0; col < drawReport.Columns.Count; col++)
-				{
-					var shuffledColours = assignColours.OrderBy(x => random.Next()).ToList();
-					for (int row = 0; row < drawReport.Rows.Count; row++)
-						drawReport.Rows[row][col].Color = shuffledColours[row].ToColor();
+				for (int col = 0; col < drawReport.Columns.Count; col++)  // For each column,
+                {
+					var shuffledColours = assignColours.OrderBy(x => random.Next()).ToList();  // create shuffled colours,
+                    for (int row = 0; row < drawReport.Rows.Count; row++)
+						drawReport.Rows[row][col].Color = shuffledColours[row].ToColor();  // and assign them to cells.
 				}
 			}
+*/
+            if (colour)
+            {
+                List<Colour> colours = new List<Colour>() { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };  // This array has the hardest to distinguish colours last, so they get used the least.
+                var coloursUsed = pyramidGames.SelectMany(pg => pg.Game.Teams.Select(t => t.Colour)).Distinct();
 
-			return (pastReport, drawReport);
+                colours.RemoveAll(c => !coloursUsed.Any(u => u == c));
+
+                for (int col = 0; col < drawReport.Columns.Count; col++)  // For each column,
+                    for (int rowGroup = 0; rowGroup < drawReport.Rows.Count; rowGroup += colours.Count)  // For each group of rows,
+					{
+						int remaining = Math.Min(drawReport.Rows.Count - rowGroup, colours.Count);
+                        var shuffledColours = colours.Take(remaining).OrderBy(x => random.Next()).ToList();  // create shuffled colours,
+                        for (int row = 0; row < remaining; row++)
+                            drawReport.Rows[rowGroup + row][col].Color = shuffledColours[row].ToColor();  // and assign them to cells.
+                    }
+            }
+
+            return (pastReport, drawReport);
 		}
 
 		void FillOnePastList(ZoomReport pastReport, ListTeamGames teamGamesList, League league)
@@ -414,7 +432,7 @@ namespace Torn
 		public void Add(Game game, GameTeam gt, Priority priority)
 		{
 			var teamGame = Find(tg => tg.TeamId == gt.TeamId);
-			if (teamGame == null)
+			if (teamGame == null && gt.TeamId != null)
 				Add(teamGame = new TeamGames() { TeamId = (int)gt.TeamId });
 
 			teamGame.Add(new TeamGame() { Game = game, GameTeam = gt, Priority = priority });
