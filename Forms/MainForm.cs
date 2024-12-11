@@ -662,17 +662,17 @@ namespace Torn.UI
         private FormFixture formFixture;
 		void ButtonFixtureClick(object sender, EventArgs e)
 		{
-			if (formFixture == null)
+			if (formFixture == null || formFixture.IsDisposed)
 				formFixture = new FormFixture() { Icon = (Icon)Icon.Clone() };
 			if (listViewLeagues.SelectedItems.Count == 1)
 			{
 				formFixture.Holder = (Holder)listViewLeagues.SelectedItems[0].Tag;
 				formFixture.ExportFolder = exportFolder;
-				formFixture.Show();
-			}
-		}
+                formFixture.Show();
+            }
+        }
 
-		void ButtonForgetClick(object sender, EventArgs e)
+        void ButtonForgetClick(object sender, EventArgs e)
 		{
 			if (listViewGames.SelectedItems.Count == 0)
 				return;
