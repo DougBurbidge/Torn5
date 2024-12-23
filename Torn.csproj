@@ -245,6 +245,12 @@
     <Compile Include="Forms\FormPyramidGame.Designer.cs">
       <DependentUpon>FormPyramidGame.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormWithdraw.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormWithdraw.Designer.cs">
+      <DependentUpon>FormWithdraw.cs</DependentUpon>
+    </Compile>
     <Compile Include="JsonServer.cs" />
     <Compile Include="Forms\MainForm1.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -405,6 +411,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormReports.resx">
       <DependentUpon>FormReports.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormWithdraw.resx">
+      <DependentUpon>FormWithdraw.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\InputDialog.resx">
       <DependentUpon>InputDialog.cs</DependentUpon>
