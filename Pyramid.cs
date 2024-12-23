@@ -134,7 +134,9 @@ namespace Torn
 		/// <summary>If true, take best teams from each game. If false, take worst teams from each game.</summary>
 		public bool TakeTop { get; set; }
 
-		/// <summary>Build a list of all the teams from the previous round followed by all the teams from the previous repechage.</summary>
+		public League League { get; set; }
+
+		/// <summary>Build a list of at most (teamsFromRound) teams from the previous round followed by at most (teamsFromRepechage) teams from the previous repechage.</summary>
 		ListTeamGames BuildList(List<PyramidGame> pyramidGames, int teamsFromRound, int teamsFromRepechage)
 		{
 			var roundList = new ListTeamGames();
@@ -151,7 +153,7 @@ namespace Torn
 		{
 			foreach (var pg in pyramidGames)
 				if (pg.TeamsToTake is int take)
-					list.Add(pg.Game, TakeTop, pg.Priority, 0, take);
+					list.AddN(League, pg.Game, TakeTop, pg.Priority, 0, take);
 
 			GetRest(list, pyramidGames, length);
 		}
@@ -162,28 +164,39 @@ namespace Torn
 			list.Sort(comparer);
 
 			// If we already have too many items in the list, remove some.
-			if (list.Count > length)
+			int activeCount = list.Count(t => League.LeagueTeam(t.TeamId).Active);
+			if (activeCount > length)
 			{
 				if (TakeTop)
-					list.RemoveRange(length, list.Count - length);
+					list.RemoveRange(length, activeCount - length);
 				else
 					list.RemoveRange(0, length);
 			}
 
 			// If we don't have enough items, add some from any games which don't specify how many teams to take from that game.
-			else if (list.Count < length)
+			else if (activeCount < length)
 			{
+				// Build the tail list: all the teams that didn't get brought in before.
 				var tail = new ListTeamGames();
 				foreach (var pg in pyramidGames)
-					tail.Add(pg.Game, TakeTop, pg.Priority, pg.TeamsToTake ?? 0, pg.Game.Teams.Count);  // Add all the teams that didn't get brought in before.
+					tail.AddN(League, pg.Game, TakeTop, pg.Priority, pg.TeamsToTake ?? 0, pg.Game.Teams.Count);
 
 				tail.Sort(comparer);
 
-				int toAdd = Math.Min(length - list.Count, tail.Count);
-				if (TakeTop)
-					list.AddRange(tail.GetRange(0, toAdd));
-				else
-					list.AddRange(tail.GetRange(tail.Count - toAdd, toAdd));
+				// Build the take list: enough active teams to get us up to length, plus any withdrawn teams we come across while we do that.
+				var take = new ListTeamGames();
+
+				int toAdd = length - list.Count(t => League.LeagueTeam(t.TeamId).Active);
+				int i = 0;
+				while (take.Count(t => League.LeagueTeam(t.TeamId).Active) < toAdd && i < tail.Count)
+				{
+					take.Add(tail[TakeTop ? i : tail.Count - i - 1]);
+					i++;
+				}
+				take.Sort(comparer);
+
+				// Then add in the take.
+				list.AddRange(take);
 			}
 		}
 
@@ -194,22 +207,24 @@ namespace Torn
 			foreach (var pg in pyramidGames)
 				foreach (var gt in pg.Game.Teams)
 					if (!taken.Any(tg => tg.TeamId == gt.TeamId))
-						notTaken.Add(pg.Game, gt, Priority.Unmarked);
+						notTaken.Add(League, pg.Game, gt, Priority.Unmarked);
 
 			notTaken.Sort(new TeamGamesComparer() { CompareOnRank = CompareRank });
 
 			return notTaken;
 		}
 
-		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, League league, int games, int teamsFromRound, int teamsFromRepechage, string title, bool colour)
-		{
-			var list = BuildList(pyramidGames, teamsFromRound, teamsFromRepechage);
-			return Reports(list, pyramidGames, league, games, title, colour);
-		}
-
 		private static readonly Random random = new Random();
-		(ZoomReport past, ZoomReport draw) Reports(ListTeamGames teamGamesList, List<PyramidGame> pyramidGames, League league, int games, string title, bool colour)
+
+		/// <summary>
+		/// Generate two reports. The past report highlights the teams which will advance. The draw report shows which teams are in which game for the next round or repechage.
+		/// Each report has its data populated from teamsGames.
+		/// </summary>
+		// TODO: test withdrawing teams of various ladder positions to make sure it works in all cases, in both rounds and repechages.
+		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, int games, int teamsFromRound, int teamsFromRepechage, string title, bool colour)
 		{
+			var teamsGames = BuildList(pyramidGames, teamsFromRound, teamsFromRepechage);
+
 			// Build the "past" report showing which teams made the cut: one row per team, one game per column.
 			var pastReport = new Zoom.ZoomReport("From", "Rank,Team", "center,left");
 
@@ -224,10 +239,10 @@ namespace Torn
 
 			// Put all the rows in the past report. If we're taking the top teams, list them first; otherwise, list them last.
 			if (TakeTop)
-				FillOnePastList(pastReport, teamGamesList, league);
-			FillOnePastList(pastReport, TeamsNotTaken(teamGamesList, pyramidGames), league);
+				AddPastRows(pastReport, teamsGames);
+			AddPastRows(pastReport, TeamsNotTaken(teamsGames, pyramidGames));
 			if (!TakeTop)
-				FillOnePastList(pastReport, teamGamesList, league);
+				AddPastRows(pastReport, teamsGames);
 
 			for (int r = 0; r < pastReport.Rows.Count; r++)
 				pastReport.Rows[r][0].Number = r + 1;  // Rank.
@@ -238,21 +253,23 @@ namespace Torn
 			for (int col = 1; col <= games; col++)
 				drawReport.Columns.Add(new Zoom.ZColumn("Game " + col.ToString(), Zoom.ZAlignment.Left));
 
+			var activeTeams = teamsGames.Where(t => League.LeagueTeam(t.TeamId).Active).ToList();
+
 			// Pull off teamGamesList into drawReport, either from the low end or the high end.
 			int i = 0;
-			while (i < teamGamesList.Count)
+			while (i < activeTeams.Count)
 			{
 				var row = drawReport.AddRow(new Zoom.ZRow());
 
-				if (i + games <= teamGamesList.Count)  // This is a complete row.
+				if (i + games <= activeTeams.Count)  // This is a complete row.
 					for (int j = 0; j < games; j++)
 					{
 						LeagueTeam team;
 						int rowNum = drawReport.Rows.Count;
 						if (rowNum % 2 == 1)
-							team = league.LeagueTeam(teamGamesList[i].TeamId);  // Zig.  Run this row forward: team1 in game 1, etc.
+							team = League.LeagueTeam(activeTeams[i].TeamId);  // Zig.  Run this row forward: team1 in game 1, etc.
 						else
-							team = league.LeagueTeam(teamGamesList[rowNum * games - j - 1].TeamId);  // Zag.  Run this row backwards: first team in last game, etc.
+							team = League.LeagueTeam(activeTeams[rowNum * games - j - 1].TeamId);  // Zag.  Run this row backwards: first team in last game, etc.
 
 						if (team != null)
 							row.Add(new Zoom.ZCell(team.Name));
@@ -264,9 +281,9 @@ namespace Torn
 				else  // This is the final, partial row.
 					for (int j = 0; j < games; j++)
 					{
-						if (i < teamGamesList.Count)
+						if (i < activeTeams.Count)
 						{
-							LeagueTeam team = league.LeagueTeam(teamGamesList[i].TeamId);
+							LeagueTeam team = League.LeagueTeam(activeTeams[i].TeamId);
 							if (team != null)
 								row.Add(new Zoom.ZCell(team.Name));
 							else
@@ -278,45 +295,28 @@ namespace Torn
 						i++;
 					}
 			}
-/*
+
 			if (colour)
 			{
-                Colour[] colours = { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };  // This array has the hardest to distinguish colours last, so they get used the least.
+				List<Colour> colours = new List<Colour>() { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };  // This array has the hardest to distinguish colours last, so they get used the least.
+				var coloursUsed = pyramidGames.SelectMany(pg => pg.Game.Teams.Select(t => t.Colour)).Distinct();
 
-                // Create ordered list of colours, with one entry for each row in the report.
-                var assignColours = new List<Colour>();
-				for (int row = 0; row < drawReport.Rows.Count; row++)
-					assignColours.Add(colours[row % 8]);
+				colours.RemoveAll(c => !coloursUsed.Any(u => u == c));
 
 				for (int col = 0; col < drawReport.Columns.Count; col++)  // For each column,
-                {
-					var shuffledColours = assignColours.OrderBy(x => random.Next()).ToList();  // create shuffled colours,
-                    for (int row = 0; row < drawReport.Rows.Count; row++)
-						drawReport.Rows[row][col].Color = shuffledColours[row].ToColor();  // and assign them to cells.
-				}
-			}
-*/
-            if (colour)
-            {
-                List<Colour> colours = new List<Colour>() { Colour.Red, Colour.Blue, Colour.Green, Colour.Yellow, Colour.Cyan, Colour.Pink, Colour.Purple, Colour.Orange };  // This array has the hardest to distinguish colours last, so they get used the least.
-                var coloursUsed = pyramidGames.SelectMany(pg => pg.Game.Teams.Select(t => t.Colour)).Distinct();
-
-                colours.RemoveAll(c => !coloursUsed.Any(u => u == c));
-
-                for (int col = 0; col < drawReport.Columns.Count; col++)  // For each column,
-                    for (int rowGroup = 0; rowGroup < drawReport.Rows.Count; rowGroup += colours.Count)  // For each group of rows,
+					for (int rowGroup = 0; rowGroup < drawReport.Rows.Count; rowGroup += colours.Count)  // For each group of rows,
 					{
 						int remaining = Math.Min(drawReport.Rows.Count - rowGroup, colours.Count);
-                        var shuffledColours = colours.Take(remaining).OrderBy(x => random.Next()).ToList();  // create shuffled colours,
-                        for (int row = 0; row < remaining; row++)
-                            drawReport.Rows[rowGroup + row][col].Color = shuffledColours[row].ToColor();  // and assign them to cells.
-                    }
-            }
+						var shuffledColours = colours.Take(remaining).OrderBy(x => random.Next()).ToList();  // create shuffled colours,
+						for (int row = 0; row < remaining; row++)
+							drawReport.Rows[rowGroup + row][col].Color = shuffledColours[row].ToColor();  // and assign them to cells.
+					}
+			}
 
-            return (pastReport, drawReport);
+			return (pastReport, drawReport);
 		}
 
-		void FillOnePastList(ZoomReport pastReport, ListTeamGames teamGamesList, League league)
+		void AddPastRows(ZoomReport pastReport, ListTeamGames teamGamesList)
 		{
 			bool hasPoints = teamGamesList.Any(tg => tg.AveragePoints() > 0);
 
@@ -325,9 +325,14 @@ namespace Torn
 				var row = pastReport.AddRow(new Zoom.ZRow());
 				row.Add(new Zoom.ZCell(0));  // Blank-for-now Rank.
 
+				var team = League.LeagueTeam(teamGames.TeamId);
 				var priorities = teamGames.Select(tg => tg.Priority).Distinct();
-				var color = priorities.Count() == 1 ? priorities.First().ToColor() : Color.Red;
-				row.Add(new Zoom.ZCell(league.LeagueTeam(teamGames.TeamId).Name, color));  // Team
+
+				var color = !team.Active ? Priority.Withdrawn.ToColor() :
+							priorities.Count() == 1 ? priorities.First().ToColor() :
+							Color.Red;
+
+				row.Add(new Zoom.ZCell(team.Name, color));  // Team
 
 				foreach (var pg in pastReport.Columns.Where(c => c.Tag is PyramidGame).Select(c => c.Tag as PyramidGame))
 				{
@@ -360,7 +365,7 @@ namespace Torn
 
 		ZCell FillOnePastCell(double rank, double score, double points, bool hasPoints, Color color)
 		{
-			var cell = new ZCell(score) { Color = color };
+			var cell = new ZCell(score, ChartType.Bar, "n1") { Color = color };
 
 			if (CompareRank || hasPoints)
 			{
@@ -375,29 +380,24 @@ namespace Torn
 		}
 	}
 
-	/// <summary>Used to mark games from which teams will be taken for future rounds. Teams from games marked Round are ranked higher into 
+	/// <summary>Used to mark from which games teams were taken for future rounds. Teams from games marked Round are ranked higher into 
 	/// the next round than teams from games marked Repêchage, etc. Plan B is for future development and is not currently used.</summary>
-	public enum Priority { Unmarked = 0, PlanB, Repechage, Round };
+	public enum Priority { Withdrawn = 0, Unmarked, PlanB, Repechage, Round };
 
 	public static class PriorityExtensions
 	{
 		public static string ToString(Priority p)
 		{
-			switch (p)
-			{
-				case Priority.Unmarked: return "Unmarked";
-				case Priority.PlanB: return "Plan B";
-				case Priority.Repechage: return "Repêchage";
-				case Priority.Round: return "Round";
-				default: return "?";
-			}
+			string[] names = { "Withdrawn", "Unmarked", "Plan B", "Repêchage", "Round" };
+
+			return names.Valid((int)p) ? names[(int)p] : "?";
 		}
 
 		public static Color ToColor(this Priority priority)
-		{ 
-			Color[] Colors = { Color.Empty, Color.FromArgb(0xFF, 0xA0, 0xA0), Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xA0, 0xFF, 0xA0) };  // None, Red, Orange, Green.
+		{
+			Color[] Colors = { Color.FromArgb(0xFF, 0xA0, 0xA0), Color.Empty, Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xFF, 0xFF, 0x90), Color.FromArgb(0xA0, 0xFF, 0xA0) };  // Red, None, Orange, Yellow, Green.
 
-			return Colors[(int)priority];
+			return Colors.Valid((int)priority) ? Colors[(int)priority] : Color.Empty;
 		}
 	}
 
@@ -429,24 +429,28 @@ namespace Torn
 
 	internal class ListTeamGames : List<TeamGames>
 	{
-		public void Add(Game game, GameTeam gt, Priority priority)
+		public void Add(League league, Game game, GameTeam gt, Priority priority)
 		{
 			var teamGame = Find(tg => tg.TeamId == gt.TeamId);
-			if (teamGame == null && gt.TeamId != null)
-				Add(teamGame = new TeamGames() { TeamId = (int)gt.TeamId });
+			if (teamGame == null && gt.TeamId != null)  // If this team doesn't have an entry yet,
+				Add(teamGame = new TeamGames() { TeamId = (int)gt.TeamId });  // make one and add it.
 
-			teamGame.Add(new TeamGame() { Game = game, GameTeam = gt, Priority = priority });
+			var team = league.LeagueTeam(teamGame.TeamId);
+			if (!team.Active)
+				priority = Priority.Withdrawn;
+
+			teamGame.Add(new TeamGame() { Game = game, GameTeam = gt, Priority = priority });  // Add a game to this team.
 		}
 
 		/// <summary>Add _n_ teams from this game to our list, skipping over the first _skip_ teams.</summary>
-		public void Add(Game game, bool topFirst, Priority priority, int skip, int n)
+		public void AddN(League league, Game game, bool topFirst, Priority priority, int skip, int n)
 		{
 				if (topFirst) // Take the top N.
 				for (int i = skip; i < skip + n && i < game.Teams.Count; i++)
-					Add(game, game.Teams[i], priority);
+					Add(league, game, game.Teams[i], priority);
 			else  // Take the bottom N.
 				for (int i = game.Teams.Count - skip - 1; i >= game.Teams.Count - skip - n && i >= 0; i--)
-					Add(game, game.Teams[i], priority);
+					Add(league, game, game.Teams[i], priority);
 		}
 	}
 

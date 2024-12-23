@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Torn;
@@ -63,9 +64,9 @@ namespace Torn5.Controls
                     item.Text = leagueGame.ServerGame?.InProgress ?? false ? "In Progress" : leagueGame.Time.FriendlyDateTime();
 
                     if (item.Tag == null)
-                        item.Tag = new PyramidGame() { Game = leagueGame };
+                        item.Tag = new PyramidGame() { Game = leagueGame, Priority = Priority.Unmarked };
                     
-                    while (item.SubItems.Count < listViewGames.Columns.Count)
+                    while (item.SubItems.Count < listViewGames.Columns.Count || item.SubItems.Count <= ColSecret)
                         item.SubItems.Add("");
 
                     item.SubItems[ColTitle].Text = leagueGame.Title;  // Description
@@ -136,6 +137,18 @@ namespace Torn5.Controls
             textBoxTitle.SelectionStart = 10;
         }
 
+        private FormWithdraw formWithdraw;
+
+        /// <summary>Mark team(s) as withdrawn and not eligible for next round.</summary>
+        private void ButtonWithdrawClick(object sender, EventArgs e)
+        {
+            if (formWithdraw == null)
+                formWithdraw = new FormWithdraw() { League = Holder.League, Icon = (Icon)((Form)Parent.Parent.Parent).Icon.Clone() };
+
+            if (formWithdraw.ShowDialog() == DialogResult.OK)
+				RefreshPyramidDraw();
+        }
+
         /// <summary>Update number of teams from last round and repechage.</summary>
         private void CalculateSpins()
         {
@@ -152,8 +165,8 @@ namespace Torn5.Controls
                     repechageTeams += take;
             }
 
-            numericTeamsFromLastRound.Value = Math.Min(roundTeams, numericTeamsFromLastRound.Maximum);
-            numericTeamsFromLastRepechage.Value = Math.Min(repechageTeams, numericTeamsFromLastRepechage.Maximum);
+            numericTeamsFromLastRound.Value = Math.Min(Math.Min(roundTeams, Holder.League.Teams.Count), numericTeamsFromLastRound.Maximum);
+            numericTeamsFromLastRepechage.Value = Math.Min(Math.Min(repechageTeams, Holder.League.Teams.Count), numericTeamsFromLastRepechage.Maximum);
         }
 
         private void ListViewGamesDoubleClick(object sender, EventArgs e)
@@ -184,10 +197,20 @@ namespace Torn5.Controls
                     pyramidGames.Add((PyramidGame)item.Tag);
             }
 
-            var pr = new PyramidDraw() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked };
+            var pr = new PyramidDraw() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked, League = holder.League };
 
-            (displayReportTaken.Report, displayReportDraw.Report) = pr.Reports(pyramidGames, holder.League, (int)numericGames.Value,
+            (displayReportTaken.Report, displayReportDraw.Report) = pr.Reports(pyramidGames, (int)numericGames.Value,
                 (int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, textBoxTitle.Text, checkBoxColour.Checked);
-        }
-    }
+
+			SetKeyLabelVisible(labelKeyRound);
+			SetKeyLabelVisible(labelKeyRepechage);
+			SetKeyLabelVisible(labelKeyPlanB);
+			SetKeyLabelVisible(labelKeyWithdrawn);
+		}
+
+		private void SetKeyLabelVisible(Label label)
+        {
+			label.Visible = displayReportTaken.Report.Rows.Any(r => r.Valid(1) && r[1].Color == label.BackColor);
+		}
+	}
 }

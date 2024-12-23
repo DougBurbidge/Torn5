@@ -26,7 +26,7 @@ namespace Torn
 				Color.FromArgb(0xFF, 0xB0, 0x90), Color.FromArgb(0xE0, 0xE0, 0xFF), Color.FromArgb(0xD0, 0xD0, 0x80), Color.FromArgb(0xFF, 0xC0, 0xF0),  // Fire, Ice, Earth, Crystal,
 				Color.FromArgb(0xE0, 0xE0, 0xE0), Color.FromArgb(0xB0, 0xC0, 0xFF), Color.FromArgb(0xE0, 0xE0, 0xE0)  // Rainbow, Cops, Referee
 			};
-			return Colors[(int)colour];
+			return Colors.Valid((int)colour) ? Colors[(int)colour] : Color.Empty;
 		}
 
 		public static Color ToSaturatedColor(this Colour colour)
@@ -268,9 +268,13 @@ namespace Torn
 		public Handicap Handicap { get; set; }
 		public string Comment { get; set; }
 
+        /// <summary>Set this to false to mark a team as withdrawn.</summary>
+        public bool Active { get; set; }
+
 		public LeagueTeam()
 		{
 			Players = new List<LeaguePlayer>();
+			Active = true;
 		}
 
 		public LeagueTeam Clone(League clonedLeague)
@@ -281,6 +285,7 @@ namespace Torn
 				TeamId = TeamId,
 				Handicap = Handicap,
 				Comment = Comment,
+				Active = Active,
 
 				Players = new List<LeaguePlayer>()
 			};
@@ -569,8 +574,13 @@ namespace Torn
 			return (string.IsNullOrEmpty(Title) ? "Game " : Title + " Game ") + Utility.ShortDateTime(Time);
 		}
 
-		/// <summary>Pull Event data from ServerGames and put it into GamePlayers.</summary>
-		public bool PopulateEvents()
+		public GamePlayer Player(string serverPlayerId)
+		{
+			return AllPlayers().Find(p => p is ServerPlayer sp && sp.ServerPlayerId == serverPlayerId);
+		}
+
+        /// <summary>Pull Event data from ServerGames and put it into GamePlayers.</summary>
+        public bool PopulateEvents()
 		{
 			bool any = false;
 			foreach (var player in AllPlayers())
@@ -614,7 +624,7 @@ namespace Torn
 			if (totalScore == null && totalScore != 0)
 				totalScore = Teams.Sum(t => t.Score);
 
-			return (int)totalScore;
+			return (double)totalScore;
 		}
 	}
 
