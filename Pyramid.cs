@@ -136,31 +136,65 @@ namespace Torn
 
 		public League League { get; set; }
 
-		/// <summary>Build a list of at most (teamsFromRound) teams from the previous round followed by at most (teamsFromRepechage) teams from the previous repechage.</summary>
-		ListTeamGames BuildList(List<PyramidGame> pyramidGames, int teamsFromRound, int teamsFromRepechage)
+		/// <summary>Build a list of at most (teamsFromRound) teams from the previous round followed by at most (teamsFromRepechage) teams from the previous repêchage.</summary>
+		TeamsPlays BuildList(List<PyramidGame> pyramidGames, int teamsFromRound, int teamsFromRepechage, int teamsFromPlanB)
 		{
-			var roundList = new ListTeamGames();
-			var repechageList = new ListTeamGames();
+			var roundList = BuildOneList(pyramidGames, Priority.Round, teamsFromRound);
+			roundList.AddRange(BuildOneList(pyramidGames, Priority.Repechage, teamsFromRepechage));
+			roundList.AddRange(BuildOneList(pyramidGames, Priority.PlanB, teamsFromPlanB));
 
-			BuildOneList(roundList, pyramidGames.Where(p => p.Priority == Priority.Round), teamsFromRound);
-			BuildOneList(repechageList, pyramidGames.Where(p => p.Priority == Priority.Repechage), teamsFromRepechage);
-
-			roundList.AddRange(repechageList);  // Add the repechage games into the main list.
 			return roundList;
 		}
 
-		void BuildOneList(ListTeamGames list, IEnumerable<PyramidGame> pyramidGames, int length)
+		/// <summary>Iterate through the games we've been passed. If a specific number of teams are marked to be taken, take them. Then GetRest() ensures we have length teams.</summary>
+		TeamsPlays BuildOneList(IEnumerable<PyramidGame> pyramidGames, Priority priority, int length)
 		{
-			foreach (var pg in pyramidGames)
-				if (pg.TeamsToTake is int take)
-					list.AddN(League, pg.Game, TakeTop, pg.Priority, 0, take);
+			var list = new TeamsPlays();
 
-			GetRest(list, pyramidGames, length);
+			// Get from each relevant game the number of teams that are marked to be taken from that game.
+			foreach (var pg in pyramidGames.Where(p => p.Priority == priority))
+				if (pg.TeamsToTake is int take)
+				{
+					if (priority == Priority.PlanB)
+						AddNPlanB(list, list, pyramidGames, pg.Game, take);
+					else
+						list.AddN(League, pg.Game, TakeTop, pg.Priority, 0, take);
+				}
+
+			GetRest(list, pyramidGames, priority, length);
+
+			return list;
 		}
 
-		void GetRest(ListTeamGames list, IEnumerable<PyramidGame> pyramidGames, int length)
+		/// <summary>From a single game, add teams that _haven't_ appeared in Round or Repêchage.
+		/// Note that I'm not respecting TakeTop for Plan B: we use Plan B when building a repêchage, which is typically take bottom
+		/// from the previous round, plus take top teams that didn't make it to that round from the _previous_ repêchage.</summary>
+		void AddNPlanB(TeamsPlays list, TeamsPlays otherList, IEnumerable<PyramidGame> pyramidGames, Game game, int? TeamsToTake)
 		{
-			var comparer = new TeamGamesComparer() { CompareOnRank = CompareRank };
+			var nonPlanBGames = pyramidGames.Where(pg => pg.Priority != Priority.PlanB);
+
+			for (int i = 0, taken = 0; i < game.Teams.Count && taken < TeamsToTake; i++)
+			{
+				var gameTeam = game.Teams[i];
+
+				if (!nonPlanBGames.Any(pg => pg.Game.Teams.Any(t => t.TeamId == gameTeam.TeamId)))  // If this team hasn't appeared in Round or Repêchage,
+				{
+					if(!list.Any(tps => tps.TeamId == gameTeam.TeamId && tps.Any(tp => tp.Game == game)) && 
+						!otherList.Any(tps => tps.TeamId == gameTeam.TeamId && tps.Any(tp => tp.Game == game)))  // and we don't already have it listed,
+					{
+						list.Add(League, game, gameTeam, Priority.PlanB);  // add it.
+						if (League.LeagueTeam(gameTeam).Active)
+							taken++;
+					}
+				}
+			}
+		}
+
+		/// <summary>If necessary, get the remaining teams from the specified games. Sort so that the already-selected teams are first,
+		/// and every team is in the right order. Truncate the list so that it has the right number of active teams in it.</summary>
+		void GetRest(TeamsPlays list, IEnumerable<PyramidGame> pyramidGames, Priority priority, int length)
+		{
+			var comparer = new TeamPlaysComparer() { CompareOnRank = CompareRank };
 			list.Sort(comparer);
 
 			// If we already have too many items in the list, remove some.
@@ -177,20 +211,23 @@ namespace Torn
 			else if (activeCount < length)
 			{
 				// Build the tail list: all the teams that didn't get brought in before.
-				var tail = new ListTeamGames();
-				foreach (var pg in pyramidGames)
-					tail.AddN(League, pg.Game, TakeTop, pg.Priority, pg.TeamsToTake ?? 0, pg.Game.Teams.Count);
+				var tail = new TeamsPlays();
+				foreach (var pg in pyramidGames.Where(p => p.Priority == priority))
+					if (priority == Priority.PlanB)
+						AddNPlanB(tail, list, pyramidGames, pg.Game, Int32.MaxValue);
+					else
+						tail.AddN(League, pg.Game, TakeTop, pg.Priority, pg.TeamsToTake ?? 0, pg.Game.Teams.Count);
 
 				tail.Sort(comparer);
 
 				// Build the take list: enough active teams to get us up to length, plus any withdrawn teams we come across while we do that.
-				var take = new ListTeamGames();
+				var take = new TeamsPlays();
 
-				int toAdd = length - list.Count(t => League.LeagueTeam(t.TeamId).Active);
+				int toAdd = length - activeCount;
 				int i = 0;
 				while (take.Count(t => League.LeagueTeam(t.TeamId).Active) < toAdd && i < tail.Count)
 				{
-					take.Add(tail[TakeTop ? i : tail.Count - i - 1]);
+					take.Add(tail[TakeTop || priority == Priority.PlanB ? i : tail.Count - i - 1]);
 					i++;
 				}
 				take.Sort(comparer);
@@ -200,30 +237,26 @@ namespace Torn
 			}
 		}
 
-		ListTeamGames TeamsNotTaken(ListTeamGames taken, IEnumerable<PyramidGame> pyramidGames)
+		TeamsPlays TeamsNotTaken(TeamsPlays taken, IEnumerable<PyramidGame> pyramidGames)
 		{
-			var notTaken = new ListTeamGames();
+			var notTaken = new TeamsPlays();
 
 			foreach (var pg in pyramidGames)
 				foreach (var gt in pg.Game.Teams)
 					if (!taken.Any(tg => tg.TeamId == gt.TeamId))
 						notTaken.Add(League, pg.Game, gt, Priority.Unmarked);
 
-			notTaken.Sort(new TeamGamesComparer() { CompareOnRank = CompareRank });
+			notTaken.Sort(new TeamPlaysComparer() { CompareOnRank = CompareRank });
 
 			return notTaken;
 		}
 
 		private static readonly Random random = new Random();
 
-		/// <summary>
-		/// Generate two reports. The past report highlights the teams which will advance. The draw report shows which teams are in which game for the next round or repechage.
-		/// Each report has its data populated from teamsGames.
-		/// </summary>
-		// TODO: test withdrawing teams of various ladder positions to make sure it works in all cases, in both rounds and repechages.
-		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, int games, int teamsFromRound, int teamsFromRepechage, string title, bool colour)
+		/// <summary>Generate two reports. The past report highlights the teams which will advance. The draw report shows which teams are in which game for the next round or repechage.</summary>
+		public (ZoomReport past, ZoomReport draw) Reports(List<PyramidGame> pyramidGames, int games, int teamsFromRound, int teamsFromRepechage, int teamsFromPlanB, string title, bool colour)
 		{
-			var teamsGames = BuildList(pyramidGames, teamsFromRound, teamsFromRepechage);
+			var teamsPlays = BuildList(pyramidGames, teamsFromRound, teamsFromRepechage, teamsFromPlanB);  // This is the data source from which both reports will be built.
 
 			// Build the "past" report showing which teams made the cut: one row per team, one game per column.
 			var pastReport = new Zoom.ZoomReport("From", "Rank,Team", "center,left");
@@ -239,10 +272,10 @@ namespace Torn
 
 			// Put all the rows in the past report. If we're taking the top teams, list them first; otherwise, list them last.
 			if (TakeTop)
-				AddPastRows(pastReport, teamsGames);
-			AddPastRows(pastReport, TeamsNotTaken(teamsGames, pyramidGames));
+				AddPastRows(pastReport, teamsPlays);
+			AddPastRows(pastReport, TeamsNotTaken(teamsPlays, pyramidGames));
 			if (!TakeTop)
-				AddPastRows(pastReport, teamsGames);
+				AddPastRows(pastReport, teamsPlays);
 
 			for (int r = 0; r < pastReport.Rows.Count; r++)
 				pastReport.Rows[r][0].Number = r + 1;  // Rank.
@@ -253,9 +286,9 @@ namespace Torn
 			for (int col = 1; col <= games; col++)
 				drawReport.Columns.Add(new Zoom.ZColumn("Game " + col.ToString(), Zoom.ZAlignment.Left));
 
-			var activeTeams = teamsGames.Where(t => League.LeagueTeam(t.TeamId).Active).ToList();
+			var activeTeams = teamsPlays.Where(t => League.LeagueTeam(t.TeamId).Active).ToList();
 
-			// Pull off teamGamesList into drawReport, either from the low end or the high end.
+			// Pull off activeTeams into drawReport, either from the low end or the high end.
 			int i = 0;
 			while (i < activeTeams.Count)
 			{
@@ -316,17 +349,18 @@ namespace Torn
 			return (pastReport, drawReport);
 		}
 
-		void AddPastRows(ZoomReport pastReport, ListTeamGames teamGamesList)
+		/// <summary>Add rows to the Past report: one row per team in teamsPlays. Add cells for that team's score. Colour them for the Priority of the game they came from.</summary>
+		void AddPastRows(ZoomReport pastReport, TeamsPlays teamsPlays)
 		{
-			bool hasPoints = teamGamesList.Any(tg => tg.AveragePoints() > 0);
+			bool hasPoints = teamsPlays.Any(tg => tg.AveragePoints() > 0);
 
-			foreach (var teamGames in teamGamesList)
+			foreach (var teamPlays in teamsPlays)
 			{
 				var row = pastReport.AddRow(new Zoom.ZRow());
 				row.Add(new Zoom.ZCell(0));  // Blank-for-now Rank.
 
-				var team = League.LeagueTeam(teamGames.TeamId);
-				var priorities = teamGames.Select(tg => tg.Priority).Distinct();
+				var team = League.LeagueTeam(teamPlays.TeamId);
+				var priorities = teamPlays.Select(tg => tg.Priority).Distinct();
 
 				var color = !team.Active ? Priority.Withdrawn.ToColor() :
 							priorities.Count() == 1 ? priorities.First().ToColor() :
@@ -336,20 +370,27 @@ namespace Torn
 
 				foreach (var pg in pastReport.Columns.Where(c => c.Tag is PyramidGame).Select(c => c.Tag as PyramidGame))
 				{
-					var teamGame = teamGames.Find(tg => tg.Game == pg.Game);
-					if (teamGame == null)
+					var teamPlay = teamPlays.Find(tg => tg.Game == pg.Game);
+					if (teamPlay == null)
 						row.Add(new Zoom.ZCell());
 					else
-						row.Add(FillOnePastCell(teamGame, hasPoints, teamGame.Priority.ToColor()));
+						row.Add(FillOnePastCell(teamPlay, hasPoints, teamPlay.Priority.ToColor()));
 				}
 
-				row.Add(FillOnePastCell(teamGames.AverageRank(), teamGames.AverageScore(), teamGames.AveragePoints(), hasPoints, default));
+				row.Add(FillOnePastCell(teamPlays.AverageRank(), teamPlays.AverageScore(), teamPlays.AveragePoints(), hasPoints, default, "n1"));
 			}
 		}
 
-		ZCell FillOnePastCell(TeamGame teamGame, bool hasPoints, Color color)
+		ZCell FillOnePastCell(TeamPlay teamPlay, bool hasPoints, Color color)
 		{
-			var cell = new ZCell(teamGame.GameTeam.Score) { Color = color };
+			return FillOnePastCell(teamPlay.Game.Rank(teamPlay.GameTeam), teamPlay.GameTeam.Score, teamPlay.GameTeam.Points, hasPoints, teamPlay.Priority.ToColor());
+		}
+
+		ZCell FillOnePastCell(double rank, double score, double points, bool hasPoints, Color color, string numberFormat = "")
+		{
+			var cell = new ZCell(score) { Color = color };
+			if (!string.IsNullOrEmpty(numberFormat))
+				cell.NumberFormat = numberFormat;
 
 			if (CompareRank || hasPoints)
 			{
@@ -357,23 +398,7 @@ namespace Torn
 					CompareRank ? "{0}: {1}" :
 					hasPoints ? "{1}; {2}" : "";
 
-				cell.Text = string.Format(format, Utility.Ordinate(teamGame.Game.Rank(teamGame.GameTeam)), teamGame.GameTeam.Score, teamGame.GameTeam.Points);
-			}
-
-			return cell;
-		}
-
-		ZCell FillOnePastCell(double rank, double score, double points, bool hasPoints, Color color)
-		{
-			var cell = new ZCell(score, ChartType.Bar, "n1") { Color = color };
-
-			if (CompareRank || hasPoints)
-			{
-				string format = CompareRank && hasPoints ? "{0}: {1}; {2}" :
-					CompareRank ? "{0}: {1}" :
-					hasPoints ? "{1}; {2}" : "";
-
-				cell.Text = string.Format(format, rank, score, points);
+				cell.Text = string.Format(format, rank.Ordinate(), score, points);
 			}
 
 			return cell;
@@ -381,18 +406,11 @@ namespace Torn
 	}
 
 	/// <summary>Used to mark from which games teams were taken for future rounds. Teams from games marked Round are ranked higher into 
-	/// the next round than teams from games marked Repêchage, etc. Plan B is for future development and is not currently used.</summary>
+	/// the next round than teams from games marked Repêchage, which are in turn higher than Plan B.</summary>
 	public enum Priority { Withdrawn = 0, Unmarked, PlanB, Repechage, Round };
 
 	public static class PriorityExtensions
 	{
-		public static string ToString(Priority p)
-		{
-			string[] names = { "Withdrawn", "Unmarked", "Plan B", "Repêchage", "Round" };
-
-			return names.Valid((int)p) ? names[(int)p] : "?";
-		}
-
 		public static Color ToColor(this Priority priority)
 		{
 			Color[] Colors = { Color.FromArgb(0xFF, 0xA0, 0xA0), Color.Empty, Color.FromArgb(0xFF, 0xD0, 0xA0), Color.FromArgb(0xFF, 0xFF, 0x90), Color.FromArgb(0xA0, 0xFF, 0xA0) };  // Red, None, Orange, Yellow, Green.
@@ -409,43 +427,48 @@ namespace Torn
 		public Priority Priority { get; set; }
 	}
 
-	/// <summary>A single team from a single PyramidGame.</summary>
-	internal class TeamGame
+	/// <summary>A single team in a single PyramidGame.</summary>
+	internal class TeamPlay
 	{
 		public Game Game { get; set; }
 		public GameTeam GameTeam { get; set; }
 		public Priority Priority { get; set; }
 	}
 
-	/// <summary>Games (and corresponding GameTeam's within each Game) for a single team.</summary>
-	internal class TeamGames : List<TeamGame>
+	/// <summary>A single team, with potentially several TeamPlay entries, each representing that team playing in one Game.</summary>
+	internal class TeamPlays : List<TeamPlay>
 	{
 		public int TeamId { get; set; }
 
-		public double AverageScore() => this.Any() ? this.Average(tg => tg.GameTeam.Score) : double.MinValue;
-		public double AveragePoints() => this.Any() ? this.Average(tg => tg.GameTeam.Points) : double.MinValue;
-		public double AverageRank() => this.Any() ? this.Average(tg => tg.Game.Teams.FindIndex(gt => gt.TeamId == TeamId)) + 1 : double.MaxValue;
+		public double AverageScore() => this.Any() ? this.Average(tp => tp.GameTeam.Score) : double.MinValue;
+		public double AveragePoints() => this.Any() ? this.Average(tp => tp.GameTeam.Points) : double.MinValue;
+		public double AverageRank() => this.Any() ? this.Average(tp => tp.Game.Teams.FindIndex(gt => gt.TeamId == TeamId)) + 1 : double.MaxValue;
 	}
 
-	internal class ListTeamGames : List<TeamGames>
+	/// <summary>One entry per LeagueTeam that we've seen in the selected games.</summary>
+	internal class TeamsPlays : List<TeamPlays>
 	{
+		/// <summary>Add one team play to to that team's list of plays. If necessary, add the team so we have a place to add the play.</summary>
 		public void Add(League league, Game game, GameTeam gt, Priority priority)
 		{
-			var teamGame = Find(tg => tg.TeamId == gt.TeamId);
-			if (teamGame == null && gt.TeamId != null)  // If this team doesn't have an entry yet,
-				Add(teamGame = new TeamGames() { TeamId = (int)gt.TeamId });  // make one and add it.
+			if (gt.TeamId == null)
+				return;
 
-			var team = league.LeagueTeam(teamGame.TeamId);
+			var teamPlays = Find(tg => tg.TeamId == gt.TeamId);
+			if (teamPlays == null && gt.TeamId != null)  // If this team doesn't have an entry yet,
+				Add(teamPlays = new TeamPlays() { TeamId = (int)gt.TeamId });  // make one and add it.
+
+			var team = league.LeagueTeam(gt);
 			if (!team.Active)
 				priority = Priority.Withdrawn;
 
-			teamGame.Add(new TeamGame() { Game = game, GameTeam = gt, Priority = priority });  // Add a game to this team.
+			teamPlays.Add(new TeamPlay() { Game = game, GameTeam = gt, Priority = priority });  // add this play for this team.
 		}
 
 		/// <summary>Add _n_ teams from this game to our list, skipping over the first _skip_ teams.</summary>
 		public void AddN(League league, Game game, bool topFirst, Priority priority, int skip, int n)
 		{
-				if (topFirst) // Take the top N.
+			if (topFirst) // Take the top N.
 				for (int i = skip; i < skip + n && i < game.Teams.Count; i++)
 					Add(league, game, game.Teams[i], priority);
 			else  // Take the bottom N.
@@ -454,7 +477,7 @@ namespace Torn
 		}
 	}
 
-	class TeamGamesComparer : IComparer<TeamGames>
+	class TeamPlaysComparer : IComparer<TeamPlays>
 	{
 		/// <summary>Sorted list of league teams.</summary>
 		public List<LeagueTeam> LeagueTeams { get; set; }
@@ -462,7 +485,7 @@ namespace Torn
 
 		/// If CompareOnRank then compare teams on rank, then on victory points then score.
 		/// Otherwise, compare on victory points then score then rank.
-		public int Compare(TeamGames x, TeamGames y)
+		public int Compare(TeamPlays x, TeamPlays y)
 		{
 			double result = CompareOnRank ? x.AverageRank() - y.AverageRank() : 0;
 

@@ -10,6 +10,7 @@ namespace Torn
 	/// <summary>Static methods, including extension methods, used in misc places.</summary>
 	public static class Utility
 	{
+		/// <summary>Return a string like "Today", "Yesterday", "Sun 12th", or the date, depending on how far in time we're looking.</summary>
 		public static string FriendlyDate(this DateTime date)
 		{
 			int daysAgo = (int)DateTime.Now.Date.Subtract(date.Date).TotalDays;
@@ -87,27 +88,6 @@ namespace Torn
 				return Color.FromArgb(255, v, p, q);
 		}
 
-/*		
-		static string Rot13(string s)
-		{
-			var sb = new StringBuilder();
-
-			foreach (char c in s)
-			{
-				int i = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".IndexOf(c);
-				sb.Append(i == -1 ? c : "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"[i]);
-			}
-
-			return sb.ToString();
-		}
-
-		static char Base62(int i)
-		{
-			return i < 10 ? (char)(i + '0') :
-					i < 36 ? (char)(i + 'a' - 10) :
-							(char)(i + 'A' - 36);
-		}
-*/
 		public static string GetString(this XmlNode node, string name, string defaultValue = null)
 		{
 			var child = node.SelectSingleNode(name);
@@ -164,6 +144,13 @@ namespace Torn
 			if (i % 10 == 3 && i % 100 != 13)
 				return s + "rd";
 			return s + "th";
+		}
+		public static string Ordinate(this double d)
+		{
+			if (d - Math.Truncate(d) < 0.01)
+				return Ordinate((int)d);
+			else
+				return d.ToString("n1");
 		}
 
 		public static bool Valid<T>(this IList<T> list, int i)

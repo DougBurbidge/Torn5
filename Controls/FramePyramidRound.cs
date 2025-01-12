@@ -152,24 +152,21 @@ namespace Torn5.Controls
         /// <summary>Update number of teams from last round and repechage.</summary>
         private void CalculateSpins()
         {
-            int roundTeams = 0;
-            int repechageTeams = 0;
+            var takes = new int[Enum.GetValues(typeof(Priority)).Cast<int>().Max() + 1];
+
             foreach (ListViewItem item in listViewGames.Items)
             {
                 PyramidGame pg = (PyramidGame)item.Tag;
-                int take = pg.TeamsToTake == null ? pg.Game.Teams.Count : (int)pg.TeamsToTake;
 
-                if (pg.Priority == Priority.Round)
-                    roundTeams += take;
-                else if (pg.Priority == Priority.Repechage)
-                    repechageTeams += take;
-            }
+                takes[(int)pg.Priority] += pg.TeamsToTake == null ? pg.Game.Teams.Count : (int)pg.TeamsToTake;
+			}
 
-            numericTeamsFromLastRound.Value = Math.Min(Math.Min(roundTeams, Holder.League.Teams.Count), numericTeamsFromLastRound.Maximum);
-            numericTeamsFromLastRepechage.Value = Math.Min(Math.Min(repechageTeams, Holder.League.Teams.Count), numericTeamsFromLastRepechage.Maximum);
-        }
+			numericTeamsFromLastRound.Value = Math.Min(Math.Min(takes[(int)Priority.Round], Holder.League.Teams.Count), numericTeamsFromLastRound.Maximum);
+            numericTeamsFromLastRepechage.Value = Math.Min(Math.Min(takes[(int)Priority.Repechage], Holder.League.Teams.Count), numericTeamsFromLastRepechage.Maximum);
+			numericTeamsFromPlanB.Value = Math.Min(Math.Min(takes[(int)Priority.PlanB], Holder.League.Teams.Count), numericTeamsFromPlanB.Maximum);
+		}
 
-        private void ListViewGamesDoubleClick(object sender, EventArgs e)
+		private void ListViewGamesDoubleClick(object sender, EventArgs e)
         {
             ButtonEditPyramidGamesClick(sender, e);
         }
@@ -181,7 +178,7 @@ namespace Torn5.Controls
 
         private void PyramidValueChanged(object sender, EventArgs e)
         {
-            decimal numberOfTeams = numericTeamsFromLastRound.Value + numericTeamsFromLastRepechage.Value;
+            decimal numberOfTeams = numericTeamsFromLastRound.Value + numericTeamsFromLastRepechage.Value + numericTeamsFromPlanB.Value;
             labelNumberOfTeams.Text = numberOfTeams.ToString();
             labelTeamsPerGame.Text = (numberOfTeams / numericGames.Value).ToString("N2");
             RefreshPyramidDraw();
@@ -200,17 +197,25 @@ namespace Torn5.Controls
             var pr = new PyramidDraw() { CompareRank = radioCompareRank.Checked, TakeTop = radioTakeTop.Checked, League = holder.League };
 
             (displayReportTaken.Report, displayReportDraw.Report) = pr.Reports(pyramidGames, (int)numericGames.Value,
-                (int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, textBoxTitle.Text, checkBoxColour.Checked);
+                (int)numericTeamsFromLastRound.Value, (int)numericTeamsFromLastRepechage.Value, (int)numericTeamsFromPlanB.Value, textBoxTitle.Text, checkBoxColour.Checked);
 
-			SetKeyLabelVisible(labelKeyRound);
-			SetKeyLabelVisible(labelKeyRepechage);
-			SetKeyLabelVisible(labelKeyPlanB);
-			SetKeyLabelVisible(labelKeyWithdrawn);
+			// Make appropriate items visible in the report key, and nicely space them.
+			int x = labelKey.Left + labelKey.Width + 6;
+			SetKeyLabelVisible(labelKeyRound, ref x);
+			SetKeyLabelVisible(labelKeyRepechage, ref x);
+			SetKeyLabelVisible(labelKeyPlanB, ref x);
+			SetKeyLabelVisible(labelKeyWithdrawn, ref x);
 		}
 
-		private void SetKeyLabelVisible(Label label)
+		private void SetKeyLabelVisible(Label label, ref int x)
         {
 			label.Visible = displayReportTaken.Report.Rows.Any(r => r.Valid(1) && r[1].Color == label.BackColor);
+
+			if (label.Visible)
+			{
+				label.Left = x;
+				x += label.Width + 6;
+			}
 		}
 	}
 }

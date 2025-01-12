@@ -53,6 +53,7 @@ namespace Torn.UI
 					var priorities = games.Select(pg => pg.Priority);
 					radioRound.Checked = priorities.All(p => p == Priority.Round);
 					radioRepechage.Checked = priorities.All(p => p == Priority.Repechage);
+					radioPlanB.Checked = priorities.All(p => p == Priority.PlanB);
 
 					checkBoxSecret.Checked = games.First().Game.Secret;
 				}
@@ -66,9 +67,10 @@ namespace Torn.UI
 					numericTeamsToTake.Text = "";
 					radioRound.Checked = false;
 					radioRepechage.Checked = false;
+					radioPlanB.Checked = false;
 					checkBoxSecret.Checked = false;
 				}
-				buttonOK.Enabled = radioRound.Checked || radioRepechage.Checked;
+				RadioCheckedChanged(null, null);
 			}
 		}
 
@@ -80,12 +82,13 @@ namespace Torn.UI
 
 		public Priority Priority
 		{
-			get { return radioRound.Checked ? Priority.Round : radioRepechage.Checked ? Priority.Repechage : Priority.Unmarked; }
+			get { return radioRound.Checked ? Priority.Round : radioRepechage.Checked ? Priority.Repechage : radioPlanB.Checked ? Priority.PlanB : Priority.Unmarked; }
 			set
 			{
 				radioRound.Checked = value == Priority.Round;
 				radioRepechage.Checked = value == Priority.Repechage;
-				buttonOK.Enabled = radioRound.Checked || radioRepechage.Checked;
+				radioPlanB.Checked = value == Priority.PlanB;
+				RadioCheckedChanged(null, null);
 			}
 		}
 
@@ -104,7 +107,7 @@ namespace Torn.UI
 
 		private void RadioCheckedChanged(object sender, EventArgs e)
 		{
-			buttonOK.Enabled = radioRound.Checked || radioRepechage.Checked;
+			buttonOK.Enabled = radioRound.Checked || radioRepechage.Checked || radioPlanB.Checked;
 		}
 
 		private void ButtonClearClick(object sender, EventArgs e)

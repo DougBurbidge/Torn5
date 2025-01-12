@@ -69,6 +69,8 @@
 			this.labelKeyRepechage = new System.Windows.Forms.Label();
 			this.labelKeyPlanB = new System.Windows.Forms.Label();
 			this.labelKeyWithdrawn = new System.Windows.Forms.Label();
+			this.label1 = new System.Windows.Forms.Label();
+			this.numericTeamsFromPlanB = new System.Windows.Forms.NumericUpDown();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -82,6 +84,7 @@
 			this.splitContainerReports.Panel1.SuspendLayout();
 			this.splitContainerReports.Panel2.SuspendLayout();
 			this.splitContainerReports.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericTeamsFromPlanB)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// splitContainer1
@@ -93,6 +96,8 @@
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.numericTeamsFromPlanB);
+			this.splitContainer1.Panel1.Controls.Add(this.label1);
 			this.splitContainer1.Panel1.Controls.Add(this.labelKeyWithdrawn);
 			this.splitContainer1.Panel1.Controls.Add(this.labelKeyPlanB);
 			this.splitContainer1.Panel1.Controls.Add(this.labelKeyRepechage);
@@ -130,20 +135,20 @@
 			// 
 			// buttonWithdraw
 			// 
-			this.buttonWithdraw.Location = new System.Drawing.Point(218, 198);
+			this.buttonWithdraw.Location = new System.Drawing.Point(421, 195);
 			this.buttonWithdraw.Name = "buttonWithdraw";
 			this.buttonWithdraw.Size = new System.Drawing.Size(73, 23);
-			this.buttonWithdraw.TabIndex = 20;
+			this.buttonWithdraw.TabIndex = 19;
 			this.buttonWithdraw.Text = "Withdraw...";
 			this.buttonWithdraw.UseVisualStyleBackColor = true;
 			this.buttonWithdraw.Click += new System.EventHandler(this.ButtonWithdrawClick);
 			// 
 			// buttonRepechage
 			// 
-			this.buttonRepechage.Location = new System.Drawing.Point(218, 169);
+			this.buttonRepechage.Location = new System.Drawing.Point(200, 195);
 			this.buttonRepechage.Name = "buttonRepechage";
 			this.buttonRepechage.Size = new System.Drawing.Size(73, 23);
-			this.buttonRepechage.TabIndex = 13;
+			this.buttonRepechage.TabIndex = 15;
 			this.buttonRepechage.Text = "Repêchage ";
 			this.buttonRepechage.UseVisualStyleBackColor = true;
 			this.buttonRepechage.Click += new System.EventHandler(this.ButtonRepechageClick);
@@ -154,7 +159,7 @@
 			this.buttonClearPyramidGames.Location = new System.Drawing.Point(766, 212);
 			this.buttonClearPyramidGames.Name = "buttonClearPyramidGames";
 			this.buttonClearPyramidGames.Size = new System.Drawing.Size(88, 23);
-			this.buttonClearPyramidGames.TabIndex = 19;
+			this.buttonClearPyramidGames.TabIndex = 22;
 			this.buttonClearPyramidGames.Text = "Clear Game(s)";
 			this.buttonClearPyramidGames.UseVisualStyleBackColor = true;
 			this.buttonClearPyramidGames.Click += new System.EventHandler(this.ButtonClearPyramidGames);
@@ -165,27 +170,27 @@
 			this.buttonEditPyramidGames.Location = new System.Drawing.Point(672, 212);
 			this.buttonEditPyramidGames.Name = "buttonEditPyramidGames";
 			this.buttonEditPyramidGames.Size = new System.Drawing.Size(88, 23);
-			this.buttonEditPyramidGames.TabIndex = 18;
+			this.buttonEditPyramidGames.TabIndex = 21;
 			this.buttonEditPyramidGames.Text = "Edit Game(s)";
 			this.buttonEditPyramidGames.UseVisualStyleBackColor = true;
 			this.buttonEditPyramidGames.Click += new System.EventHandler(this.ButtonEditPyramidGamesClick);
 			// 
 			// textBoxTitle
 			// 
-			this.textBoxTitle.Location = new System.Drawing.Point(70, 171);
+			this.textBoxTitle.Location = new System.Drawing.Point(70, 197);
 			this.textBoxTitle.Name = "textBoxTitle";
-			this.textBoxTitle.Size = new System.Drawing.Size(142, 20);
-			this.textBoxTitle.TabIndex = 12;
+			this.textBoxTitle.Size = new System.Drawing.Size(124, 20);
+			this.textBoxTitle.TabIndex = 14;
 			this.textBoxTitle.Text = "Next Round ";
 			this.textBoxTitle.TextChanged += new System.EventHandler(this.PyramidValueChanged);
 			// 
 			// checkBoxColour
 			// 
 			this.checkBoxColour.AutoSize = true;
-			this.checkBoxColour.Location = new System.Drawing.Point(306, 194);
+			this.checkBoxColour.Location = new System.Drawing.Point(306, 199);
 			this.checkBoxColour.Name = "checkBoxColour";
 			this.checkBoxColour.Size = new System.Drawing.Size(56, 17);
-			this.checkBoxColour.TabIndex = 16;
+			this.checkBoxColour.TabIndex = 18;
 			this.checkBoxColour.Text = "Colour";
 			this.checkBoxColour.UseVisualStyleBackColor = true;
 			this.checkBoxColour.CheckedChanged += new System.EventHandler(this.PyramidValueChanged);
@@ -197,7 +202,7 @@
 			this.groupTopOrBottom.Location = new System.Drawing.Point(300, 42);
 			this.groupTopOrBottom.Name = "groupTopOrBottom";
 			this.groupTopOrBottom.Size = new System.Drawing.Size(336, 67);
-			this.groupTopOrBottom.TabIndex = 14;
+			this.groupTopOrBottom.TabIndex = 16;
 			this.groupTopOrBottom.TabStop = false;
 			this.groupTopOrBottom.Text = "Top or bottom";
 			// 
@@ -231,7 +236,7 @@
 			this.groupScoreOrRank.Location = new System.Drawing.Point(300, 115);
 			this.groupScoreOrRank.Name = "groupScoreOrRank";
 			this.groupScoreOrRank.Size = new System.Drawing.Size(336, 69);
-			this.groupScoreOrRank.TabIndex = 15;
+			this.groupScoreOrRank.TabIndex = 17;
 			this.groupScoreOrRank.TabStop = false;
 			this.groupScoreOrRank.Text = "Score or rank";
 			// 
@@ -261,19 +266,19 @@
 			// labelTeamsPerGame
 			// 
 			this.labelTeamsPerGame.AutoSize = true;
-			this.labelTeamsPerGame.Location = new System.Drawing.Point(199, 148);
+			this.labelTeamsPerGame.Location = new System.Drawing.Point(199, 174);
 			this.labelTeamsPerGame.Name = "labelTeamsPerGame";
 			this.labelTeamsPerGame.Size = new System.Drawing.Size(13, 13);
-			this.labelTeamsPerGame.TabIndex = 10;
+			this.labelTeamsPerGame.TabIndex = 12;
 			this.labelTeamsPerGame.Text = "0";
 			// 
 			// labelNumberOfTeams
 			// 
 			this.labelNumberOfTeams.AutoSize = true;
-			this.labelNumberOfTeams.Location = new System.Drawing.Point(199, 122);
+			this.labelNumberOfTeams.Location = new System.Drawing.Point(199, 148);
 			this.labelNumberOfTeams.Name = "labelNumberOfTeams";
 			this.labelNumberOfTeams.Size = new System.Drawing.Size(13, 13);
-			this.labelNumberOfTeams.TabIndex = 8;
+			this.labelNumberOfTeams.TabIndex = 10;
 			this.labelNumberOfTeams.Text = "0";
 			// 
 			// numericTeamsFromLastRepechage
@@ -316,28 +321,28 @@
 			// labelRoundTitle
 			// 
 			this.labelRoundTitle.AutoSize = true;
-			this.labelRoundTitle.Location = new System.Drawing.Point(3, 174);
+			this.labelRoundTitle.Location = new System.Drawing.Point(3, 200);
 			this.labelRoundTitle.Name = "labelRoundTitle";
 			this.labelRoundTitle.Size = new System.Drawing.Size(61, 13);
-			this.labelRoundTitle.TabIndex = 11;
+			this.labelRoundTitle.TabIndex = 13;
 			this.labelRoundTitle.Text = "Round title:";
 			// 
 			// label16
 			// 
 			this.label16.AutoSize = true;
-			this.label16.Location = new System.Drawing.Point(3, 148);
+			this.label16.Location = new System.Drawing.Point(3, 174);
 			this.label16.Name = "label16";
 			this.label16.Size = new System.Drawing.Size(137, 13);
-			this.label16.TabIndex = 9;
+			this.label16.TabIndex = 11;
 			this.label16.Text = "Number of teams per game:";
 			// 
 			// label15
 			// 
 			this.label15.AutoSize = true;
-			this.label15.Location = new System.Drawing.Point(3, 122);
+			this.label15.Location = new System.Drawing.Point(3, 148);
 			this.label15.Name = "label15";
 			this.label15.Size = new System.Drawing.Size(154, 13);
-			this.label15.TabIndex = 7;
+			this.label15.TabIndex = 9;
 			this.label15.Text = "Number of teams in next round:";
 			// 
 			// label14
@@ -395,7 +400,7 @@
 			this.listViewGames.Location = new System.Drawing.Point(672, 8);
 			this.listViewGames.Name = "listViewGames";
 			this.listViewGames.Size = new System.Drawing.Size(540, 199);
-			this.listViewGames.TabIndex = 17;
+			this.listViewGames.TabIndex = 20;
 			this.listViewGames.UseCompatibleStateImageBehavior = false;
 			this.listViewGames.View = System.Windows.Forms.View.Details;
 			this.listViewGames.DoubleClick += new System.EventHandler(this.ListViewGamesDoubleClick);
@@ -494,7 +499,7 @@
 			this.labelKey.Location = new System.Drawing.Point(3, 240);
 			this.labelKey.Name = "labelKey";
 			this.labelKey.Size = new System.Drawing.Size(28, 13);
-			this.labelKey.TabIndex = 21;
+			this.labelKey.TabIndex = 23;
 			this.labelKey.Text = "Key:";
 			// 
 			// labelKeyRound
@@ -505,7 +510,7 @@
 			this.labelKeyRound.Location = new System.Drawing.Point(37, 240);
 			this.labelKeyRound.Name = "labelKeyRound";
 			this.labelKeyRound.Size = new System.Drawing.Size(92, 13);
-			this.labelKeyRound.TabIndex = 22;
+			this.labelKeyRound.TabIndex = 24;
 			this.labelKeyRound.Text = "Came from Round";
 			this.labelKeyRound.Visible = false;
 			// 
@@ -517,7 +522,7 @@
 			this.labelKeyRepechage.Location = new System.Drawing.Point(135, 240);
 			this.labelKeyRepechage.Name = "labelKeyRepechage";
 			this.labelKeyRepechage.Size = new System.Drawing.Size(116, 13);
-			this.labelKeyRepechage.TabIndex = 23;
+			this.labelKeyRepechage.TabIndex = 25;
 			this.labelKeyRepechage.Text = "Came from Repêchage";
 			this.labelKeyRepechage.Visible = false;
 			// 
@@ -529,7 +534,7 @@
 			this.labelKeyPlanB.Location = new System.Drawing.Point(257, 240);
 			this.labelKeyPlanB.Name = "labelKeyPlanB";
 			this.labelKeyPlanB.Size = new System.Drawing.Size(91, 13);
-			this.labelKeyPlanB.TabIndex = 24;
+			this.labelKeyPlanB.TabIndex = 26;
 			this.labelKeyPlanB.Text = "Came from Plan B";
 			this.labelKeyPlanB.Visible = false;
 			// 
@@ -538,12 +543,30 @@
 			this.labelKeyWithdrawn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.labelKeyWithdrawn.AutoSize = true;
 			this.labelKeyWithdrawn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
-			this.labelKeyWithdrawn.Location = new System.Drawing.Point(257, 240);
+			this.labelKeyWithdrawn.Location = new System.Drawing.Point(354, 240);
 			this.labelKeyWithdrawn.Name = "labelKeyWithdrawn";
 			this.labelKeyWithdrawn.Size = new System.Drawing.Size(140, 13);
-			this.labelKeyWithdrawn.TabIndex = 25;
+			this.labelKeyWithdrawn.TabIndex = 27;
 			this.labelKeyWithdrawn.Text = "Team marked as Withdrawn";
 			this.labelKeyWithdrawn.Visible = false;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(3, 122);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(147, 13);
+			this.label1.TabIndex = 7;
+			this.label1.Text = "Number of teams from Plan B:";
+			// 
+			// numericTeamsFromPlanB
+			// 
+			this.numericTeamsFromPlanB.Location = new System.Drawing.Point(200, 120);
+			this.numericTeamsFromPlanB.Name = "numericTeamsFromPlanB";
+			this.numericTeamsFromPlanB.Size = new System.Drawing.Size(64, 20);
+			this.numericTeamsFromPlanB.TabIndex = 8;
+			this.numericTeamsFromPlanB.ValueChanged += new System.EventHandler(this.PyramidValueChanged);
+			this.numericTeamsFromPlanB.KeyUp += new System.Windows.Forms.KeyEventHandler(this.PyramidSpinKeyUp);
 			// 
 			// FramePyramidRound
 			// 
@@ -569,6 +592,7 @@
 			this.splitContainerReports.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainerReports)).EndInit();
 			this.splitContainerReports.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.numericTeamsFromPlanB)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -616,5 +640,7 @@
 		private System.Windows.Forms.Label labelKeyRepechage;
 		private System.Windows.Forms.Label labelKeyPlanB;
 		private System.Windows.Forms.Label labelKeyWithdrawn;
+		private System.Windows.Forms.NumericUpDown numericTeamsFromPlanB;
+		private System.Windows.Forms.Label label1;
 	}
 }
