@@ -659,7 +659,7 @@ namespace Torn.UI
 				ExportPages.ExportFixtures(exportFolder, SelectedLeagues());
 		}
 
-        private FormFixture formFixture;
+		private FormFixture formFixture;
 		void ButtonFixtureClick(object sender, EventArgs e)
 		{
 			if (formFixture == null || formFixture.IsDisposed)
@@ -668,11 +668,11 @@ namespace Torn.UI
 			{
 				formFixture.Holder = (Holder)listViewLeagues.SelectedItems[0].Tag;
 				formFixture.ExportFolder = exportFolder;
-                formFixture.Show();
-            }
-        }
+				formFixture.Show();
+			}
+		}
 
-        void ButtonForgetClick(object sender, EventArgs e)
+		void ButtonForgetClick(object sender, EventArgs e)
 		{
 			if (listViewGames.SelectedItems.Count == 0)
 				return;

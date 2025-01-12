@@ -304,7 +304,7 @@ namespace Torn.Report
 				Add(new ReportTemplate(ReportType.Pyramid, new string[] { "ChartType=bar", "description" }));
 				Add(new ReportTemplate(ReportType.PyramidCondensed, new string[] { "ChartType=bar", "description" }));
 
-				if (league.Games(true).Max(g => g.Teams.Count) < league.Teams.Count)  // If there's no game with all teams, then add a GameGrid which the user can adjust the From date on to show finals.
+				if (league.AllGames.Count > 0 && league.Games(true).Max(g => g.Teams.Count) < league.Teams.Count)  // If there's no game with all teams, then add a GameGrid which the user can adjust the From date on to show finals.
 				{
 					Add(new ReportTemplate(ReportType.GameGrid, new string[] { "ChartType=bar", "description", "Group=Final" }));
 					this.Last().From = league.Games(true).Last().Time.Date;

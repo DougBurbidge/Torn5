@@ -1548,10 +1548,10 @@ namespace Torn
 		/// <summary>Return a player's Name.</summary>
 		public string Alias(GamePlayer gamePlayer)
 		{
-			var leaguePlayer = LeaguePlayer(gamePlayer);
-			return leaguePlayer == null ? (string)null : leaguePlayer.Name;
+			return LeaguePlayer(gamePlayer)?.Name;
 		}
 
+		/// <summary>Return the LeagueTeam with the matching TeamId, if any.</summary>
 		public LeagueTeam LeagueTeam(GameTeam gameTeam)
 		{
 			var result = gameTeam == null ? null : teams.Find(team => team.TeamId == gameTeam.TeamId);

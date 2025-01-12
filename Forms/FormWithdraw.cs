@@ -8,7 +8,6 @@ namespace Torn.UI
 {
 	public partial class FormWithdraw : Form
 	{
-		private League league;
 		public League League { get; set; }
 
 		private void BuildControls()

@@ -27,10 +27,10 @@ namespace Torn.UI
 					frameFinals1.Holder = holder;
 				if (framePyramid1 != null)
 					framePyramid1.Holder = holder;
-                if (framePyramidRound1 != null)
-                    framePyramidRound1.Holder = holder;
-            }
-        }
+				if (framePyramidRound1 != null)
+					framePyramidRound1.Holder = holder;
+			}
+		}
 
 public string ExportFolder { get; set; }
 
@@ -95,7 +95,7 @@ public string ExportFolder { get; set; }
 		}
 
 		List<List<T>> TransposeGrid<T>(List<List<T>> grid)
-        {
+		{
 			return grid.SelectMany(inner => inner.Select((item, index) => new { item, index }))
 				.GroupBy(i => i.index, i => i.item)
 				.Select(g => g.ToList())
@@ -112,7 +112,7 @@ public string ExportFolder { get; set; }
 		}
 
 		List<List<int>> ContinueMixing(List<List<int>> grid, double gamesPerTeam, bool hasRef, List<List<int>> existingPlays, int maxMillis, double startingScore)
-        {
+		{
 			List<List<int>> bestGrid = grid;
 			double bestScore = startingScore;
 			bool badFixture = bestScore > 10000;
@@ -185,7 +185,7 @@ public string ExportFolder { get; set; }
 		}
 
 		List<List<int>> MixGrid(List<List<int>> grid)
-        {
+		{
 			List<List<int>> newGrid = grid.ConvertAll(row => row.ConvertAll(cell => cell));
 			double teamsPerGame = grid[0].Count;
 			double totalTeams = FlattenGrid(grid).Uniq().Count;
@@ -206,22 +206,22 @@ public string ExportFolder { get; set; }
 			newGrid[game2][player2] = grid[game1][player1];
 
 			return newGrid;
-        }
+		}
 
 		List<int> SumRows(List<List<int>> grid )
-        {
+		{
 			List<int> totals = new List<int>();
 			foreach(List<int> row in grid)
-            {
+			{
 				int total = 0;
 				foreach(int value in row)
-                {
+				{
 					total += value;
-                }
+				}
 				totals.Add(total);
-            }
+			}
 			return totals;
-        }
+		}
 
 		int AverageRow(List<int> row)
 		{
@@ -247,19 +247,19 @@ public string ExportFolder { get; set; }
 			double score = 0;
 
 			for (int player1 = 0; player1 < plays.Count; player1++)
-            {
+			{
 				score += plays[player1][player1] * 10000; // penalty for playing themselves
 				for(int player2 = player1 + 1; player2 < plays[player1].Count; player2++)
-                {
+				{
 					score += Math.Pow(plays[player1][player2] - averagePlays, 4);
-                }
-            }
+				}
+			}
 
 			 List<List<int>> transposedGrid = TransposeGrid(grid);
 
 			//penalty for same colour
 			foreach (List<int> colour in transposedGrid)
-            {
+			{
 				int numberOfGames = colour.Count;
 				int numberOfColours = transposedGrid.Count;
 				int uniqueTeams = colour.Uniq().Count;
@@ -268,10 +268,10 @@ public string ExportFolder { get; set; }
 
 				double penalty = penalties * 10000;
 				score += penalty;
-            }
+			}
 
 			foreach(List<int> row in grid)
-            {
+			{
 				int uniquePlayers = row.Uniq().Count;
 				score += Math.Abs(uniquePlayers - teamsPerGame) * 100000; // penalty for playing themselves
 			}
@@ -284,10 +284,10 @@ public string ExportFolder { get; set; }
 					for (int player2 = 0; player2 < teamsPerGame; player2++)
 					{
 						foreach(int player in grid[game])
-                        {
+						{
 							List<int> backToBacks = grid[game + 1].FindAll(p => p == player);
 							score += BACK_TO_BACK_PENALTY * backToBacks.Count;
-                        }
+						}
 					}
 				}
 			}
@@ -296,7 +296,7 @@ public string ExportFolder { get; set; }
 		}
 
 		List<List<int>> AddGrids(List<List<int>> grid1, List<List<int>> grid2)
-        {
+		{
 			
 			if (grid1.Count > 0 && grid1.Count == grid2.Count && grid1[0].Count == grid2[0].Count)
 			{
@@ -307,38 +307,37 @@ public string ExportFolder { get; set; }
 					for (int j = 0; j < grid1[i].Count; j++)
 					{
 						if(grid2.Count > i && grid2[i].Count > j)
-                        {
+						{
 							row.Add(grid1[i][j] + grid2[i][j]);
 						} else
-                        {
+						{
 							row.Add(grid1[i][j]);
-                        }
-						
+						}
 					}
 					grid3.Add(row);
 				}
 				return grid3;
 			} else
-            {
+			{
 				return grid1;
-            }
-        }
+			}
+		}
 
 		List<List<int>> CalcPlays(List<List<int>> grid, bool hasRef, List<List<int>> existingPlays)
-        {
+		{
 			List<List<int>> newGrid = grid.ConvertAll(row => row.ConvertAll(cell => cell));
 			// ignore ref games
 			if (hasRef)
-            {
+			{
 				List<List<int>> transposedGrid = TransposeGrid(newGrid);
 				transposedGrid.RemoveAt(transposedGrid.Count - 1);
 				newGrid = TransposeGrid(transposedGrid);
-            }
+			}
 
 			int totalTeams = FlattenGrid(newGrid).Uniq().Count;
 			List<List<int>> plays = new List<List<int>>();
 			for(int team1 = 0; team1 < totalTeams; team1++)
-            {
+			{
 				List<int> row = new List<int>();
 				for (int team2 = 0; team2 < totalTeams; team2++)
 				{
@@ -361,7 +360,7 @@ public string ExportFolder { get; set; }
 
 
 		List<List<int>> SetupGrid (double numberOfTeams, double teamsPerGame, double gamesPerTeam)
-        {
+		{
 			double numGames = (numberOfTeams / teamsPerGame) * gamesPerTeam;
 
 			// set up grid
@@ -383,47 +382,47 @@ public string ExportFolder { get; set; }
 		{
 			List<List<int>> grid = new List<List<int>>();
 			foreach(Game game in league.AllGames)
-            {
+			{
 				List<int> row = new List<int>();
 				foreach(GameTeam team in game.Teams)
-                {
+				{
 					row.Add(team.TeamId - 1 ?? -1);
-                }
+				}
 				grid.Add(row);
-            }
+			}
 
 			return grid;
 		}
 
 		public List<List<int>> PadPlaysToTeamNumber(int numberOfTeams, List<List<int>> plays)
-        {
+		{
 			Console.WriteLine(numberOfTeams);
 			List<List<int>> newGrid = plays.ConvertAll(row => row.ConvertAll(cell => cell));
 			int teamPlays = newGrid.Count;
 			if (numberOfTeams > teamPlays)
-            {
+			{
 				for(int i = 0; i < teamPlays; i++)
-                {
+				{
 					for(int j = teamPlays; j < numberOfTeams; j++)
-                    {
+					{
 						newGrid[i].Add(0);
-                    }
+					}
 				}
 				for(int i = teamPlays; i < numberOfTeams; i++)
-                {
+				{
 					List<int> arr = Enumerable.Repeat(0, numberOfTeams).ToList();
 					newGrid.Add(arr);
 				}
 
 				return newGrid;
 			} else
-            {
+			{
 				return plays;
-            }
-        }
+			}
+		}
 
 		double TeamsPerGame()
-        {
+		{
 			double teamsPerGame = 0;
 			teamsPerGame += red.Checked ? 1 : 0;
 			teamsPerGame += yellow.Checked ? 1 : 0;
@@ -475,10 +474,10 @@ public string ExportFolder { get; set; }
 			textBoxGames.Text = Holder.Fixture.Games.ToString();
 			textBoxGrid.Lines = Holder.Fixture.Games.ToGrid(Holder.Fixture.Teams);
 			if(outputGrid.Checked && outputList.Checked)
-            {
+			{
 				reportTeamsList.Report = Reports.FixtureCombined(Holder.Fixture, Holder.League);
 			} else if(outputList.Checked)
-            {
+			{
 				reportTeamsList.Report = Reports.FixtureList(Holder.Fixture, Holder.League);
 			}
 			else if (outputGrid.Checked)
@@ -624,7 +623,7 @@ public string ExportFolder { get; set; }
 		void TextBoxKeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Control && e.KeyCode == Keys.A &&sender != null)
-	        	((TextBox)sender).SelectAll();
+				((TextBox)sender).SelectAll();
 		}
 
 		// TODO: turn panelGraphic into a custom control that takes a Holder.Fixture as a property, so it can manage its own painting, clicks, etc.
@@ -796,7 +795,7 @@ public string ExportFolder { get; set; }
 				FillCell(rows + 2, (int)i, size, i.ToSaturatedColor());
 		}
 
-        void NumericSizeValueChanged(object sender, EventArgs e)
+		void NumericSizeValueChanged(object sender, EventArgs e)
 		{
 			panelGraphic.Invalidate();
 		}
@@ -893,16 +892,16 @@ public static class ListExtensions
 			.ToList();
 	}
 	public static List<T> Uniq<T>(this List<T> source)
-    {
+	{
 		List<T> result = new List<T>();
 
 		foreach(T el in source)
-        {
+		{
 			bool exists = result.Contains(el);
 			if (!exists)
 				result.Add(el);
-        }
+		}
 		return result;
 
-    }
+	}
 }

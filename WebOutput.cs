@@ -674,7 +674,7 @@ xhrScoreboard.send();
 		}
 
 		public void ExportGamesToJSON(string path, List<ServerGame> games, ShowProgress progress = null)
-        {
+		{
 			if (path != null)
 			{
 				Progress myProgress = new Progress() { Denominator = games.Count + 2, ShowProgress = progress };
@@ -698,8 +698,8 @@ xhrScoreboard.send();
 					{
 						JObject obj = JObject.FromObject(ev);
 
-                        string playerAlias = game.Players.Find(p => p.ServerPlayerId == ev.ServerPlayerId)?.Alias;
-                        string otherPlayerAlias = game.Players.Find(p => p.ServerPlayerId == ev.OtherPlayer)?.Alias;
+						string playerAlias = game.Players.Find(p => p.ServerPlayerId == ev.ServerPlayerId)?.Alias;
+						string otherPlayerAlias = game.Players.Find(p => p.ServerPlayerId == ev.OtherPlayer)?.Alias;
 
 						obj.Add(new JProperty("alias", playerAlias));
 						obj.Add(new JProperty("otherPlayerAlias", otherPlayerAlias));
@@ -707,7 +707,7 @@ xhrScoreboard.send();
 						eventsJSON.Add(obj);
 					}
 					foreach (ServerPlayer player in sortedPlayers)
-                    {
+					{
 						JObject obj = JObject.FromObject(player);
 						playersJSON.Add(obj);
 					}
@@ -736,8 +736,12 @@ xhrScoreboard.send();
 				Progress myProgress = new Progress() { Denominator = selected.Count * 3 + 1, ShowProgress = progress };
 
 				if (selected.Any())
+				{
+					Directory.CreateDirectory(path);
+
 					using (StreamWriter sw = File.CreateText(Path.Combine(path, "index." + selected[0].ReportTemplates.OutputFormat.ToExtension())))
 						sw.Write(ReportPages.RootPage(selected));
+				}
 				myProgress.Increment("Root page exported.");
 
 				foreach (Holder holder in selected)
@@ -805,9 +809,9 @@ xhrScoreboard.send();
 					bool thisDetailed = game.ServerGame != null && game.ServerGame.Events.Any() && !game.ServerGame.InProgress;
 
 					reports.Add(new ZoomHtmlInclusion("<a name=\"game" + game.Time.ToString("HHmm", CultureInfo.InvariantCulture) + "\">" +
-                        (thisDetailed ? "<div style =\"display: flex; flex-flow: row wrap; justify-content: space-around; \">\n" : "\n")));
+						(thisDetailed ? "<div style =\"display: flex; flex-flow: row wrap; justify-content: space-around; \">\n" : "\n")));
 
-                    reports.Add(Reports.OneGame(league, game));
+					reports.Add(Reports.OneGame(league, game));
 
 					if (thisDetailed)
 					{
@@ -824,10 +828,10 @@ xhrScoreboard.send();
 						anyDetailed = true;
 					}
 
-                    reports.Add(new ZoomHtmlInclusion("</a>"));
-                }
+					reports.Add(new ZoomHtmlInclusion("</a>"));
+				}
 
-                if (anyDetailed)
+				if (anyDetailed)
 				{
 					var eventsUsed = dayGames.Where(g => g.ServerGame != null).SelectMany(g => g.ServerGame.Events.Select(e => e.Event_Type)).Distinct();
 					var sb = new StringBuilder("</div>\n<p>");
@@ -841,7 +845,7 @@ xhrScoreboard.send();
 					if (eventsUsed.Contains(33) && !eventsUsed.Contains(34) && !eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base, or player self-denied.<br/>");
 					if (eventsUsed.Contains(34) || eventsUsed.Any(t => t >= 37 && t <= 46)) sb.Append("! is hit by base or mine, or player self-denied, or player tagged target.<br/>");
 					sb.Append("\u00B7 shows each minute elapsed.<br/>Tags+ includes shots on bases and teammates.</p>\n");
-                    sb.Append(@"<p>""Worm"" charts show coloured lines for each team. Vertical dashed lines show time in minutes. <br/>
+					sb.Append(@"<p>""Worm"" charts show coloured lines for each team. Vertical dashed lines show time in minutes. <br/>
 Sloped dashed lines show lines of constant score: 0 points, 10K points, etc. The slope of these lines shows the average rate of scoring of ""field points"" 
 during the game. Field points are points not derived from shooting bases, getting penalised by a referee, etc. A team whose score line is horizontal is 
 scoring points  at the average field pointing rate for the game. <br/>
@@ -917,7 +921,7 @@ Base hits and destroys are shown with a mark in the colour of the base hit. Base
 						DirectoryInfo di = new DirectoryInfo(Path.Combine(localPath, key));
 
 						// Create a directory on FTP site:
-//					    WebRequest wr = WebRequest.Create(url + key);
+//						WebRequest wr = WebRequest.Create(url + key);
 //						wr.Method = WebRequestMethods.Ftp.MakeDirectory;
 //						wr.Credentials = client.Credentials;
 //						wr.GetResponse();

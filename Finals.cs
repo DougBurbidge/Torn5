@@ -249,12 +249,13 @@ namespace Torn
 			for (int row = TeamsPerGame; row < NumTeams; row++)
 				Report.Rows[row].AddCell(new ZCell(Utility.Ordinate(row + 1)));
 
-			GrandFinals(games);
+            if (NumTeams > 0)
+                GrandFinals(games);
 			Report.SameWidths.Add(games);
 			Report.Description = "You may wish to rearrange games to avoid back-to-backs where teams play twice in a row.";
-		}
+        }
 
-		public static ZoomReport Ascension(Fixture fixture, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
+        public static ZoomReport Ascension(Fixture fixture, int teamsPerGame, int teamsToCut, int tracks, int freeRides)
 		{
 			var f = new Finals
 			{

@@ -226,6 +226,9 @@ namespace Zoom
 
 		/// <summary>If this cell contains a number, put it here.</summary>
 		public double? Number { get; set; }
+		/// <summary>A standard .NET-style numeric format string like N, F, P, etc.; optionally followed by a numeric precision.
+		/// If you specify a format starting with 'E' or 'G', it changes values like 0.0000123 to a style like 1.23x10^-5, but with Unicode superscript digits.
+		/// Special format lowercase 'f' or 'n' will trim trailing 0's after a decimal where the value is a whole number, so "1.00" becomes "1"; "1.20" remains "1.20".</summary>
 		public string NumberFormat { get; set; }
 		/// <summary>If set, show a chart for this cell. If ChartCell is not set, use this cell's number; otherwise use the cell specified in ChartCell.</summary>
 		public ChartType ChartType { get; set; }
@@ -519,6 +522,7 @@ namespace Zoom
 				builder.Append(s);
 		}
 
+		///<summary>Get a cell by its row number and its column title text.</summary>
 		public ZCell Cell(ZRow row, string columnText)
 		{
 			int i = Columns.FindIndex(x => x.Text == columnText);
